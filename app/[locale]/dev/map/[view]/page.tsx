@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import { MapSpike } from '@/components/dev/MapSpike';
+import { devRoutesEnabled } from '@/lib/dev/enabled';
 import { mapViews } from '@/lib/dev/mapViews';
 
-/** Nothing under /dev exists in production. SPIKE=1 keeps this one in a build, to measure it there. */
-const enabled = process.env.NODE_ENV !== 'production' || process.env.SPIKE === '1';
+/** Nothing under /dev exists in production. DEV_ROUTES=1 keeps it in a build, to measure the map there. */
+const enabled = devRoutesEnabled();
 
 export function generateStaticParams() {
   return enabled ? mapViews.map((view) => ({ view: view.id })) : [];

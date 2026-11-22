@@ -396,7 +396,7 @@ Entry format:
   - Two palettes, not three: the map should follow the device theme like the panels next to it. The dusk palette shows what a clock-driven third would look like; next to a light or dark panel it would belong to neither.
   - Our own typeface on the map works and took minutes, not the hour allowed: keep it. It has no Greek or Cyrillic, so those labels need a fallback typeface before Greece is covered.
 - Why: PLAN.md decision D6 and proposal P9: the look comes from our style, not from the tile host, and that is easier to judge on real tiles than to argue.
-- Numbers (production build, phone profile: slow 4G and a 4× slower CPU, cold cache, median of three):
+- Numbers (production build with `DEV_ROUTES=1`, phone profile: slow 4G and a 4× slower CPU, cold cache, median of three):
   - `maplibre-gl` 6.19: 292 KB gzipped, plus its worker 154 KB. It is by far the heaviest thing in the app, so the list must never wait for it.
   - Style: 5.7 to 6.3 KB, 1.1 to 1.3 KB gzipped.
   - Map code ready after 3.2 s; first full render after 6.5 s (A and B) and 8.2 s (C); 664 KB transferred in all.

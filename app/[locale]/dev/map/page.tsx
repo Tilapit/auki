@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { devRoutesEnabled } from '@/lib/dev/enabled';
 import { MAP_CITIES, MAP_PHASES, MAP_VARIANTS } from '@/lib/dev/mapViews';
 
-const enabled = process.env.NODE_ENV !== 'production' || process.env.SPIKE === '1';
+const enabled = devRoutesEnabled();
 
 /**
  * Index of the map spike (PLAN.md section 11, S1). Developer-facing, in English like /dev/states.
