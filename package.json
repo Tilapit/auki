@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copy-map-worker.mjs",
     "dev": "TZ=UTC next dev",
+    "predev:https": "node scripts/copy-map-worker.mjs",
     "dev:https": "TZ=UTC next dev --experimental-https",
+    "prebuild": "node scripts/copy-map-worker.mjs",
     "build": "TZ=UTC next build",
     "start": "TZ=UTC next start",
     "lint": "eslint",
@@ -16,6 +19,7 @@
     "lighthouse": "lhci autorun && node scripts/budget-summary.mjs"
   },
   "dependencies": {
+    "maplibre-gl": "^6.19.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"
