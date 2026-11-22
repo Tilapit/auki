@@ -7,6 +7,7 @@ import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
 import { displayName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
 import type { Pharmacy, Scene } from '@/lib/types';
+import { ApproximateNotice } from './ApproximateNotice';
 import { Button } from './Button';
 import { CounterCard } from './CounterCard';
 import { CountryBanner } from './CountryBanner';
@@ -220,14 +221,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       <LiveStatus message={message} />
 
       <div className={styles.content}>
-        {scene.user.approximate && (
-          <section className={styles.notice} aria-labelledby={`${id}-approx`}>
-            <h2 id={`${id}-approx`} className={styles.noticeTitle}>
-              {t.results.approximate}
-            </h2>
-            <p>{t.results.approximateBody}</p>
-          </section>
-        )}
+        {scene.user.approximate && <ApproximateNotice />}
 
         {nearestOpen && (
           <NearestOpenCard

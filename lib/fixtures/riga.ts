@@ -63,7 +63,7 @@ const farOpen: Pharmacy = {
   straightMeters: 1300,
 };
 
-/** Banner content for Latvia. Public rule (Kanta) plus one general tip; no field results (decision D1). */
+/** Banner content for Latvia. Public rule (Kanta) plus one general tip. The field result joins the banner in M6. */
 export const latvia: CountryInfo = {
   code: 'LV',
   inCountry: { fi: 'Latviassa', en: 'in Latvia' },

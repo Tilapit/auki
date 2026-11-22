@@ -46,7 +46,16 @@ Scripts run with `TZ=UTC` (PLAN.md 7.4). If port 3000 is taken, pass another: `n
 - `npm run build`, `npm run start`: production build and server. Everything under `/dev` is a 404 there.
 - `npm run lint`, `npm run typecheck`.
 - `npm test`: unit tests (Vitest), in `tests/unit/`.
-- `npm run test:e2e`: all Playwright tests against the dev server, in Chromium and WebKit. First time: `npx playwright install chromium webkit`.
-- `npm run shots`: screenshots of every `/dev/states` view at 390×844 and 1440×900, light and dark, into `screenshots/` (Chromium) and `screenshots/webkit/` (not committed). `LOCALE=en npm run shots` for English.
+- `npm run test:e2e`: the Playwright tests against the dev server, in Chromium and WebKit. First time: `npx playwright install chromium webkit`. Tests wait for hydration before they click (`open()` in `tests/e2e/flow.spec.ts`).
+- `npm run shots`: screenshots of every `/dev/states` view at 390×844 and 1440×900, light and dark, at 2×, into `screenshots/` (Chromium) and `screenshots/webkit/` (not committed). For looking at. `LOCALE=en npm run shots` for English.
+- `npm run lighthouse`: the budgets of PLAN.md section 12 against a production build (`npm run build` first), and the measured numbers as a table. Set `CHROME_PATH` if Chrome isn't installed: `CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"`.
+
+CI (`.github/workflows/ci.yml`) runs on every push: type check, lint, unit tests, Playwright with the visual comparison, production build, Lighthouse budgets. A newer push to the same branch cancels the running one.
+
+Visual baselines live in `tests/e2e/__screenshots__/`, at 1×, and are made in the CI's Linux image, never on macOS (text renders differently). When a view changes on purpose:
+1. Push a commit whose message contains `[baselines]` (or run the workflow by hand with "baselines" ticked). That run makes new baselines instead of comparing.
+2. `gh run download <run id> -n baselines -D tests/e2e/__screenshots__`
+3. Look at the changed images, commit them, push. That run compares, and the pull request shows old and new side by side.
 - On a phone in the same network: the dev server listens on every interface, so open `http://<this machine's LAN address>:<port>/fi` (`ipconfig getifaddr en0`). `next.config.ts` allows the machine's LAN addresses as dev origins at start-up; restart the dev server after changing networks. Geolocation needs HTTPS: `npm run dev:https`.
 - `/dev/states` (redirects to `/fi/dev/states`): every view and state from fixtures. Add new views to `lib/dev/viewList.ts` and `lib/dev/views.tsx`. Nothing there may read the clock or call a service.
+- Place search needs `CONTACT_EMAIL` in `.env.local` (Nominatim asks callers to identify themselves). Without it `/api/geocode` answers 503 and the view says the search isn't available. Tests never call Nominatim: they answer `/api/geocode` themselves.

@@ -1,0 +1,96 @@
+name: CI
+
+# Every push, on every branch. Pull requests show these checks through their head commit,
+# so there is no separate pull_request trigger to run everything twice.
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      baselines:
+        description: Make new visual baselines and upload them as an artifact
+        type: boolean
+        default: false
+
+# A new push to a branch cancels the run still going for it: the repository is private
+# and Actions minutes are limited. Linux only, for the same reason.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # A commit whose message contains [baselines] asks for new visual baselines instead of a comparison.
+  WANTS_BASELINES: ${{ inputs.baselines == true || contains(github.event.head_commit.message, '[baselines]') }}
+
+jobs:
+  ci:
+    name: Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # The browsers and their system libraries come with the image, pinned to the Playwright
+    # version in package.json. The visual baselines are made in this same image.
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache npm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Playwright, with visual comparison of /dev/states
+        if: env.WANTS_BASELINES != 'true'
+        run: npx playwright test
+
+      - name: Upload the comparisons that failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failures
+          path: test-results/
+          retention-days: 7
+
+      - name: Make new visual baselines
+        if: env.WANTS_BASELINES == 'true'
+        run: npx playwright test tests/e2e/visual.spec.ts --update-snapshots
+
+      - name: Upload the new baselines
+        if: env.WANTS_BASELINES == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: baselines
+          path: tests/e2e/__screenshots__/
+          retention-days: 3
+
+      - name: Production build
+        run: npm run build
+
+      - name: Lighthouse budgets (initial JavaScript, mobile LCP)
+        run: |
+          export CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          npx lhci autorun
+
+      - name: Measured numbers
+        if: always()
+        run: |
+          if [ -d .lighthouseci/reports ]; then
+            node scripts/budget-summary.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+          fi

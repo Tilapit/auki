@@ -94,6 +94,17 @@
   line-height: 1.45;
 }
 
+/* A note without an icon: what a place search came to. */
+.plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.finding {
+  color: var(--dusk-soft);
+  font-size: var(--t-m);
+  font-weight: 650;
+}
+
 .noteIcon {
   padding-top: 1px;
   color: var(--dusk-soft);
@@ -105,8 +116,9 @@
   line-height: 1.45;
 }
 
-.noteTitle:focus-visible {
-  outline-offset: 4px;
+/* Focus is moved here by the app so that the note is read out. It is not a control: no ring. */
+.noteTitle:focus {
+  outline: none;
 }
 
 .noteBody {

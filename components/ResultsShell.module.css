@@ -149,6 +149,11 @@
 }
 
 /* On the phone the bar names the place, so the title is for screen readers only. */
+/* Focus is moved to the title by the app after a search. It is not a control: no ring. */
+.title:focus {
+  outline: none;
+}
+
 .titleRow {
   position: absolute;
   width: 1px;

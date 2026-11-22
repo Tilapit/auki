@@ -40,6 +40,8 @@ interface Props {
   /** False where the view already shows the emergency number prominently. */
   emergencyInFooter?: boolean;
   onRefresh?: () => void;
+  /** After a search the user started, focus moves to the title (PLAN.md section 9). */
+  focusTitle?: boolean;
 }
 
 /**
@@ -47,9 +49,15 @@ interface Props {
  * Desktop: list panel on the left, map on the right. The list comes before the map in
  * the document, so it is first in the tab order (PLAN.md section 9).
  */
-export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, peek, children, distance, map, mapLabel, detail, detailOpen, overlays, emergencyInFooter = true, onRefresh }: Props) {
+export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, peek, children, distance, map, mapLabel, detail, detailOpen, overlays, emergencyInFooter = true, onRefresh, focusTitle }: Props) {
   const { t, f } = useI18n();
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const peekRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (focusTitle) titleRef.current?.focus();
+  }, [focusTitle]);
+
   const [peekHeight, setPeekHeight] = useState<number>();
   const hasPeek = peek !== undefined;
 
@@ -104,7 +112,9 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
           <main className={styles.main}>
             <div className={styles.titleRow}>
               <div>
-                <h1 className={styles.title}>{title}</h1>
+                <h1 ref={titleRef} tabIndex={-1} className={styles.title}>
+                  {title}
+                </h1>
                 {time && <p className={styles.sub}>{rich(t.results.placeUpdated, { place: place ?? t.results.nearYou, time })}</p>}
               </div>
               <IconButton icon="refresh" label={t.results.refresh} className={styles.refresh} onClick={onRefresh} />

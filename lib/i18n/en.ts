@@ -1,13 +1,14 @@
+import { BRAND } from '../brand';
 import type { Dictionary } from './index';
 
 /** English UI strings. Same shape as fi.ts, which is written first. */
 const en: Dictionary = {
   meta: {
-    title: 'Auki: the nearest open pharmacy',
+    title: `${BRAND}: the nearest open pharmacy`,
     description: 'Find the nearest open pharmacy on a map and in a list. Your location is not saved.',
   },
   app: {
-    name: 'Auki',
+    name: BRAND,
     otherLanguage: 'Suomeksi',
     otherLanguageShort: 'FI',
     otherLanguageLabel: 'Change language: suomi',
@@ -43,6 +44,19 @@ const en: Dictionary = {
     placeholder: 'E.g. Kamppi or Riga',
     submit: 'Search',
     retry: 'Try again',
+    finding: 'Finding the place…',
+    notFound: {
+      title: (query) => `No place found for “${query}”`,
+      body: 'Check the spelling or try the nearest town.',
+    },
+    failed: {
+      title: "Couldn't search for the place right now",
+      body: 'The fault is in the service, not your device. Try again in a moment.',
+    },
+    offline: {
+      title: "You're offline",
+      body: 'Place search needs a connection. Try again when it returns.',
+    },
     how: 'How to allow location',
     steps: [
       'iPhone and iPad: open the page menu in the address bar, choose Website Settings and allow Location.',
@@ -100,7 +114,7 @@ const en: Dictionary = {
     closerClosed: (count) => `The ${count} closer pharmacies are closed.`,
     mostOpenTomorrow: (range) => `Most open tomorrow between ${range}.`,
     approximate: 'Your location is approximate',
-    approximateBody: 'Distances may be off. Search by place name for a more exact result.',
+    approximateBody: 'Distances may be off.',
     searching: 'Checking which pharmacies are open right now…',
     searchingShort: 'Finding pharmacies…',
     found: (count, name, distance, status) =>

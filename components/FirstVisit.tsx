@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import type { SkyAt } from '@/lib/sky';
 import { AppMark } from './AppMark';
@@ -30,6 +31,15 @@ export function Wordmark({ size = 30 }: { size?: number }) {
 /** First visit: one window, no questions. Location is asked only from the button. */
 export function FirstVisit({ phase = 'ready', onLocate, onSearch, sky }: Props) {
   const { t } = useI18n();
+  const status = useRef<HTMLDivElement>(null);
+  const before = useRef(phase);
+
+  // The button that was pressed is gone: keep the keyboard where it was, on the line that replaced it.
+  useEffect(() => {
+    if (before.current === 'ready' && phase !== 'ready' && document.activeElement === document.body) status.current?.focus();
+    before.current = phase;
+  }, [phase]);
+
   return (
     <DuskScene
       sky={sky}
@@ -41,7 +51,7 @@ export function FirstVisit({ phase = 'ready', onLocate, onSearch, sky }: Props) 
               {t.first.locate}
             </Button>
           ) : (
-            <div role="status" className={styles.status}>
+            <div ref={status} role="status" tabIndex={-1} className={styles.status}>
               <CrossGlyph state="mono" size={20} className={styles.pulse} />
               <p>
                 {phase === 'locating' ? t.first.locating : t.first.waiting}

@@ -11,7 +11,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "TZ=UTC vitest run",
     "test:e2e": "TZ=UTC playwright test",
-    "shots": "TZ=UTC playwright test tests/e2e/states.spec.ts"
+    "shots": "TZ=UTC playwright test tests/e2e/states.spec.ts",
+    "test:visual": "VISUAL=1 TZ=UTC playwright test tests/e2e/visual.spec.ts",
+    "lighthouse": "lhci autorun && node scripts/budget-summary.mjs"
   },
   "dependencies": {
     "next": "16.4.6",
@@ -19,6 +21,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.16.1",
     "@playwright/test": "^1.65.1",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -12,6 +12,7 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /screenshots/
+/.lighthouseci/
 
 # env files: secrets stay in .env.local, .env.example lists the names
 .env*

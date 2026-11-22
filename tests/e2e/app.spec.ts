@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * M0 behaviour that isn't a screenshot: language routing, the sky picked before first paint,
- * the device theme, and that nothing talks to a map or routing service yet.
+ * Behaviour that isn't a screenshot or a flow: language routing, the sky picked before first
+ * paint, the device theme, and that opening the pages talks to no one but our own origin.
  * Time is always set with page.clock; no test reads the real clock.
  */
 
@@ -53,7 +53,7 @@ test('results follow the device theme when nothing overrides it', async ({ brows
   }
 });
 
-test('nothing calls a map, routing or geocoding service in M0', async ({ page }) => {
+test('opening the pages calls nothing outside our own origin', async ({ page }) => {
   const outside: string[] = [];
   page.on('request', (request) => {
     const { hostname } = new URL(request.url());
