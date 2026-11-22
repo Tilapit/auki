@@ -42,7 +42,7 @@ export const DAY: MapPalette = {
   park: '#dce7e0',
   building: '#dee5ed',
   buildingEdge: '#d2dbe5',
-  building3d: '#e6ecf3',
+  building3d: '#eef2f7',
   major: '#ffffff',
   majorCasing: '#c2cedc',
   minor: '#ffffff',
@@ -61,7 +61,7 @@ export const NIGHT: MapPalette = {
   park: '#0b1f31',
   building: '#0f2240',
   buildingEdge: '#132948',
-  building3d: '#16305a',
+  building3d: '#132a4d',
   major: '#28456e',
   minor: '#1a3254',
   path: '#18304f',
@@ -83,7 +83,7 @@ export const DUSK: MapPalette = {
   park: mix(NIGHT.park, '#2f5ca6', 0.18),
   building: mix(NIGHT.building, '#3e5f96', 0.3),
   buildingEdge: mix(NIGHT.buildingEdge, '#3e5f96', 0.35),
-  building3d: mix(NIGHT.building3d, '#6e86b4', 0.3),
+  building3d: mix(NIGHT.building3d, '#3e5f96', 0.3),
   major: mix(NIGHT.major, '#8bbaec', 0.22),
   minor: mix(NIGHT.minor, '#8bbaec', 0.14),
   path: mix(NIGHT.path, '#8bbaec', 0.12),
@@ -122,15 +122,20 @@ const PATHS = ['path', 'pedestrian', 'track'];
 
 const width = (stops: [number, number][]) => ['interpolate', ['exponential', 1.6], ['zoom'], ...stops.flat()] as unknown as number;
 
-/** The light on 3D buildings. In daylight it comes from the sun's side; after sunset, cool and from above. */
+/**
+ * The light on 3D buildings. In daylight it comes from the side the sun is really on; after
+ * sunset it is dim and from straight above. The light itself is always white: a coloured
+ * light tints the dark palettes (MapLibre adds a floor of the complementary colour), and the
+ * coolness of dusk and night is already in the building colours.
+ */
 function light(phase: MapPhase, sun: StyleOptions['sun']): StyleSpecification['light'] {
   if (!sun || sun.altitude <= 0) {
-    return { anchor: 'map', position: [1.15, 0, 18], color: phase === 'night' ? '#8fa9d2' : '#b9cbe8', intensity: phase === 'night' ? 0.22 : 0.3 };
+    return { anchor: 'map', position: [1.15, 0, 12], color: '#ffffff', intensity: phase === 'night' ? 0.16 : 0.22 };
   }
-  // The real azimuth. The height is kept above 25 degrees: lower than that and the roofs,
-  // which are most of what a map shows, would go dark at northern noon in November.
-  const polar = 90 - Math.max(sun.altitude, 25);
-  return { anchor: 'map', position: [1.15, sun.azimuth, polar], color: '#fff6e8', intensity: 0.42 };
+  // The real azimuth. The height is kept above 55 degrees: lower than that and the roofs,
+  // which are most of what a map shows, go grey. At northern noon in November the sun is at 10.
+  const polar = 90 - Math.max(sun.altitude, 55);
+  return { anchor: 'map', position: [1.15, sun.azimuth, polar], color: '#ffffff', intensity: 0.3 };
 }
 
 export function buildStyle(options: StyleOptions): StyleSpecification {
@@ -141,13 +146,20 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
   const name = ['coalesce', ['get', `name:${locale}`], ['get', 'name:latin'], ['get', 'name']] as unknown as string;
   const halo = { 'text-halo-color': c.land, 'text-halo-width': 1.4 };
 
+  // Tunnels are left out: underground corridors and metro passages draw a mesh over a city centre.
   const road = (id: string, classes: string[], color: string, stops: [number, number][], minzoom: number): LayerSpecification => ({
     id,
     type: 'line',
     source: 'tiles',
     'source-layer': 'transportation',
     minzoom,
-    filter: ['in', ['get', 'class'], ['literal', classes]],
+    filter: [
+      'all',
+      ['in', ['get', 'class'], ['literal', classes]],
+      ['!=', ['get', 'brunnel'], 'tunnel'],
+      ['!', ['in', ['get', 'subclass'], ['literal', ['platform', 'steps', 'corridor']]]],
+      ['==', ['geometry-type'], 'LineString'],
+    ],
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': color, 'line-width': width(stops) },
   });
@@ -189,7 +201,7 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
     },
     ...(c.minorCasing ? [road('minor-casing', MINOR, c.minorCasing, casing(minor), 13)] : []),
     ...(c.majorCasing ? [road('major-casing', MAJOR, c.majorCasing, casing(major), 9)] : []),
-    road('path', PATHS, c.path, paths, 14),
+    road('path', PATHS, c.path, paths, 15),
     road('minor', MINOR, c.minor, minor, 12),
     road('major', MAJOR, c.major, major, 9),
     {
