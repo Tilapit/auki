@@ -93,7 +93,7 @@ All ten are folded into PLAN.md. Four of them changed on the way in:
 
 | Proposal | Outcome | What changed, and why |
 |---|---|---|
-| P1 | Done as written | Section 2 is cut to the pharmacy findings and the history starts from one root commit. Added: before the repository goes public, check with GitHub that the old commits are no longer reachable by their hashes. A force-push removes the branches, not the objects. |
+| P1 | Done as written, then withdrawn | Section 2 was cut to the pharmacy findings and the history restarted from one root commit. Later the same day Janne corrected D1: Treat has cleared all of the trip's findings, the interview material included. Section 2 has that material back, the new root stays, and the older commits need no cleanup. |
 | P2 | Accepted | `CLAUDE.md` and section 11. |
 | P3 | Accepted | `lib/brand.ts`; D4 is open. A unit test swaps the constant and checks the dictionaries and the metadata. |
 | P4 | Accepted | All eight have public-holiday definitions in `opening_hours` 3.16.0. Switzerland's differ by canton, so it is grouped by canton like Germany and Spain by state. New: Greek place names need a rule ("Lähelläsi" when a city has no Latin name in the table), and the Greek counter card needs a fallback typeface. |

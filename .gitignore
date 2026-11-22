@@ -23,3 +23,6 @@ next-env.d.ts
 npm-debug.log*
 .vercel
 certificates
+
+# night-run goal, log and notes (CLAUDE.md, "Night runs"): local only
+/.fable/

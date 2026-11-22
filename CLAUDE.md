@@ -19,6 +19,17 @@ The name is not final (PLAN.md decision D4). It lives in one constant, `lib/bran
 - Server-only code lives in `lib/server/` and is never imported by client components. Secrets go in `.env.local` only; `.env.example` lists the names.
 - Accessibility (PLAN.md section 9) is part of every milestone, not a final polish step.
 
+## Night runs
+Janne works with Claude Code in the evenings. At night a scheduled task starts a fresh session every hour from 23:00 to 06:00; a run doesn't start while another is going.
+- Each run: read `.fable/tonight.md` (Janne's goal for the night), `.fable/log.md`, PLAN.md section 11 and the open pull requests. If `tonight.md` is empty, take the next milestone in PLAN order.
+- One piece per night, on its own branch, as a pull request. Don't merge: Janne reviews and merges in the evening. Don't start work that depends on an unmerged pull request. If the piece is done early, use the time to verify it (edge cases, measurements, flaky tests) in the same pull request, then stop.
+- Propose-first decisions: take your recommendation, mark it provisional in `DESIGN-LOG.md` and in the pull request, and continue.
+- Never lower a test, budget or threshold to get CI green. If you can't get it green, say why in the pull request and the log.
+- Stop and skip, never guess: secrets or accounts you don't have, anything that costs money, anything irreversible outside the repo (force-push, deleting branches, repos or data, GitHub or Vercel settings beyond what Janne allowed), and changes to scope or to the privacy claims. Put the blocker under "Needs Janne".
+- Outside 23:00 to 07:00 Helsinki time, write one line to the log and stop.
+- End every run with a log entry: what you did, the pull request and its CI state, "Check this first" (the three things most worth Janne's review) and "Needs Janne" (at most three items, each with exact steps).
+- The log writes itself: a Stop hook in `.claude/settings.local.json` copies a session's closing message to `.fable/last.md` and appends it to `.fable/log.md` with the time and the branch. So the closing message is the log entry; don't write it to the file as well. `.fable/` is local and never committed.
+
 ## Design latitude
 You're trusted to improve the design. The canvas is the approved direction, not a pixel spec, and real data will show things the canvas couldn't. The feel to aim for is Flighty: calm, dense, status readable at a glance, one bold signal (here the lit cross). Treat's palette, not Treat's website.
 - Decide, then log: spacing, sizes, alignment, motion timing, loading and empty states, sheet and map interaction details, how layouts cope with real data (long names, repeated names, many results, missing hours), accessibility fixes, small copy edits within the copy rules.
@@ -29,8 +40,8 @@ You're trusted to improve the design. The canvas is the approved direction, not 
 ## Content rules (these win over everything above)
 - The app never presents itself as Treat's: no Treat name or logo in the UI. Footer: "Janne Lapin työhakemusprojekti. Ei Treat Healthin palvelu." / "A job application project by Janne Lappi. Not affiliated with Treat Health."
 - No interviewee names anywhere: code, fixtures, comments, commit messages. No field result tied to a named pharmacy.
-- Pharmacy field results are cleared for publication (decision D1): show them with sample size, date and city. Nothing else from the research trip goes into the repository, in any file, comment or commit message: no interview material about care, employers or insurers.
-- Branches under `archive/` hold the history from before that cut. They stay on this machine and are never pushed.
+- All of the findings of Treat's research trip are cleared for use and publication (decision D1): the pharmacy findings and the interview material. In the app, show pharmacy field results with sample size, date and city.
+- Branches under `archive/` hold the history from before 22 Nov 2026. They stay on this machine and are never pushed.
 - No medical advice. Link to 112, the national advice lines and Kanta. Never present "sold without a prescription" as a tip (PLAN.md section 8).
 - Copy: Finnish first, then English. Sentence case, plain verbs, no exclamation marks, no em dashes. Every string lives in `lib/i18n/`.
 - Finnish copy: "klo 20.45" (whole hours as "klo 21" in status lines); ranges with an en dash and no spaces ("8.00–24.00", "ma–pe"); decimal comma ("1,1 km"); a non-breaking space between a number and its unit ("3 min", "220 m") and after "klo"; Finnish quotation marks ”…”; `hyphens: auto` on `lang="fi"` text so long compound words break cleanly.
