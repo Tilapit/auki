@@ -383,3 +383,23 @@ Entry format:
 - Why: The only honest alternatives were an error message for a service that doesn't exist yet, or fixture pharmacies around the user's real position. Both would say something false.
 - Status: done, until M3
 
+## 2026-11-22: The map's look: three variants on real tiles (spike S1)
+- Where: The map (`/dev/map`, `lib/map/style.ts`, screenshots in `design/map-spike/`)
+- Change: MapLibre on OpenFreeMap's vector tiles with our own style, built from the map tokens of PLAN.md section 6, and the app's own markers on top. Three variants, each at day, dusk and night, in Helsinki and Riga:
+  - A, flat and calm: water, muted parks, three road weights, flat buildings, few labels.
+  - B: A plus buildings in 3D from zoom 15, lit from the side the sun is really on.
+  - C: B plus a pitched camera and a sky in the colours of the first-visit sky.
+- Recommendation: A for v1.
+  - The lit cross stays the one bold thing on the map. In B and C the roofs become the brightest shapes at dusk and compete with it.
+  - C costs 1.7 s more on the phone profile, shows fewer pharmacies at once, and hides how far apart they are. Its sky is a decorative gradient outside the first-visit scene, which CLAUDE.md lists as tried and rejected.
+  - B costs nothing measurable, so its light stays in the style code as an option to look at again in M4, with the route line and real markers on top.
+  - Two palettes, not three: the map should follow the device theme like the panels next to it. The dusk palette shows what a clock-driven third would look like; next to a light or dark panel it would belong to neither.
+  - Our own typeface on the map works and took minutes, not the hour allowed: keep it. It has no Greek or Cyrillic, so those labels need a fallback typeface before Greece is covered.
+- Why: PLAN.md decision D6 and proposal P9: the look comes from our style, not from the tile host, and that is easier to judge on real tiles than to argue.
+- Numbers (production build, phone profile: slow 4G and a 4× slower CPU, cold cache, median of three):
+  - `maplibre-gl` 6.19: 292 KB gzipped, plus its worker 154 KB. It is by far the heaviest thing in the app, so the list must never wait for it.
+  - Style: 5.7 to 6.3 KB, 1.1 to 1.3 KB gzipped.
+  - Map code ready after 3.2 s; first full render after 6.5 s (A and B) and 8.2 s (C); 664 KB transferred in all.
+  - Glyphs for two weights: 275 KB on disk, fetched one 256-character range at a time.
+- Status: proposed, waiting for Janne
+

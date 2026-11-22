@@ -493,7 +493,7 @@ Checked, not promised:
 - **Headers**, set in `next.config.ts`:
   - `Content-Security-Policy`: `default-src 'self'`, and `connect-src 'self'` plus the map tile host. That line is what stops the page from calling anyone else, whatever the code tries. Also `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`, `object-src 'none'`.
   - `script-src` and `style-src` allow inline code. The pages are static, and Next.js can only give inline scripts a nonce on dynamically rendered pages, which would cost the CDN-cached shell. In M7, try Next's experimental hash-based integrity and tighten if the inline sky script and the framework's own inline scripts pass.
-  - The map adds what MapLibre needs and nothing wider: `worker-src blob:` and `img-src data: blob:`, or its CSP build without blob workers. Settle in M4.
+  - The map adds what MapLibre needs and nothing wider. MapLibre 6 ships its worker as a separate file, which the build copies to our own origin (`scripts/copy-map-worker.mjs`), so no `blob:` worker is needed. Settle `img-src` in M4.
   - `Referrer-Policy: no-referrer`.
   - `Permissions-Policy`: `geolocation=(self)`, `screen-wake-lock=(self)`, everything else off (camera, microphone, payment, USB, sensors).
   - `X-Content-Type-Options: nosniff`.
@@ -698,7 +698,8 @@ pipeline/
   run.ts                      entry point of `npm run data`
 public/
   sw.js                       hand-written service worker: app files, index.json, the last area's tiles (M6)
-  glyphs/                     map label glyphs, if the spike keeps our own typeface on the map
+  glyphs/                     map label glyphs in our own typeface, with its licence
+  maplibre/                   MapLibre's worker, copied from node_modules at build time (not committed)
 ios/                          the iOS app, on its own track (section 11)
 data/
   countries/*.ts              section 8
