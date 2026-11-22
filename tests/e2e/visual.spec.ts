@@ -19,7 +19,9 @@ for (const view of allViews) {
       const name = `${view.id}.${size}.${theme}`;
       if (seen.has(name)) continue;
       seen.add(name);
-      test(name, async ({ browser }, testInfo) => {
+      test(name, async ({ browser, browserName }, testInfo) => {
+        // WebKit stands in for Safari on an iPhone: it is compared at phone size only, which also keeps a third of the images out of the repository.
+        test.skip(browserName === 'webkit' && size === 'desktop', 'WebKit is compared at phone size');
         const context = await browser.newContext({ ...testInfo.project.use, viewport: SIZES[size], deviceScaleFactor: 1, reducedMotion: 'reduce' });
         const page = await context.newPage();
         await page.goto(`/fi/dev/states/${view.id}?theme=${theme}`);
