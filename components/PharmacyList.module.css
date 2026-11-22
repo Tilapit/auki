@@ -1,0 +1,75 @@
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 4px;
+}
+
+.title {
+  font-size: var(--t-body);
+  font-weight: 650;
+}
+
+.sort,
+.count {
+  color: var(--meta);
+  font-size: var(--t-s);
+}
+
+/* Phone: rows run edge to edge in the sheet. */
+.list,
+.groupList {
+  margin: 0 -16px;
+}
+
+/* A plain row on the panel, not a card of its own. */
+.group {
+  border-top: 1px solid var(--hair);
+}
+
+.groupHead {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: center;
+  padding: 6px 0 6px 4px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 4px 0 16px;
+  border: 0;
+  border-radius: var(--r-button);
+  background: transparent;
+  color: var(--link);
+  font-size: var(--t-m);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.groupList {
+  border-top: 1px solid var(--hair-2);
+}
+
+@media (min-width: 900px) {
+  .head {
+    margin: 0 4px 8px;
+  }
+
+  .list,
+  .groupList {
+    margin: 0;
+    border: 1px solid var(--hair);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .groupList {
+    margin-bottom: 8px;
+  }
+}

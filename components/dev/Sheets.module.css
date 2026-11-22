@@ -1,0 +1,58 @@
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 460px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.caption {
+  color: var(--meta);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.land {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 64px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: var(--map-land);
+}
+
+.youSlot {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 48px;
+}
+
+.dusk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #1e417f;
+  --focus: #ffffff;
+}

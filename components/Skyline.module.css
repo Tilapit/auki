@@ -1,0 +1,50 @@
+/* Crops the drawing like object-fit: cover with the pharmacy kept in view (66% across). */
+.frame {
+  position: relative;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+}
+
+.svg {
+  position: absolute;
+  bottom: 0;
+  left: 66%;
+  display: block;
+  width: max(100cqw, 100cqh * 1600 / 560);
+  height: max(100cqh, 100cqw * 560 / 1600);
+  transform: translateX(-66%);
+}
+
+.far {
+  fill: var(--sky-far);
+}
+
+.near {
+  fill: var(--sky-near);
+}
+
+.street {
+  fill: var(--navy);
+}
+
+/* Windows: which groups are lit follows the clock (lib/sky.ts). */
+.g1 {
+  fill: var(--sky-w1);
+}
+
+.g2 {
+  fill: var(--sky-w2);
+}
+
+.g3 {
+  fill: var(--sky-w3);
+}
+
+.g4 {
+  fill: var(--sky-off);
+}
+
+.glow {
+  opacity: var(--sky-glow);
+}

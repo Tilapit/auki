@@ -1,0 +1,308 @@
+/* Phone: flat, inside the sheet. Desktop: the one card in the panel. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 0 0;
+}
+
+.label {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  font-weight: 650;
+}
+
+.head {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: start;
+}
+
+.glyph {
+  padding-top: 3px;
+}
+
+.name {
+  font-size: var(--t-l);
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.address {
+  margin-top: 4px;
+  color: var(--meta);
+  font-size: var(--t-m);
+  overflow-wrap: anywhere;
+}
+
+.travel {
+  text-align: right;
+}
+
+.time {
+  font-size: var(--t-2xl);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.timeSmall {
+  font-size: var(--t-l);
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.distance {
+  margin-top: 5px;
+  color: var(--meta);
+  font-size: var(--t-s);
+  white-space: nowrap;
+}
+
+.timeSmall + .distance {
+  margin-top: 2px;
+}
+
+/* Ehditkö timeline */
+.ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--meta);
+  font-size: var(--t-s);
+}
+
+.line {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.clock {
+  font-size: var(--t-xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.track {
+  position: relative;
+  height: 28px;
+}
+
+.bar {
+  position: absolute;
+  top: 12px;
+  right: 2px;
+  left: 6px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--track);
+}
+
+.closing {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--soon);
+}
+
+.arrival {
+  position: absolute;
+  top: 7px;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 3.5px var(--action);
+}
+
+.slack {
+  margin-top: 2px;
+  color: var(--open);
+  font-size: var(--t-s);
+  font-weight: 650;
+  text-align: center;
+}
+
+.tight .slack {
+  color: var(--soon);
+}
+
+.tight .bar {
+  background: var(--track-soon);
+}
+
+.status {
+  margin-top: -4px;
+}
+
+.context {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* "Ei varastossa? Seuraava auki" */
+.next {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: start;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair-2);
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.nextGlyph {
+  padding-top: 2px;
+}
+
+.nextName {
+  color: var(--ink);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-underline-offset: 3px;
+}
+
+/* "Avautuu ensimmäisenä" under a far open pharmacy: the nearby one worth waiting for. */
+.first {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair-2);
+}
+
+.firstRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: start;
+}
+
+.firstGlyph {
+  padding-top: 2px;
+}
+
+.firstName {
+  font-size: var(--t-body);
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.firstRow .who > p {
+  margin-top: 2px;
+}
+
+.firstButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+/* The whole block is the hit area of its one button. */
+.firstButton::after {
+  position: absolute;
+  inset: -8px;
+  border-radius: var(--r-chip);
+  content: '';
+}
+
+.firstButton:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-underline-offset: 3px;
+}
+
+.firstButton:focus-visible {
+  outline: none;
+}
+
+.firstButton:focus-visible::after {
+  outline: 3px solid var(--focus);
+  outline-offset: 0;
+}
+
+.firstStreet {
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+/* Too late: a calm warning, then the pharmacy you can still reach. */
+.late {
+  display: flex;
+  flex-direction: column;
+  margin-top: -4px;
+}
+
+.late .actions {
+  margin-top: 12px;
+}
+
+/* Prominent where nothing is open: the one number that always works. */
+.emergency {
+  padding-top: 14px;
+  border-top: 1px solid var(--hair-2);
+  font-size: var(--t-body);
+  font-weight: 650;
+}
+
+.lateTitle {
+  color: var(--soon);
+  font-size: var(--t-body);
+  font-weight: 650;
+}
+
+.lateDetail {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+}
+
+.promoted {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair-2);
+}
+
+.promotedLabel {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  font-weight: 650;
+}
+
+@media (min-width: 900px) {
+  .card {
+    padding: 18px 20px 16px;
+    border: 1px solid var(--hair);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+  }
+}

@@ -1,0 +1,304 @@
+/* Phone: the map fills the screen; the bar and the sheet float on it. */
+.shell {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  --peek: 190px;
+  --sheet-top: min(44dvh, 372px);
+  --sheet-height: calc(100dvh - var(--sheet-top));
+  --map-pad: calc(var(--peek) + 26px + env(safe-area-inset-bottom));
+}
+
+.shell[data-sheet='expanded'] {
+  --map-pad: var(--sheet-height);
+}
+
+.shell[data-sheet='static'] {
+  --map-pad: 300px;
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+.bar {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 12px;
+  left: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.barMain {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  height: 52px;
+  padding: 0 4px 0 10px;
+  border-radius: 26px;
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+
+.barText {
+  flex: 1;
+  min-width: 0;
+}
+
+.barPlace {
+  overflow: hidden;
+  font-size: var(--t-b);
+  font-weight: 650;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barUpdated {
+  overflow: hidden;
+  color: var(--meta);
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The sheet is laid out at its expanded size and slid down to show only the peek. */
+.panel {
+  position: absolute;
+  top: var(--sheet-top);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  background: var(--sheet);
+  box-shadow: var(--shadow-sheet);
+  transition: transform 200ms ease;
+}
+
+[data-sheet='peek'] .panel {
+  transform: translateY(calc(var(--sheet-height) - var(--peek) - 26px - env(safe-area-inset-bottom)));
+}
+
+[data-sheet='static'] .panel {
+  top: auto;
+  max-height: 72dvh;
+  padding-top: 20px;
+}
+
+.brand {
+  display: none;
+}
+
+.grabber {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 100%;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* 44 px target around the small handle. */
+.grabber::after {
+  position: absolute;
+  inset: -12px 0 -6px;
+  content: '';
+}
+
+.grabber span {
+  width: 38px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--hair);
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+[data-sheet='peek'] .scroll {
+  overflow: hidden;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 16px 18px;
+}
+
+/* On the phone the bar names the place, so the title is for screen readers only. */
+.titleRow {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sub,
+.refresh {
+  display: none;
+}
+
+.peek {
+  padding-bottom: 16px;
+}
+
+.full {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+[data-sheet='peek'] .full,
+[data-sheet='peek'] .footer,
+[data-sheet='expanded'] .peek,
+[data-sheet='static'] .peek {
+  display: none;
+}
+
+.footer {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (min-width: 900px) {
+  .shell {
+    display: grid;
+    grid-template-columns: clamp(380px, 31vw, 440px) minmax(0, 1fr);
+    --map-pad: 0px;
+  }
+
+  .shell[data-sheet] {
+    --map-pad: 0px;
+  }
+
+  .bar,
+  .grabber {
+    display: none;
+  }
+
+  .panel,
+  [data-sheet] .panel {
+    position: static;
+    grid-column: 1;
+    height: 100dvh;
+    max-height: none;
+    padding: 0;
+    border-right: 1px solid var(--hair-2);
+    border-radius: 0;
+    background: var(--paper);
+    box-shadow: none;
+    transform: none;
+    transition: none;
+  }
+
+  .map {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+  }
+
+  .brand {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 68px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--hair-2);
+  }
+
+  .scroll,
+  [data-sheet='peek'] .scroll {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .main {
+    flex: 1;
+    gap: 16px;
+    padding: 18px 24px 16px;
+  }
+
+  .titleRow {
+    position: static;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .title {
+    font-size: var(--t-xl);
+    font-weight: 750;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .sub {
+    display: block;
+    margin-top: 5px;
+    color: var(--ink-2);
+    font-size: var(--t-m);
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .refresh {
+    display: grid;
+  }
+
+  .peek,
+  [data-sheet] .peek {
+    display: none;
+  }
+
+  .full,
+  [data-sheet='peek'] .full {
+    display: flex;
+    gap: 16px;
+  }
+
+  /* The pharmacy details take the list's place. */
+  [data-detail] .full {
+    display: none;
+  }
+
+  .footer,
+  [data-sheet='peek'] .footer {
+    display: block;
+    padding-bottom: 0;
+  }
+}

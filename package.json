@@ -1,0 +1,31 @@
+{
+  "name": "auki",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "TZ=UTC next dev",
+    "dev:https": "TZ=UTC next dev --experimental-https",
+    "build": "TZ=UTC next build",
+    "start": "TZ=UTC next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "TZ=UTC vitest run",
+    "test:e2e": "TZ=UTC playwright test",
+    "shots": "TZ=UTC playwright test tests/e2e/states.spec.ts"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "typescript": "^5",
+    "vitest": "^4.1.12"
+  }
+}

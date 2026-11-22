@@ -1,0 +1,125 @@
+.page {
+  padding: 24px 24px 80px;
+  font-size: 0.9375rem;
+}
+
+.header {
+  max-width: 76ch;
+}
+
+.header h1 {
+  font-size: 1.65625rem;
+  font-weight: 750;
+}
+
+.header p {
+  margin-top: 6px;
+  color: var(--ink-2);
+}
+
+.filters,
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin-top: 14px;
+}
+
+.filters a,
+.toc a {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.filters a[aria-current='page'] {
+  background: var(--action);
+  color: var(--on-action);
+}
+
+.toc a {
+  background: var(--quiet);
+  color: var(--ink);
+}
+
+.group {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hair);
+}
+
+.group > h2 {
+  font-size: 1.3125rem;
+  font-weight: 700;
+}
+
+.note {
+  max-width: 76ch;
+  margin-top: 4px;
+  color: var(--meta);
+  font-size: 0.875rem;
+}
+
+.view,
+.proposal {
+  margin-top: 28px;
+}
+
+.proposal h3 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.viewTitle {
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+
+.viewTitle code {
+  margin-left: 6px;
+  color: var(--meta);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin-top: 12px;
+}
+
+.frames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.figure {
+  margin: 0;
+}
+
+.frame {
+  overflow: hidden;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.frame iframe {
+  display: block;
+  border: 0;
+  transform-origin: 0 0;
+}
+
+.figure figcaption {
+  margin-top: 4px;
+  font-size: 0.75rem;
+}
+
+.figure figcaption a {
+  color: var(--meta);
+}

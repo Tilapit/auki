@@ -1,0 +1,40 @@
+.problem {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-size: var(--t-l);
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.body {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.emergency {
+  padding-top: 12px;
+  border-top: 1px solid var(--hair-2);
+  color: var(--ink);
+  font-size: var(--t-body);
+  font-weight: 650;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 900px) {
+  .problem {
+    padding: 18px 20px;
+    border: 1px solid var(--hair);
+    border-radius: var(--r-card);
+    background: var(--surface);
+  }
+}

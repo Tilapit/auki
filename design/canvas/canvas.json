@@ -1,0 +1,207 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-19T12:12:35Z"
+ },
+ "title": "Auki: nettisivujen design",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "Helsinki, to 20.41",
+   "expand": "fill"
+  },
+  "Start.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "Aloitus",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Riga.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "Riika, pe 23.40",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MobileHelsinki.dc.html": {
+   "x": 0,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "Helsinki, to 20.41"
+  },
+  "MobileRiga.dc.html": {
+   "x": 470,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "Riika, pe 23.40",
+   "is_interactive": true
+  },
+  "Counter.dc.html": {
+   "x": 940,
+   "y": 1320,
+   "w": 390,
+   "h": 844,
+   "title": "Apteekkikortti, latvia",
+   "is_interactive": true
+  },
+  "Welcome.dc.html": {
+   "x": 0,
+   "y": 2584,
+   "w": 390,
+   "h": 844,
+   "title": "Ensimmäinen käynti",
+   "is_interactive": true
+  },
+  "MapFirst.dc.html": {
+   "x": 470,
+   "y": 2584,
+   "w": 390,
+   "h": 844,
+   "title": "Kartta ensin",
+   "is_interactive": true
+  },
+  "PharmacyMenu.dc.html": {
+   "x": 940,
+   "y": 2584,
+   "w": 390,
+   "h": 844,
+   "title": "Apteekin valikko",
+   "is_interactive": true
+  },
+  "PharmacyAbroad.dc.html": {
+   "x": 0,
+   "y": 3848,
+   "w": 390,
+   "h": 844,
+   "title": "Apteekki ulkomailla",
+   "is_interactive": true
+  },
+  "Rate.dc.html": {
+   "x": 470,
+   "y": 3848,
+   "w": 390,
+   "h": 844,
+   "title": "Kerro käynnistä",
+   "is_interactive": true
+  },
+  "GuideDE.dc.html": {
+   "x": 940,
+   "y": 3848,
+   "w": 390,
+   "h": 1180,
+   "title": "Maaopas: Saksa",
+   "is_interactive": true
+  },
+  "PlaceSearch.dc.html": {
+   "x": 1410,
+   "y": 2584,
+   "w": 390,
+   "h": 844,
+   "title": "Haku ilman sijaintia",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Start.dc.html",
+  "Riga.dc.html",
+  "MobileHelsinki.dc.html",
+  "MobileRiga.dc.html",
+  "Counter.dc.html",
+  "Welcome.dc.html",
+  "MapFirst.dc.html",
+  "PharmacyMenu.dc.html",
+  "PharmacyAbroad.dc.html",
+  "Rate.dc.html",
+  "GuideDE.dc.html",
+  "PlaceSearch.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Verkkosivu",
+   "kind": "title1",
+   "maxW": 4480
+  },
+  "t2": {
+   "x": 0,
+   "y": 1020,
+   "text": "Puhelin",
+   "kind": "title1",
+   "maxW": 1330
+  },
+  "n1": {
+   "x": 1410,
+   "y": 1320,
+   "w": 440,
+   "fill": "green",
+   "text": "Vihreä risti palaa vain, kun apteekki on auki. Se on kartan ainoa vihreä. Sulkeutuva on keltainen, kiinni oleva sammunut."
+  },
+  "n2": {
+   "x": 1930,
+   "y": 1320,
+   "w": 440,
+   "fill": "blue",
+   "text": "Ehditkö näkyy vain, kun siitä on hyötyä: aikajana, kun sulkemiseen on alle tunti, ja varoitus, jos et ehdi perille ennen sulkemista. Muuten kortti näyttää vain aukiolon."
+  },
+  "n3": {
+   "x": 2450,
+   "y": 1320,
+   "w": 440,
+   "fill": "gray",
+   "text": "Esimerkkidata: OpenStreetMap, haettu 19.11.2026. Kellonajat simuloitu: Helsinki to 20.41, Riika pe 23.40. Latviankieliset lauseet odottavat äidinkielisen tarkistusta."
+  },
+  "t3": {
+   "x": 0,
+   "y": 2284,
+   "text": "Ensimmäinen käynti ja kartta ensin",
+   "kind": "title1",
+   "maxW": 1800
+  },
+  "n4": {
+   "x": 1880,
+   "y": 2584,
+   "w": 440,
+   "fill": "purple",
+   "text": "Arvostelut: linkki Google Mapsiin. Googlen EEA-ehdot eivät salli Places-tietojen näyttämistä kartan yhteydessä, eikä arvio kerro, auttaako apteekki suomalaisen reseptin kanssa. Omat reseptit: Kannan hyvinvointisovellusten rajapinta ei vielä anna reseptejä."
+  },
+  "t4": {
+   "x": 0,
+   "y": 3548,
+   "text": "Myöhemmin, ei v1: raportit ja maaopas",
+   "kind": "title1",
+   "maxW": 1330
+  },
+  "n5": {
+   "x": 1410,
+   "y": 3848,
+   "w": 440,
+   "fill": "teal",
+   "text": "Raportit ovat nimettömiä: ei lääkettä, sijaintia eikä tunnistetta. Apteekin tiedoissa näkyy otoskoko ja päivämäärä. Ennen ensimmäisiä raportteja näytetään maan tilanne Kannasta ja kenttätestin havainnot."
+  },
+  "n0": {
+   "x": 4560,
+   "y": 0,
+   "w": 440,
+   "fill": "orange",
+   "text": "Rajaus v1: kartta, auki ja kiinni, kävelyaika, ehditkö, Resepti Suomesta -tieto ja apteekkikortti. Ei v1:ssä: raportit, maaoppaat, lääkärin sähköposti, ennen matkaa, arvostelut."
+  }
+ },
+ "designSystems": []
+}

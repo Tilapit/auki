@@ -1,0 +1,52 @@
+.glyph {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+
+.glyph path {
+  stroke-linejoin: round;
+}
+
+/* Open: filled and lit. In dark mode the glow is the lit sign. */
+.open {
+  filter: drop-shadow(0 0 5px var(--open-glow));
+}
+
+.open path {
+  fill: var(--open-glyph);
+  stroke: var(--open-glyph);
+  stroke-width: 1.2;
+}
+
+/* Closes soon: amber fill, and an outline that keeps 3:1 against white. */
+.soon {
+  filter: drop-shadow(0 0 4px var(--soon-glow));
+}
+
+.soon path {
+  fill: var(--soon-fill);
+  stroke: var(--soon);
+  stroke-width: 1.3;
+}
+
+/* Closed: unlit outline. */
+.closed path {
+  fill: none;
+  stroke: var(--closed-glyph);
+  stroke-width: var(--stroke, 1.75);
+}
+
+/* Hours unknown: dashed outline. */
+.unknown path {
+  fill: none;
+  stroke: var(--closed-glyph);
+  stroke-width: var(--stroke, 1.75);
+  stroke-dasharray: 2.5 2.05;
+}
+
+.mono path {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1;
+}

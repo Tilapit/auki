@@ -1,0 +1,119 @@
+.marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.marker:focus-visible {
+  outline: none;
+}
+
+.marker:focus-visible .capsule,
+.marker:focus-visible .disc {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.capsule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 11px 0 9px;
+  border-radius: 13px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Open: the lit sign. In dark mode it is the only thing that glows. */
+.open .capsule {
+  background: var(--marker-open);
+  color: var(--marker-open-ink);
+  box-shadow: var(--marker-shadow), var(--marker-open-glow);
+}
+
+.soon .capsule {
+  background: var(--soon-fill);
+  color: var(--soon-ink);
+  box-shadow: var(--marker-shadow);
+}
+
+.selected .capsule {
+  gap: 7px;
+  height: 32px;
+  padding: 0 13px 0 11px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.selected.open .capsule {
+  box-shadow: var(--marker-selected-glow), var(--marker-selected-shadow);
+}
+
+.selected.soon .capsule {
+  box-shadow: var(--marker-selected-shadow);
+}
+
+.disc {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--disc);
+  box-shadow:
+    inset 0 0 0 1.2px var(--disc-ring),
+    0 1px 3px rgb(11 27 49 / 0.18);
+}
+
+.selected .disc {
+  width: 28px;
+  height: 28px;
+  box-shadow:
+    inset 0 0 0 1.2px var(--disc-ring),
+    0 0 0 3px var(--marker-ring),
+    0 6px 16px rgb(11 27 49 / 0.3);
+}
+
+.you {
+  position: relative;
+  display: block;
+  width: 0;
+  height: 0;
+}
+
+.halo {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  background: var(--you);
+  opacity: 0.14;
+}
+
+.approximate .halo {
+  width: 190px;
+  height: 190px;
+  margin: -95px 0 0 -95px;
+}
+
+.dot {
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  margin: -9.5px 0 0 -9.5px;
+  border-radius: 50%;
+  background: var(--you);
+  box-shadow:
+    0 0 0 3px var(--you-ring),
+    0 2px 8px rgb(11 27 49 / 0.35);
+}

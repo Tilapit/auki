@@ -1,0 +1,281 @@
+.map {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--map-land);
+  container-type: size;
+  /* Vertical centre of the part of the map the sheet doesn't cover. */
+  --cy: calc((100% - var(--map-pad, 0px)) / 2);
+}
+
+.pin {
+  position: absolute;
+  top: calc(var(--cy) + var(--y) * 1px);
+  left: calc(50% + var(--x) * 1px);
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  --x: var(--xp);
+  --y: var(--yp);
+}
+
+.front {
+  z-index: 3;
+}
+
+.youPin {
+  z-index: 2;
+  transform: none;
+}
+
+/* Name of the selected pharmacy: desktop only, as on the canvas. */
+.name {
+  display: none;
+}
+
+.edge {
+  position: absolute;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 13px 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  cursor: pointer;
+  --top: calc(76px + env(safe-area-inset-top));
+  --side: 12px;
+  --bottom: calc(var(--map-pad, 0px) + 12px);
+}
+
+/* The visible chip is 34 px tall inside a 44 px target. */
+.edge::before {
+  position: absolute;
+  inset: 5px 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--outline),
+    0 0 16px light-dark(rgb(11 27 49 / 0.12), rgb(61 219 160 / 0.28));
+  content: '';
+}
+
+.arrow {
+  display: grid;
+}
+
+.n {
+  top: var(--top);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ne {
+  top: var(--top);
+  right: var(--side);
+}
+
+.e {
+  top: var(--cy);
+  right: var(--side);
+  transform: translateY(-50%);
+}
+
+.se {
+  right: var(--side);
+  bottom: var(--bottom);
+}
+
+.s {
+  bottom: var(--bottom);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Phone: clear of the map credit, which sits in the same corner. */
+.sw {
+  bottom: calc(var(--bottom) + 26px);
+  left: var(--side);
+}
+
+.w {
+  top: var(--cy);
+  left: var(--side);
+  transform: translateY(-50%);
+}
+
+.nw {
+  top: var(--top);
+  left: var(--side);
+}
+
+.desktopOnly,
+.legend,
+.controls {
+  display: none;
+}
+
+.attribution {
+  position: absolute;
+  bottom: calc(var(--map-pad, 0px) + 8px);
+  left: 8px;
+  z-index: 2;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: var(--float);
+  font-size: 0.75rem;
+}
+
+.attribution a {
+  color: var(--meta);
+  text-decoration: none;
+}
+
+.attribution a:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 900px) {
+  .map {
+    --cy: 50%;
+  }
+
+  .pin {
+    --x: var(--xd);
+    --y: var(--yd);
+  }
+
+  .name {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 8px);
+    display: block;
+    color: var(--ink);
+    font-size: var(--t-s);
+    font-weight: 650;
+    white-space: nowrap;
+    text-shadow:
+      0 0 2px var(--map-land),
+      0 0 3px var(--map-land),
+      0 0 4px var(--map-land),
+      0 0 6px var(--map-land);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .above {
+    top: auto;
+    right: 4px;
+    bottom: calc(100% - 4px);
+    left: auto;
+    transform: none;
+  }
+
+  .edge {
+    font-size: var(--t-s);
+    --top: 11px;
+    --side: 16px;
+    --bottom: 44px;
+  }
+
+  .nw {
+    top: 64px;
+  }
+
+  .se {
+    bottom: 196px;
+  }
+
+  .sw {
+    bottom: var(--bottom);
+  }
+
+  .desktopOnly {
+    display: inline-flex;
+  }
+
+  .phoneOnly {
+    display: none;
+  }
+
+  .legend {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 4;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    max-width: calc(100% - 96px);
+    padding: 9px 16px;
+    border-radius: 22px;
+    background: var(--float);
+    box-shadow: var(--shadow-float);
+    font-size: var(--t-s);
+    font-weight: 600;
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .controls {
+    position: absolute;
+    right: 16px;
+    bottom: 28px;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .zoom {
+    display: flex;
+    flex-direction: column;
+    border-radius: 14px;
+    background: var(--float);
+    box-shadow: var(--shadow-float);
+    overflow: hidden;
+  }
+
+  .control {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .rule {
+    height: 1px;
+    margin: 0 9px;
+    background: var(--hair-2);
+  }
+
+  .locate {
+    border-radius: 14px;
+    background: var(--float);
+    color: var(--link);
+    box-shadow: var(--shadow-float);
+  }
+
+  .attribution {
+    bottom: 10px;
+    left: 12px;
+    padding: 3px 8px;
+    font-size: 0.8125rem;
+  }
+}

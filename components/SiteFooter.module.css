@@ -1,0 +1,62 @@
+.footer {
+  font-size: var(--t-xs);
+  line-height: 1.5;
+}
+
+.panel {
+  padding: 14px 24px 18px;
+  border-top: 1px solid var(--hair-2);
+  color: var(--meta);
+}
+
+.panel a {
+  color: inherit;
+  font-weight: 650;
+}
+
+/* On the dusk scenes: small and quiet, on the dark street. */
+.dusk {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 16px calc(14px + env(safe-area-inset-bottom));
+  background: var(--navy);
+  color: var(--dusk-muted);
+  text-align: center;
+}
+
+.dusk .project span {
+  display: block;
+}
+
+.dusk .credit {
+  display: none;
+}
+
+.dusk a {
+  color: inherit;
+}
+
+@media (min-width: 900px) {
+  .dusk {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    gap: 4px 24px;
+    padding: 12px max(5vw, 20px) 14px;
+    background: transparent;
+    text-align: left;
+  }
+
+  .dusk .project span {
+    display: inline;
+  }
+
+  .dusk .credit {
+    display: block;
+  }
+}

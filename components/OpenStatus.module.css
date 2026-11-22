@@ -1,0 +1,22 @@
+.status {
+  font-size: var(--t-m);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.strong {
+  font-size: var(--t-body);
+  font-weight: 650;
+}
+
+.open {
+  color: var(--open);
+}
+
+.soon {
+  color: var(--soon);
+}
+
+.muted {
+  color: var(--ink-2);
+}

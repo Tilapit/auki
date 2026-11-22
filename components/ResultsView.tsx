@@ -1,0 +1,282 @@
+'use client';
+
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useI18n } from '@/lib/i18n/context';
+import { rich } from '@/lib/i18n/rich';
+import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
+import { displayName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
+import { travel, withinWalk } from '@/lib/travel';
+import type { Pharmacy, Scene } from '@/lib/types';
+import { Button } from './Button';
+import { CounterCard } from './CounterCard';
+import { CountryBanner } from './CountryBanner';
+import { CrossGlyph } from './CrossGlyph';
+import { cx } from './cx';
+import { LiveStatus } from './LiveStatus';
+import { Measure } from './Measure';
+import { NearestOpenCard, NothingOpenCard } from './NearestOpenCard';
+import { OpenStatus } from './OpenStatus';
+import { ClosedGroup, PharmacyList } from './PharmacyList';
+import { PharmacySheet } from './PharmacySheet';
+import { ResultsShell, type SheetState } from './ResultsShell';
+import { StaticMap } from './StaticMap';
+import styles from './ResultsView.module.css';
+
+export interface ResultsOptions {
+  /** Phone: start with the sheet collapsed (the default) or expanded. */
+  sheet?: 'peek' | 'expanded';
+  /** Start with a pharmacy's details open. */
+  detailId?: string;
+  /** Start with the counter card open. */
+  counter?: 'ePrescription' | 'paper';
+  closedOpen?: boolean;
+}
+
+const DESKTOP = '(min-width: 900px)';
+
+/** Results: map first, with the "Lähin auki nyt" card and the list. */
+export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOptions) {
+  const i18n = useI18n();
+  const { t, f } = i18n;
+  const id = useId();
+  const arranged = useMemo(() => arrange(scene), [scene]);
+  const { nearestOpen, far, firstToOpen, others, closedGroup, closerClosed, nextOpen, needsStreet } = arranged;
+  const place = placeLabel(scene, i18n.locale);
+
+  const [sheet, setSheet] = useState<SheetState>(options.sheet ?? 'peek');
+  const [detailId, setDetailId] = useState(options.detailId);
+  const [counterOpen, setCounterOpen] = useState(options.counter !== undefined);
+  const detailRef = useRef<HTMLDialogElement>(null);
+
+  const everyone = useMemo(() => [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])], [scene]);
+  const detail = everyone.find((p) => p.id === detailId);
+  const selectedId = detailId ?? (nearestOpen ?? firstToOpen)?.id;
+  const select = (pharmacy: Pharmacy) => setDetailId(pharmacy.id);
+  // One surface: abroad, the prescription banner is a section of the card.
+  const banner = scene.country && <CountryBanner country={scene.country} />;
+
+  // Phone: a modal bottom sheet. Desktop: the details take the list's place in the panel.
+  useEffect(() => {
+    const dialog = detailRef.current;
+    if (!dialog) return;
+    if (detailId && !dialog.open) {
+      if (window.matchMedia(DESKTOP).matches) dialog.show();
+      else dialog.showModal();
+    }
+    // Start reading from the pharmacy's name, also when moving from one pharmacy to the next.
+    if (detailId) dialog.querySelector<HTMLElement>('[data-dialog-focus]')?.focus();
+    if (!detailId && dialog.open) dialog.close();
+  }, [detailId]);
+
+  useEffect(() => {
+    const query = window.matchMedia(DESKTOP);
+    const close = () => setDetailId(undefined);
+    query.addEventListener('change', close);
+    return () => query.removeEventListener('change', close);
+  }, []);
+
+  // The far open one counts: it is the answer, although it is not in the list.
+  const openCount = scene.pharmacies.filter((p) => isOpenNow(p.status)).length + (far ? 1 : 0);
+  const hour = Number(scene.updated.split(':')[0]);
+  const night = hour >= 22 || hour < 6;
+  const way = nearestOpen && travel(i18n, nearestOpen, scene.distance);
+  const ehditko = scene.ehditko;
+  const message =
+    nearestOpen && way
+      ? t.results.found(arranged.total, displayName(i18n, nearestOpen), way.distance?.long ?? way.primary.long, statusText(i18n, nearestOpen.status))
+      : t.results.foundNoneOpen(arranged.total);
+  const firstWay = firstToOpen && travel(i18n, firstToOpen, scene.distance);
+  const allButton = (
+    <Button trailing="chevron" onClick={() => setSheet('expanded')}>
+      {t.results.allPharmacies(arranged.total)}
+    </Button>
+  );
+
+  const peek = nearestOpen && way && (
+    <section aria-labelledby={`${id}-peek`} className={styles.peek}>
+      <h2 id={`${id}-peek`} className={styles.label}>
+        {t.results.nearestOpen}
+      </h2>
+      <div className={styles.peekRow}>
+        <CrossGlyph state={glyphFor(nearestOpen.status)} size={24} />
+        <div className={styles.peekWho}>
+          <h3 className={styles.peekName}>{displayName(i18n, nearestOpen)}</h3>
+          {ehditko.kind === 'timeline' && (
+            <p className={cx(styles.peekSub, 'tnum')}>
+              {rich(t.card.arriveCloses, {
+                arrive: <time dateTime={ehditko.arrive}>{f.clock(ehditko.arrive)}</time>,
+                closes: <time dateTime={ehditko.closes}>{f.clock(ehditko.closes)}</time>,
+              })}
+            </p>
+          )}
+          {ehditko.kind === 'tooLate' && <p className={cx(styles.peekSub, styles.late)}>{t.card.tooLate}</p>}
+          {ehditko.kind === 'none' && <OpenStatus status={nearestOpen.status} />}
+        </div>
+        <p className={cx(styles.peekTime, 'tnum')}>
+          <Measure {...way.primary} />
+        </p>
+      </div>
+      {/* Nothing nearby is open: the other way forward is to wait for the one that opens first. */}
+      {firstToOpen && firstWay && firstToOpen.status.kind === 'closed' && firstToOpen.status.opens && (
+        <div className={styles.peekFirst}>
+          <CrossGlyph state="closed" />
+          <p>{t.results.opensFirstWhen(opensWhen(i18n, firstToOpen.status.opens))}</p>
+          <p className={cx(styles.peekFirstTime, 'tnum')}>
+            <Measure {...firstWay.primary} />
+          </p>
+        </div>
+      )}
+      <div className={styles.peekActions}>
+        <Button
+          variant="primary"
+          icon={withinWalk(nearestOpen) ? 'walk' : 'directions'}
+          aria-label={(withinWalk(nearestOpen) ? t.card.routeLabel : t.card.directionsLabel)(displayName(i18n, nearestOpen))}
+          onClick={() => select(nearestOpen)}
+        >
+          {t.card.route}
+        </Button>
+        {allButton}
+      </div>
+    </section>
+  );
+
+  // Nothing open at all: the peek names the one that opens first and keeps the emergency number in view.
+  const nothingOpenPeek = !nearestOpen && firstToOpen && firstWay && (
+    <section aria-labelledby={`${id}-peek`} className={styles.peek}>
+      <h2 id={`${id}-peek`} className={styles.label}>
+        {t.results.opensFirst}
+      </h2>
+      <div className={styles.peekRow}>
+        <CrossGlyph state={glyphFor(firstToOpen.status)} size={24} />
+        <div className={styles.peekWho}>
+          <h3 className={styles.peekName}>{displayName(i18n, firstToOpen)}</h3>
+          <OpenStatus status={firstToOpen.status} />
+        </div>
+        <p className={cx(styles.peekTime, 'tnum')}>
+          <Measure {...firstWay.primary} />
+        </p>
+      </div>
+      <div className={styles.peekActions}>{allButton}</div>
+      <p className={styles.peekEmergency}>{rich(t.footer.emergency, { number: <a href="tel:112">112</a> })}</p>
+    </section>
+  );
+
+  const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status));
+  const detailNext = detail && nextFor(detail);
+
+  return (
+    <ResultsShell
+      place={place}
+      updated={scene.updated}
+      title={t.results.openNow(openCount, night)}
+      barLine={rich(t.results.openAt(openCount), {
+        time: <time dateTime={scene.updated}>{f.clock(scene.updated)}</time>,
+      })}
+      sheet={sheet}
+      onSheetChange={setSheet}
+      peek={peek || nothingOpenPeek || undefined}
+      emergencyInFooter={!!nearestOpen}
+      distance={scene.distance}
+      mapLabel={t.map.label}
+      map={<StaticMap scene={scene} needsStreet={needsStreet} selectedId={selectedId} nearestOpenId={nearestOpen?.id} onSelect={select} />}
+      detailOpen={!!detail}
+      detail={
+        <dialog
+          ref={detailRef}
+          className={styles.detail}
+          aria-labelledby={`${id}-detail`}
+          onClose={() => setDetailId(undefined)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setDetailId(undefined);
+          }}
+        >
+          {detail && (
+            <PharmacySheet
+              pharmacy={detail}
+              city={cityIfElsewhere(detail, place, i18n.locale)}
+              distance={scene.distance}
+              headingId={`${id}-detail`}
+              nextOpen={detailNext}
+              nextOpenWithStreet={detailNext && needsStreet.has(detailNext.id)}
+              country={scene.country}
+              onShowCard={() => setCounterOpen(true)}
+              onClose={() => setDetailId(undefined)}
+              onSelect={select}
+            />
+          )}
+        </dialog>
+      }
+      overlays={
+        scene.card && (
+          <CounterCard
+            card={scene.card}
+            open={counterOpen}
+            onClose={() => setCounterOpen(false)}
+            initialVariant={options.counter}
+          />
+        )
+      }
+    >
+      <LiveStatus message={message} />
+
+      <div className={styles.content}>
+        {scene.user.approximate && (
+          <section className={styles.notice} aria-labelledby={`${id}-approx`}>
+            <h2 id={`${id}-approx`} className={styles.noticeTitle}>
+              {t.results.approximate}
+            </h2>
+            <p>{t.results.approximateBody}</p>
+          </section>
+        )}
+
+        {nearestOpen && (
+          <NearestOpenCard
+            pharmacy={nearestOpen}
+            city={cityIfElsewhere(nearestOpen, place, i18n.locale)}
+            distance={scene.distance}
+            ehditko={ehditko}
+            nextOpen={nextOpen}
+            nextOpenWithStreet={nextOpen && needsStreet.has(nextOpen.id)}
+            firstToOpen={firstToOpen}
+            closerClosed={closedGroup.length > 0 ? closerClosed : 0}
+            closedOpens={scene.closedOpens}
+            country={scene.country}
+            onRoute={select}
+            onSelect={select}
+            onShowCard={() => setCounterOpen(true)}
+          >
+            {banner}
+          </NearestOpenCard>
+        )}
+
+        {!nearestOpen && firstToOpen && (
+          <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select}>
+            {banner}
+          </NothingOpenCard>
+        )}
+
+        {others.length > 0 && (
+          <PharmacyList
+            pharmacies={others}
+            distance={scene.distance}
+            needsStreet={needsStreet}
+            selectedId={detailId}
+            onSelect={select}
+          />
+        )}
+
+        {closedGroup.length > 0 && (
+          <ClosedGroup
+            pharmacies={closedGroup}
+            distance={scene.distance}
+            needsStreet={needsStreet}
+            selectedId={detailId}
+            onSelect={select}
+            initiallyOpen={options.closedOpen}
+            firstShownAbove={!!firstToOpen}
+          />
+        )}
+      </div>
+    </ResultsShell>
+  );
+}

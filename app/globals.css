@@ -1,0 +1,229 @@
+/*
+ * Tokens from PLAN.md section 6. Each colour is defined once as light-dark(light, dark).
+ * The theme follows the device (color-scheme: light dark); data-theme on any element
+ * overrides it for review. The block repeats on [data-theme] so the override also works
+ * where light-dark() is compiled to a fallback.
+ */
+:root,
+[data-theme] {
+  /* Text */
+  --ink: light-dark(#0b1b31, #eaf1f8);
+  --ink-2: light-dark(#45556e, #a9b8cc);
+  --meta: light-dark(#56657d, #8fa2bc);
+
+  /* Surfaces */
+  --paper: light-dark(#f4f8fc, #071427);
+  --surface: light-dark(#ffffff, #0e2342);
+  --sheet: light-dark(#ffffff, #0b1d38);
+  --quiet: light-dark(#eef3f8, #16305a);
+  --selected: light-dark(#e3eef6, #14315c);
+  --hair: light-dark(#d5dfea, #1d3a63);
+  --hair-2: light-dark(#e3eaf2, #1a3356);
+  --outline: light-dark(#c5d1df, #2e4c78);
+
+  /* Actions: cobalt in light; sky in dark, where cobalt on navy fails 3:1 */
+  --action: light-dark(#2f5ca6, #8bbaec);
+  --action-pressed: light-dark(#244c8f, #b7d3f2);
+  --on-action: light-dark(#ffffff, #071427);
+  --link: light-dark(#2f5ca6, #8bbaec);
+  --focus: light-dark(#2f5ca6, #8bbaec);
+
+  /* Status */
+  --open: light-dark(#0d6e4f, #6ee7b7);
+  --open-glyph: light-dark(#0f8f63, #3ddba0);
+  --open-glow: light-dark(transparent, rgb(61 219 160 / 0.8));
+  --soon: light-dark(#8a5a06, #f2b544);
+  --soon-fill: #f2b544;
+  --soon-ink: #3d2a00;
+  --soon-glow: light-dark(transparent, rgb(242 181 68 / 0.6));
+  --soon-tint: light-dark(#fcefd6, rgb(242 181 68 / 0.16));
+  --closed-glyph: light-dark(#6b7990, #7487a5);
+  --error: light-dark(#b42318, #ff9d91);
+  --track: light-dark(#9ad5bc, #2a7f66);
+  --track-soon: light-dark(#ecd29a, #7a5f1f);
+
+  /* Floating map controls, sheets and dialogs */
+  --float: light-dark(rgb(255 255 255 / 0.95), rgb(14 35 66 / 0.94));
+  --shadow-float:
+    0 0 0 1px light-dark(transparent, #1d3a63), 0 1px 2px light-dark(rgb(11 27 49 / 0.14), transparent),
+    0 6px 18px light-dark(rgb(11 27 49 / 0.1), transparent), 0 8px 24px light-dark(transparent, rgb(0 0 0 / 0.35));
+  --shadow-sheet: 0 -8px 28px light-dark(rgb(11 27 49 / 0.16), rgb(0 0 0 / 0.45));
+  --shadow-dialog: 0 -10px 32px light-dark(rgb(11 27 49 / 0.22), rgb(0 0 0 / 0.5));
+  --shadow-card:
+    0 0 0 1px light-dark(transparent, rgb(61 219 160 / 0.08)), 0 18px 40px light-dark(transparent, rgb(0 0 0 / 0.25));
+  --scrim: light-dark(rgb(11 27 49 / 0.32), rgb(2 8 18 / 0.6));
+
+  /* Static map (MapLibre style values arrive in M4) */
+  --map-land: light-dark(#ebf0f5, #0a192e);
+  --marker-open: light-dark(#0d6e4f, #3ddba0);
+  --marker-open-ink: light-dark(#ffffff, #03241a);
+  --marker-ring: light-dark(#ffffff, #071427);
+  --marker-shadow:
+    0 1px 2px light-dark(rgb(11 27 49 / 0.25), transparent), 0 4px 10px light-dark(rgb(11 27 49 / 0.14), transparent);
+  --marker-open-glow: 0 0 14px 2px light-dark(transparent, rgb(61 219 160 / 0.38));
+  --marker-selected-shadow: 0 0 0 3px var(--marker-ring), 0 6px 16px light-dark(rgb(11 27 49 / 0.3), transparent);
+  --marker-selected-glow:
+    0 0 0 1px light-dark(transparent, rgb(127 245 201 / 0.7)), 0 0 18px 4px light-dark(transparent, rgb(61 219 160 / 0.5)),
+    0 0 48px 14px light-dark(transparent, rgb(61 219 160 / 0.22));
+  --disc: light-dark(#ffffff, #0e2342);
+  --disc-ring: light-dark(#bfcad8, #2b4468);
+  --you: light-dark(#2f5ca6, #5b8def);
+  --you-ring: light-dark(#ffffff, #eaf1f8);
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* Brand constants that don't change with the theme */
+  --navy: #0b1b31;
+  --lit: #3ddba0;
+  --lit-core: #7ff5c9;
+
+  /*
+   * First-visit sky. These are the twilight look, the fallback without JavaScript;
+   * lib/sky.ts replaces them before first paint with a blend that follows the sun.
+   * The first three stops sit behind white text and keep at least 4.5:1 against it.
+   */
+  --sky-1: #0e2652;
+  --sky-2: #1e417f;
+  --sky-3: #2f5ca6;
+  --sky-4: #8bbaec;
+  --sky-5: #e3eef6;
+  --sky-6: #f6d4bd;
+  --sky-far: #3e5f96;
+  --sky-near: #0b1b31;
+  --sky-w1: #f6d4bd;
+  --sky-w2: #f6d4bd;
+  --sky-w3: #f6d4bd;
+  --sky-off: #12233d;
+  --sky-glow: 1;
+  --dusk-muted: #9db0cb;
+  --dusk-soft: #d6e3f4;
+
+  /* Type: 17 px base, sizes as on the canvas (rem so text zoom works) */
+  --t-xs: 0.85rem; /* 13.6 */
+  --t-s: 0.875rem; /* 14 */
+  --t-m: 0.9375rem; /* 15 */
+  --t-b: 1rem; /* 16 */
+  --t-body: 1.0625rem; /* 17 */
+  --t-l: 1.3125rem; /* 21 */
+  --t-xl: 1.65625rem; /* 26.5 */
+  --t-2xl: 2.0625rem; /* 33 */
+
+  /* Shape */
+  --r-button: 12px;
+  --r-button-lg: 14px;
+  --r-chip: 10px;
+  --r-card: 20px;
+  --r-sheet: 28px;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* A themed wrapper (used by /dev/states) paints its own ground. :where keeps it from outranking components. */
+:where([data-theme]) {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: var(--t-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+dl,
+dd {
+  margin: 0;
+}
+
+ol,
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--link);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Text for screen readers only (PLAN.md section 9). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Finnish compounds are long: let them break cleanly. Other languages keep manual hyphenation. */
+:lang(fi) {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  /* No short stubs such as "apteek-ki" or "vuorokau-den": at least 4 letters on each side of a break. */
+  -webkit-hyphenate-limit-before: 4;
+  -webkit-hyphenate-limit-after: 4;
+  hyphenate-limit-chars: 9 4 4;
+}
+
+:not(:lang(fi)) {
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+/* Times and distances line up in columns. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,136 @@
+.scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--navy);
+  color: #ffffff;
+  /* Cobalt disappears on the gradient, so focus is white here. */
+  --focus: #ffffff;
+}
+
+.top {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) 20px 12px;
+}
+
+.main {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-top: calc(68px + env(safe-area-inset-top));
+  /* Written out here, not as one variable, so a scene with its own --sky-* values repaints. */
+  background: linear-gradient(
+    180deg,
+    var(--sky-1) 0%,
+    var(--sky-2) 30%,
+    var(--sky-3) 50%,
+    var(--sky-4) 66%,
+    var(--sky-5) 76%,
+    var(--sky-6) 84%
+  );
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+}
+
+/* With actions, the content and the band become siblings of the skyline, so the band can sit under it. */
+.withBand .hero {
+  display: contents;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  order: 1;
+  padding: 28px 20px 0;
+}
+
+.withBand .content {
+  padding-top: 56px;
+}
+
+.skyline {
+  flex: 0 1 320px;
+  order: 2;
+  width: 100%;
+  min-height: 200px;
+  margin-top: auto;
+}
+
+[data-skyline='low'] .skyline {
+  flex-basis: 230px;
+  min-height: 150px;
+}
+
+.actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  order: 3;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 16px 0;
+  background: var(--navy);
+}
+
+@media (min-width: 900px) {
+  .top {
+    padding: 22px max(5vw, 20px);
+  }
+
+  .main {
+    display: block;
+    padding-top: 0;
+    background: linear-gradient(
+      180deg,
+      var(--sky-1) 0%,
+      var(--sky-2) 30%,
+      var(--sky-3) 56%,
+      var(--sky-4) 76%,
+      var(--sky-5) 89%,
+      var(--sky-6) 100%
+    );
+  }
+
+  .hero,
+  .withBand .hero {
+    display: block;
+    padding: 172px max(5vw, 20px) 500px;
+  }
+
+  .content,
+  .withBand .content {
+    padding: 0;
+  }
+
+  .actions {
+    flex-flow: row wrap;
+    gap: 8px 12px;
+    margin-top: 40px;
+    padding: 0;
+    background: none;
+  }
+
+  .skyline,
+  [data-skyline='low'] .skyline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 470px;
+    min-height: 0;
+    margin: 0;
+  }
+}
