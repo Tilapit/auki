@@ -67,12 +67,13 @@ jobs:
 
       - name: Nothing under /dev exists in the production build
         run: |
-          npm run start -- -p 3200 &
+          TZ=UTC npx next start -p 3200 &
+          SERVER=$!
           for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:3200/fi && break; sleep 1; done
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3200/fi)" = "200"
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3200/fi/dev/states)" = "404"
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3200/fi/dev/states/helsinki)" = "404"
-          kill %1
+          kill "$SERVER" || true
 
       # Then a build that keeps the /dev pages, for the browser tests: a production server
       # answers several times faster than the dev server.
