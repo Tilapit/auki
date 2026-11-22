@@ -50,7 +50,7 @@ Scripts run with `TZ=UTC` (PLAN.md 7.4). If port 3000 is taken, pass another: `n
 - `npm run shots`: screenshots of every `/dev/states` view at 390×844 and 1440×900, light and dark, at 2×, into `screenshots/` (Chromium) and `screenshots/webkit/` (not committed). For looking at. `LOCALE=en npm run shots` for English.
 - `npm run lighthouse`: the budgets of PLAN.md section 12 against a production build (`npm run build` first), and the measured numbers as a table. Set `CHROME_PATH` if Chrome isn't installed: `CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"`.
 
-CI (`.github/workflows/ci.yml`) runs on every push: type check, lint, unit tests, Playwright with the visual comparison, production build, Lighthouse budgets. A newer push to the same branch cancels the running one.
+CI (`.github/workflows/ci.yml`) runs on every push: type check, lint, unit tests, production build, Lighthouse budgets, a check that `/dev` is a 404 in that build, then Playwright with the visual comparison against a second build made with `DEV_ROUTES=1`. A newer push to the same branch cancels the running one.
 
 Visual baselines live in `tests/e2e/__screenshots__/`, at 1×, and are made in the CI's Linux image, never on macOS (text renders differently). When a view changes on purpose:
 1. Push a commit whose message contains `[baselines]` (or run the workflow by hand with "baselines" ticked). That run makes new baselines instead of comparing.

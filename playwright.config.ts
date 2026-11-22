@@ -4,8 +4,9 @@ const PORT = Number(process.env.PORT ?? 3000);
 const CI = !!process.env.CI;
 
 /**
- * End-to-end tests against the dev server (the /dev/states views exist only there),
- * in Chromium and in WebKit (the closest thing to Safari).
+ * End-to-end tests in Chromium and in WebKit (the closest thing to Safari). Locally they
+ * run against the dev server. CI runs them against a production build made with
+ * DEV_ROUTES=1, which keeps the /dev/states views in it and is several times faster.
  *
  * - states.spec.ts makes the 2× screenshots for review by eye (`npm run shots`). Not in CI.
  * - visual.spec.ts compares 1× screenshots with the committed baselines. In CI, and locally
@@ -35,7 +36,9 @@ export default defineConfig({
     { name: 'webkit', use: { browserName: 'webkit', userAgent: devices['iPhone 14'].userAgent } },
   ],
   webServer: {
-    command: `npm run dev -- -p ${PORT}`,
+    command: CI ? `npm run start -- -p ${PORT}` : `npm run dev -- -p ${PORT}`,
+    // The /dev pages are decided when a page is rendered, so the server needs the switch as well as the build.
+    env: CI ? { DEV_ROUTES: '1' } : {},
     url: `http://localhost:${PORT}/fi`,
     reuseExistingServer: !CI,
     timeout: 120_000,

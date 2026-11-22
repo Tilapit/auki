@@ -3,6 +3,7 @@ import { isLocale, otherLocale } from '@/lib/i18n';
 import { groups, proposals, SIZES, type Size, type Theme, type ViewInfo } from '@/lib/dev/viewList';
 import styles from './states.module.css';
 import { BRAND } from '@/lib/brand';
+import { devRoutesEnabled } from '@/lib/dev/enabled';
 
 const SCALE: Record<Size, number> = { phone: 0.5, desktop: 0.34 };
 const ALL_SIZES: Size[] = ['phone', 'desktop'];
@@ -55,7 +56,7 @@ function Frames({ view, locale, sizes, themes }: { view: ViewInfo; locale: strin
  * Developer-facing, in English. 404 in production.
  */
 export default async function States({ params, searchParams }: PageProps<'/[locale]/dev/states'>) {
-  if (process.env.NODE_ENV === 'production') notFound();
+  if (!devRoutesEnabled()) notFound();
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const query = await searchParams;

@@ -810,10 +810,10 @@ A new push to a branch cancels the run still going for it: the repository is pri
 
 1. Type check and lint.
 2. Unit, corpus and property tests.
-3. Playwright with the visual comparison. Failed comparisons are uploaded as images.
-4. Production build, then Lighthouse CI (`@lhci/cli`) on the first-visit page, median of three runs, with budgets:
+3. Production build, then Lighthouse CI (`@lhci/cli`) on the first-visit page, median of three runs, with budgets:
    - initial JavaScript: at most 200 KB gzipped. Lighthouse measures 156 KB on `/fi` at M1, nearly all of it React and the Next.js runtime. The views behind the first window load when they are needed, and the map gets its own budget when it lands in M4.
    - mobile LCP: at most 2.5 s on Lighthouse's phone profile (slow 4G, 4× CPU slowdown).
+4. A check that nothing under `/dev` exists in that build. Then a second build that keeps the `/dev` pages (`DEV_ROUTES=1`) and Playwright against it, with the visual comparison: a production server answers several times faster than the dev server. Failed comparisons are uploaded as images.
 5. Time to first result: a Playwright run in Chromium on the same throttled phone profile, location already allowed, cold cache, from navigation to the first rendered result.
    - CI runs it with fixture tiles and a stubbed walking response, and fails above a limit set from the first measurement in M3.
    - The README number is the same script against the live site: median of five runs, with its date.
