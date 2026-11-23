@@ -88,6 +88,8 @@ const CHIPS = 3;
 const PICK_WITHIN_PX = 18;
 /** A press that travelled farther than this was a drag of the map, not a press on the marker it began on. */
 const DRAG_FROM_PX = 6;
+/** The click a mouse makes when it lets go after such a drag comes within this time of letting go. */
+const CLICK_AFTER_DRAG_MS = 400;
 /** Rough sizes, for deciding whether a name fits beside its marker: half a marker's width, a letter, the plate's padding. */
 const MARKER_HALF = 52;
 const NAME_CHAR = 7.8;
@@ -126,8 +128,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const padProbe = useRef<HTMLSpanElement>(null);
   const themeProbe = useRef<HTMLSpanElement>(null);
   const map = useRef<MapLibreMap | null>(null);
-  /** Where the press that may become a click began. */
+  /** Where the press on a marker began, and when it ended if it had become a drag of the map: the events' own clock. */
   const pressed = useRef<{ x: number; y: number } | null>(null);
+  const dragEnded = useRef<number | null>(null);
 
   const [frame, setFrame] = useState<Frame>();
   const [theme, setTheme] = useState<MapTheme>('light');
@@ -454,7 +457,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       const source = live.getSource(AREA_SOURCE) as GeoJSONSource | undefined;
       // Before the style has settled there is no source yet: the data waits for it.
       if (!source) return void live.once('style.load', give);
-      void source.setData(data as never);
+      // A map taken away before the data has settled is nothing to report.
+      source.setData(data as never).catch(() => undefined);
       if (root.current) root.current.dataset.area = String(data.features.length);
     };
     give();
@@ -518,14 +522,25 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       <div
         ref={pins}
         className={styles.pins}
-        // A mouse drag that begins on a marker moves the map and ends on the same marker: that is not a press on it.
+        // A mouse drag that begins on a marker moves the map and ends on the same marker: the click that
+        // follows is not a press on it. Only that click: one from the keyboard or a screen reader comes
+        // without a drag before it, and one long after a drag is its own.
         onPointerDownCapture={(event) => {
           pressed.current = { x: event.clientX, y: event.clientY };
         }}
-        onClickCapture={(event) => {
+        onPointerUpCapture={(event) => {
           const from = pressed.current;
-          // A click from the keyboard has no press before it and no distance to measure.
-          if (event.detail > 0 && from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > DRAG_FROM_PX) event.stopPropagation();
+          pressed.current = null;
+          dragEnded.current = from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > DRAG_FROM_PX ? event.timeStamp : null;
+        }}
+        onPointerCancelCapture={() => {
+          pressed.current = null;
+          dragEnded.current = null;
+        }}
+        onClickCapture={(event) => {
+          const ended = dragEnded.current;
+          dragEnded.current = null;
+          if (ended !== null && event.timeStamp - ended < CLICK_AFTER_DRAG_MS) event.stopPropagation();
         }}
       >
         <span data-pin={YOU} className={cx(styles.pin, styles.haloPin)}>

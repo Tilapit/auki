@@ -141,6 +141,32 @@ test.describe('with a finger', () => {
   });
 });
 
+test('with a mouse: a drag that begins on a marker moves the map and opens nothing, a click opens the pharmacy', async ({ page }) => {
+  await live(page);
+  const target = marker(page, /^Kampin apteekki/);
+  const from = await centreOf(target);
+  const before = await placeOf(dot(page));
+
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  for (let step = 1; step <= 10; step++) await page.mouse.move(from.x - step * 8, from.y + step * 10);
+  await page.mouse.up();
+  await expect.poll(async () => (await placeOf(dot(page))).x - before.x).toBeLessThan(-60);
+  // The mouse let go on the marker it had been dragging: that is not a press on it.
+  await page.waitForTimeout(300);
+  await expect(page.getByRole('dialog')).toBeHidden();
+
+  // A press that stays in place is one, and so is Enter on the marker.
+  await target.click();
+  const sheet = page.getByRole('dialog');
+  await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
+  await page.keyboard.press('Escape');
+  await expect(sheet).toBeHidden();
+  await target.focus();
+  await page.keyboard.press('Enter');
+  await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
+});
+
 test.describe('the map never hands a touch to the page', () => {
   /** What the browser may do with a touch that begins on an element: its own rule and those of everything above it. */
   const allowed = (target: Locator) =>
