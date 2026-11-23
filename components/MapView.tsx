@@ -228,6 +228,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   }, [framing]);
 
   // MapLibre, loaded only now: it is by far the heaviest thing in the app, and nothing waits for it.
+  const styled = useRef(key);
   const measured = frame !== undefined;
   useEffect(() => {
     if (!basemap || !measured || !base.current) return;
@@ -237,6 +238,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       .then(({ Map, setWorkerUrl }) => {
         if (cancelled || !base.current) return;
         const { frame, camera, look } = latest.current;
+        styled.current = styleKey(look);
         // The worker is served from our own origin (scripts/copy-map-worker.mjs).
         setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
         created = new Map({
@@ -292,7 +294,6 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   }, [basemap, measured]);
 
   // A new theme, language or sun: the same map in its new colours.
-  const styled = useRef(key);
   useEffect(() => {
     if (mode !== 'live' || styled.current === key) return;
     styled.current = key;
