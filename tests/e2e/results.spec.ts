@@ -45,7 +45,7 @@ async function start(page: Page, files: Record<string, unknown> | number, now = 
  * for one back for a moment, on a timer. With the clock paused that moment has to be given.
  */
 async function settle(page: Page) {
-  await page.clock.fastForward(1000);
+  await page.clock.runFor(1000);
 }
 
 const rows = (page: Page) => page.locator('ol > li h3');
@@ -75,9 +75,10 @@ test('the status keeps time: it changes when the minute does, without a request'
   const card = page.locator('section', { has: page.getByRole('heading', { name: 'Lähin auki nyt' }) }).last();
   await expect(card).toContainText('Auki klo 21 asti');
   const before = asked.length;
-  await page.clock.fastForward(6 * 60_000); // 20:31
+  // runFor, not fastForward: every minute's tick fires on the way, as it does on a real clock.
+  await page.clock.runFor(6 * 60_000); // 20:31
   await expect(card).toContainText('Sulkeutuu pian, klo 21');
-  await page.clock.fastForward(30 * 60_000); // 21:01: it has closed, and the next open one leads
+  await page.clock.runFor(30 * 60_000); // 21:01: it has closed, and the next open one leads
   await expect(card.getByRole('heading', { level: 3 })).toHaveText('Yliopiston apteekki');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Yksi apteekki auki juuri nyt');
   expect(asked.length).toBe(before);
@@ -221,3 +222,32 @@ test('the data page says so when the numbers do not load', async ({ page }) => {
   await expect(page.getByText("Couldn't load the numbers right now.")).toBeVisible();
 });
 
+
+test('offline: says so, and searches again by itself when the connection returns', async ({ page }) => {
+  // The connection drops after the page has loaded: the tiles fail, and the browser says it is offline.
+  let offline = true;
+  await page.addInitScript(() => {
+    const state = window as unknown as { offline: boolean };
+    state.offline = true;
+    Object.defineProperty(Navigator.prototype, 'onLine', { get: () => !state.offline, configurable: true });
+  });
+  await fakeLocation(page, 'allow');
+  const files = world(kamppi);
+  await page.route('**/tiles/v1/**', async (route) => {
+    const { pathname } = new URL(route.request().url());
+    if (offline) await route.abort('internetdisconnected');
+    else if (pathname in files) await route.fulfill({ json: files[pathname] });
+    else await route.fulfill({ status: 404, body: '' });
+  });
+  await open(page, '/fi');
+  await locateButton(page).click();
+  await expect(page.getByRole('heading', { name: 'Ei verkkoyhteyttä' })).toBeVisible();
+
+  offline = false;
+  await page.evaluate(() => {
+    (window as unknown as { offline: boolean }).offline = false;
+    window.dispatchEvent(new Event('online'));
+  });
+  await expect(page.getByRole('heading', { name: 'Ei verkkoyhteyttä' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/auki|Apteekit lähelläsi/);
+});

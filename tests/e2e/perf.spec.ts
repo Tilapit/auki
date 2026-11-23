@@ -23,11 +23,12 @@ const UP_BYTES_PER_S = (750 * 1024) / 8;
 const HEAVIEST_TILE_GZIP_BYTES = 56 * 1024;
 const RUNS = 5;
 /**
- * Fails above this. Set from the first measurements: see the pull request of M3 for the
- * numbers on this machine and in CI. It is there to catch a regression, such as a tile
- * search that waits for something it doesn't need.
+ * Fails above this. Set from the first measurements, on 23 Nov 2026: a median of 3.2 s in
+ * CI (3.0 to 3.3 s over five runs) and 2.3 s on the Mac it was written on. The limit is
+ * CI's median and a half, rounded up: room for a slow runner, and still under what a
+ * regression would cost, such as a tile search that waits for something it doesn't need.
  */
-const LIMIT_MS = 6000;
+const LIMIT_MS = 5000;
 
 function heavyTile(): TilePharmacy[] {
   const schedules = Array.from({ length: 145 }, (_, index) => daily(`0${7 + (index % 3)}:${index % 2 ? '30' : '00'}`, `${17 + (index % 6)}:${index % 4 ? '00' : '30'}`));
