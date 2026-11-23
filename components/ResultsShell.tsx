@@ -5,6 +5,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { AppMark } from './AppMark';
 import { IconButton } from './Button';
+import { Icon } from './Icon';
 import { Wordmark } from './FirstVisit';
 import { LanguageSwitch } from './LanguageSwitch';
 import { SiteFooter } from './SiteFooter';
@@ -40,6 +41,13 @@ interface Props {
   /** False where the view already shows the emergency number prominently. */
   emergencyInFooter?: boolean;
   onRefresh?: () => void;
+  /**
+   * Opens the place search, to look somewhere else. With it the place name in the phone's
+   * bar is a button, and the desktop panel gets the same action in words.
+   */
+  onPlace?: () => void;
+  /** When the data shown was fetched from OpenStreetMap, epoch seconds: the footer says so. */
+  dataFrom?: number;
   /** After a search the user started, focus moves to the title (PLAN.md section 9). */
   focusTitle?: boolean;
 }
@@ -49,7 +57,7 @@ interface Props {
  * Desktop: list panel on the left, map on the right. The list comes before the map in
  * the document, so it is first in the tab order (PLAN.md section 9).
  */
-export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, peek, children, distance, map, mapLabel, detail, detailOpen, overlays, emergencyInFooter = true, onRefresh, focusTitle }: Props) {
+export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, peek, children, distance, map, mapLabel, detail, detailOpen, overlays, emergencyInFooter = true, onRefresh, onPlace, dataFrom, focusTitle }: Props) {
   const { t, f } = useI18n();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const peekRef = useRef<HTMLDivElement>(null);
@@ -81,10 +89,22 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
       <header className={styles.bar}>
         <div className={styles.barMain}>
           <AppMark />
-          <div className={styles.barText}>
-            <p className={styles.barPlace}>{place ?? t.results.nearYou}</p>
-            {(barLine || time) && <p className={styles.barUpdated}>{barLine ?? rich(t.results.updated, { time })}</p>}
-          </div>
+          {onPlace ? (
+            // The place is the way to another place: the name, with the glyph that says it can be searched.
+            <button type="button" className={styles.barButton} onClick={onPlace}>
+              <span className={styles.barPlaceRow}>
+                <span className={styles.barPlace}>{place ?? t.results.nearYou}</span>
+                <Icon name="search" size={16} className={styles.barGlyph} />
+                <span className="visually-hidden">{t.results.searchElsewhere}</span>
+              </span>
+              {(barLine || time) && <span className={styles.barUpdated}>{barLine ?? rich(t.results.updated, { time })}</span>}
+            </button>
+          ) : (
+            <div className={styles.barText}>
+              <p className={styles.barPlace}>{place ?? t.results.nearYou}</p>
+              {(barLine || time) && <p className={styles.barUpdated}>{barLine ?? rich(t.results.updated, { time })}</p>}
+            </div>
+          )}
           <IconButton icon="refresh" label={t.results.refresh} variant="bare" onClick={onRefresh} />
         </div>
         <LanguageSwitch variant="round" />
@@ -116,6 +136,12 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
                   {title}
                 </h1>
                 {time && <p className={styles.sub}>{rich(t.results.placeUpdated, { place: place ?? t.results.nearYou, time })}</p>}
+                {onPlace && (
+                  <button type="button" className={styles.elsewhere} onClick={onPlace}>
+                    <Icon name="search" size={18} />
+                    {t.results.searchElsewhere}
+                  </button>
+                )}
               </div>
               <IconButton icon="refresh" label={t.results.refresh} className={styles.refresh} onClick={onRefresh} />
             </div>
@@ -128,7 +154,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
             <div className={styles.full}>{children}</div>
           </main>
           <div className={styles.footer}>
-            <SiteFooter variant="panel" distance={distance} emergency={emergencyInFooter} />
+            <SiteFooter variant="panel" distance={distance} emergency={emergencyInFooter} dataFrom={dataFrom} />
           </div>
         </div>
       </div>

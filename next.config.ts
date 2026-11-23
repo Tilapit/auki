@@ -1,6 +1,7 @@
 import { networkInterfaces } from 'node:os';
 import type { NextConfig } from 'next';
 import { PHASE_DEVELOPMENT_SERVER } from 'next/constants';
+import { securityHeaders } from './lib/requests';
 
 /**
  * Hosts allowed to load dev-only assets, so the dev server can be opened from a phone on
@@ -29,6 +30,14 @@ export default function config(phase: string): NextConfig {
   const tiles = tilesOrigin(phase);
   return {
     rewrites: async () => (tiles ? [{ source: '/tiles/:path*', destination: `${tiles}/tiles/:path*` }] : []),
+    // The security headers of PLAN.md 7.6, on every response. The policy is built from the
+    // one list of requests the app may make (lib/requests.ts).
+    headers: async () => [
+      {
+        source: '/:path*',
+        headers: securityHeaders({ development: phase === PHASE_DEVELOPMENT_SERVER, devRoutes: phase === PHASE_DEVELOPMENT_SERVER || process.env.DEV_ROUTES === '1' }),
+      },
+    ],
     // One set of agent instructions lives in CLAUDE.md, so Next doesn't write AGENTS.md.
     agentRules: false,
     // The dev badge would sit on top of the footer in the /dev/states screenshots.

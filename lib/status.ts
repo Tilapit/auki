@@ -38,21 +38,25 @@ export function opensWhen({ t, f }: I18n, opens: Opening): string {
 
 export function statusText(i18n: I18n, status: OpenStatus): string {
   const { t, f } = i18n;
+  // Across a border, or for a searched place far away, the times are the pharmacy's own.
+  const onItsClock = (line: string, local?: boolean) => (local ? t.status.localTime(line) : line);
   switch (status.kind) {
     case 'open':
-      return t.status.openUntil(f.clockShort(status.closes));
+      return onItsClock(t.status.openUntil(f.clockShort(status.closes)), status.local);
     case 'soon':
-      return t.status.closesSoon(f.clockShort(status.closes));
+      return onItsClock(t.status.closesSoon(f.clockShort(status.closes)), status.local);
     case 'open24':
       return t.status.open24;
     case 'closed':
-      return status.opens ? t.status.closedOpens(opensWhen(i18n, status.opens)) : t.status.closed;
+      return status.opens ? onItsClock(t.status.closedOpens(opensWhen(i18n, status.opens)), status.local) : t.status.closed;
     case 'missing':
       return t.status.missing;
     case 'unparseable':
       return t.status.unparseable(status.raw);
     case 'uncertain':
       return t.status.uncertain(status.raw);
+    case 'stale':
+      return t.status.stale;
   }
 }
 

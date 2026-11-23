@@ -10,13 +10,16 @@ export type Weekday = 'mo' | 'tu' | 'we' | 'th' | 'fr' | 'sa' | 'su';
  * Times are local wall-clock strings, "HH:mm"; "24:00" means midnight at the end of the day.
  */
 export type OpenStatus =
-  | { kind: 'open'; closes: string }
-  | { kind: 'soon'; closes: string }
+  /** local: the time is on the pharmacy's clock, which is not the device's. The line then says so. */
+  | { kind: 'open'; closes: string; local?: boolean }
+  | { kind: 'soon'; closes: string; local?: boolean }
   | { kind: 'open24' }
-  | { kind: 'closed'; opens?: { day: 'today' | 'tomorrow' | Weekday; time: string } }
+  | { kind: 'closed'; opens?: { day: 'today' | 'tomorrow' | Weekday; time: string }; local?: boolean }
   | { kind: 'missing' }
   | { kind: 'unparseable'; raw: string }
-  | { kind: 'uncertain'; raw: string };
+  | { kind: 'uncertain'; raw: string }
+  /** The data is more than seven days old: nothing is read from it (PLAN.md 7.4). */
+  | { kind: 'stale' };
 
 export interface HoursLine {
   days: 'daily' | 'mo-fr' | 'sa' | 'su' | 'sa-su';
@@ -93,6 +96,12 @@ export interface Scene {
   ehditko: Ehditko;
   /** When the nearest ones are closed: when most of them open again. */
   closedOpens?: { from: string; to: string };
+  /** Every pharmacy's data is too old to read: a notice takes the card's place. */
+  stale?: boolean;
+  /** When the oldest data shown was fetched from OpenStreetMap, epoch seconds. */
+  dataFrom?: number;
+  /** Countries next to the position that are not covered, as ISO codes: the results say what is missing. */
+  missing?: string[];
   country?: CountryInfo;
   card?: CardPhrases;
   views: { phone: MapViewSpec; desktop: MapViewSpec };

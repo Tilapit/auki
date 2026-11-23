@@ -19,6 +19,7 @@ import { NearestOpenCard, NothingOpenCard } from './NearestOpenCard';
 import { OpenStatus } from './OpenStatus';
 import { ClosedGroup, PharmacyList } from './PharmacyList';
 import { PharmacySheet } from './PharmacySheet';
+import { ResultsNotice } from './ResultsNotice';
 import { ResultsShell, type SheetState } from './ResultsShell';
 import { StaticMap } from './StaticMap';
 import styles from './ResultsView.module.css';
@@ -31,6 +32,13 @@ export interface ResultsOptions {
   /** Start with the counter card open. */
   counter?: 'ePrescription' | 'paper';
   closedOpen?: boolean;
+  onRefresh?: () => void;
+  /** Opens the place search: from the place name, and from the approximate-location notice. */
+  onSearch?: () => void;
+  /** In the real flow focus moves to the title when the results arrive. */
+  focusTitle?: boolean;
+  /** The crosses of the open pharmacies switch on one after another (PLAN.md section 6, "Motion"). */
+  reveal?: boolean;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -82,10 +90,13 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const night = hour >= 22 || hour < 6;
   const way = nearestOpen && travel(i18n, nearestOpen, scene.distance);
   const ehditko = scene.ehditko;
-  const message =
-    nearestOpen && way
+  const stale = scene.stale === true;
+  const message = stale
+    ? t.results.foundStale(arranged.total)
+    : nearestOpen && way
       ? t.results.found(arranged.total, displayName(i18n, nearestOpen), way.distance?.long ?? way.primary.long, statusText(i18n, nearestOpen.status))
       : t.results.foundNoneOpen(arranged.total);
+  const missing = (scene.missing ?? []).map((code) => f.countryName(code));
   const firstWay = firstToOpen && travel(i18n, firstToOpen, scene.distance);
   const allButton = (
     <Button trailing="chevron" onClick={() => setSheet('expanded')}>
@@ -169,14 +180,23 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     <ResultsShell
       place={place}
       updated={scene.updated}
-      title={t.results.openNow(openCount, night)}
-      barLine={rich(t.results.openAt(openCount), {
-        time: <time dateTime={scene.updated}>{f.clock(scene.updated)}</time>,
-      })}
-      sheet={sheet}
+      // Out-of-date data says nothing about what is open: neither does the heading.
+      title={stale ? t.results.title : t.results.openNow(openCount, night)}
+      barLine={
+        stale
+          ? t.results.staleShort
+          : rich(t.results.openAt(openCount), {
+              time: <time dateTime={scene.updated}>{f.clock(scene.updated)}</time>,
+            })
+      }
+      sheet={stale ? 'static' : sheet}
       onSheetChange={setSheet}
-      peek={peek || nothingOpenPeek || undefined}
+      peek={stale ? undefined : peek || nothingOpenPeek || undefined}
       emergencyInFooter={!!nearestOpen}
+      onRefresh={options.onRefresh}
+      onPlace={options.onSearch}
+      dataFrom={scene.dataFrom}
+      focusTitle={options.focusTitle}
       distance={scene.distance}
       mapLabel={t.map.label}
       map={<StaticMap scene={scene} needsStreet={needsStreet} selectedId={selectedId} nearestOpenId={nearestOpen?.id} onSelect={select} />}
@@ -220,8 +240,12 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     >
       <LiveStatus message={message} />
 
-      <div className={styles.content}>
-        {scene.user.approximate && <ApproximateNotice />}
+      <div className={styles.content} data-reveal={options.reveal || undefined}>
+        {scene.user.approximate && <ApproximateNotice onSearch={options.onSearch} />}
+
+        {stale && scene.dataFrom !== undefined && <ResultsNotice title={t.results.staleTitle}>{t.results.staleBody(f.dayOf(scene.dataFrom))}</ResultsNotice>}
+
+        {missing.length > 0 && <ResultsNotice>{missing.length === 1 ? t.results.missingOne(missing[0]) : t.results.missingMany(f.list(missing))}</ResultsNotice>}
 
         {nearestOpen && (
           <NearestOpenCard
@@ -256,6 +280,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
             needsStreet={needsStreet}
             selectedId={detailId}
             onSelect={select}
+            alone={!nearestOpen && !firstToOpen}
           />
         )}
 

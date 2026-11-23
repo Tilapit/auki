@@ -19,14 +19,14 @@ interface RowsProps {
 }
 
 /** "Muut lähellä": one surface with hairline dividers, in distance order. Every row is shown; the panel scrolls. Never reorders. */
-export function PharmacyList({ pharmacies, distance, needsStreet, selectedId, onSelect }: RowsProps) {
+export function PharmacyList({ pharmacies, distance, needsStreet, selectedId, onSelect, alone }: RowsProps & { /** No card above: these are not "the others". */ alone?: boolean }) {
   const { t } = useI18n();
   const id = useId();
   return (
     <section aria-labelledby={`${id}-h`}>
       <div className={styles.head}>
         <h2 id={`${id}-h`} className={styles.title}>
-          {t.results.others}
+          {alone ? t.results.nearest : t.results.others}
         </h2>
         <span className={styles.sort}>{distance === 'walking' ? t.results.byWalking : t.results.byStraight}</span>
       </div>

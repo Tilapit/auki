@@ -35,6 +35,10 @@ const fi = {
     straight: 'Etäisyydet ovat linnuntietä.',
     data: 'Tiedot: {osm}',
     osm: '© OpenStreetMapin tekijät',
+    /** The results footer: when the data was fetched, and the way to the data page. */
+    // A Finnish date ends in a full stop of its own ("22.11."): no second one after it.
+    fetched: 'Tiedot: OpenStreetMap, haettu {date} {about}',
+    aboutData: 'Tietoa aineistosta',
   },
   first: {
     headline: 'Löydä lähin auki oleva apteekki',
@@ -109,6 +113,8 @@ const fi = {
     refresh: 'Päivitä sijainti ja tulokset',
     nearestOpen: 'Lähin auki nyt',
     others: 'Muut lähellä',
+    /** The list's heading when no card stands above it. */
+    nearest: 'Lähimmät apteekit',
     byWalking: 'Kävelymatkan mukaan',
     byStraight: 'Linnuntietä',
     allPharmacies: (count: number) => `Kaikki ${count} apteekkia`,
@@ -130,6 +136,15 @@ const fi = {
     found: (count: number, name: string, distance: string, status: string) =>
       `Löytyi ${count} apteekkia. Lähin auki: ${name}, ${distance}, ${status}.`,
     foundNoneOpen: (count: number) => `Löytyi ${count} apteekkia. Yksikään ei ole auki juuri nyt.`,
+    /** Data older than seven days: nothing is shown as open (PLAN.md 7.4). */
+    staleTitle: 'Aukiolotiedot ovat vanhentuneet',
+    staleBody: (date: string) => `Tiedot haettiin ${date} eikä niistä voi enää päätellä, mikä on auki juuri nyt. Soita apteekkiin ennen kuin lähdet.`,
+    staleShort: 'Aukiolotiedot vanhentuneet',
+    foundStale: (count: number) => `Löytyi ${count} apteekkia. Aukiolotiedot ovat vanhentuneet.`,
+    /** Near the edge of the coverage: what is missing from the results. */
+    missingOne: (country: string) => `${country} ei ole vielä mukana: sen apteekkeja ei näy tässä.`,
+    missingMany: (countries: string) => `${countries} eivät ole vielä mukana: niiden apteekkeja ei näy tässä.`,
+    searchElsewhere: 'Hae toinen paikka',
   },
   status: {
     openUntil: (time: string) => `Auki ${time} asti`,
@@ -143,6 +158,9 @@ const fi = {
     missing: 'Aukioloaikoja ei ole merkitty',
     unparseable: (raw: string) => `Aukioloajat epäselvät: ”${raw}”`,
     uncertain: (raw: string) => `Aukioloajat epävarmat (”${raw}”)`,
+    stale: 'Aukioloajat voivat olla vanhentuneet',
+    /** Added when the pharmacy keeps another clock than the device. */
+    localTime: (line: string) => `${line} paikallista aikaa`,
     noPrescriptions: 'Ei reseptilääkkeitä',
     legend: { open: 'Auki', soon: 'Sulkeutuu pian', closed: 'Kiinni', unknown: 'Ajat ei tiedossa' },
   },
@@ -215,6 +233,31 @@ const fi = {
       title: 'Apteekkien haku ei onnistunut juuri nyt',
       body: 'Vika on palvelussa, ei laitteessasi. Yritä hetken päästä uudelleen.',
     },
+    notCovered: {
+      title: `${BRAND} ei vielä kata tätä maata`,
+      /** When the country is known. */
+      named: (country: string) => `${country} ei ole vielä mukana.`,
+      covered: (countries: string) => `Mukana ovat ${countries}.`,
+    },
+  },
+  data: {
+    title: 'Mistä apteekkitiedot tulevat',
+    intro: 'Apteekit ja niiden aukioloajat tulevat OpenStreetMapista. Tiedot haetaan joka yö, ja aukioloajat lasketaan valmiiksi kahdeksalle päivälle. Alla on viimeisimmän haun tulos maittain.',
+    caption: 'Apteekkitiedot maittain',
+    columns: { country: 'Maa', pharmacies: 'Apteekkeja', withHours: 'Aukioloajat merkitty', parsed: 'Ajat luettu', fetched: 'Haettu' },
+    all: 'Kaikki',
+    kept: 'aiempi haku',
+    keptNote: 'Aiempi haku: viimeisin haku ei onnistunut tälle maalle, joten sen tiedot ovat edelliseltä kerralta.',
+    explain: [
+      'Aukioloajat merkitty: kuinka monella apteekilla on aukioloajat OpenStreetMapissa.',
+      'Ajat luettu: kuinka moni merkityistä aukioloajoista on kirjoitettu niin, että ohjelma osaa lukea ne. Loput näytetään sellaisinaan.',
+      'Yli seitsemän päivää vanhojen tietojen perusteella yhtään apteekkia ei näytetä avoimena.',
+    ],
+    fix: 'Väärät tai puuttuvat tiedot korjataan OpenStreetMapissa. Korjaus näkyy täällä seuraavan yön jälkeen.',
+    loading: 'Haetaan lukuja…',
+    failed: 'Lukujen haku ei onnistunut juuri nyt.',
+    licence: 'Aineisto: {osm}, lisenssi ODbL.',
+    back: 'Takaisin apteekkihakuun',
   },
   map: {
     label: 'Kartta: sijaintisi ja lähimmät apteekit',

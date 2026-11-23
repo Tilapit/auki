@@ -1,26 +1,23 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useMemo } from 'react';
 import { usePharmacySearch } from '@/hooks/usePharmacySearch';
 import { useI18n } from '@/lib/i18n/context';
-import { sceneAt } from '@/lib/scene';
 import { FirstVisit } from './FirstVisit';
 import { PlaceSearch } from './PlaceSearch';
 
 // The map views are not needed for the first paint. They load while the browser asks for
 // permission, or while the place is looked up.
-const loadSearchingView = () => import('./SearchingView').then((module) => module.SearchingView);
-const SearchingView = dynamic(loadSearchingView, { ssr: false });
+const loadMapStage = () => import('./MapStage').then((module) => module.MapStage);
+const MapStage = dynamic(loadMapStage, { ssr: false });
 
 /** Owns the state and picks the view (PLAN.md 7.3). One view per state. */
 export function PharmacyFinder() {
   const { locale } = useI18n();
-  const { state, locate, openSearch, search, back } = usePharmacySearch(locale);
-  const scene = useMemo(() => (state.view === 'searching' ? sceneAt(state.position, state.at) : undefined), [state]);
+  const { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, back } = usePharmacySearch(locale);
 
   const start = () => {
-    void loadSearchingView();
+    void loadMapStage();
     locate();
   };
 
@@ -35,7 +32,7 @@ export function PharmacyFinder() {
           problem={state.problem}
           lookup={state.lookup}
           onSearch={(query) => {
-            void loadSearchingView();
+            void loadMapStage();
             search(query);
           }}
           onRetry={start}
@@ -44,7 +41,7 @@ export function PharmacyFinder() {
           takeFocus={state.problem !== 'unsupported'}
         />
       );
-    case 'searching':
-      return scene ? <SearchingView scene={scene} onRefresh={start} onSearch={openSearch} focusTitle /> : null;
+    default:
+      return <MapStage state={state} onRefresh={start} onSearch={openSearch} onSearchFor={searchFrom} onRetry={retry} onFarOpen={checkFarOpen} />;
   }
 }

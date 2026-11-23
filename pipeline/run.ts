@@ -41,7 +41,8 @@ function readArguments(argv: string[]): Options {
   const codes: string[] = [];
   let cached = false;
   let outDir = '.data/site';
-  for (const argument of argv) {
+  // "FI SE" in one argument is as good as two: a workflow input arrives that way.
+  for (const argument of argv.flatMap((value) => value.split(/[\s,]+/)).filter(Boolean)) {
     if (argument === '--cached') cached = true;
     else if (argument.startsWith('--out=')) outDir = argument.slice('--out='.length);
     else if (COUNTRY_CODES.includes(argument.toUpperCase())) codes.push(argument.toUpperCase());
