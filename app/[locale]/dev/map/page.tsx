@@ -19,7 +19,9 @@ export default async function MapIndex({ params }: PageProps<'/[locale]/dev/map'
       <h1 style={{ fontSize: '1.6rem', fontWeight: 750 }}>The map on real tiles</h1>
       <p style={{ color: 'var(--ink-2)', marginTop: 8 }}>
         MapLibre on OpenFreeMap&apos;s vector tiles in our own style, under the real results view. Fixture pharmacies and fixed moments on 19 Nov 2026.
-        These pages call the map tile host, which is why they are not in /dev/states.
+        These pages call the map tile host, which is why they are not in /dev/states. Around the fixture&apos;s own pharmacies, 160 invented ones
+        are drawn as the map&apos;s own small signs, the way the live app draws every pharmacy beyond the list&apos;s ten (provisional). They are
+        not real and some stand in the sea; zoom out with ?z=12 to see how they thin out.
       </p>
 
       <section style={{ marginTop: 28 }}>
