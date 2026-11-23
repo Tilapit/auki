@@ -56,10 +56,16 @@ Scripts run with `TZ=UTC` (PLAN.md 7.4). If port 3000 is taken, pass another: `n
 - `npm run dev`: dev server. `npm run dev:https` to test geolocation on a phone.
 - `npm run build`, `npm run start`: production build and server. Everything under `/dev` is a 404 there.
 - `npm run lint`, `npm run typecheck`.
-- `npm test`: unit tests (Vitest), in `tests/unit/`.
+- `npm test`: unit tests (Vitest) in `tests/unit/` and property tests (fast-check) in `tests/property/`.
 - `npm run test:e2e`: the Playwright tests against the dev server, in Chromium and WebKit. First time: `npx playwright install chromium webkit`. Tests wait for hydration before they click (`open()` in `tests/e2e/flow.spec.ts`).
 - `npm run shots`: screenshots of every `/dev/states` view at 390×844 and 1440×900, light and dark, at 2×, into `screenshots/` (Chromium) and `screenshots/webkit/` (not committed). For looking at. `LOCALE=en npm run shots` for English.
+- `npm run data`: the data pipeline of PLAN.md 7.2, for every covered country, into `.data/site/` (not in git). `npm run data -- FI SE` refreshes only those and keeps the rest as they were. `--cached` reads the Overpass answers saved in `.data/raw/` instead of asking again: use it while working on the pipeline, the public Overpass servers are slow and shared. Needs `CONTACT_EMAIL` and Node 22.18 or later, which runs the TypeScript as it is.
+- `npm run data:serve`: serves `.data/site/` on port 3900. The dev server's `/tiles` rewrite points there when `TILES_ORIGIN` is not set.
+- `npm run data:corpus`: pins the distinct `opening_hours` values of the last run into `data/corpus/`, with the counts the corpus test expects. Run it after `npm run data` when the pipeline's parsing changes on purpose, and look at the diff of `expected.json`.
+- `npm run vectors`: writes `tests/vectors/` again, the cases the iOS app is checked against. A unit test fails until this has been run after a change to the time or tile logic.
 - `npm run lighthouse`: the budgets of PLAN.md section 12 against a production build (`npm run build` first), and the measured numbers as a table. Set `CHROME_PATH` if Chrome isn't installed: `CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"`.
+
+The data workflow (`.github/workflows/data.yml`) runs the pipeline every night and publishes the tiles; on a push that touches `pipeline/` it runs Malta alone and publishes nothing.
 
 CI (`.github/workflows/ci.yml`) runs on every push: type check, lint, unit tests, production build, Lighthouse budgets, a check that `/dev` is a 404 in that build, then Playwright with the visual comparison against a second build made with `DEV_ROUTES=1`. A newer push to the same branch cancels the running one.
 

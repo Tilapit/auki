@@ -1,0 +1,53 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API",
+  "osm3s": { "timestamp_osm_base": "2026-11-23T13:55:02Z" },
+  "elements": [
+    {
+      "type": "node", "id": 1001, "lat": 35.8955967, "lon": 14.4651968,
+      "tags": {
+        "amenity": "pharmacy", "healthcare": "pharmacy", "name": "Harbour Pharmacy",
+        "addr:city": "Birkirkara", "addr:housenumber": "32", "addr:street": "Triq il-Port",
+        "opening_hours": "Mo-Fr 08:00-19:00", "check_date:opening_hours": "2026-09-20",
+        "phone": "+356 2100 0001", "website": "https://harbour-pharmacy.example/", "wheelchair": "yes",
+        "wheelchair:description": "Step-free from the side door"
+      }
+    },
+    {
+      "type": "way", "id": 2001, "center": { "lat": 35.8956100, "lon": 14.4652200 },
+      "tags": { "amenity": "pharmacy", "building": "commercial", "name": "Harbour Pharmacy" }
+    },
+    {
+      "type": "node", "id": 1002, "lat": 35.8729776, "lon": 14.5091929,
+      "tags": {
+        "amenity": "pharmacy", "name": "Three Cities Pharmacy", "addr:city": "Raħal Ġdid", "addr:street": "Triq il-Knisja",
+        "dispensing": "no", "opening_hours": "Mo-We,Fr-Sa 07:30-20:00; Th 07:30-19:00; Su,PH OFF",
+        "contact:phone": "+356 2100 0002; +356 2100 0003", "contact:email": "hello@three-cities.example", "contact:website": "www.three-cities.example"
+      }
+    },
+    {
+      "type": "node", "id": 1003, "lat": 36.0465107, "lon": 14.2432862,
+      "tags": { "healthcare": "pharmacy", "brand": "Gozo Chemists", "opening_hours": "call for hours", "website": "javascript:alert(1)", "email": "not an address" }
+    },
+    {
+      "type": "node", "id": 1004, "lat": 35.8793049, "lon": 14.4721412,
+      "tags": { "amenity": "pharmacy", "healthcare": "pharmacy" }
+    },
+    {
+      "type": "node", "id": 1005, "lat": 35.9000000, "lon": 14.5000000,
+      "tags": { "amenity": "pharmacy", "name": "Hospital Dispensary", "access": "private", "opening_hours": "24/7" }
+    },
+    {
+      "type": "node", "id": 1006, "lat": 35.9100000, "lon": 14.4900000,
+      "tags": { "amenity": "pharmacy", "operator": "Sliema Health Ltd", "opening_hours": "Mo-Su 9-13,16-19", "wheelchair": "limited", "phone": "ask at the desk" }
+    },
+    {
+      "type": "relation", "id": 3001, "center": { "lat": 35.9200000, "lon": 14.4800000 },
+      "tags": { "amenity": "pharmacy", "type": "multipolygon", "name": "Arcade Pharmacy", "opening_hours": "Mo-Sa 08:00-20:00; Su unknown" }
+    },
+    {
+      "type": "way", "id": 2002,
+      "tags": { "amenity": "pharmacy", "name": "No Position Pharmacy" }
+    }
+  ]
+}

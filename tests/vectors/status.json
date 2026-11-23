@@ -1,0 +1,2778 @@
+{
+ "about": "Open or closed from intervals. Instants are epoch seconds; an interval holds its start and not its end. \"soon\" starts under 30 minutes before closing. Data is stale when now − generated > 7 days, or now is outside the window. closes and opens give the moment as the status line says it: day relative to now and \"HH:mm\", both on the clock of the pharmacy zone; a closing at midnight reads 24:00 of the day that ends.",
+ "cases": [
+  {
+   "name": "open in the middle of the day",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795428000,
+   "status": {
+    "kind": "open",
+    "closes": 1795460400
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "exactly thirty minutes before closing is not yet \"soon\"",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795458600,
+   "status": {
+    "kind": "open",
+    "closes": 1795460400
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "one second later it is",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795458601,
+   "status": {
+    "kind": "soon",
+    "closes": 1795460400
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "the last minute",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795460340,
+   "status": {
+    "kind": "soon",
+    "closes": 1795460400
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "closed at the closing minute itself",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795460400,
+   "status": {
+    "kind": "closed",
+    "opens": 1795500000
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "closed before opening, opens today",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795413540,
+   "status": {
+    "kind": "closed",
+    "opens": 1795413600
+   },
+   "opens": {
+    "day": "today",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "open at the opening minute",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795413600,
+   "status": {
+    "kind": "open",
+    "closes": 1795460400
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "open only on Mondays: opens next week",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795417200,
+      "to": 1795446000
+     },
+     {
+      "from": 1796022000,
+      "to": 1796050800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795507200,
+   "status": {
+    "kind": "closed",
+    "opens": 1796022000
+   },
+   "opens": {
+    "day": "mo",
+    "time": "09:00"
+   }
+  },
+  {
+   "name": "around the clock",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795384800,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795654800,
+   "status": {
+    "kind": "open24"
+   }
+  },
+  {
+   "name": "an interval that runs to the end of the window has no closing time",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795586400,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795590000,
+   "status": {
+    "kind": "open24"
+   }
+  },
+  {
+   "name": "open past midnight, before midnight",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795464000,
+      "to": 1795478400
+     },
+     {
+      "from": 1795550400,
+      "to": 1795564800
+     },
+     {
+      "from": 1795636800,
+      "to": 1795651200
+     },
+     {
+      "from": 1795723200,
+      "to": 1795737600
+     },
+     {
+      "from": 1795809600,
+      "to": 1795824000
+     },
+     {
+      "from": 1795896000,
+      "to": 1795910400
+     },
+     {
+      "from": 1795982400,
+      "to": 1795996800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795470600,
+   "status": {
+    "kind": "open",
+    "closes": 1795478400
+   },
+   "closes": {
+    "day": "tomorrow",
+    "time": "02:00"
+   }
+  },
+  {
+   "name": "open past midnight, after midnight",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795464000,
+      "to": 1795478400
+     },
+     {
+      "from": 1795550400,
+      "to": 1795564800
+     },
+     {
+      "from": 1795636800,
+      "to": 1795651200
+     },
+     {
+      "from": 1795723200,
+      "to": 1795737600
+     },
+     {
+      "from": 1795809600,
+      "to": 1795824000
+     },
+     {
+      "from": 1795896000,
+      "to": 1795910400
+     },
+     {
+      "from": 1795982400,
+      "to": 1795996800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795477200,
+   "status": {
+    "kind": "soon",
+    "closes": 1795478400
+   },
+   "closes": {
+    "day": "today",
+    "time": "02:00"
+   }
+  },
+  {
+   "name": "closes at midnight: 24:00 of the day that ends",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795471200
+     },
+     {
+      "from": 1795500000,
+      "to": 1795557600
+     },
+     {
+      "from": 1795586400,
+      "to": 1795644000
+     },
+     {
+      "from": 1795672800,
+      "to": 1795730400
+     },
+     {
+      "from": 1795759200,
+      "to": 1795816800
+     },
+     {
+      "from": 1795845600,
+      "to": 1795903200
+     },
+     {
+      "from": 1795932000,
+      "to": 1795989600
+     },
+     {
+      "from": 1796018400,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795459260,
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "closes": {
+    "day": "today",
+    "time": "24:00"
+   }
+  },
+  {
+   "name": "closed all week",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [],
+    "unknown": []
+   },
+   "now": 1795428000,
+   "status": {
+    "kind": "closed"
+   }
+  },
+  {
+   "name": "inside a stretch the data calls unknown",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795449600
+     },
+     {
+      "from": 1795586400,
+      "to": 1795622400
+     }
+    ],
+    "unknown": [
+     {
+      "from": 1795471200,
+      "to": 1795557600
+     }
+    ],
+    "raw": "Mo,We 08:00-18:00; Tu unknown"
+   },
+   "now": 1795514400,
+   "status": {
+    "kind": "uncertain",
+    "raw": "Mo,We 08:00-18:00; Tu unknown"
+   }
+  },
+  {
+   "name": "closed, and the next thing is unknown: no opening is promised",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795449600
+     },
+     {
+      "from": 1795586400,
+      "to": 1795622400
+     }
+    ],
+    "unknown": [
+     {
+      "from": 1795471200,
+      "to": 1795557600
+     }
+    ],
+    "raw": "Mo,We 08:00-18:00; Tu unknown"
+   },
+   "now": 1795453200,
+   "status": {
+    "kind": "closed"
+   }
+  },
+  {
+   "name": "closed after the unknown stretch: the opening is promised again",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795449600
+     },
+     {
+      "from": 1795586400,
+      "to": 1795622400
+     }
+    ],
+    "unknown": [
+     {
+      "from": 1795471200,
+      "to": 1795557600
+     }
+    ],
+    "raw": "Mo,We 08:00-18:00; Tu unknown"
+   },
+   "now": 1795582800,
+   "status": {
+    "kind": "closed",
+    "opens": 1795586400
+   },
+   "opens": {
+    "day": "today",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "no hours in OpenStreetMap",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "missing"
+   },
+   "now": 1795428000,
+   "status": {
+    "kind": "missing"
+   }
+  },
+  {
+   "name": "hours that could not be read",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "unparseable",
+    "raw": "call for hours"
+   },
+   "now": 1795428000,
+   "status": {
+    "kind": "unparseable",
+    "raw": "call for hours"
+   }
+  },
+  {
+   "name": "hours that can not be trusted",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "uncertain",
+    "raw": "sunrise-sunset"
+   },
+   "now": 1795428000,
+   "status": {
+    "kind": "uncertain",
+    "raw": "sunrise-sunset"
+   }
+  },
+  {
+   "name": "seven days old to the second: still read",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795384800,
+      "to": 1795471200
+     },
+     {
+      "from": 1795471200,
+      "to": 1795557600
+     },
+     {
+      "from": 1795557600,
+      "to": 1795644000
+     },
+     {
+      "from": 1795644000,
+      "to": 1795730400
+     },
+     {
+      "from": 1795730400,
+      "to": 1795816800
+     },
+     {
+      "from": 1795816800,
+      "to": 1795903200
+     },
+     {
+      "from": 1795903200,
+      "to": 1795989600
+     },
+     {
+      "from": 1795989600,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1796002200,
+   "status": {
+    "kind": "open24"
+   }
+  },
+  {
+   "name": "a second older: stale",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795384800,
+      "to": 1795471200
+     },
+     {
+      "from": 1795471200,
+      "to": 1795557600
+     },
+     {
+      "from": 1795557600,
+      "to": 1795644000
+     },
+     {
+      "from": 1795644000,
+      "to": 1795730400
+     },
+     {
+      "from": 1795730400,
+      "to": 1795816800
+     },
+     {
+      "from": 1795816800,
+      "to": 1795903200
+     },
+     {
+      "from": 1795903200,
+      "to": 1795989600
+     },
+     {
+      "from": 1795989600,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1796002201,
+   "status": {
+    "kind": "stale"
+   }
+  },
+  {
+   "name": "missing hours go stale too",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "missing"
+   },
+   "now": 1796088600,
+   "status": {
+    "kind": "stale"
+   }
+  },
+  {
+   "name": "before the window starts: stale",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795384799,
+   "status": {
+    "kind": "stale"
+   }
+  },
+  {
+   "name": "data kept from an earlier run, read past its window: stale",
+   "zone": "Europe/Helsinki",
+   "generated": 1796072400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1796076000,
+   "status": {
+    "kind": "stale"
+   }
+  },
+  {
+   "name": "a pharmacy in Stockholm seen at 23:30 Helsinki time: its tomorrow starts an hour later",
+   "zone": "Europe/Stockholm",
+   "generated": 1795397400,
+   "windowFrom": 1795388400,
+   "windowUntil": 1796079600,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795473000,
+      "to": 1795500000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795469400,
+   "status": {
+    "kind": "closed",
+    "opens": 1795473000
+   },
+   "opens": {
+    "day": "today",
+    "time": "23:30"
+   }
+  },
+  {
+   "name": "Europe/Helsinki, the day the clocks go back, morning",
+   "zone": "Europe/Helsinki",
+   "generated": 1792708200,
+   "windowFrom": 1792702800,
+   "windowUntil": 1793397600,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792731600,
+      "to": 1792778400
+     },
+     {
+      "from": 1792818000,
+      "to": 1792864800
+     },
+     {
+      "from": 1792908000,
+      "to": 1792954800
+     },
+     {
+      "from": 1792994400,
+      "to": 1793041200
+     },
+     {
+      "from": 1793080800,
+      "to": 1793127600
+     },
+     {
+      "from": 1793167200,
+      "to": 1793214000
+     },
+     {
+      "from": 1793253600,
+      "to": 1793300400
+     },
+     {
+      "from": 1793340000,
+      "to": 1793386800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1792907100,
+   "status": {
+    "kind": "closed",
+    "opens": 1792908000
+   },
+   "opens": {
+    "day": "today",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "Europe/Helsinki, the day the clocks go back, evening",
+   "zone": "Europe/Helsinki",
+   "generated": 1792708200,
+   "windowFrom": 1792702800,
+   "windowUntil": 1793397600,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792731600,
+      "to": 1792778400
+     },
+     {
+      "from": 1792818000,
+      "to": 1792864800
+     },
+     {
+      "from": 1792908000,
+      "to": 1792954800
+     },
+     {
+      "from": 1792994400,
+      "to": 1793041200
+     },
+     {
+      "from": 1793080800,
+      "to": 1793127600
+     },
+     {
+      "from": 1793167200,
+      "to": 1793214000
+     },
+     {
+      "from": 1793253600,
+      "to": 1793300400
+     },
+     {
+      "from": 1793340000,
+      "to": 1793386800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1792953900,
+   "status": {
+    "kind": "soon",
+    "closes": 1792954800
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "Europe/Berlin, the day the clocks go back, morning",
+   "zone": "Europe/Berlin",
+   "generated": 1792711800,
+   "windowFrom": 1792706400,
+   "windowUntil": 1793401200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792735200,
+      "to": 1792782000
+     },
+     {
+      "from": 1792821600,
+      "to": 1792868400
+     },
+     {
+      "from": 1792911600,
+      "to": 1792958400
+     },
+     {
+      "from": 1792998000,
+      "to": 1793044800
+     },
+     {
+      "from": 1793084400,
+      "to": 1793131200
+     },
+     {
+      "from": 1793170800,
+      "to": 1793217600
+     },
+     {
+      "from": 1793257200,
+      "to": 1793304000
+     },
+     {
+      "from": 1793343600,
+      "to": 1793390400
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1792910700,
+   "status": {
+    "kind": "closed",
+    "opens": 1792911600
+   },
+   "opens": {
+    "day": "today",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "Europe/Berlin, the day the clocks go back, evening",
+   "zone": "Europe/Berlin",
+   "generated": 1792711800,
+   "windowFrom": 1792706400,
+   "windowUntil": 1793401200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792735200,
+      "to": 1792782000
+     },
+     {
+      "from": 1792821600,
+      "to": 1792868400
+     },
+     {
+      "from": 1792911600,
+      "to": 1792958400
+     },
+     {
+      "from": 1792998000,
+      "to": 1793044800
+     },
+     {
+      "from": 1793084400,
+      "to": 1793131200
+     },
+     {
+      "from": 1793170800,
+      "to": 1793217600
+     },
+     {
+      "from": 1793257200,
+      "to": 1793304000
+     },
+     {
+      "from": 1793343600,
+      "to": 1793390400
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1792957500,
+   "status": {
+    "kind": "soon",
+    "closes": 1792958400
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "Atlantic/Azores, the day the clocks go back, morning",
+   "zone": "Atlantic/Azores",
+   "generated": 1792719000,
+   "windowFrom": 1792713600,
+   "windowUntil": 1793408400,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792742400,
+      "to": 1792789200
+     },
+     {
+      "from": 1792828800,
+      "to": 1792875600
+     },
+     {
+      "from": 1792918800,
+      "to": 1792965600
+     },
+     {
+      "from": 1793005200,
+      "to": 1793052000
+     },
+     {
+      "from": 1793091600,
+      "to": 1793138400
+     },
+     {
+      "from": 1793178000,
+      "to": 1793224800
+     },
+     {
+      "from": 1793264400,
+      "to": 1793311200
+     },
+     {
+      "from": 1793350800,
+      "to": 1793397600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1792917900,
+   "status": {
+    "kind": "closed",
+    "opens": 1792918800
+   },
+   "opens": {
+    "day": "today",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "Atlantic/Azores, the day the clocks go back, evening",
+   "zone": "Atlantic/Azores",
+   "generated": 1792719000,
+   "windowFrom": 1792713600,
+   "windowUntil": 1793408400,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792742400,
+      "to": 1792789200
+     },
+     {
+      "from": 1792828800,
+      "to": 1792875600
+     },
+     {
+      "from": 1792918800,
+      "to": 1792965600
+     },
+     {
+      "from": 1793005200,
+      "to": 1793052000
+     },
+     {
+      "from": 1793091600,
+      "to": 1793138400
+     },
+     {
+      "from": 1793178000,
+      "to": 1793224800
+     },
+     {
+      "from": 1793264400,
+      "to": 1793311200
+     },
+     {
+      "from": 1793350800,
+      "to": 1793397600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1792964700,
+   "status": {
+    "kind": "soon",
+    "closes": 1792965600
+   },
+   "closes": {
+    "day": "today",
+    "time": "21:00"
+   }
+  },
+  {
+   "name": "random 1",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795421700,
+      "to": 1795437900
+     },
+     {
+      "from": 1795594500,
+      "to": 1795610700
+     },
+     {
+      "from": 1795680900,
+      "to": 1795697100
+     },
+     {
+      "from": 1795767300,
+      "to": 1795783500
+     },
+     {
+      "from": 1795940100,
+      "to": 1795956300
+     },
+     {
+      "from": 1796026500,
+      "to": 1796042700
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795502640,
+   "status": {
+    "kind": "closed",
+    "opens": 1795594500
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "10:15"
+   }
+  },
+  {
+   "name": "random 2",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795408200,
+      "to": 1795457700
+     },
+     {
+      "from": 1795494600,
+      "to": 1795544100
+     },
+     {
+      "from": 1795581000,
+      "to": 1795630500
+     },
+     {
+      "from": 1795667400,
+      "to": 1795716900
+     },
+     {
+      "from": 1795753800,
+      "to": 1795803300
+     },
+     {
+      "from": 1795840200,
+      "to": 1795889700
+     },
+     {
+      "from": 1795926600,
+      "to": 1795976100
+     },
+     {
+      "from": 1796013000,
+      "to": 1796062500
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795887780,
+   "status": {
+    "kind": "open",
+    "closes": 1795889700
+   },
+   "closes": {
+    "day": "today",
+    "time": "20:15"
+   }
+  },
+  {
+   "name": "random 3",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795417200,
+      "to": 1795431600
+     },
+     {
+      "from": 1795503600,
+      "to": 1795518000
+     },
+     {
+      "from": 1795590000,
+      "to": 1795604400
+     },
+     {
+      "from": 1795676400,
+      "to": 1795690800
+     },
+     {
+      "from": 1795762800,
+      "to": 1795777200
+     },
+     {
+      "from": 1795849200,
+      "to": 1795863600
+     },
+     {
+      "from": 1796022000,
+      "to": 1796036400
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795821840,
+   "status": {
+    "kind": "closed",
+    "opens": 1795849200
+   },
+   "opens": {
+    "day": "today",
+    "time": "09:00"
+   }
+  },
+  {
+   "name": "random 4",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795406400,
+      "to": 1795420800
+     },
+     {
+      "from": 1795492800,
+      "to": 1795507200
+     },
+     {
+      "from": 1795579200,
+      "to": 1795593600
+     },
+     {
+      "from": 1795665600,
+      "to": 1795680000
+     },
+     {
+      "from": 1795752000,
+      "to": 1795766400
+     },
+     {
+      "from": 1795838400,
+      "to": 1795852800
+     },
+     {
+      "from": 1795924800,
+      "to": 1795939200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795609920,
+   "status": {
+    "kind": "closed",
+    "opens": 1795665600
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "06:00"
+   }
+  },
+  {
+   "name": "random 5",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795417200,
+      "to": 1795473000
+     },
+     {
+      "from": 1795503600,
+      "to": 1795559400
+     },
+     {
+      "from": 1795590000,
+      "to": 1795645800
+     },
+     {
+      "from": 1795676400,
+      "to": 1795732200
+     },
+     {
+      "from": 1795762800,
+      "to": 1795818600
+     },
+     {
+      "from": 1795849200,
+      "to": 1795905000
+     },
+     {
+      "from": 1795935600,
+      "to": 1795991400
+     },
+     {
+      "from": 1796022000,
+      "to": 1796077800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795801440,
+   "status": {
+    "kind": "open",
+    "closes": 1795818600
+   },
+   "closes": {
+    "day": "tomorrow",
+    "time": "00:30"
+   }
+  },
+  {
+   "name": "random 6",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795420800,
+      "to": 1795458600
+     },
+     {
+      "from": 1795507200,
+      "to": 1795545000
+     },
+     {
+      "from": 1795593600,
+      "to": 1795631400
+     },
+     {
+      "from": 1795680000,
+      "to": 1795717800
+     },
+     {
+      "from": 1795766400,
+      "to": 1795804200
+     },
+     {
+      "from": 1795852800,
+      "to": 1795890600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795709880,
+   "status": {
+    "kind": "open",
+    "closes": 1795717800
+   },
+   "closes": {
+    "day": "today",
+    "time": "20:30"
+   }
+  },
+  {
+   "name": "random 7",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795424400,
+      "to": 1795455900
+     },
+     {
+      "from": 1795510800,
+      "to": 1795542300
+     },
+     {
+      "from": 1795597200,
+      "to": 1795628700
+     },
+     {
+      "from": 1795683600,
+      "to": 1795715100
+     },
+     {
+      "from": 1795770000,
+      "to": 1795801500
+     },
+     {
+      "from": 1795856400,
+      "to": 1795887900
+     },
+     {
+      "from": 1795942800,
+      "to": 1795974300
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795960920,
+   "status": {
+    "kind": "open",
+    "closes": 1795974300
+   },
+   "closes": {
+    "day": "today",
+    "time": "19:45"
+   }
+  },
+  {
+   "name": "random 8",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795419900,
+      "to": 1795472100
+     },
+     {
+      "from": 1795592700,
+      "to": 1795644900
+     },
+     {
+      "from": 1795765500,
+      "to": 1795817700
+     },
+     {
+      "from": 1795851900,
+      "to": 1795904100
+     },
+     {
+      "from": 1795938300,
+      "to": 1795990500
+     },
+     {
+      "from": 1796024700,
+      "to": 1796076900
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795983720,
+   "status": {
+    "kind": "open",
+    "closes": 1795990500
+   },
+   "closes": {
+    "day": "tomorrow",
+    "time": "00:15"
+   }
+  },
+  {
+   "name": "random 9",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795427100,
+      "to": 1795470300
+     },
+     {
+      "from": 1795513500,
+      "to": 1795556700
+     },
+     {
+      "from": 1795599900,
+      "to": 1795643100
+     },
+     {
+      "from": 1795686300,
+      "to": 1795729500
+     },
+     {
+      "from": 1795772700,
+      "to": 1795815900
+     },
+     {
+      "from": 1795859100,
+      "to": 1795902300
+     },
+     {
+      "from": 1795945500,
+      "to": 1795988700
+     },
+     {
+      "from": 1796031900,
+      "to": 1796075100
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795469940,
+   "status": {
+    "kind": "soon",
+    "closes": 1795470300
+   },
+   "closes": {
+    "day": "today",
+    "time": "23:45"
+   }
+  },
+  {
+   "name": "random 10",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795419900,
+      "to": 1795461300
+     },
+     {
+      "from": 1795506300,
+      "to": 1795547700
+     },
+     {
+      "from": 1795679100,
+      "to": 1795720500
+     },
+     {
+      "from": 1795851900,
+      "to": 1795893300
+     },
+     {
+      "from": 1795938300,
+      "to": 1795979700
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795790160,
+   "status": {
+    "kind": "closed",
+    "opens": 1795851900
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "09:45"
+   }
+  },
+  {
+   "name": "random 11",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795408200,
+      "to": 1795437000
+     },
+     {
+      "from": 1795494600,
+      "to": 1795523400
+     },
+     {
+      "from": 1795840200,
+      "to": 1795869000
+     },
+     {
+      "from": 1795926600,
+      "to": 1795955400
+     },
+     {
+      "from": 1796013000,
+      "to": 1796041800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795801440,
+   "status": {
+    "kind": "closed",
+    "opens": 1795840200
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "06:30"
+   }
+  },
+  {
+   "name": "random 12",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795596300,
+      "to": 1795617000
+     },
+     {
+      "from": 1795682700,
+      "to": 1795703400
+     },
+     {
+      "from": 1795769100,
+      "to": 1795789800
+     },
+     {
+      "from": 1795855500,
+      "to": 1795876200
+     },
+     {
+      "from": 1795941900,
+      "to": 1795962600
+     },
+     {
+      "from": 1796028300,
+      "to": 1796049000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795441800,
+   "status": {
+    "kind": "closed",
+    "opens": 1795596300
+   },
+   "opens": {
+    "day": "we",
+    "time": "10:45"
+   }
+  },
+  {
+   "name": "random 13",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795427100,
+      "to": 1795450500
+     },
+     {
+      "from": 1795513500,
+      "to": 1795536900
+     },
+     {
+      "from": 1795599900,
+      "to": 1795623300
+     },
+     {
+      "from": 1795686300,
+      "to": 1795709700
+     },
+     {
+      "from": 1795772700,
+      "to": 1795796100
+     },
+     {
+      "from": 1795859100,
+      "to": 1795882500
+     },
+     {
+      "from": 1796031900,
+      "to": 1796055300
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795856100,
+   "status": {
+    "kind": "closed",
+    "opens": 1795859100
+   },
+   "opens": {
+    "day": "today",
+    "time": "11:45"
+   }
+  },
+  {
+   "name": "random 14",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795450500
+     },
+     {
+      "from": 1795500000,
+      "to": 1795536900
+     },
+     {
+      "from": 1795932000,
+      "to": 1795968900
+     },
+     {
+      "from": 1796018400,
+      "to": 1796055300
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795892340,
+   "status": {
+    "kind": "closed",
+    "opens": 1795932000
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "random 15",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795414500,
+      "to": 1795431600
+     },
+     {
+      "from": 1795500900,
+      "to": 1795518000
+     },
+     {
+      "from": 1795760100,
+      "to": 1795777200
+     },
+     {
+      "from": 1795846500,
+      "to": 1795863600
+     },
+     {
+      "from": 1796019300,
+      "to": 1796036400
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795665360,
+   "status": {
+    "kind": "closed",
+    "opens": 1795760100
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "08:15"
+   }
+  },
+  {
+   "name": "random 16",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795414500,
+      "to": 1795476600
+     },
+     {
+      "from": 1795500900,
+      "to": 1795563000
+     },
+     {
+      "from": 1795587300,
+      "to": 1795649400
+     },
+     {
+      "from": 1795673700,
+      "to": 1795735800
+     },
+     {
+      "from": 1795760100,
+      "to": 1795822200
+     },
+     {
+      "from": 1795846500,
+      "to": 1795908600
+     },
+     {
+      "from": 1795932900,
+      "to": 1795995000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795502280,
+   "status": {
+    "kind": "open",
+    "closes": 1795563000
+   },
+   "closes": {
+    "day": "tomorrow",
+    "time": "01:30"
+   }
+  },
+  {
+   "name": "random 17",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795414500,
+      "to": 1795478400
+     },
+     {
+      "from": 1795500900,
+      "to": 1795564800
+     },
+     {
+      "from": 1795673700,
+      "to": 1795737600
+     },
+     {
+      "from": 1795760100,
+      "to": 1795824000
+     },
+     {
+      "from": 1795932900,
+      "to": 1795996800
+     },
+     {
+      "from": 1796019300,
+      "to": 1796083200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795436100,
+   "status": {
+    "kind": "open",
+    "closes": 1795478400
+   },
+   "closes": {
+    "day": "tomorrow",
+    "time": "02:00"
+   }
+  },
+  {
+   "name": "random 18",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795406400,
+      "to": 1795444200
+     },
+     {
+      "from": 1795492800,
+      "to": 1795530600
+     },
+     {
+      "from": 1795579200,
+      "to": 1795617000
+     },
+     {
+      "from": 1795665600,
+      "to": 1795703400
+     },
+     {
+      "from": 1795752000,
+      "to": 1795789800
+     },
+     {
+      "from": 1795838400,
+      "to": 1795876200
+     },
+     {
+      "from": 1795924800,
+      "to": 1795962600
+     },
+     {
+      "from": 1796011200,
+      "to": 1796049000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795748520,
+   "status": {
+    "kind": "closed",
+    "opens": 1795752000
+   },
+   "opens": {
+    "day": "today",
+    "time": "06:00"
+   }
+  },
+  {
+   "name": "random 19",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795411800,
+      "to": 1795455000
+     },
+     {
+      "from": 1795498200,
+      "to": 1795541400
+     },
+     {
+      "from": 1795757400,
+      "to": 1795800600
+     },
+     {
+      "from": 1795843800,
+      "to": 1795887000
+     },
+     {
+      "from": 1795930200,
+      "to": 1795973400
+     },
+     {
+      "from": 1796016600,
+      "to": 1796059800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795492020,
+   "status": {
+    "kind": "closed",
+    "opens": 1795498200
+   },
+   "opens": {
+    "day": "today",
+    "time": "07:30"
+   }
+  },
+  {
+   "name": "random 20",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795423500,
+      "to": 1795471200
+     },
+     {
+      "from": 1795509900,
+      "to": 1795557600
+     },
+     {
+      "from": 1795596300,
+      "to": 1795644000
+     },
+     {
+      "from": 1795682700,
+      "to": 1795730400
+     },
+     {
+      "from": 1795769100,
+      "to": 1795816800
+     },
+     {
+      "from": 1795855500,
+      "to": 1795903200
+     },
+     {
+      "from": 1795941900,
+      "to": 1795989600
+     },
+     {
+      "from": 1796028300,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795657500,
+   "status": {
+    "kind": "closed",
+    "opens": 1795682700
+   },
+   "opens": {
+    "day": "today",
+    "time": "10:45"
+   }
+  },
+  {
+   "name": "random 21",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795466700
+     },
+     {
+      "from": 1795500000,
+      "to": 1795553100
+     },
+     {
+      "from": 1795586400,
+      "to": 1795639500
+     },
+     {
+      "from": 1795672800,
+      "to": 1795725900
+     },
+     {
+      "from": 1795759200,
+      "to": 1795812300
+     },
+     {
+      "from": 1795845600,
+      "to": 1795898700
+     },
+     {
+      "from": 1795932000,
+      "to": 1795985100
+     },
+     {
+      "from": 1796018400,
+      "to": 1796071500
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795900620,
+   "status": {
+    "kind": "closed",
+    "opens": 1795932000
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "08:00"
+   }
+  },
+  {
+   "name": "random 22",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795500900,
+      "to": 1795525200
+     },
+     {
+      "from": 1795587300,
+      "to": 1795611600
+     },
+     {
+      "from": 1795673700,
+      "to": 1795698000
+     },
+     {
+      "from": 1795760100,
+      "to": 1795784400
+     },
+     {
+      "from": 1795846500,
+      "to": 1795870800
+     },
+     {
+      "from": 1795932900,
+      "to": 1795957200
+     },
+     {
+      "from": 1796019300,
+      "to": 1796043600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795905300,
+   "status": {
+    "kind": "closed",
+    "opens": 1795932900
+   },
+   "opens": {
+    "day": "today",
+    "time": "08:15"
+   }
+  },
+  {
+   "name": "random 23",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795410900,
+      "to": 1795448700
+     },
+     {
+      "from": 1795497300,
+      "to": 1795535100
+     },
+     {
+      "from": 1795583700,
+      "to": 1795621500
+     },
+     {
+      "from": 1795756500,
+      "to": 1795794300
+     },
+     {
+      "from": 1795842900,
+      "to": 1795880700
+     },
+     {
+      "from": 1795929300,
+      "to": 1795967100
+     },
+     {
+      "from": 1796015700,
+      "to": 1796053500
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795815780,
+   "status": {
+    "kind": "closed",
+    "opens": 1795842900
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "07:15"
+   }
+  },
+  {
+   "name": "random 24",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795508100,
+      "to": 1795543200
+     },
+     {
+      "from": 1795594500,
+      "to": 1795629600
+     },
+     {
+      "from": 1795680900,
+      "to": 1795716000
+     },
+     {
+      "from": 1795767300,
+      "to": 1795802400
+     },
+     {
+      "from": 1795853700,
+      "to": 1795888800
+     },
+     {
+      "from": 1796026500,
+      "to": 1796061600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795809360,
+   "status": {
+    "kind": "closed",
+    "opens": 1795853700
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "10:15"
+   }
+  },
+  {
+   "name": "random 25",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795419000,
+      "to": 1795475700
+     },
+     {
+      "from": 1795505400,
+      "to": 1795562100
+     },
+     {
+      "from": 1795591800,
+      "to": 1795648500
+     },
+     {
+      "from": 1795678200,
+      "to": 1795734900
+     },
+     {
+      "from": 1795851000,
+      "to": 1795907700
+     },
+     {
+      "from": 1795937400,
+      "to": 1795994100
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795736220,
+   "status": {
+    "kind": "closed",
+    "opens": 1795851000
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "09:30"
+   }
+  },
+  {
+   "name": "random 26",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795418100,
+      "to": 1795474800
+     },
+     {
+      "from": 1795504500,
+      "to": 1795561200
+     },
+     {
+      "from": 1795590900,
+      "to": 1795647600
+     },
+     {
+      "from": 1795677300,
+      "to": 1795734000
+     },
+     {
+      "from": 1795936500,
+      "to": 1795993200
+     },
+     {
+      "from": 1796022900,
+      "to": 1796079600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795576500,
+   "status": {
+    "kind": "closed",
+    "opens": 1795590900
+   },
+   "opens": {
+    "day": "today",
+    "time": "09:15"
+   }
+  },
+  {
+   "name": "random 27",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795414500,
+      "to": 1795457700
+     },
+     {
+      "from": 1795673700,
+      "to": 1795716900
+     },
+     {
+      "from": 1795846500,
+      "to": 1795889700
+     },
+     {
+      "from": 1796019300,
+      "to": 1796062500
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795608840,
+   "status": {
+    "kind": "closed",
+    "opens": 1795673700
+   },
+   "opens": {
+    "day": "tomorrow",
+    "time": "08:15"
+   }
+  },
+  {
+   "name": "random 28",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795422600,
+      "to": 1795456800
+     },
+     {
+      "from": 1795509000,
+      "to": 1795543200
+     },
+     {
+      "from": 1795595400,
+      "to": 1795629600
+     },
+     {
+      "from": 1795681800,
+      "to": 1795716000
+     },
+     {
+      "from": 1795768200,
+      "to": 1795802400
+     },
+     {
+      "from": 1795854600,
+      "to": 1795888800
+     },
+     {
+      "from": 1795941000,
+      "to": 1795975200
+     },
+     {
+      "from": 1796027400,
+      "to": 1796061600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795851840,
+   "status": {
+    "kind": "closed",
+    "opens": 1795854600
+   },
+   "opens": {
+    "day": "today",
+    "time": "10:30"
+   }
+  },
+  {
+   "name": "random 29",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795415400,
+      "to": 1795478400
+     },
+     {
+      "from": 1795501800,
+      "to": 1795564800
+     },
+     {
+      "from": 1795588200,
+      "to": 1795651200
+     },
+     {
+      "from": 1795674600,
+      "to": 1795737600
+     },
+     {
+      "from": 1795761000,
+      "to": 1795824000
+     },
+     {
+      "from": 1795847400,
+      "to": 1795910400
+     },
+     {
+      "from": 1795933800,
+      "to": 1795996800
+     },
+     {
+      "from": 1796020200,
+      "to": 1796083200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795624380,
+   "status": {
+    "kind": "open",
+    "closes": 1795651200
+   },
+   "closes": {
+    "day": "tomorrow",
+    "time": "02:00"
+   }
+  },
+  {
+   "name": "random 30",
+   "zone": "Europe/Helsinki",
+   "generated": 1795397400,
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795414500,
+      "to": 1795430700
+     },
+     {
+      "from": 1795500900,
+      "to": 1795517100
+     },
+     {
+      "from": 1795587300,
+      "to": 1795603500
+     },
+     {
+      "from": 1795673700,
+      "to": 1795689900
+     },
+     {
+      "from": 1795760100,
+      "to": 1795776300
+     },
+     {
+      "from": 1795846500,
+      "to": 1795862700
+     },
+     {
+      "from": 1796019300,
+      "to": 1796035500
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795504860,
+   "status": {
+    "kind": "open",
+    "closes": 1795517100
+   },
+   "closes": {
+    "day": "today",
+    "time": "12:45"
+   }
+  }
+ ]
+}

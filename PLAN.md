@@ -333,7 +333,7 @@ The shape differs for each state, so colour is never the only signal, and the st
 
 ## 7. Architecture
 
-Next.js 16 (App Router; Node.js 20.9 or later), TypeScript, CSS Modules with CSS variables. No Tailwind, no UI kit. Deployed on Vercel.
+Next.js 16 (App Router; Node.js 20.9 or later), TypeScript, CSS Modules with CSS variables. No Tailwind, no UI kit. Deployed on Vercel. The pipeline is TypeScript that Node runs as it is, without a build step, which needs Node 22.18 or later; `package.json` is an ES module for that reason.
 
 Three parts:
 
@@ -387,9 +387,10 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 
 1. **Fetch.** One Overpass query per country, in sequence, with a pause between them.
    - `amenity=pharmacy` and `healthcare=pharmacy` as nodes, ways and relations inside the country's area, output as centre points with tags (`out center tags`).
-   - For Germany, Spain and Switzerland the same query groups the result by state or canton (admin level 4), because public holidays differ between them.
-   - Rules from the main instance's policy: an identifying User-Agent with `CONTACT_EMAIL`; after a 429 or 504, wait as long as the server asks and try once more; then one try on `overpass.private.coffee`; no retry loops; never the Russian-hosted VK Maps instance.
-   - A country that still fails keeps the tiles it had, with their older date, and the run is marked failed so that it gets noticed.
+   - For Germany, Spain and Switzerland the same query asks state by state (canton by canton), with a marker element in front of each group, because public holidays differ between them. Asking for the whole country and sorting it into states inside Overpass was tried first and timed out on both instances.
+   - Rules from the main instance's policy: an identifying User-Agent with `CONTACT_EMAIL`; after a 429 or a gateway error (502 to 504), wait as long as the server asks, and at least half a minute after a gateway error, and try once more; then one try on `overpass.private.coffee`; no retry loops; never the Russian-hosted VK Maps instance.
+   - An answer with a `remark` (Overpass ran out of time or memory and cut the list short) counts as a failure, and so does a state that comes back without a single pharmacy.
+   - A country that still fails keeps the tiles it had, with their older date, and the run is marked failed so that it gets noticed. The pipeline reads the country's earlier rows from a file of its own on the data host (`/tiles/v1/countries/{CC}.json`), which every run publishes next to the tiles.
 2. **Normalise.**
    - If there's no name, fall back to brand, then operator. With none of them the UI says "Apteekki" / "Pharmacy".
    - Keep the address (including `addr:city`, which names the place for a located user), phone, email (`email`, else `contact:email`), website (`website`, else `contact:website`; `http` and `https` only), wheelchair access with its description, and the hours' `check_date`.
@@ -404,14 +405,14 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 **Tiles.**
 
 - **Address:** `/tiles/v1/10/{x}/{y}.json`, the standard web-map tile numbering at zoom 10: squares of about 20 km in southern Finland and 30 km in Spain. The client computes x and y from the position with the projection the map already uses (`lib/geo.ts`).
-- **Content:** when it was generated, where the 8-day window starts, small tables of strings (cities, time zones, interval sets) and one compact row per pharmacy: OpenStreetMap id, position, name, street, city, country, zone, hours, phone, email, website, wheelchair, dispensing, check date. JSON, compressed by the CDN.
-- **Hours in a tile:** each pharmacy points to an interval set in the tile's table, so identical schedules are stored once. Or it is marked `missing`, or `unparseable` with the raw value kept.
-- **`/tiles/v1/index.json`:** per country the generated-at time, the number of pharmacies, the share with opening hours and the parse rate; and a grid that says which tiles exist. It answers "is there data here" without a request per empty square, and it feeds the data page (`/fi/data`, `/en/data`).
+- **Content:** a small table of sources (one per country and time zone in the square: when that country's data was fetched, and where its 8-day window starts and ends), tables of cities and interval sets, and one compact row per pharmacy: OpenStreetMap id, position, name, street, city, source, hours, phone, email, website, wheelchair, dispensing, check date. JSON, compressed by the CDN. Freshness is per source, so a square on a border can hold one country's fresh rows next to another's older ones.
+- **Hours in a tile:** each pharmacy points to an interval set in the tile's table, so identical schedules are stored once. A set is open intervals, and where the data says so, stretches whose state is unknown. Or the pharmacy is marked `missing`, `unparseable` or `uncertain`, the last two with the raw value kept.
+- **`/tiles/v1/index.json`:** per country the generated-at time, the number of pharmacies, how many have opening hours and how many of those were read, with the two shares; and a grid with one character per square: outside the coverage, covered without a pharmacy, has a tile, or has a tile with a border grid (section 7.7). It answers "is there data here" and "is this a covered country" without a request per empty square, and it feeds the data page (`/fi/data`, `/en/data`).
 - **Schema:** documented in `docs/tiles.md` and versioned in the path. The iOS app reads the same files (decision D5).
 - **Freshness:** every tile carries its generated-at time, and the results footer shows it. Data older than 7 days shows hours as uncertain, never as open (section 7.4). Eight days of intervals and seven days of validity leave at least a day of look-ahead for "opens tomorrow".
 - **Caching:** an hour in the browser and on the CDN, revalidated in the background. With a healthy pipeline a tile is at most a night and an hour old.
-- **Size:** measured in M2 (median and largest tile, compressed) and recorded in the README. If the densest city squares turn out too heavy for the phone budget of section 12, those squares are split into zoom 11 or 12 and listed in the index. Decide from the measurement, not before.
-- **Hosting (decision D7):** the tiles are plain static files. The Action deploys them as a static project of their own, and the app serves them under its own origin through a rewrite (`/tiles/*`), cached by the CDN. The app is not rebuilt for data, the data never enters git, and the browser talks to one origin.
+- **Size:** measured in M2 (median and largest tile, compressed) and recorded in the README. If the densest city squares turn out too heavy for the phone budget of section 12, those squares are split into zoom 11 or 12 and listed in the index. Decide from the measurement, not before. The measurement is in the README: no square is split.
+- **Hosting (decision D7):** the tiles are plain static files. The Action deploys them as a static project of their own (one archive, `vercel deploy --archive=tgz`, because there are thousands of files), and the app serves them under its own origin through a rewrite (`/tiles/*`), cached by the CDN. The app is not rebuilt for data, the data never enters git, and the browser talks to one origin. In development the rewrite points at `npm run data:serve`.
 - **Licence:** the tiles are OpenStreetMap data under the ODbL. `index.json` and the UI carry the attribution.
 - One query per country a night is light use of the public Overpass instance. A commercial service should build from a planet extract or its own Overpass instance. Note this in the README.
 - In a public repository GitHub disables scheduled workflows after 60 days without activity. The data page and the 7-day rule would show it. Note it in the README, with the way to switch the workflow back on.
@@ -444,14 +445,16 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 - Per pharmacy the result is one of:
   - `missing`
   - `unparseable`, with the raw value kept
-  - `parsed`: open intervals for 8 days from the start of the local day, flagged where the data says unknown or carries a comment
-- An evaluation error gives `uncertain`, never a failed run.
+  - `uncertain`, with the raw value kept: the value was read but can't be trusted
+  - `parsed`: open intervals for 8 days from the start of the local day of the fetch, and beside them the stretches the data itself calls unknown (`unknown`, or hours with a comment such as "by appointment")
+- `uncertain` is given for an evaluation error (never a failed run), for hours that follow sunrise or sunset (they depend on the place and the real clock, which the UTC trick can't give), and for hours that depend on public holidays in a pharmacy whose state could not be determined.
+- Intervals that touch are joined: a pharmacy open past midnight has one interval a night.
 - The library auto-corrects common sloppy values (`Mo-Fr 9-17`, `9am-5pm`, `mon-fri`, `09.00`, Finnish `Ma-Pe`). In practice "unparseable" means free text like "call for hours".
 - The parse rate per country is counted on every run and published in `index.json` (section 12).
 
 **In the browser** (`lib/hoursStatus.ts`, pure)
 
-- Status is the current instant against the intervals: open, closes soon (under 30 minutes), open around the clock (one interval covers the whole window), closed with the next opening, or unknown.
+- Status is the current instant against the intervals: open, closes soon (under 30 minutes), open around the clock (the interval runs to the end of the window, so no closing is in sight), closed with the next opening, or unknown. No opening is promised across a stretch the data calls unknown.
 - Clock times and day names are shown in the pharmacy's own zone, which the tile carries. When that differs from the device's zone (across a border, or a searched place far away) the line says so ("paikallista aikaa"). Ehditkö compares instants, so the slack is right in either case.
 - Data older than 7 days: every status becomes "Aukioloajat voivat olla vanhentuneet" with the dashed cross. Nothing is open, closing soon or leading the card. The same holds once the 8-day window has run out.
 - Nothing time-dependent is rendered on the server, so there are no hydration mismatches.
@@ -681,8 +684,9 @@ lib/
   sky.ts                      sun altitude and azimuth → first-visit sky and the map's light (pure; also serialised into the inline script)
   status.ts  results.ts  travel.ts   status text and glyph, list arrangement, distance wording (pure)
   exonyms.ts                  city names in the UI language ("Rīga" → "Riika" / "Riga"), OSM spelling otherwise
-  tiles.ts                    tile schema; position → tile addresses; ring search; decoding (pure, shared with the pipeline)
+  tiles.ts                    tile schema; position → tile addresses; the search for the nearest; writing and reading a tile (pure, shared with the pipeline)
   hoursStatus.ts              intervals + now → status (pure, client)
+  zone.ts                     time-zone arithmetic with Intl alone (pure, shared with the pipeline)
   ehditko.ts                  status + walking minutes + now → timeline / too late / nothing (pure)
   brand.ts                    the product's name, in one place (decision D4)
   handoff.ts                  reads country and rx from the hand-off link's fragment (pure)
@@ -691,13 +695,17 @@ lib/
   fixtures/  dev/             M0 fixtures (Helsinki, Riga, stress data) and the /dev/states registry
   server/routing.ts  server/geocode.ts
 pipeline/
-  countries.ts                coverage: ISO code, time zone, Overpass area; the countries of section 8
+  countries.ts                coverage: ISO code, time zone, states with their own holidays; the countries of section 8
   fetch.ts                    one Overpass query per country; pause, one retry, one failover
   normalize.ts                the cleanup rules of section 7.2
   hours.ts                    opening_hours → 8 days of intervals as instants; holidays; flags
   check.ts                    count and parse-rate gates per country
-  write.ts                    tiles and index.json
+  coverage.ts                 which squares are covered, and the border grids (section 7.7)
+  write.ts                    tiles, index.json and the per-country files
   run.ts                      entry point of `npm run data`
+  corpus.ts                   `npm run data:corpus`: pins the distinct opening_hours values for CI
+  serve.ts                    `npm run data:serve`: the last run's tiles, for development
+  site/                       the data host's configuration (caching)
 public/
   sw.js                       hand-written service worker: app files, index.json, the last area's tiles (M6)
   glyphs/                     map label glyphs in our own typeface, with its licence
@@ -712,7 +720,7 @@ docs/
 tests/
   unit/  property/  e2e/  perf/
   fixtures/                   recorded Overpass samples, fixture tiles, messy opening_hours values
-  vectors/                    time-logic cases as JSON, shared with the iOS app
+  vectors/                    time and tile cases as JSON, shared with the iOS app; `make.ts` writes them (`npm run vectors`)
 .github/workflows/
   ci.yml                      every push: type check, lint, tests, Playwright with visual comparison, Lighthouse budgets
   data.yml                    nightly: pipeline, checks, publish the tiles
@@ -728,7 +736,7 @@ README.md                     section 11, "README"
 Dependencies this plan names (`CLAUDE.md`: ask before adding any other):
 
 - In the app: `maplibre-gl` (the spike, then M4). Nothing else at runtime.
-- In the pipeline only: `opening_hours`; `@rapideditor/country-coder`; `tsx` only if Node can't run the TypeScript pipeline directly.
+- In the pipeline only: `opening_hours`; `@rapideditor/country-coder`. `tsx` is not needed: Node runs the TypeScript pipeline directly.
 - For tests and CI: `fast-check`, `@axe-core/playwright`, `@lhci/cli`.
 - No longer needed in the app: `opening_hours` on the server, `@rapideditor/country-coder` and `@photostructure/tz-lookup`.
 
@@ -743,7 +751,7 @@ Each milestone is a branch (`m1`, `m2`, …) and a pull request. The description
 | M0 (done) | Scaffold, tokens, font, `CrossGlyph`, buttons, every view from section 5 with fixture data in `/dev/states` (light and dark, phone and desktop); first visit with the skyline; map as a static placeholder with fixture markers | Every screen in section 5 can be reviewed visually; no API calls yet |
 | M1 | Geolocation + reducer with real states; first-visit window; place-search path. The product name from one constant (D4). CI on every push: type check, lint, unit tests, Playwright with visual comparison of `/dev/states`, Lighthouse budgets (section 12) | Allow, deny, ignore the prompt, timeout: each lands in the right view. A push that changes a view or breaks a budget fails. Changing the constant renames the app everywhere, `<title>` included |
 | S1 (spike, decided) | The map's look on `/dev/map`, on real OpenFreeMap tiles with our own style, not wired into the app. Variant A: flat and calm. B: A plus 3D buildings lit from the sun's real direction. C: B plus a pitched camera and the map's sky. Each in day, dusk and night, Helsinki and one city abroad. Numbers: `maplibre-gl` gzipped, style size, first map render on the throttled phone profile | Janne picked from the screenshots in `design/map-spike/`: top-down only, A's flat look at overview zooms, B's sun-lit buildings from about zoom 15, C dropped |
-| M2 | The data pipeline (section 7.2) for the whole coverage list: Overpass per country, normalise, hours into 8 days of intervals with holidays, tiles and `index.json`, the checks, the nightly Action and the data host. The tile contract with it: `lib/tiles.ts`, `lib/hoursStatus.ts`, their property tests, the corpus test, `tests/vectors/` and `docs/tiles.md` | The Action has published tiles for all 21 countries with a generated-at time. `index.json` gives count, share with hours and parse rate per country. The corpus test passes on every real value. A country whose query fails keeps its previous tiles. Tile sizes are measured. The vectors exist, so the iOS track can start |
+| M2 (built) | The data pipeline (section 7.2) for the whole coverage list: Overpass per country, normalise, hours into 8 days of intervals with holidays, tiles and `index.json`, the checks, the nightly Action and the data host. The tile contract with it: `lib/tiles.ts`, `lib/hoursStatus.ts`, their property tests, the corpus test, `tests/vectors/` and `docs/tiles.md` | The Action has published tiles for all 21 countries with a generated-at time. `index.json` gives count, share with hours and parse rate per country. The corpus test passes on every real value. A country whose query fails keeps its previous tiles. Tile sizes are measured. The vectors exist, so the iOS track can start |
 | M3 | The client on tiles: tile selection, real pharmacies in a straight-line list, status from the intervals, lit crosses + reveal, minute tick, the farther open pharmacy, out-of-date and not-covered handling, the data date in the footer and the data page. `lib/requests.ts`, the security headers and the privacy test. Time to first result measured | Real pharmacies near you, sorted, with a status that ticks every minute. With the clock moved 8 days ahead nothing reads open. The privacy test passes: no request carries the position. The data page shows the numbers of the last nightly run |
 | M4 | MapLibre map in the look chosen in S1 (top-down; flat at overview zooms, sun-lit 3D buildings from about zoom 15), with stronger markers and dusk and night clearly different; you-are-here with `watchPosition`, list ↔ map selection, edge chip, bottom sheet drag gesture | Map and list always agree; the dot follows a walk; list still works if the map fails; the map tile host is the one third party the privacy test sees |
 | M5 | Walking times and the route line through the one `/api/walking` endpoint (ORS Matrix and Directions) + budget + fallback; "Lähin auki nyt" card with the ehditkö rule; next open; pharmacy sheet with Google/Apple Maps hand-off, website, email and the OpenStreetMap note link | List renders once; ehditkö tested at its boundaries; `/api/walking` is the only request with the position; time to first result measured again; the note link opens the form at the pharmacy |
@@ -787,7 +795,7 @@ Written for a reader at Treat with five minutes:
 **Corpus test: is the parsing right**
 
 - Runs the hours step over every real `opening_hours` value in the extract and reports the parse rate per country: parsed, unparseable, missing, and how many needed the library's auto-correction.
-- The nightly run does this on the fresh extract and publishes the numbers in `index.json`. CI does it on a pinned snapshot of the distinct values (`data/corpus/`, refreshed with `npm run data:corpus`), so a push can't lower the rate unnoticed.
+- The nightly run does this on the fresh extract and publishes the numbers in `index.json`. CI does it on a pinned snapshot of the distinct values (`data/corpus/`, refreshed with `npm run data:corpus`), so a push can't lower the rate unnoticed: the counts per country must equal the pinned ones in `data/corpus/expected.json`, and a change shows up as a diff of that file.
 - No value may throw. A value that parses must give intervals that are sorted, don't overlap and stay inside the window.
 
 **Property tests: is the time logic right** (`fast-check`)
@@ -798,7 +806,7 @@ Written for a reader at Treat with five minutes:
 - Boundaries: "closes soon" starts under 30 minutes before closing, not at exactly 30; the ehditkö timeline starts at 60 minutes before closing; arriving exactly at closing is too late; the slack turns amber under 5 minutes or 20% of the walk.
 - Staleness: no input gives "open" from data older than 7 days.
 - Tiles: for random positions and random pharmacies, the nearest N found through tiles equal the nearest N by brute force, tile corners included. Writing a tile and reading it back gives the same intervals.
-- The generated cases are also saved as JSON (`tests/vectors/`), so the Swift implementation can be checked against the same answers.
+- Cases with their answers are also saved as JSON (`tests/vectors/`, written from a fixed seed by `npm run vectors`), so the Swift implementation can be checked against the same answers. A unit test fails when the files and the code disagree.
 
 **Playwright (Chromium and WebKit)**
 

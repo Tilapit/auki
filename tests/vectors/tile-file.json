@@ -1,0 +1,349 @@
+{
+ "about": "One tile as it is stored, and what reading it must give. See docs/tiles.md.",
+ "file": {
+  "v": 1,
+  "z": 10,
+  "x": 582,
+  "y": 296,
+  "sources": [
+   {
+    "country": "FI",
+    "zone": "Europe/Helsinki",
+    "generated": 1795397400,
+    "from": 1795384800,
+    "until": 1796076000
+   },
+   {
+    "country": "SE",
+    "zone": "Europe/Stockholm",
+    "generated": 1795311000,
+    "from": 1795302000,
+    "until": 1795993200
+   }
+  ],
+  "cities": [
+   "Helsinki",
+   "Haparanda"
+  ],
+  "hours": [
+   [
+    [
+     480,
+     1260,
+     1920,
+     2700,
+     3360,
+     4140,
+     4800,
+     5580,
+     6240,
+     7020
+    ]
+   ],
+   [
+    [
+     0,
+     11520
+    ]
+   ],
+   [
+    [
+     480,
+     1080
+    ],
+    [
+     1440,
+     2880
+    ]
+   ]
+  ],
+  "rows": [
+   [
+    "n1",
+    60.1699,
+    24.9384,
+    "Keskustan apteekki",
+    "Mannerheimintie 5",
+    0,
+    0,
+    0,
+    null,
+    "+358 9 1234567",
+    "apteekki@example.org",
+    "https://example.org/",
+    "yes",
+    "Luiska sivuovella",
+    null,
+    "2026-10-01"
+   ],
+   [
+    "w2",
+    60.1705,
+    24.941,
+    "Aseman apteekki",
+    null,
+    0,
+    0,
+    0
+   ],
+   [
+    "n3",
+    60.18,
+    24.95,
+    "Yöapteekki",
+    null,
+    null,
+    0,
+    1,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    false
+   ],
+   [
+    "r4",
+    60.19,
+    24.96,
+    null,
+    null,
+    null,
+    0,
+    2,
+    "Mo 08:00-18:00; Tu unknown"
+   ],
+   [
+    "n5",
+    60.2,
+    24.97,
+    "Kyläapteekki",
+    null,
+    null,
+    0,
+    "x",
+    "soita ensin"
+   ],
+   [
+    "n6",
+    60.21,
+    24.98,
+    "Rantaapteekki",
+    null,
+    null,
+    0,
+    "u",
+    "sunrise-sunset"
+   ],
+   [
+    "n7",
+    60.22,
+    24.99,
+    "Apotek över viken",
+    null,
+    1,
+    1
+   ]
+  ],
+  "border": {
+   "n": 2,
+   "codes": [
+    "FI",
+    "RU"
+   ],
+   "cells": "0.01"
+  }
+ },
+ "decoded": {
+  "x": 582,
+  "y": 296,
+  "pharmacies": [
+   {
+    "id": "n1",
+    "lat": 60.1699,
+    "lon": 24.9384,
+    "name": "Keskustan apteekki",
+    "street": "Mannerheimintie 5",
+    "city": "Helsinki",
+    "country": "FI",
+    "zone": "Europe/Helsinki",
+    "generated": 1795397400,
+    "windowFrom": 1795384800,
+    "windowUntil": 1796076000,
+    "hours": {
+     "kind": "parsed",
+     "open": [
+      {
+       "from": 1795413600,
+       "to": 1795460400
+      },
+      {
+       "from": 1795500000,
+       "to": 1795546800
+      },
+      {
+       "from": 1795586400,
+       "to": 1795633200
+      },
+      {
+       "from": 1795672800,
+       "to": 1795719600
+      },
+      {
+       "from": 1795759200,
+       "to": 1795806000
+      }
+     ],
+     "unknown": []
+    },
+    "phone": "+358 9 1234567",
+    "email": "apteekki@example.org",
+    "website": "https://example.org/",
+    "wheelchair": "yes",
+    "wheelchairNote": "Luiska sivuovella",
+    "checkDate": "2026-10-01"
+   },
+   {
+    "id": "w2",
+    "lat": 60.1705,
+    "lon": 24.941,
+    "name": "Aseman apteekki",
+    "city": "Helsinki",
+    "country": "FI",
+    "zone": "Europe/Helsinki",
+    "generated": 1795397400,
+    "windowFrom": 1795384800,
+    "windowUntil": 1796076000,
+    "hours": {
+     "kind": "parsed",
+     "open": [
+      {
+       "from": 1795413600,
+       "to": 1795460400
+      },
+      {
+       "from": 1795500000,
+       "to": 1795546800
+      },
+      {
+       "from": 1795586400,
+       "to": 1795633200
+      },
+      {
+       "from": 1795672800,
+       "to": 1795719600
+      },
+      {
+       "from": 1795759200,
+       "to": 1795806000
+      }
+     ],
+     "unknown": []
+    }
+   },
+   {
+    "id": "n3",
+    "lat": 60.18,
+    "lon": 24.95,
+    "name": "Yöapteekki",
+    "country": "FI",
+    "zone": "Europe/Helsinki",
+    "generated": 1795397400,
+    "windowFrom": 1795384800,
+    "windowUntil": 1796076000,
+    "hours": {
+     "kind": "parsed",
+     "open": [
+      {
+       "from": 1795384800,
+       "to": 1796076000
+      }
+     ],
+     "unknown": []
+    },
+    "dispensing": false
+   },
+   {
+    "id": "r4",
+    "lat": 60.19,
+    "lon": 24.96,
+    "name": null,
+    "country": "FI",
+    "zone": "Europe/Helsinki",
+    "generated": 1795397400,
+    "windowFrom": 1795384800,
+    "windowUntil": 1796076000,
+    "hours": {
+     "kind": "parsed",
+     "open": [
+      {
+       "from": 1795413600,
+       "to": 1795449600
+      }
+     ],
+     "unknown": [
+      {
+       "from": 1795471200,
+       "to": 1795557600
+      }
+     ],
+     "raw": "Mo 08:00-18:00; Tu unknown"
+    }
+   },
+   {
+    "id": "n5",
+    "lat": 60.2,
+    "lon": 24.97,
+    "name": "Kyläapteekki",
+    "country": "FI",
+    "zone": "Europe/Helsinki",
+    "generated": 1795397400,
+    "windowFrom": 1795384800,
+    "windowUntil": 1796076000,
+    "hours": {
+     "kind": "unparseable",
+     "raw": "soita ensin"
+    }
+   },
+   {
+    "id": "n6",
+    "lat": 60.21,
+    "lon": 24.98,
+    "name": "Rantaapteekki",
+    "country": "FI",
+    "zone": "Europe/Helsinki",
+    "generated": 1795397400,
+    "windowFrom": 1795384800,
+    "windowUntil": 1796076000,
+    "hours": {
+     "kind": "uncertain",
+     "raw": "sunrise-sunset"
+    }
+   },
+   {
+    "id": "n7",
+    "lat": 60.22,
+    "lon": 24.99,
+    "name": "Apotek över viken",
+    "city": "Haparanda",
+    "country": "SE",
+    "zone": "Europe/Stockholm",
+    "generated": 1795311000,
+    "windowFrom": 1795302000,
+    "windowUntil": 1795993200,
+    "hours": {
+     "kind": "missing"
+    }
+   }
+  ],
+  "border": {
+   "n": 2,
+   "codes": [
+    "FI",
+    "RU"
+   ],
+   "cells": "0.01"
+  }
+ }
+}

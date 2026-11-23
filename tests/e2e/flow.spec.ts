@@ -153,6 +153,9 @@ test.describe('location from the device', () => {
     await page.clock.install({ time: new Date('2026-11-19T18:41:00Z') });
     await fakeLocation(page, 'ignore');
     await open(page, '/fi');
+    // From here on the page's clock moves only when the test moves it. Left running, a slow
+    // runner used up the eight seconds by itself and the first message was gone before we looked.
+    await page.clock.pauseAt(new Date('2026-11-19T18:42:00Z'));
     await locateButton(page).click();
     await expect(page.getByRole('status')).toContainText('Haetaan sijaintiasi…');
     // The status line took the button's place, and the keyboard with it.

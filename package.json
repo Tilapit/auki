@@ -2,6 +2,7 @@
   "name": "auki",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "predev": "node scripts/copy-map-worker.mjs",
     "dev": "TZ=UTC next dev",
@@ -16,7 +17,11 @@
     "test:e2e": "TZ=UTC playwright test",
     "shots": "TZ=UTC playwright test tests/e2e/states.spec.ts",
     "test:visual": "VISUAL=1 TZ=UTC playwright test tests/e2e/visual.spec.ts",
-    "lighthouse": "lhci autorun && node scripts/budget-summary.mjs"
+    "lighthouse": "lhci autorun && node scripts/budget-summary.mjs",
+    "data": "TZ=UTC node --env-file-if-exists=.env.local pipeline/run.ts",
+    "data:serve": "node pipeline/serve.ts",
+    "data:corpus": "TZ=UTC node pipeline/corpus.ts",
+    "vectors": "TZ=UTC node tests/vectors/make.ts"
   },
   "dependencies": {
     "maplibre-gl": "^6.19.0",
@@ -27,11 +32,14 @@
   "devDependencies": {
     "@lhci/cli": "^0.16.1",
     "@playwright/test": "^1.65.1",
+    "@rapideditor/country-coder": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "fast-check": "^4.11.0",
+    "opening_hours": "^3.16.0",
     "typescript": "^5",
     "vitest": "^4.1.12"
   }
