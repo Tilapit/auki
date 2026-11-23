@@ -1,17 +1,20 @@
+import { BRAND } from '../brand';
+
 /**
  * Finnish UI strings. Finnish is written first; en.ts follows this shape.
  * Sentence case, plain verbs, no exclamation marks, no em dashes.
  * "{name}" marks a slot filled with an element (see rich.tsx).
  * Copy rules (CLAUDE.md): "klo 20.45" with a non-breaking space (\u00A0) after "klo" and between
  * a number and its unit; ranges with an en dash and no spaces; decimal comma; quotation marks ”…”.
+ * The product's name comes from lib/brand.ts and is never written out here.
  */
 const fi = {
   meta: {
-    title: 'Auki: lähin auki oleva apteekki',
+    title: `${BRAND}: lähin auki oleva apteekki`,
     description: 'Löydä lähin auki oleva apteekki kartalta ja listalta. Sijaintiasi ei tallenneta.',
   },
   app: {
-    name: 'Auki',
+    name: BRAND,
     otherLanguage: 'In English',
     otherLanguageShort: 'EN',
     otherLanguageLabel: 'Vaihda kieli: English',
@@ -47,6 +50,19 @@ const fi = {
     placeholder: 'Esim. Kamppi tai Riika',
     submit: 'Hae',
     retry: 'Yritä uudelleen',
+    finding: 'Haetaan paikkaa…',
+    notFound: {
+      title: (query: string) => `Paikkaa ”${query}” ei löytynyt`,
+      body: 'Tarkista kirjoitusasu tai kokeile lähintä kaupunkia.',
+    },
+    failed: {
+      title: 'Paikan haku ei onnistunut juuri nyt',
+      body: 'Vika on palvelussa, ei laitteessasi. Yritä hetken päästä uudelleen.',
+    },
+    offline: {
+      title: 'Ei verkkoyhteyttä',
+      body: 'Paikan haku tarvitsee yhteyden. Yritä uudelleen, kun yhteys palaa.',
+    },
     how: 'Näin sallit sijainnin',
     steps: [
       'iPhone ja iPad: avaa osoiterivin sivuvalikko, valitse Verkkosivuston asetukset ja salli Sijainti.',
@@ -108,7 +124,7 @@ const fi = {
     closerClosed: (count: number) => `Lähemmät ${count} apteekkia ovat kiinni.`,
     mostOpenTomorrow: (range: string) => `Useimmat avautuvat huomenna klo\u00A0${range}.`,
     approximate: 'Sijaintisi on likimääräinen',
-    approximateBody: 'Etäisyydet voivat heittää. Tarkemman tuloksen saat hakemalla paikan nimellä.',
+    approximateBody: 'Etäisyydet voivat heittää.',
     searching: 'Katsotaan, mitkä apteekit ovat auki juuri nyt…',
     searchingShort: 'Haetaan apteekkeja…',
     found: (count: number, name: string, distance: string, status: string) =>

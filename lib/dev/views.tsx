@@ -5,9 +5,11 @@ import { PlaceSearch } from '@/components/PlaceSearch';
 import { ProblemView } from '@/components/ProblemView';
 import { ProgressView } from '@/components/ProgressView';
 import { ResultsView } from '@/components/ResultsView';
+import { SearchingView } from '@/components/SearchingView';
 import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/helsinki';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
+import { sceneAt } from '@/lib/scene';
 import type { SkyAt } from '@/lib/sky';
 
 /** Fixed moments for the sky. Nothing in /dev/states reads the clock. */
@@ -27,6 +29,10 @@ export const renderers: Record<string, () => ReactNode> = {
   locating: () => <ProgressView phase="locating" sky={TWILIGHT} />,
   waiting: () => <ProgressView phase="waiting" sky={TWILIGHT} />,
   'place-search': () => <PlaceSearch sky={TWILIGHT} />,
+  'place-finding': () => <PlaceSearch sky={TWILIGHT} lookup={{ status: 'pending', query: 'Kamppi' }} />,
+  'place-not-found': () => <PlaceSearch sky={TWILIGHT} lookup={{ status: 'notFound', query: 'Kampi keskus' }} />,
+  'place-failed': () => <PlaceSearch sky={TWILIGHT} lookup={{ status: 'failed', query: 'Kamppi', offline: false }} />,
+  'place-offline': () => <PlaceSearch sky={TWILIGHT} problem="denied" lookup={{ status: 'failed', query: 'Kamppi', offline: true }} />,
   denied: () => <ProblemView kind="denied" sky={TWILIGHT} />,
   'denied-how': () => <PlaceSearch problem="denied" sky={TWILIGHT} stepsOpen />,
   unavailable: () => <ProblemView kind="unavailable" sky={TWILIGHT} />,
@@ -34,6 +40,12 @@ export const renderers: Record<string, () => ReactNode> = {
   unsupported: () => <ProblemView kind="unsupported" sky={TWILIGHT} />,
 
   searching: () => <ProgressView phase="searching" scene={helsinki} />,
+  'searching-place': () => (
+    <SearchingView scene={sceneAt({ source: 'search', lat: 60.1689, lon: 24.9325, label: 'Kampin keskus, Helsinki' }, '20:41')} />
+  ),
+  'searching-approximate': () => (
+    <SearchingView scene={sceneAt({ source: 'device', lat: 60.1689, lon: 24.9325, accuracy: 2400, approximate: true }, '20:41')} />
+  ),
   'helsinki-peek': () => <ResultsView scene={helsinki} sheet="peek" />,
   helsinki: () => <ResultsView scene={helsinki} sheet="expanded" />,
   'riga-peek': () => <ResultsView scene={riga} sheet="peek" />,

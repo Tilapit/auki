@@ -352,3 +352,34 @@ Entry format:
   - The edge chip for the far one is named "Lähin auki", not "Seuraava auki", and on the phone it sits clear of the map credit.
 - Why: Janne's decision on the order. At that moment there are two ways forward, travel now or wait for the nearest door to open, and the card should hold both. A walking time for 6 km would be a number nobody uses.
 - Status: accepted
+
+## 2026-11-22: Where focus goes when the view changes (M1)
+- Where: FirstVisit, PlaceSearch, the map views
+- Change: When the location button gives way to the status line, focus moves to that line. A location problem moves focus to the note's heading; choosing "Hae paikan nimellä" moves it to the field. After a search the user started, focus moves to the map view's title. Headings that only the app focuses show no ring: they are not controls.
+- Why: PLAN.md section 9. The pressed button disappears, and a keyboard or screen-reader user would otherwise be dropped at the top of the page. The ring around a note's heading also overlapped the line below it.
+- Status: done
+
+## 2026-11-22: What a place search can answer (M1)
+- Where: PlaceSearch
+- Change: Four states the boards didn't have: looking the name up ("Haetaan paikkaa…"), no place by that name (the note quotes the name and keeps it in the field), the lookup failed, and offline. The note has no icon. Only the latest event is shown: the search's answer replaces the location note until the next search.
+- Why: The search runs through our server to Nominatim and can fail in ways the user has to be told about. One note at a time keeps the phone screen readable.
+- Status: done
+
+## 2026-11-22: Approximate location offers place search (M1)
+- Where: ApproximateNotice (the map views)
+- Change: The notice has the action "Hae paikan nimellä", and its text is shortened to "Etäisyydet voivat heittää." The boards had the sentence without a way to act on it.
+- Why: PLAN.md 7.1: show the notice "with place search". The action keeps the name it has on the first window.
+- Status: done
+
+## 2026-11-22: Back steps through the views (M1)
+- Where: The whole flow (`hooks/usePharmacySearch.ts`)
+- Change: The first window, the search box and the map view are steps in the browser's history, with the address unchanged. The back button and the back arrow go one step back without loading the page again. Refreshing the location on a searched place switches to the device's location.
+- Why: On a phone the back gesture is how people leave a view. Without this it left the site.
+- Status: done
+
+## 2026-11-22: M1 stops at the searching view
+- Where: After the position is known
+- Change: Once a position is found the app shows the map view with the placeholder and stays there. There is no pharmacy data to show before M2 and M3.
+- Why: The only honest alternatives were an error message for a service that doesn't exist yet, or fixture pharmacies around the user's real position. Both would say something false.
+- Status: done, until M3
+

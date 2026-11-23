@@ -141,7 +141,7 @@ Name, address, status, walking time and distance; hours for the coming seven day
 - Counter card: full-screen dialog; the local language large, English below; e-prescription / paper switch; "Could a pharmacist help me?"; "Unreviewed translation" badge where it applies; screen kept awake. Always light, also in dark mode: a stranger reads it at arm's length in a lit pharmacy, like a paper document. Offered from the card and from every pharmacy sheet.
 
 ### Place search (no location)
-Same sky as the first visit. A search field and "Hae". Every location problem (denied, unavailable, timeout, unsupported) lands here with a note that starts with a heading. When location is blocked: "Sijainti on estetty tältä sivulta. Voit sallia sen selaimen asetuksista." and "Näin sallit sijainnin".
+Same sky as the first visit. A search field and "Hae". Every location problem (denied, unavailable, timeout, unsupported) lands here with a note that starts with a heading. When location is blocked: "Sijainti on estetty tältä sivulta. Voit sallia sen selaimen asetuksista." and "Näin sallit sijainnin". A search that finds no place says which name it looked for and keeps it in the field; a failed lookup and a missing connection each say so.
 
 ### Data that is out of date
 The results footer always says when the data was fetched ("Tiedot: OpenStreetMap, haettu 22.11."). When it is more than 7 days old, nothing is shown as open: every pharmacy gets the dashed cross and "Aukioloajat voivat olla vanhentuneet", a notice takes the place of the "Lähin auki nyt" card, and the list stays in distance order. Designed in M3 and reviewed in `/dev/states`.
@@ -676,7 +676,7 @@ hooks/
   useLivePosition.ts          watchPosition while the page is visible; rank again after ~300 m
 lib/
   state.ts                    state/action types + reducer (pure)
-  geolocation.ts  geo.ts  format.ts  types.ts  maps.ts
+  geolocation.ts  geo.ts  format.ts  types.ts  maps.ts  scene.ts  metadata.ts
   i18n/{fi,en}.ts             UI strings; Intl for times, distances and dates (format.ts)
   sky.ts                      sun altitude and azimuth → first-visit sky and the map's light (pure; also serialised into the inline script)
   status.ts  results.ts  travel.ts   status text and glyph, list arrangement, distance wording (pure)
@@ -716,6 +716,7 @@ tests/
   ci.yml                      every push: type check, lint, tests, Playwright with visual comparison, Lighthouse budgets
   data.yml                    nightly: pipeline, checks, publish the tiles
 lighthouserc.json             budgets: initial JavaScript, mobile LCP
+scripts/budget-summary.mjs    the measured numbers as a table, for the CI summary and pull requests
 design/                       canvas source files, board exports, skyline (reference, not built); map-spike/ screenshots
 CLAUDE.md                     standing rules for Claude Code, including design latitude
 DESIGN-LOG.md                 design decisions made during the build
@@ -803,7 +804,7 @@ Written for a reader at Treat with five minutes:
 - Each state with faked geolocation, fixture tiles and stubbed server routes; axe on each; the counter card's keyboard and focus behaviour.
 - The privacy test (section 7.6).
 - Offline: load results, go offline, reload, and get the same pharmacies with the date of the data. With the clock moved 8 days ahead nothing reads open.
-- Visual comparison: the `/dev/states` screenshots against committed baselines, at 1× on the CI's Linux runner, where the baselines are also made (a manual workflow run updates them). `npm run shots` keeps producing the 2× images for review by eye.
+- Visual comparison: the `/dev/states` screenshots against committed baselines (`tests/e2e/__screenshots__/`), at 1× in the CI's Linux image, where the baselines are also made. Chromium at both sizes; WebKit, which stands in for Safari on an iPhone, at phone size. A commit marked `[baselines]`, or a manual run, makes new ones as an artifact; they are looked at and committed by hand, so the pull request shows old and new side by side. `npm run shots` keeps producing the 2× images for review by eye.
 
 **CI** (`.github/workflows/ci.yml`, on every push)
 
@@ -811,10 +812,10 @@ A new push to a branch cancels the run still going for it: the repository is pri
 
 1. Type check and lint.
 2. Unit, corpus and property tests.
-3. Playwright with the visual comparison. Failed comparisons are uploaded as images.
-4. Production build, then Lighthouse CI (`@lhci/cli`) on the first-visit page, median of three runs, with budgets:
-   - initial JavaScript: at most 200 KB gzipped. M0 measures 186 KB on `/fi`, nearly all of it React and the Next.js runtime. The map loads after first paint and gets its own budget when it lands in M4.
+3. Production build, then Lighthouse CI (`@lhci/cli`) on the first-visit page, median of three runs, with budgets:
+   - initial JavaScript: at most 200 KB gzipped. Lighthouse measures 156 KB on `/fi` at M1, nearly all of it React and the Next.js runtime. The views behind the first window load when they are needed, and the map gets its own budget when it lands in M4.
    - mobile LCP: at most 2.5 s on Lighthouse's phone profile (slow 4G, 4× CPU slowdown).
+4. A check that nothing under `/dev` exists in that build. Then a second build that keeps the `/dev` pages (`DEV_ROUTES=1`) and Playwright against it, with the visual comparison: a production server answers several times faster than the dev server. Failed comparisons are uploaded as images.
 5. Time to first result: a Playwright run in Chromium on the same throttled phone profile, location already allowed, cold cache, from navigation to the first rendered result.
    - CI runs it with fixture tiles and a stubbed walking response, and fails above a limit set from the first measurement in M3.
    - The README number is the same script against the live site: median of five runs, with its date.

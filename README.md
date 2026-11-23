@@ -6,7 +6,9 @@ The spec is `PLAN.md`, the working rules are in `CLAUDE.md`, and design decision
 
 ## Status
 
-M0: scaffold, tokens, components and every view on fixture data. No calls to Overpass, openrouteservice or Nominatim yet, and the map is a placeholder until M4.
+M1: the app finds a position, from the device or from a place name, and handles every way that can fail. It then stops at the searching view: pharmacy data arrives with the nightly pipeline (M2) and the client that reads it (M3). The map is a placeholder until M4.
+
+Every push runs type check, lint, unit tests, the Playwright flows with a visual comparison of every view, and Lighthouse budgets.
 
 ## Run it
 
@@ -16,6 +18,8 @@ npm run dev
 ```
 
 Then open `/fi` or `/en`, and `/dev/states` for every view and state in light and dark, phone and desktop. Other commands are listed in `CLAUDE.md`.
+
+Place search calls Nominatim through the server and needs a contact address to identify itself: copy `.env.example` to `.env.local` and set `CONTACT_EMAIL`.
 
 ## Known limitations so far
 

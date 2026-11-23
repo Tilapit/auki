@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { Atkinson_Hyperlegible_Next } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { SkyScript } from '@/components/SkyScript';
-import { getDictionary, isLocale, locales } from '@/lib/i18n';
+import { isLocale, locales } from '@/lib/i18n';
 import { I18nProvider } from '@/lib/i18n/context';
+import { siteMetadata } from '@/lib/metadata';
 import '../globals.css';
 
 // Self-hosted at build time by next/font: no request to Google from the visitor's browser.
@@ -24,15 +25,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Promise<Metadata> {
   const { locale } = await params;
-  if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
-  return {
-    title: t.meta.title,
-    description: t.meta.description,
-    alternates: { languages: { fi: '/fi', en: '/en' } },
-    // Private until Treat confirms the field findings can be published (PLAN.md decision D1).
-    robots: { index: false, follow: false },
-  };
+  return isLocale(locale) ? siteMetadata(locale) : {};
 }
 
 export const viewport: Viewport = {

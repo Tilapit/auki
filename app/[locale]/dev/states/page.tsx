@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { isLocale, otherLocale } from '@/lib/i18n';
 import { groups, proposals, SIZES, type Size, type Theme, type ViewInfo } from '@/lib/dev/viewList';
 import styles from './states.module.css';
+import { BRAND } from '@/lib/brand';
+import { devRoutesEnabled } from '@/lib/dev/enabled';
 
 const SCALE: Record<Size, number> = { phone: 0.5, desktop: 0.34 };
 const ALL_SIZES: Size[] = ['phone', 'desktop'];
@@ -54,7 +56,7 @@ function Frames({ view, locale, sizes, themes }: { view: ViewInfo; locale: strin
  * Developer-facing, in English. 404 in production.
  */
 export default async function States({ params, searchParams }: PageProps<'/[locale]/dev/states'>) {
-  if (process.env.NODE_ENV === 'production') notFound();
+  if (!devRoutesEnabled()) notFound();
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const query = await searchParams;
@@ -70,7 +72,7 @@ export default async function States({ params, searchParams }: PageProps<'/[loca
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <h1>Auki: states</h1>
+        <h1>{BRAND}: states</h1>
         <p>
           Fixture data at fixed times: Helsinki on Thu 19 Nov 2026 at 20.41, Riga on Fri 20 Nov at 23.40, stress data on Tue 17 Nov at 13.15. Nothing
           here reads the clock or calls a service. The map is a placeholder until M4.

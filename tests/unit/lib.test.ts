@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { devRoutesEnabled } from '@/lib/dev/enabled';
 import { isTightSlack } from '@/lib/ehditko';
 import { helsinki, helsinkiSearched } from '@/lib/fixtures/helsinki';
 import { cityName } from '@/lib/exonyms';
@@ -194,5 +195,15 @@ describe('isTightSlack', () => {
     expect(isTightSlack(6, 30)).toBe(false);
     expect(isTightSlack(7, 40)).toBe(true);
     expect(isTightSlack(5, 25)).toBe(false);
+  });
+});
+
+describe('devRoutesEnabled', () => {
+  it('keeps the /dev pages out of a production build unless the build asks for them', () => {
+    expect(devRoutesEnabled({ NODE_ENV: 'development' })).toBe(true);
+    expect(devRoutesEnabled({ NODE_ENV: 'test' })).toBe(true);
+    expect(devRoutesEnabled({ NODE_ENV: 'production' })).toBe(false);
+    expect(devRoutesEnabled({ NODE_ENV: 'production', DEV_ROUTES: '0' })).toBe(false);
+    expect(devRoutesEnabled({ NODE_ENV: 'production', DEV_ROUTES: '1' })).toBe(true);
   });
 });
