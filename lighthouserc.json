@@ -11,7 +11,7 @@
     },
     "assert": {
       "assertions": {
-        "resource-summary:script:size": ["error", { "maxNumericValue": 204800, "aggregationMethod": "median" }],
+        "resource-summary:script:size": ["error", { "maxNumericValue": 189440, "aggregationMethod": "median" }],
         "largest-contentful-paint": ["error", { "maxNumericValue": 2500, "aggregationMethod": "median" }]
       }
     },
