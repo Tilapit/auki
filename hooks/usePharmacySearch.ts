@@ -3,7 +3,31 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { canLocate, locateOnce, locationPermission, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import type { Locale } from '@/lib/i18n';
-import { initialState, reducer, type State } from '@/lib/state';
+import { Tiles, findFarOpen, findPharmacies } from '@/lib/search';
+import { initialState, isMapView, reducer, type Position, type State } from '@/lib/state';
+
+/** A tile that takes longer than this counts as not loaded. */
+const TILE_TIMEOUT_MS = 10_000;
+
+/** Loads one of our own JSON files. The path names a square; no position is in it (PLAN.md 7.6). */
+function loader(signal: AbortSignal) {
+  return async (path: string): Promise<unknown> => {
+    const controller = new AbortController();
+    const abort = () => controller.abort();
+    signal.addEventListener('abort', abort);
+    const timer = window.setTimeout(abort, TILE_TIMEOUT_MS);
+    try {
+      const response = await fetch(path, { signal: controller.signal });
+      if (!response.ok) throw new Error(String(response.status));
+      return await response.json();
+    } finally {
+      window.clearTimeout(timer);
+      signal.removeEventListener('abort', abort);
+    }
+  };
+}
+
+const nowSeconds = (): number => Math.floor(Date.now() / 1000);
 
 interface PlaceAnswer {
   place: { lat: number; lon: number; label: string } | null;
@@ -16,12 +40,18 @@ export interface PharmacySearch {
   openSearch: () => void;
   /** Looks a typed place name up through our server. */
   search: (query: string) => void;
+  /** The same from a map view: opens the place search and looks the name up. */
+  searchFrom: (query: string) => void;
+  /** Loads the tiles for the same position again. */
+  retry: () => void;
+  /** Looks for an open pharmacy farther away, when none of those shown is open at `now`. */
+  checkFarOpen: (now: number) => void;
   back: () => void;
 }
 
 /**
- * Owns the reducer and the two ways to a position: the device's location and a place name.
- * From M3 on it also fetches the tiles, and from M5 the walking times.
+ * Owns the reducer, the two ways to a position (the device's location and a place name) and
+ * the search through the tiles. From M5 on it also asks for the walking times.
  */
 export function usePharmacySearch(locale: Locale): PharmacySearch {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -72,6 +102,59 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     [locale],
   );
 
+  const searchFrom = useCallback(
+    (query: string) => {
+      dispatch({ type: 'openSearch' });
+      search(query);
+    },
+    [search],
+  );
+
+  // The search through the tiles: once for each position, and again for the same one on a retry.
+  const tiles = useRef<{ position: Position; store: Tiles; controller: AbortController } | null>(null);
+  useEffect(() => {
+    if (!isMapView(state)) {
+      tiles.current?.controller.abort();
+      tiles.current = null;
+      return;
+    }
+    if (state.view !== 'searching' || tiles.current?.position === state.position) return;
+    tiles.current?.controller.abort();
+    const { position } = state;
+    const controller = new AbortController();
+    const store = new Tiles(loader(controller.signal));
+    tiles.current = { position, store, controller };
+    void findPharmacies(store, position, nowSeconds()).then((outcome) => {
+      if (controller.signal.aborted) return;
+      if (outcome.kind === 'results') dispatch({ type: 'found', position, result: outcome.result });
+      else if (outcome.kind === 'none') dispatch({ type: 'noneFound', position });
+      else if (outcome.kind === 'notCovered') dispatch({ type: 'notCovered', position, country: outcome.country });
+      else dispatch({ type: 'searchFailed', position, offline: navigator.onLine === false });
+    });
+  }, [state]);
+
+  useEffect(() => () => tiles.current?.controller.abort(), []);
+
+  const retry = useCallback(() => dispatch({ type: 'retry' }), []);
+
+  // Offline: the search continues by itself when the connection returns.
+  const waitingForConnection = state.view === 'failed' && state.offline;
+  useEffect(() => {
+    if (!waitingForConnection) return;
+    window.addEventListener('online', retry);
+    return () => window.removeEventListener('online', retry);
+  }, [waitingForConnection, retry]);
+
+  const checkFarOpen = useCallback((now: number) => {
+    const current = tiles.current;
+    if (!current) return;
+    void findFarOpen(current.store, current.position, now)
+      .catch(() => undefined)
+      .then((farOpen) => {
+        if (!current.controller.signal.aborted) dispatch({ type: 'farOpen', position: current.position, farOpen });
+      });
+  }, []);
+
   // On arrival: without the API or HTTPS, straight to place search. With permission
   // already given, straight to the map. Otherwise wait for the button.
   useEffect(() => {
@@ -88,21 +171,23 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     };
   }, [locate]);
 
-  // The browser's back button steps through the views: results, the search box, the first window.
+  // The browser's back button steps through the views: the map, the search box, the first window.
+  // Searching, results and the problems after them are one step: the map view.
   const popped = useRef(false);
-  const previous = useRef(state.view);
+  const stage = isMapView(state) ? 'searching' : state.view;
+  const previous = useRef(stage);
   useEffect(() => {
     const from = previous.current;
-    previous.current = state.view;
+    previous.current = stage;
     if (popped.current) {
       popped.current = false;
       return;
     }
-    if (state.view === from) return;
-    const forward = state.view === 'searching' || (state.view === 'search' && state.problem !== 'unsupported');
+    if (stage === from) return;
+    const forward = stage === 'searching' || (state.view === 'search' && state.problem !== 'unsupported');
     // A retry lands on the entry it started from: no second copy of it.
-    if (forward && window.history.state?.view !== state.view) window.history.pushState({ view: state.view }, '');
-  }, [state]);
+    if (forward && window.history.state?.view !== stage) window.history.pushState({ view: stage }, '');
+  }, [state, stage]);
 
   useEffect(() => {
     const onPop = (event: PopStateEvent) => {
@@ -121,5 +206,5 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     else dispatch({ type: 'back', to: 'ready' });
   }, []);
 
-  return { state, locate, openSearch, search, back };
+  return { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, back };
 }

@@ -78,6 +78,42 @@ export function date(locale: Locale, iso: string): string {
   }).format(new Date(Date.UTC(y, m - 1, d)));
 }
 
+/** The day an instant falls on, on the device's clock: "22.11." / "22 Nov". For "data fetched on …". */
+export function dayOf(locale: Locale, epochSeconds: number, timeZone?: string): string {
+  return new Intl.DateTimeFormat(INTL[locale], { day: 'numeric', month: locale === 'fi' ? 'numeric' : 'short', timeZone }).format(new Date(epochSeconds * 1000));
+}
+
+/** A day and a time, for the data page: "22.11. klo 3.17" / "22 Nov, 03:17". */
+export function dayAndTime(locale: Locale, epochSeconds: number, timeZone?: string): string {
+  const date = new Date(epochSeconds * 1000);
+  const time = new Intl.DateTimeFormat(INTL[locale], { hour: locale === 'fi' ? 'numeric' : '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone }).format(date);
+  return locale === 'fi' ? `${dayOf(locale, epochSeconds, timeZone)} klo${NBSP}${time}` : `${dayOf(locale, epochSeconds, timeZone)}, ${time}`;
+}
+
+/** A share as a percentage: "79,3 %" / "79.3%". */
+export function percent(locale: Locale, share: number): string {
+  return new Intl.NumberFormat(INTL[locale], { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(share);
+}
+
+/** A count with the language's grouping: "13 489" / "13,489". */
+export function count(locale: Locale, value: number): string {
+  return new Intl.NumberFormat(INTL[locale]).format(value);
+}
+
+/** Names in a sentence: "Ranska ja Andorra" / "France and Andorra". */
+export function list(locale: Locale, items: string[]): string {
+  return new Intl.ListFormat(INTL[locale], { style: 'long', type: 'conjunction' }).format(items);
+}
+
+/** A country's name in the UI language, from its ISO code. */
+export function countryName(locale: Locale, code: string): string {
+  try {
+    return new Intl.DisplayNames([INTL[locale]], { type: 'region' }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export function lowerFirst(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
@@ -89,6 +125,12 @@ export interface Formatters {
   distance: (meters: number, long?: boolean) => string;
   minutes: (value: number, long?: boolean) => string;
   date: (iso: string) => string;
+  dayOf: (epochSeconds: number) => string;
+  dayAndTime: (epochSeconds: number) => string;
+  percent: (share: number) => string;
+  count: (value: number) => string;
+  list: (items: string[]) => string;
+  countryName: (code: string) => string;
 }
 
 export function formatters(locale: Locale): Formatters {
@@ -99,5 +141,11 @@ export function formatters(locale: Locale): Formatters {
     distance: (meters, long) => distance(locale, meters, long),
     minutes: (value, long) => minutes(locale, value, long),
     date: (iso) => date(locale, iso),
+    dayOf: (epochSeconds) => dayOf(locale, epochSeconds),
+    dayAndTime: (epochSeconds) => dayAndTime(locale, epochSeconds),
+    percent: (share) => percent(locale, share),
+    count: (value) => count(locale, value),
+    list: (items) => list(locale, items),
+    countryName: (code) => countryName(locale, code),
   };
 }

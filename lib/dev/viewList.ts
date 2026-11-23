@@ -95,6 +95,18 @@ export const groups: ViewGroup[] = [
     ],
   },
   {
+    id: 'tiles',
+    title: 'Results from tiles (M3)',
+    note: 'Built from tile data at a fixed moment, Monday 23 Nov 2026 at 20.41, through the same code as the live app. Straight-line distances: walking times arrive in M5.',
+    views: [
+      { id: 'tiles-peek', title: 'From tiles: sheet collapsed, the place name is the way to another place' },
+      { id: 'tiles', title: 'From tiles: one closing soon leads, the data date in the footer' },
+      { id: 'tiles-far', title: 'From tiles: nothing nearby open, one 14 km away is' },
+      { id: 'tiles-edge', title: 'From tiles: near the edge of the coverage, the note names what is missing' },
+      { id: 'stale', title: 'Data older than seven days: a notice in place of the card, nothing reads open' },
+    ],
+  },
+  {
     id: 'details',
     title: 'Pharmacy sheet and counter card',
     views: [
@@ -112,6 +124,16 @@ export const groups: ViewGroup[] = [
       { id: 'none', title: 'None found' },
       { id: 'offline', title: 'Offline' },
       { id: 'error', title: 'Service error' },
+      { id: 'not-covered', title: 'Outside the covered countries, country known' },
+      { id: 'not-covered-unknown', title: 'Outside the covered countries, country not known', sizes: ['phone'] },
+    ],
+  },
+  {
+    id: 'pages',
+    title: 'Pages',
+    views: [
+      { id: 'data', title: 'The data page: the numbers of the last run, one country kept from an earlier run', fullPage: true },
+      { id: 'data-failed', title: 'The data page: the numbers did not load', sizes: ['phone'], themes: ['light'] },
     ],
   },
   {
@@ -133,6 +155,15 @@ export interface Proposal {
 }
 
 /** Open proposals, each shown as current and proposed side by side. Decided ones move to DESIGN-LOG.md. */
-export const proposals: Proposal[] = [];
+export const proposals: Proposal[] = [
+  {
+    id: 'place',
+    title: 'A way to search another place from the results',
+    reason:
+      'PLAN.md 7.3 promises "search elsewhere" from the results, and until now only the browser\'s back button did it. On the phone the place name in the bar becomes the button, marked with the search glyph; on desktop the same action is a line of text under the title. Provisional: built this way in M3, waiting for Janne.',
+    current: { id: 'place-current', title: 'Current: the place name is text' },
+    proposed: { id: 'place-proposed', title: 'Proposed: the place name opens the place search' },
+  },
+];
 
 export const allViews: ViewInfo[] = [...groups.flatMap((group) => group.views), ...proposals.flatMap((p) => [p.current, p.proposed])];

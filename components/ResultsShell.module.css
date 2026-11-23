@@ -72,6 +72,43 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The place as a button: the same two lines, the whole height of the bar to press. */
+.barButton {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.barButton .barUpdated {
+  display: block;
+}
+
+.barPlaceRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.barGlyph {
+  color: var(--ink-2);
+}
+
+/* Desktop says the same in words under the title. On the phone the bar does it. */
+.elsewhere {
+  display: none;
+}
+
 /* The sheet is laid out at its expanded size and slid down to show only the peek. */
 .panel {
   position: absolute;
@@ -283,6 +320,27 @@
 
   .refresh {
     display: grid;
+  }
+
+  .elsewhere {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin: 2px 0 -8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--link);
+    font: inherit;
+    font-size: var(--t-m);
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  .elsewhere:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .peek,

@@ -24,3 +24,8 @@
   text-underline-offset: 3px;
   cursor: pointer;
 }
+
+/* Without a button under the text, the padding is even. */
+.notice[data-plain] {
+  padding-bottom: 12px;
+}

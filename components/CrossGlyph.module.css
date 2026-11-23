@@ -50,3 +50,23 @@
   stroke: currentColor;
   stroke-width: 1;
 }
+
+/*
+ * The one orchestrated moment (PLAN.md section 6, "Motion"): when results arrive, the
+ * crosses of the open pharmacies switch on in order, 30 ms apart, 180 ms each. It shows
+ * the answer, which ones are open. The card's cross is first; a row sets --order.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  :global([data-reveal]) .open,
+  :global([data-reveal]) .soon {
+    animation: light 180ms ease-out both;
+    animation-delay: calc(var(--order, 0) * 30ms);
+  }
+}
+
+@keyframes light {
+  from {
+    opacity: 0.2;
+    filter: none;
+  }
+}

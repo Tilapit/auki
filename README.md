@@ -6,7 +6,11 @@ The spec is `PLAN.md`, the working rules are in `CLAUDE.md`, and design decision
 
 ## Status
 
-M2: the data pipeline and the tile contract. Every night a GitHub Action turns OpenStreetMap's pharmacies in the 21 covered countries into small static files (PLAN.md 7.2), and `docs/tiles.md` says how to read them. The app itself still shows fixture data after the position is found; it starts reading the tiles in M3. The map is a placeholder until M4.
+M3: the app reads the tiles. After the position is found it shows real pharmacies, nearest first by straight line, each with a status worked out on the device from the hours in the tile, renewed every minute. When nothing nearby is open it looks up to 30 km for one that is. Data older than seven days is never shown as open; outside the 21 covered countries the app says so and hands off to a map app. The data page (`/fi/data`) shows the pipeline's numbers per country.
+
+Finding pharmacies sends no position: the requests name squares of 20 to 30 km. A browser test records every request of the whole flow and fails if one carries the position or goes to a host other than ours and the map tile host; the Content-Security-Policy is built from the same list (`lib/requests.ts`).
+
+Still to come: the real map (M4), walking times and ehditkö (M5), the prescription banner and counter card abroad, and offline use (M6).
 
 ### The data, measured
 
@@ -21,6 +25,7 @@ From the pipeline's run of 23 November 2026 on OpenStreetMap's data of that afte
 | A tile, gzipped | median 0.6 KB, largest 54 KB (central Barcelona, 1,272 pharmacies) |
 | All tiles together, gzipped | 5.0 MB |
 | `index.json`, gzipped | 3.9 KB |
+| Time to first result, throttled phone (slow 4G, 4× slower CPU), heaviest tile | 2.3 s on this Mac, median of five (`tests/e2e/perf.spec.ts`) |
 
 The share with opening hours is the number to watch, and it differs a great deal by country: 95 % in Norway, 82 % in Germany, 79 % in Finland, but 23 % in Italy, 18 % in Spain and 7 % in Greece. Where the hours are missing the app says "hours not listed" and never guesses. The numbers per country are in `data/corpus/expected.json`, and from M3 on the data page.
 

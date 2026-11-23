@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { HERE, fakeLocation, fakePlaces, fakeTiles, locateButton, open, searchingStatus } from './helpers';
 
 /**
  * M1: every way from the first window to a position, and every way it can fail (PLAN.md 7.3).
@@ -6,66 +7,11 @@ import { expect, test, type Page } from '@playwright/test';
  * and WebKit, and the place lookup is answered by the test. Nothing here reaches Nominatim.
  */
 
-type Mode = 'allow' | 'approximate' | 'deny' | 'unavailable' | 'timeout' | 'timeout-then-allow' | 'ignore' | 'unsupported';
-
-// A position no fixture uses, so that it can be searched for in the requests.
-const HERE = { lat: 60.16952, lon: 24.93545 };
-
-async function fakeLocation(page: Page, mode: Mode, permission: 'prompt' | 'granted' = 'prompt') {
-  await page.addInitScript(
-    ({ mode, permission, here }) => {
-      let calls = 0;
-      const position = (accuracy: number) => ({ coords: { latitude: here.lat, longitude: here.lon, accuracy }, timestamp: 0 }) as GeolocationPosition;
-      const failure = (code: number) => ({ code, message: '' }) as GeolocationPositionError;
-      const geolocation = {
-        getCurrentPosition(success: PositionCallback, error: PositionErrorCallback) {
-          calls++;
-          // Answers without a timer, so a paused test clock doesn't hold it back.
-          void Promise.resolve().then(() => {
-            if (mode === 'allow') success(position(25));
-            if (mode === 'approximate') success(position(2400));
-            if (mode === 'deny') error(failure(1));
-            if (mode === 'unavailable') error(failure(2));
-            if (mode === 'timeout') error(failure(3));
-            if (mode === 'timeout-then-allow') {
-              if (calls === 1) error(failure(3));
-              else success(position(25));
-            }
-            // 'ignore': the permission prompt is left unanswered, so nothing ever calls back.
-          });
-        },
-        watchPosition: () => 0,
-        clearWatch: () => undefined,
-      };
-      Object.defineProperty(Navigator.prototype, 'geolocation', { get: () => (mode === 'unsupported' ? undefined : geolocation), configurable: true });
-      Object.defineProperty(Navigator.prototype, 'permissions', { get: () => ({ query: async () => ({ state: permission }) }), configurable: true });
-    },
-    { mode, permission, here: HERE },
-  );
-}
-
-/** Answers GET /api/geocode. Returns the queries it was asked. */
-async function fakePlaces(page: Page, answer: { place: object | null } | number) {
-  const asked: string[] = [];
-  await page.route('**/api/geocode**', async (route) => {
-    asked.push(new URL(route.request().url()).search);
-    if (typeof answer === 'number') await route.fulfill({ status: answer, json: { error: 'upstream' } });
-    else await route.fulfill({ json: answer });
-  });
-  return asked;
-}
-
-/** Opens the page and waits until React has attached its handlers: a click before that would do nothing. */
-async function open(page: Page, path: string) {
-  await page.goto(path);
-  await page.waitForFunction(() => {
-    const control = document.querySelector('button, input');
-    return !!control && Object.keys(control).some((key) => key.startsWith('__reactProps'));
-  });
-}
-
-const locateButton = (page: Page) => page.getByRole('button', { name: 'Näytä apteekit lähelläni' });
-const searchingStatus = (page: Page) => page.getByText('Katsotaan, mitkä apteekit ovat auki juuri nyt…');
+// These tests are about getting to a position. The tiles never answer here, so the view
+// that follows stays as it is: what the tiles then say is tested in results.spec.ts.
+test.beforeEach(async ({ page }) => {
+  await fakeTiles(page, 'hold');
+});
 
 test.describe('location from the device', () => {
   test('allow: the button leads to the map view, and no request carries the position', async ({ page }) => {
@@ -98,6 +44,7 @@ test.describe('location from the device', () => {
     test.skip(browserName !== 'chromium', 'Granting geolocation through the browser context is checked in Chromium.');
     const context = await browser.newContext({ permissions: ['geolocation'], geolocation: { latitude: HERE.lat, longitude: HERE.lon }, locale: 'fi-FI' });
     const page = await context.newPage();
+    await fakeTiles(page, 'hold');
     await open(page, '/fi');
     await expect(searchingStatus(page)).toBeVisible();
     await context.close();
