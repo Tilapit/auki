@@ -104,7 +104,7 @@
   z-index: 1;
   width: 0;
   height: 0;
-  /* A layer of its own: moving it then repaints nothing, not even its glow. */
+  /* A layer of its own: under a finger, moving it then repaints nothing, not even its glow. */
   will-change: transform;
 }
 
@@ -224,6 +224,11 @@
 }
 
 @media (min-width: 900px) {
+  /* On a desktop screen a layer of its own would cost the markers' text its sharpest rendering, and a mouse doesn't need it. */
+  .pin {
+    will-change: auto;
+  }
+
   /* On a small plate of its own: on real streets a bare name runs into the map's own labels. */
   .name {
     position: absolute;
