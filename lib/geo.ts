@@ -9,35 +9,8 @@ export function project(lat: number, lon: number, zoom: number): [number, number
   return [x, y];
 }
 
-/** Pixel offset of a point from the centre of a map view, x to the east and y to the south. */
-export function offsetFromCenter(
-  center: [number, number],
-  zoom: number,
-  lat: number,
-  lon: number,
-): { dx: number; dy: number } {
-  const [cx, cy] = project(center[0], center[1], zoom);
-  const [px, py] = project(lat, lon, zoom);
-  return { dx: Math.round((px - cx) * 10) / 10, dy: Math.round((py - cy) * 10) / 10 };
-}
-
-/** Initial bearing from one point to another, degrees clockwise from north. */
-export function bearing(from: { lat: number; lon: number }, to: { lat: number; lon: number }): number {
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const p1 = toRad(from.lat);
-  const p2 = toRad(to.lat);
-  const dl = toRad(to.lon - from.lon);
-  const y = Math.sin(dl) * Math.cos(p2);
-  const x = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl);
-  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
-}
-
+/** The eight points of the compass, for saying where something off the map lies. */
 export type Compass = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
-
-export function compass(degrees: number): Compass {
-  const points: Compass[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
-  return points[Math.round((((degrees % 360) + 360) % 360) / 45) % 8];
-}
 
 const EARTH_RADIUS_METERS = 6371008.8;
 

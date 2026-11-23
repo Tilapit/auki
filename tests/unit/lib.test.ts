@@ -5,7 +5,6 @@ import { helsinki, helsinkiSearched } from '@/lib/fixtures/helsinki';
 import { cityName } from '@/lib/exonyms';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
-import { bearing, compass, offsetFromCenter } from '@/lib/geo';
 import { pickLocale } from '@/lib/i18n';
 import { appleDirectionsUrl, googleDirectionsUrl } from '@/lib/maps';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
@@ -22,21 +21,6 @@ describe('pickLocale', () => {
     expect(pickLocale('de-DE,de;q=0.9')).toBe('en');
     expect(pickLocale(null)).toBe('en');
     expect(pickLocale('fi;q=0')).toBe('en');
-  });
-});
-
-describe('geo', () => {
-  it('places a point east and north of the centre to the right and up', () => {
-    const { dx, dy } = offsetFromCenter([60.17, 24.94], 16, 60.171, 24.945);
-    expect(dx).toBeGreaterThan(0);
-    expect(dy).toBeLessThan(0);
-  });
-
-  it('gives compass points from bearings', () => {
-    expect(compass(bearing({ lat: 60, lon: 25 }, { lat: 61, lon: 25 }))).toBe('n');
-    expect(compass(bearing(riga.user, riga.farOpen!))).toBe('ne');
-    expect(compass(350)).toBe('n');
-    expect(compass(225)).toBe('sw');
   });
 });
 
