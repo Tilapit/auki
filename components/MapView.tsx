@@ -15,7 +15,7 @@ import type { GlyphState, Pharmacy, Scene } from '@/lib/types';
 import { CrossGlyph } from './CrossGlyph';
 import { cx } from './cx';
 import { Icon } from './Icon';
-import { MapMarker, YouAreHere } from './MapMarker';
+import { MapMarker, YouDot, YouHalo } from './MapMarker';
 import styles from './MapView.module.css';
 
 interface Props {
@@ -64,14 +64,16 @@ const ORDER: GlyphState[] = ['closed', 'unknown', 'soon', 'open'];
 const NO_OVERLAY: Overlay = { chips: [], nameAbove: false };
 /** At most this many chips: the nearest open ones that are off the map. */
 const CHIPS = 3;
-/** The name beside a marker needs about this much room before the map's edge. */
-const NAME_ROOM = 220;
+/** Rough sizes, for deciding whether a name fits beside its marker: half a marker's width, a letter, the plate's padding. */
+const MARKER_HALF = 52;
+const NAME_CHAR = 7.8;
+const NAME_PADDING = 24;
 
 /** Where the edge chips may sit: clear of the phone's bar and sheet, the desktop legend and credit. */
 const chipInsets = (frame: Frame): Insets =>
   frame.desktop ? { top: 64, right: 16, bottom: 44, left: 16 } : { top: 76, right: 12, bottom: frame.pad + 12, left: 12 };
-/** The camera's centre sits in the middle of what the sheet leaves free. */
-const cameraPadding = (frame: Frame): Insets => ({ top: 0, right: 0, bottom: frame.pad, left: 0 });
+/** The camera's centre sits in the middle of what the phone's bar and sheet leave free. */
+const cameraPadding = (frame: Frame): Insets => ({ top: frame.desktop ? 0 : 64, right: 0, bottom: frame.pad, left: 0 });
 
 const sameOverlay = (a: Overlay, b: Overlay): boolean =>
   a.nameAbove === b.nameAbove && a.chips.length === b.chips.length && a.chips.every((chip, i) => chip.id === b.chips[i].id && chip.x === b.chips[i].x && chip.y === b.chips[i].y && chip.degrees === b.chips[i].degrees);
@@ -162,8 +164,20 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       }).slice(0, CHIPS),
       box,
     );
+    // The name stands beside its marker unless the map's edge or another marker is in the way there.
     const selected = all.find((pharmacy) => pharmacy.id === selectedId);
-    const nameAbove = !!selected && project(selected.lat, selected.lon).x > frame.width - NAME_ROOM;
+    const at = selected && project(selected.lat, selected.lon);
+    // About how far the plate reaches to the right of the marker's middle: half a marker, and the name.
+    const reach = MARKER_HALF + NAME_CHAR * (selected?.name ?? selected?.street ?? '').length + NAME_PADDING;
+    const nameAbove =
+      !!selected &&
+      !!at &&
+      (at.x + reach > frame.width - 8 ||
+        all.some((other) => {
+          if (other === selected) return false;
+          const point = project(other.lat, other.lon);
+          return point.x > at.x && point.x - MARKER_HALF < at.x + reach && Math.abs(point.y - at.y) < 32;
+        }));
     const next = { chips, nameAbove };
     setOverlay((current) => (sameOverlay(current, next) ? current : next));
     root.current?.setAttribute('data-map', 'ready');
@@ -339,6 +353,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       {basemap && <div ref={base} className={styles.base} />}
 
       <div className={styles.pins}>
+        <span data-pin={YOU} className={cx(styles.pin, styles.haloPin)}>
+          <YouHalo />
+        </span>
         {drawn.map(({ pharmacy }) => {
           const selected = pharmacy.id === selectedId;
           return (
@@ -355,7 +372,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           );
         })}
         <span data-pin={YOU} className={cx(styles.pin, styles.youPin)}>
-          <YouAreHere />
+          <YouDot />
         </span>
       </div>
 

@@ -421,11 +421,11 @@ Entry format:
 - Status: accepted (Janne, 22 Nov 2026); details provisional until M4
 
 
-## 2026-11-23: A way to search another place from the results (provisional)
-- Where: Results, the phone's bar and the desktop panel's title (`/dev/states`, proposal "place": current and proposed side by side)
+## 2026-11-23: A way to search another place from the results
+- Where: Results, the phone's bar and the desktop panel's title
 - Change: On the phone the place name in the bar is a button that opens the place search, marked with a search glyph and named "Hae toinen paikka" for screen readers. On desktop the same action is a line of text with the glyph under the title. Before this, only the browser's back button led to another place.
 - Why: PLAN.md 7.3 promises "search elsewhere" as a way forward from the results, and nothing on screen offered it. The glyph carries meaning here: a bare name doesn't read as something to press.
-- Status: provisional. It changes the bar of a main view, so it is propose-first; built this way in M3 under the night-run rule, waiting for Janne
+- Status: accepted (Janne, 23 Nov 2026), with one change: on the phone the search glyph is a little more visible. It is now 18 px, in the colour of things that can be pressed, with a slightly heavier line. The proposal has left `/dev/states`: every results view there now shows the control, as the app does
 
 ## 2026-11-23: Data older than seven days: one notice, quiet rows
 - Where: Results with out-of-date data (`/dev/states/stale`)
@@ -453,3 +453,87 @@ Entry format:
 - Change: The reveal of PLAN.md section 6 (open crosses switch on in order, 30 ms apart, 180 ms each) is built for the card and the list. The map's markers join in M4, when the real map replaces the placeholder. Nothing moves with `prefers-reduced-motion`.
 - Why: The placeholder map is replaced in M4; animating it now would be thrown away.
 - Status: done, until M4
+
+## 2026-11-23: One map, with MapLibre under it or without (M4)
+- Where: `components/MapView.tsx`, `lib/map/camera.ts`
+- Change: The placeholder map is gone. MapLibre draws the streets on OpenFreeMap's tiles in our own style, and everything the app itself puts on the map (markers, the dot, edge chips, the selected name, legend, controls, credit) is our own HTML over the canvas. All of it is placed by one piece of arithmetic that works the same whether MapLibre is there or not. So `/dev/states` shows the real map component on the plain ground colour, without calling a service, and when MapLibre can't start (no WebGL) or its tiles never arrive, the markers and chips stay where they were and one line says "Karttapohja ei latautunut. Lista ja merkit toimivat ilman sitä."
+- Why: PLAN.md asks that the list still works if the map fails. Markers that are our own buttons from the start make that true of the map's contents too, and keep one marker component for the list's focus handling and names. MapLibre is fetched only once results are on screen: it is 439 KB, and the list must never wait for it.
+- Status: done
+
+## 2026-11-23: The sun and the theme on the map (M4, provisional)
+- Where: The map's colours (`lib/map/style.ts`; `/dev/map` shows noon, dusk and night in both themes)
+- Change: The question the spike decision left open: a dusk look that follows the sun is a third palette, and PLAN.md section 6 has two themes that follow the device. Built this way:
+  - The device theme picks light or dark, on the map as everywhere else. The sun never changes the theme.
+  - The sun moves the light on the buildings: from its real direction while it is up, dim and from straight above after sunset.
+  - In the dark theme the sun also sets how deep the dark is. While there is light in the sky (the sun above −4°) the map is the blue of the first-visit twilight, clearly lighter than night; once it is gone (below −8°) it is the navy of PLAN.md; four steps between, so it never jumps.
+  - So: a phone in light mode at dusk shows the light map with the light from above. A phone in dark mode at noon shows the dusk blue with sun-lit buildings: dark, and never lighter at night than by day.
+- Why: Janne asked for dusk and night to be clearly different. Letting the sun switch between light and dark would break "the theme follows the device, never the clock" and put a dark map next to a light panel. Keeping the sun inside the dark theme gives the difference where it was asked for and leaves the theme rule whole.
+- Not taken: the sun picking the whole look (day, dusk, night) whatever the theme; and no dusk at all (two palettes, the sun moving only the light).
+- Status: provisional. It adds a palette, so it is propose-first; built this way in M4, waiting for Janne
+
+## 2026-11-23: Dusk is the twilight blue, night stays as planned (M4, provisional)
+- Where: `DUSK` in `lib/map/style.ts`
+- Change: Dusk's ground is `#1B3763` against night's `#0A192E`; roads `#4668A2` and `#31528A` against `#28456E` and `#1A3254`; labels lighter to match. Water is the darkest thing on both. In the spike the two differed mostly in how light the roads were.
+- Why: "Dusk and night look almost the same" (Janne, on the spike). The values sit between the first-visit twilight's upper sky and the dark theme's surfaces, so the map still belongs next to the dark panel.
+- Status: provisional, with the entry above
+
+## 2026-11-23: The buildings rise between zoom 15 and 15.6 (M4, provisional)
+- Where: `building-3d` in `lib/map/style.ts`
+- Change: Below zoom 15 the map is the flat one. From 15 the buildings grow from nothing to their own height by 15.6. Height carries the change; a short fade of opacity only keeps the first frame from popping. The flat footprints stay underneath, so nothing flickers between the two.
+- Why: The spike switched them on at 15 in one step. Growing reads as zooming in on something that was always there. The first view of a city is usually between 13 and 15, so the overview stays calm and the buildings come when single streets matter.
+- Status: provisional (left to M4 by the spike decision)
+
+## 2026-11-23: Stronger markers (M4, provisional)
+- Where: `MapMarker`, tokens in `app/globals.css`
+- Change: Every marker stands on a 2 px ring (white; `#071427` in the dark theme). The capsule is 30 px tall instead of 26, with 13.5 px text at weight 750; selected 36 px. The closed disc is 25 px instead of 21, and its ring takes a tone close to the glyph (`#93A1B5`; dark `#5A7096`) instead of the pale `#BFCAD8`; in the dark theme the disc's fill is a shade lighter (`#132C52`). The glow of an open capsule in the dark theme is a little wider. Shapes and colours of the status glyph are unchanged.
+- Why: On real streets a marker without a ring merges with whatever runs under it, and the closed disc all but vanished on the dark map (Janne, on the spike: the markers are too weak). The ring separates without adding a colour, and the lit cross stays the one bold thing: nothing else on the map is saturated.
+- Status: provisional (left to M4 by the spike decision)
+
+## 2026-11-23: The selected pharmacy's name stands on a small plate (M4)
+- Where: The map on desktop
+- Change: The canvas has the name as bare text with a halo. Built: a small plate in the float colour. It goes above the marker when the map's edge or another marker is beside it.
+- Why: Real map tiles bring their own labels. The first real screenshot had "Töölön apteekki" printed across "Kamppi".
+- Status: done
+
+## 2026-11-23: Edge chips sit on the line towards the pharmacy (M4)
+- Where: The map (replaces "Edge chip points at the pharmacy", which had eight fixed positions)
+- Change: A chip sits where the line from the middle of the visible map to the pharmacy leaves it, and the arrow turns to the same direction. At most three: the nearest open ones that are off the map. Two that would overlap are moved apart along the edge. Pressing a chip opens the pharmacy and brings it into view together with the dot.
+- Why: The map now pans and zooms, so a chip has to move with it; MapLibre gives the exact place. More than three chips would be a second list on the map.
+- Status: done
+
+## 2026-11-23: The first view keeps the answer clear of the dot (M4)
+- Where: `toScene` in `lib/live.ts`; the phone's camera in `MapView`
+- Change: The view was wide enough for the nearest five and no more. When the pharmacy in the card was only a block away, its marker sat on top of the dot. Now the view goes closer until the two stand about 90 px apart (at most zoom 16.5 in the scene's terms); the others get edge chips or are a pinch away. On the phone the position sits in the middle of what the bar and the sheet leave free, not of what the sheet alone leaves. A sheet that doesn't collapse (searching, problems, out-of-date data) tells the map its real height, so the dot is no longer half under it.
+- Why: Real data. In a city centre the nearest open pharmacy is often 100 m away and the fifth a kilometre. The dot and the answer are the two things the first glance needs.
+- Status: done
+
+## 2026-11-23: The halo is the device's accuracy, and lies under the markers (M4)
+- Where: You-are-here on the map
+- Change: The halo is as wide as the accuracy the device reports, in the map's own scale, and never under the canvas's 64 px. It is drawn under every marker; the dot stays above the unlit ones.
+- Why: A halo of fixed size says nothing once the map zooms. Over the markers it dimmed the ones inside it.
+- Status: done
+
+## 2026-11-23: Following a walk (M4)
+- Where: `hooks/useLivePosition.ts`, `follow` in `hooks/usePharmacySearch.ts`
+- Change: While results from the device's own position are on screen and the page is visible, the dot follows `watchPosition`. The watch asks for high accuracy; the first answer still doesn't. After 300 m, and only if the fix is surer than the distance moved, the tiles already on the device are ranked again and the results change in place, with the map framed around the new position. A searched place is never followed. The locate control on desktop brings the dot back to the middle and searches nothing: "Päivitä sijainti" is the control that searches again.
+- Why: PLAN.md 7.1, step 11. A fix that only got vaguer (a phone indoors) would otherwise shuffle the list. A searched place is not where the user is, and a watch there would bring a permission prompt nobody pressed for.
+- Status: done; the walk itself is for Janne to try on a phone
+
+## 2026-11-23: The sheet drags (M4)
+- Where: Phone bottom sheet (`ResultsShell`)
+- Change: The sheet follows the finger between its two places. Past the middle it shows what it will hold; let go, it settles on the nearer place, or the way it was thrown. Collapsed, the whole sheet is the handle; open, only the handle is, so the list under it scrolls as usual. The handle stays a button for taps and the keyboard. The map waits until the sheet has settled and then moves once.
+- Why: PLAN.md section 5 and the earlier entry "Sheet drag and landscape phones wait". Pulling the open list down from its content would fight the list's own scrolling; that can come later if it is missed.
+- Status: done; real Safari on a phone is for Janne to try
+
+## 2026-11-23: The map's credit names three (M4)
+- Where: The map, bottom left
+- Change: With the real map the credit reads "OpenFreeMap © OpenMapTiles © OpenStreetMapin tekijät", three links in our own small plate, instead of MapLibre's own control. Without the map tiles it is OpenStreetMap alone, as before, since then only the pharmacies are theirs.
+- Why: OpenFreeMap asks for this credit wherever its tiles are shown. Our own plate keeps the typeface and the quiet look of the canvas.
+- Status: done
+
+## 2026-11-23: The lit markers switch on with the list (M4)
+- Where: The map's markers
+- Change: The reveal of PLAN.md section 6 now covers the map: lit capsules switch on in the list's order, 30 ms apart, 180 ms each. A pharmacy that opens while the view is on screen lights up the same way. Nothing moves with `prefers-reduced-motion`.
+- Why: Completes "The crosses switch on in the list first".
+- Status: done
+

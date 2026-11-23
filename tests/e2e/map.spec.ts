@@ -14,7 +14,8 @@ import { fakeMapTiles, hasWebGL, settle, start, walkTo, world } from './helpers'
 const map = (page: Page) => page.getByRole('region', { name: 'Kartta: sijaintisi ja lähimmät apteekit' });
 const markers = (page: Page) => map(page).locator('button[aria-pressed]');
 const marker = (page: Page, name: string | RegExp) => map(page).getByRole('button', { name });
-const dot = (page: Page) => page.locator('[data-pin="you-are-here"]');
+// The halo and the dot are two pins on the same place: the dot is the last of them.
+const dot = (page: Page) => page.locator('[data-pin="you-are-here"]').last();
 const card = (page: Page) => page.locator('section', { has: page.getByRole('heading', { name: 'Lähin auki nyt' }) }).last();
 const place = (north: number, east: number) => ({ lat: KAMPPI.lat + north / 111_320, lon: KAMPPI.lon + east / 55_400 });
 

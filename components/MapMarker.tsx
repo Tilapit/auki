@@ -59,3 +59,21 @@ export function YouAreHere({ approximate }: { approximate?: boolean }) {
     </span>
   );
 }
+
+/** The halo alone: on the map it lies under every marker, so that it never dims one. */
+export function YouHalo() {
+  return (
+    <span aria-hidden="true" className={styles.you}>
+      <span className={styles.halo} />
+    </span>
+  );
+}
+
+/** The dot alone: on the map it stands above the unlit markers and under the lit ones. */
+export function YouDot() {
+  return (
+    <span aria-hidden="true" className={styles.you}>
+      <span className={styles.dot} />
+    </span>
+  );
+}

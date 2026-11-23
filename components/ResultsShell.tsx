@@ -106,6 +106,19 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     return () => observer.disconnect();
   }, [hasPeek]);
 
+  // A sheet that doesn't collapse (searching, a problem, out-of-date data) is as tall as its
+  // content: the map is told how much of it that covers, so that the dot stays in view above it.
+  const [staticHeight, setStaticHeight] = useState<number>();
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (sheet !== 'static' || !panel) return;
+    const measure = () => setStaticHeight(panel.offsetHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, [sheet]);
+
   const time = updated && <time dateTime={updated}>{f.clock(updated)}</time>;
   const toggles = sheet !== 'static';
   const expanded = sheet === 'expanded';
@@ -172,7 +185,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
   };
 
   return (
-    <div ref={shellRef} className={styles.shell} data-sheet={sheet} data-detail={detailOpen || undefined} style={peekHeight ? ({ '--peek': `${peekHeight}px` } as CSSProperties) : undefined}>
+    <div ref={shellRef} className={styles.shell} data-sheet={sheet} data-detail={detailOpen || undefined} style={{ ...(peekHeight ? { '--peek': `${peekHeight}px` } : {}), ...(sheet === 'static' && staticHeight ? { '--static-pad': `${staticHeight}px` } : {}) } as CSSProperties}>
       {/* As tall as the part of the sheet that shows when it is collapsed: the drag reads it. */}
       <span ref={collapsedRef} aria-hidden="true" className={styles.collapsed} />
       <header className={styles.bar}>

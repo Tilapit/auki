@@ -63,6 +63,26 @@ describe('from tiles to the results views', () => {
     expect(s.stale).toBeUndefined();
   });
 
+  it('frames the first view so that the pharmacy in the card stands clear of the dot', () => {
+    // How far a distance is on screen at a scene zoom (tiles of 256 px).
+    const pixels = (meters: number, zoom: number) => meters / ((156543.03392 * Math.cos((HERE.lat * Math.PI) / 180)) / 2 ** zoom);
+    const open = daily('08:00', '21:00');
+    const closed = daily('08:00', '10:00');
+    // The overview fits the fifth nearest, 900 m away. A pharmacy 60 m away would sit on top of the dot in it.
+    const block = scene({ candidates: found([pharmacy(60, open), pharmacy(300, closed), pharmacy(500, closed), pharmacy(700, closed), pharmacy(900, closed)]), missing: [] }, at(0, '12:00'));
+    expect(pixels(60, block.views.phone.zoom)).toBeGreaterThan(60);
+    expect(block.views.phone.zoom).toBe(16.5);
+    // The card's pharmacy is the first open one, not the nearest: that is the one kept clear.
+    const second = scene({ candidates: found([pharmacy(60, closed), pharmacy(180, open), pharmacy(500, closed), pharmacy(700, closed), pharmacy(900, closed)]), missing: [] }, at(0, '12:00'));
+    expect(pixels(180, second.views.phone.zoom)).toBeGreaterThan(60);
+    expect(second.views.phone.zoom).toBeLessThan(block.views.phone.zoom);
+    // Far enough already: the overview stands as it is, on the phone and wider on the desktop.
+    const spread = scene({ candidates: found([pharmacy(600, open), pharmacy(700, closed), pharmacy(800, closed), pharmacy(900, closed), pharmacy(1000, closed)]), missing: [] }, at(0, '12:00'));
+    expect(pixels(1000, spread.views.phone.zoom)).toBeLessThanOrEqual(150);
+    expect(pixels(1000, spread.views.desktop.zoom)).toBeLessThanOrEqual(330);
+    expect(spread.views.desktop.zoom).toBeGreaterThan(spread.views.phone.zoom);
+  });
+
   it('the far open one leads only while nothing shown is open, and only while it stays open itself', () => {
     const near = [pharmacy(100, daily('08:00', '18:00')), pharmacy(200, daily('09:00', '17:00'))];
     const far = found([pharmacy(6300, daily('00:00', '24:00'))])[0];

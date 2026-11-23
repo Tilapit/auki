@@ -16,7 +16,7 @@
 }
 
 .shell[data-sheet='static'] {
-  --map-pad: 300px;
+  --map-pad: var(--static-pad, 300px);
 }
 
 .map {
