@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties, type FocusEvent as ReactFocusEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type DragEvent as ReactDragEvent, type FocusEvent as ReactFocusEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { AppMark } from './AppMark';
@@ -247,6 +247,11 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
         if (Math.abs(moved.clientY - state.startY) < DRAG_FROM_PX) return;
         state.active = true;
         panel.style.transition = 'none';
+        // A mouse that drags the sheet by its text would select that text on the way, and the next
+        // press on it would pick the selection up instead of the sheet.
+        panel.style.setProperty('user-select', 'none');
+        panel.style.setProperty('-webkit-user-select', 'none');
+        window.getSelection()?.removeAllRanges();
         // The map keeps its framing until the sheet has settled: one move then, not one at every step.
         const pad = classic ? (at === 'expanded' ? height : visible.peek) : at === 'peek' ? visible.peek : visible.half;
         shell.style.setProperty('--map-pad', `${pad}px`);
@@ -274,12 +279,20 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
       const onward = thrown ? (state.velocity < 0 ? places.filter((stop) => stop.offset < offset).pop() : places.find((stop) => stop.offset > offset)) : undefined;
       panel.style.transition = '';
       panel.style.transform = '';
+      panel.style.removeProperty('user-select');
+      panel.style.removeProperty('-webkit-user-select');
       shell.style.removeProperty('--map-pad');
       show(onward?.at ?? nearest(offset));
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', end);
     window.addEventListener('pointercancel', end);
+  };
+
+  // A link, or text that happens to be selected, is something a browser lets a mouse pick up and
+  // carry off. That would cancel the sheet's own drag: where a press can move the sheet, it does.
+  const onDragStart = (event: ReactDragEvent<HTMLDivElement>) => {
+    if (drag.current) event.preventDefault();
   };
 
   // A mouse that drags the sheet by a button lets go over the same button: that is not a press of it.
@@ -342,7 +355,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
         <LanguageSwitch variant="round" />
       </header>
 
-      <div ref={panelRef} className={styles.panel} onPointerDown={onPointerDown} onClickCapture={onClickCapture}>
+      <div ref={panelRef} className={styles.panel} onPointerDown={onPointerDown} onDragStart={onDragStart} onClickCapture={onClickCapture}>
         <header className={styles.brand}>
           <Wordmark />
           <LanguageSwitch />

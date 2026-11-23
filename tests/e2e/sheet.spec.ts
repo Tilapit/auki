@@ -214,7 +214,16 @@ test('below the open list the whole sheet is the handle, and a drag by a button 
   await expectAt(page, 'half');
   await rest(handle(page));
   await expect(page.getByRole('dialog')).toBeHidden();
-  // A plain press of it works as ever.
+  // By a link: a browser would let the mouse pick a link up and carry it off, and the sheet would stay behind.
+  await drag(page, await rest(card(page).getByRole('link', { name: 'Soita: Kampin apteekki' })), (low - middle) * 0.7);
+  await expectAt(page, 'peek');
+  await rest(handle(page));
+  // Nothing was selected on the way: the next drag by the same text is a drag again.
+  expect(await page.evaluate(() => String(window.getSelection()))).toBe('');
+  await drag(page, await rest(row(page).getByRole('heading', { level: 3 })), -(low - middle) * 0.7);
+  await expectAt(page, 'half');
+  await rest(handle(page));
+  // A plain press of the route button works as ever.
   await route.click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
 });

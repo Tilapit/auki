@@ -627,3 +627,9 @@ Entry format:
 - Change: The camera's free area is above the row at the lowest place, and above the card both at the card and with the list open. It doesn't move during a drag or when the list opens. On the phone the edge chips stay 40 px above the sheet, clear of the map's credit line.
 - Why: The open list covers nearly the whole map: moving the camera under it would only show as a jump when the list closes. With the lower sheet the bottom edge of the map is in use, and a chip there lay on the credit.
 - Status: done
+
+## 2026-11-24: A mouse drags the sheet, not what is written on it
+- Where: `ResultsShell` (`onDragStart`, and the drag's first step)
+- Change: While the sheet is dragged its text can't be selected, and any selection is dropped when the drag begins. Where a press can move the sheet, the browser may not pick up a link or selected text and carry it off instead.
+- Why: CI's Linux browsers found it, in both engines: dragging the sheet by a pharmacy's name selected the text on the way, and the next press on it started the browser's own drag-and-drop, which cancels the sheet's. A link (the call) would be carried off the same way on any desktop browser. A finger never did this; a mouse in a narrow window did. The text stays selectable whenever the sheet isn't being dragged.
+- Status: done
