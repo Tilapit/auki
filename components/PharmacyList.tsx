@@ -31,13 +31,14 @@ export function PharmacyList({ pharmacies, distance, needsStreet, selectedId, on
         <span className={styles.sort}>{distance === 'walking' ? t.results.byWalking : t.results.byStraight}</span>
       </div>
       <ol className={styles.list}>
-        {pharmacies.map((pharmacy) => (
+        {pharmacies.map((pharmacy, index) => (
           <PharmacyRow
             key={pharmacy.id}
             pharmacy={pharmacy}
             distance={distance}
             withStreet={needsStreet.has(pharmacy.id)}
             selected={pharmacy.id === selectedId}
+            order={index + 1}
             onSelect={onSelect}
           />
         ))}

@@ -48,6 +48,11 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen }: { state: Extract
   const { position, result } = state;
   const scene = useMemo(() => toScene({ position, result, now, deviceZone }), [position, result, now, deviceZone]);
 
+  // The moment the first result is on screen, for the measurement of PLAN.md section 12.
+  useEffect(() => {
+    performance.mark('first-result');
+  }, []);
+
   // When the last open one nearby closes, look farther. The tiles are mostly on the device already.
   useEffect(() => {
     if (noneShownOpen(result, now) && !(result.farOpen && staysOpen(result.farOpen.pharmacy, now))) onFarOpen(now);

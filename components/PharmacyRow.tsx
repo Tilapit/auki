@@ -1,5 +1,6 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { displayName, glyphFor } from '@/lib/status';
 import { travel } from '@/lib/travel';
@@ -16,6 +17,8 @@ interface Props {
   /** Shown next to the name when another result has the same name. */
   withStreet?: boolean;
   selected?: boolean;
+  /** Place in the list, from 1: the crosses of the open ones switch on in this order. */
+  order?: number;
   onSelect?: (pharmacy: Pharmacy) => void;
 }
 
@@ -23,11 +26,11 @@ interface Props {
  * One result. The name is the button; its hit area is stretched over the row.
  * It is the only control in the row, so nothing interactive is nested.
  */
-export function PharmacyRow({ pharmacy, distance, withStreet, selected, onSelect }: Props) {
+export function PharmacyRow({ pharmacy, distance, withStreet, selected, order, onSelect }: Props) {
   const i18n = useI18n();
   const way = travel(i18n, pharmacy, distance);
   return (
-    <li id={pharmacy.id} className={cx(styles.row, selected && styles.selected)}>
+    <li id={pharmacy.id} className={cx(styles.row, selected && styles.selected)} style={order ? ({ '--order': order } as CSSProperties) : undefined}>
       <span className={styles.glyph}>
         <CrossGlyph state={glyphFor(pharmacy.status)} />
       </span>
