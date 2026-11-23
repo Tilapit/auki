@@ -1,0 +1,14 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API",
+  "osm3s": { "timestamp_osm_base": "2026-11-23T14:20:18Z" },
+  "elements": [
+    { "type": "state", "id": 1, "tags": { "code": "CH-BE" } },
+    { "type": "node", "id": 5001, "lat": 46.948, "lon": 7.447, "tags": { "amenity": "pharmacy", "name": "Apotheke am Bahnhof", "opening_hours": "Mo-Su 08:00-20:00; PH off" } },
+    { "type": "node", "id": 5002, "lat": 46.99, "lon": 6.93, "tags": { "amenity": "pharmacy", "name": "Pharmacie du Lac", "opening_hours": "Mo-Fr 08:00-18:30" } },
+    { "type": "state", "id": 2, "tags": { "code": "CH-GE" } },
+    { "type": "node", "id": 5003, "lat": 46.204, "lon": 6.143, "tags": { "amenity": "pharmacy", "name": "Pharmacie de la Gare", "opening_hours": "Mo-Su 08:00-20:00; PH off" } },
+    { "type": "state", "id": 3, "tags": { "code": "CH-NE" } },
+    { "type": "node", "id": 5002, "lat": 46.99, "lon": 6.93, "tags": { "amenity": "pharmacy", "name": "Pharmacie du Lac", "opening_hours": "Mo-Fr 08:00-18:30" } }
+  ]
+}

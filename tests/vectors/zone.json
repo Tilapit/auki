@@ -1,0 +1,8748 @@
+{
+ "about": "Time-zone arithmetic. Instants are epoch seconds. weekday: 0 is Monday. dayNumber: days since 1970-01-01 of the local date.",
+ "atInstant": [
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 1
+   },
+   "clock": "04:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 0
+   },
+   "clock": "05:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 30
+   },
+   "clock": "05:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1810612320,
+   "wall": {
+    "year": 2027,
+    "month": 5,
+    "day": 18,
+    "hour": 6,
+    "minute": 52
+   },
+   "clock": "06:52",
+   "date": "2027-05-18",
+   "weekday": 1,
+   "dayNumber": 20956,
+   "startOfDay": 1810587600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1780404360,
+   "wall": {
+    "year": 2026,
+    "month": 6,
+    "day": 2,
+    "hour": 15,
+    "minute": 46
+   },
+   "clock": "15:46",
+   "date": "2026-06-02",
+   "weekday": 1,
+   "dayNumber": 20606,
+   "startOfDay": 1780347600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1805791980,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 23,
+    "hour": 10,
+    "minute": 53
+   },
+   "clock": "10:53",
+   "date": "2027-03-23",
+   "weekday": 1,
+   "dayNumber": 20900,
+   "startOfDay": 1805752800
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "instant": 1827739140,
+   "wall": {
+    "year": 2027,
+    "month": 12,
+    "day": 2,
+    "hour": 11,
+    "minute": 19
+   },
+   "clock": "11:19",
+   "date": "2027-12-02",
+   "weekday": 3,
+   "dayNumber": 21154,
+   "startOfDay": 1827698400
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1827125940,
+   "wall": {
+    "year": 2027,
+    "month": 11,
+    "day": 25,
+    "hour": 7,
+    "minute": 59
+   },
+   "clock": "07:59",
+   "date": "2027-11-25",
+   "weekday": 3,
+   "dayNumber": 21147,
+   "startOfDay": 1827097200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1793872860,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 5,
+    "hour": 11,
+    "minute": 1
+   },
+   "clock": "11:01",
+   "date": "2026-11-05",
+   "weekday": 3,
+   "dayNumber": 20762,
+   "startOfDay": 1793833200
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1809923580,
+   "wall": {
+    "year": 2027,
+    "month": 5,
+    "day": 10,
+    "hour": 6,
+    "minute": 33
+   },
+   "clock": "06:33",
+   "date": "2027-05-10",
+   "weekday": 0,
+   "dayNumber": 20948,
+   "startOfDay": 1809900000
+  },
+  {
+   "zone": "Europe/Vienna",
+   "instant": 1815144420,
+   "wall": {
+    "year": 2027,
+    "month": 7,
+    "day": 9,
+    "hour": 16,
+    "minute": 47
+   },
+   "clock": "16:47",
+   "date": "2027-07-09",
+   "weekday": 4,
+   "dayNumber": 21008,
+   "startOfDay": 1815084000
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1800873720,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 25,
+    "hour": 11,
+    "minute": 42
+   },
+   "clock": "11:42",
+   "date": "2027-01-25",
+   "weekday": 0,
+   "dayNumber": 20843,
+   "startOfDay": 1800831600
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1828405500,
+   "wall": {
+    "year": 2027,
+    "month": 12,
+    "day": 10,
+    "hour": 3,
+    "minute": 25
+   },
+   "clock": "03:25",
+   "date": "2027-12-10",
+   "weekday": 4,
+   "dayNumber": 21162,
+   "startOfDay": 1828393200
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1802299800,
+   "wall": {
+    "year": 2027,
+    "month": 2,
+    "day": 10,
+    "hour": 23,
+    "minute": 50
+   },
+   "clock": "23:50",
+   "date": "2027-02-10",
+   "weekday": 2,
+   "dayNumber": 20859,
+   "startOfDay": 1802214000
+  },
+  {
+   "zone": "Europe/Zurich",
+   "instant": 1803921480,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 1,
+    "hour": 18,
+    "minute": 18
+   },
+   "clock": "18:18",
+   "date": "2027-03-01",
+   "weekday": 0,
+   "dayNumber": 20878,
+   "startOfDay": 1803855600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1786994160,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 17,
+    "hour": 21,
+    "minute": 16
+   },
+   "clock": "21:16",
+   "date": "2026-08-17",
+   "weekday": 0,
+   "dayNumber": 20682,
+   "startOfDay": 1786917600
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1799806740,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 13,
+    "hour": 3,
+    "minute": 19
+   },
+   "clock": "03:19",
+   "date": "2027-01-13",
+   "weekday": 2,
+   "dayNumber": 20831,
+   "startOfDay": 1799794800
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1792248180,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 17,
+    "hour": 16,
+    "minute": 43
+   },
+   "clock": "16:43",
+   "date": "2026-10-17",
+   "weekday": 5,
+   "dayNumber": 20743,
+   "startOfDay": 1792188000
+  },
+  {
+   "zone": "Europe/Prague",
+   "instant": 1787746980,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 26,
+    "hour": 14,
+    "minute": 23
+   },
+   "clock": "14:23",
+   "date": "2026-08-26",
+   "weekday": 2,
+   "dayNumber": 20691,
+   "startOfDay": 1787695200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1803938700,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 1,
+    "hour": 23,
+    "minute": 5
+   },
+   "clock": "23:05",
+   "date": "2027-03-01",
+   "weekday": 0,
+   "dayNumber": 20878,
+   "startOfDay": 1803855600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1783531620,
+   "wall": {
+    "year": 2026,
+    "month": 7,
+    "day": 8,
+    "hour": 19,
+    "minute": 27
+   },
+   "clock": "19:27",
+   "date": "2026-07-08",
+   "weekday": 2,
+   "dayNumber": 20642,
+   "startOfDay": 1783461600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1799365260,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 8,
+    "hour": 0,
+    "minute": 41
+   },
+   "clock": "00:41",
+   "date": "2027-01-08",
+   "weekday": 4,
+   "dayNumber": 20826,
+   "startOfDay": 1799362800
+  },
+  {
+   "zone": "Europe/Berlin",
+   "instant": 1817387700,
+   "wall": {
+    "year": 2027,
+    "month": 8,
+    "day": 4,
+    "hour": 15,
+    "minute": 55
+   },
+   "clock": "15:55",
+   "date": "2027-08-04",
+   "weekday": 2,
+   "dayNumber": 21034,
+   "startOfDay": 1817330400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1794103080,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 8,
+    "hour": 2,
+    "minute": 58
+   },
+   "clock": "02:58",
+   "date": "2026-11-08",
+   "weekday": 6,
+   "dayNumber": 20765,
+   "startOfDay": 1794092400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1789507200,
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 15,
+    "hour": 23,
+    "minute": 20
+   },
+   "clock": "23:20",
+   "date": "2026-09-15",
+   "weekday": 1,
+   "dayNumber": 20711,
+   "startOfDay": 1789423200
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1782339420,
+   "wall": {
+    "year": 2026,
+    "month": 6,
+    "day": 25,
+    "hour": 0,
+    "minute": 17
+   },
+   "clock": "00:17",
+   "date": "2026-06-25",
+   "weekday": 3,
+   "dayNumber": 20629,
+   "startOfDay": 1782338400
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "instant": 1800950400,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 26,
+    "hour": 9,
+    "minute": 0
+   },
+   "clock": "09:00",
+   "date": "2027-01-26",
+   "weekday": 1,
+   "dayNumber": 20844,
+   "startOfDay": 1800918000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 1
+   },
+   "clock": "04:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 0
+   },
+   "clock": "05:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 30
+   },
+   "clock": "05:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1808837040,
+   "wall": {
+    "year": 2027,
+    "month": 4,
+    "day": 27,
+    "hour": 17,
+    "minute": 44
+   },
+   "clock": "17:44",
+   "date": "2027-04-27",
+   "weekday": 1,
+   "dayNumber": 20935,
+   "startOfDay": 1808773200
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1818915480,
+   "wall": {
+    "year": 2027,
+    "month": 8,
+    "day": 22,
+    "hour": 9,
+    "minute": 18
+   },
+   "clock": "09:18",
+   "date": "2027-08-22",
+   "weekday": 6,
+   "dayNumber": 21052,
+   "startOfDay": 1818882000
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1794538980,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 13,
+    "hour": 5,
+    "minute": 3
+   },
+   "clock": "05:03",
+   "date": "2026-11-13",
+   "weekday": 4,
+   "dayNumber": 20770,
+   "startOfDay": 1794520800
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "instant": 1790213400,
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 24,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2026-09-24",
+   "weekday": 3,
+   "dayNumber": 20720,
+   "startOfDay": 1790197200
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1812114900,
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 4,
+    "hour": 15,
+    "minute": 15
+   },
+   "clock": "15:15",
+   "date": "2027-06-04",
+   "weekday": 4,
+   "dayNumber": 20973,
+   "startOfDay": 1812060000
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1806693600,
+   "wall": {
+    "year": 2027,
+    "month": 4,
+    "day": 2,
+    "hour": 21,
+    "minute": 20
+   },
+   "clock": "21:20",
+   "date": "2027-04-02",
+   "weekday": 4,
+   "dayNumber": 20910,
+   "startOfDay": 1806616800
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1816968480,
+   "wall": {
+    "year": 2027,
+    "month": 7,
+    "day": 30,
+    "hour": 19,
+    "minute": 28
+   },
+   "clock": "19:28",
+   "date": "2027-07-30",
+   "weekday": 4,
+   "dayNumber": 21029,
+   "startOfDay": 1816898400
+  },
+  {
+   "zone": "Europe/Madrid",
+   "instant": 1789601100,
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 17,
+    "hour": 1,
+    "minute": 25
+   },
+   "clock": "01:25",
+   "date": "2026-09-17",
+   "weekday": 3,
+   "dayNumber": 20713,
+   "startOfDay": 1789596000
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 1
+   },
+   "clock": "01:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 30
+   },
+   "clock": "02:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 0,
+    "minute": 0
+   },
+   "clock": "00:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 0,
+    "minute": 59
+   },
+   "clock": "00:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 1
+   },
+   "clock": "01:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 30
+   },
+   "clock": "02:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1815154320,
+   "wall": {
+    "year": 2027,
+    "month": 7,
+    "day": 9,
+    "hour": 18,
+    "minute": 32
+   },
+   "clock": "18:32",
+   "date": "2027-07-09",
+   "weekday": 4,
+   "dayNumber": 21008,
+   "startOfDay": 1815087600
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1802244900,
+   "wall": {
+    "year": 2027,
+    "month": 2,
+    "day": 10,
+    "hour": 7,
+    "minute": 35
+   },
+   "clock": "07:35",
+   "date": "2027-02-10",
+   "weekday": 2,
+   "dayNumber": 20859,
+   "startOfDay": 1802217600
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1817547660,
+   "wall": {
+    "year": 2027,
+    "month": 8,
+    "day": 6,
+    "hour": 11,
+    "minute": 21
+   },
+   "clock": "11:21",
+   "date": "2027-08-06",
+   "weekday": 4,
+   "dayNumber": 21036,
+   "startOfDay": 1817506800
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "instant": 1828391520,
+   "wall": {
+    "year": 2027,
+    "month": 12,
+    "day": 9,
+    "hour": 22,
+    "minute": 32
+   },
+   "clock": "22:32",
+   "date": "2027-12-09",
+   "weekday": 3,
+   "dayNumber": 21161,
+   "startOfDay": 1828310400
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 1
+   },
+   "clock": "04:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 0
+   },
+   "clock": "05:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 30
+   },
+   "clock": "05:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1791851880,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 13,
+    "hour": 3,
+    "minute": 38
+   },
+   "clock": "03:38",
+   "date": "2026-10-13",
+   "weekday": 1,
+   "dayNumber": 20739,
+   "startOfDay": 1791838800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1816898700,
+   "wall": {
+    "year": 2027,
+    "month": 7,
+    "day": 30,
+    "hour": 1,
+    "minute": 5
+   },
+   "clock": "01:05",
+   "date": "2027-07-30",
+   "weekday": 4,
+   "dayNumber": 21029,
+   "startOfDay": 1816894800
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1787687820,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 25,
+    "hour": 22,
+    "minute": 57
+   },
+   "clock": "22:57",
+   "date": "2026-08-25",
+   "weekday": 1,
+   "dayNumber": 20690,
+   "startOfDay": 1787605200
+  },
+  {
+   "zone": "Europe/Athens",
+   "instant": 1795916040,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 29,
+    "hour": 3,
+    "minute": 34
+   },
+   "clock": "03:34",
+   "date": "2026-11-29",
+   "weekday": 6,
+   "dayNumber": 20786,
+   "startOfDay": 1795903200
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1800264120,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 18,
+    "hour": 10,
+    "minute": 22
+   },
+   "clock": "10:22",
+   "date": "2027-01-18",
+   "weekday": 0,
+   "dayNumber": 20836,
+   "startOfDay": 1800226800
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1792329900,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 18,
+    "hour": 15,
+    "minute": 25
+   },
+   "clock": "15:25",
+   "date": "2026-10-18",
+   "weekday": 6,
+   "dayNumber": 20744,
+   "startOfDay": 1792274400
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1787630580,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 25,
+    "hour": 6,
+    "minute": 3
+   },
+   "clock": "06:03",
+   "date": "2026-08-25",
+   "weekday": 1,
+   "dayNumber": 20690,
+   "startOfDay": 1787608800
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "instant": 1815403800,
+   "wall": {
+    "year": 2027,
+    "month": 7,
+    "day": 12,
+    "hour": 16,
+    "minute": 50
+   },
+   "clock": "16:50",
+   "date": "2027-07-12",
+   "weekday": 0,
+   "dayNumber": 21011,
+   "startOfDay": 1815343200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1808157660,
+   "wall": {
+    "year": 2027,
+    "month": 4,
+    "day": 19,
+    "hour": 20,
+    "minute": 1
+   },
+   "clock": "20:01",
+   "date": "2027-04-19",
+   "weekday": 0,
+   "dayNumber": 20927,
+   "startOfDay": 1808085600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1786426920,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 11,
+    "hour": 7,
+    "minute": 42
+   },
+   "clock": "07:42",
+   "date": "2026-08-11",
+   "weekday": 1,
+   "dayNumber": 20676,
+   "startOfDay": 1786399200
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1793077140,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 27,
+    "hour": 5,
+    "minute": 59
+   },
+   "clock": "05:59",
+   "date": "2026-10-27",
+   "weekday": 1,
+   "dayNumber": 20753,
+   "startOfDay": 1793055600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "instant": 1782629400,
+   "wall": {
+    "year": 2026,
+    "month": 6,
+    "day": 28,
+    "hour": 8,
+    "minute": 50
+   },
+   "clock": "08:50",
+   "date": "2026-06-28",
+   "weekday": 6,
+   "dayNumber": 20632,
+   "startOfDay": 1782597600
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1810377480,
+   "wall": {
+    "year": 2027,
+    "month": 5,
+    "day": 15,
+    "hour": 12,
+    "minute": 38
+   },
+   "clock": "12:38",
+   "date": "2027-05-15",
+   "weekday": 5,
+   "dayNumber": 20953,
+   "startOfDay": 1810332000
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1822161480,
+   "wall": {
+    "year": 2027,
+    "month": 9,
+    "day": 28,
+    "hour": 21,
+    "minute": 58
+   },
+   "clock": "21:58",
+   "date": "2027-09-28",
+   "weekday": 1,
+   "dayNumber": 21089,
+   "startOfDay": 1822082400
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1791811260,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 12,
+    "hour": 15,
+    "minute": 21
+   },
+   "clock": "15:21",
+   "date": "2026-10-12",
+   "weekday": 0,
+   "dayNumber": 20738,
+   "startOfDay": 1791756000
+  },
+  {
+   "zone": "Europe/Rome",
+   "instant": 1828142040,
+   "wall": {
+    "year": 2027,
+    "month": 12,
+    "day": 7,
+    "hour": 2,
+    "minute": 14
+   },
+   "clock": "02:14",
+   "date": "2027-12-07",
+   "weekday": 1,
+   "dayNumber": 21159,
+   "startOfDay": 1828134000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 1
+   },
+   "clock": "04:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 0
+   },
+   "clock": "05:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 30
+   },
+   "clock": "05:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1815026460,
+   "wall": {
+    "year": 2027,
+    "month": 7,
+    "day": 8,
+    "hour": 9,
+    "minute": 1
+   },
+   "clock": "09:01",
+   "date": "2027-07-08",
+   "weekday": 3,
+   "dayNumber": 21007,
+   "startOfDay": 1814994000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1799736780,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 12,
+    "hour": 8,
+    "minute": 53
+   },
+   "clock": "08:53",
+   "date": "2027-01-12",
+   "weekday": 1,
+   "dayNumber": 20830,
+   "startOfDay": 1799704800
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1794901980,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 17,
+    "hour": 9,
+    "minute": 53
+   },
+   "clock": "09:53",
+   "date": "2026-11-17",
+   "weekday": 1,
+   "dayNumber": 20774,
+   "startOfDay": 1794866400
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "instant": 1813038360,
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 15,
+    "hour": 8,
+    "minute": 46
+   },
+   "clock": "08:46",
+   "date": "2027-06-15",
+   "weekday": 1,
+   "dayNumber": 20984,
+   "startOfDay": 1813006800
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792875600
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 1
+   },
+   "clock": "04:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 0
+   },
+   "clock": "05:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 5,
+    "minute": 30
+   },
+   "clock": "05:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806184800
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 59
+   },
+   "clock": "03:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1826364060,
+   "wall": {
+    "year": 2027,
+    "month": 11,
+    "day": 16,
+    "hour": 13,
+    "minute": 21
+   },
+   "clock": "13:21",
+   "date": "2027-11-16",
+   "weekday": 1,
+   "dayNumber": 21138,
+   "startOfDay": 1826316000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824946440,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 34
+   },
+   "clock": "03:34",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824930000
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1813789680,
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 24,
+    "hour": 1,
+    "minute": 28
+   },
+   "clock": "01:28",
+   "date": "2027-06-24",
+   "weekday": 3,
+   "dayNumber": 20993,
+   "startOfDay": 1813784400
+  },
+  {
+   "zone": "Europe/Riga",
+   "instant": 1824731220,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 28,
+    "hour": 16,
+    "minute": 47
+   },
+   "clock": "16:47",
+   "date": "2027-10-28",
+   "weekday": 3,
+   "dayNumber": 21119,
+   "startOfDay": 1824670800
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1820644620,
+   "wall": {
+    "year": 2027,
+    "month": 9,
+    "day": 11,
+    "hour": 8,
+    "minute": 37
+   },
+   "clock": "08:37",
+   "date": "2027-09-11",
+   "weekday": 5,
+   "dayNumber": 21072,
+   "startOfDay": 1820613600
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1825454820,
+   "wall": {
+    "year": 2027,
+    "month": 11,
+    "day": 5,
+    "hour": 23,
+    "minute": 47
+   },
+   "clock": "23:47",
+   "date": "2027-11-05",
+   "weekday": 4,
+   "dayNumber": 21127,
+   "startOfDay": 1825369200
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1785826740,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 4,
+    "hour": 8,
+    "minute": 59
+   },
+   "clock": "08:59",
+   "date": "2026-08-04",
+   "weekday": 1,
+   "dayNumber": 20669,
+   "startOfDay": 1785794400
+  },
+  {
+   "zone": "Europe/Malta",
+   "instant": 1782180600,
+   "wall": {
+    "year": 2026,
+    "month": 6,
+    "day": 23,
+    "hour": 4,
+    "minute": 10
+   },
+   "clock": "04:10",
+   "date": "2026-06-23",
+   "weekday": 1,
+   "dayNumber": 20627,
+   "startOfDay": 1782165600
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1822302480,
+   "wall": {
+    "year": 2027,
+    "month": 9,
+    "day": 30,
+    "hour": 13,
+    "minute": 8
+   },
+   "clock": "13:08",
+   "date": "2027-09-30",
+   "weekday": 3,
+   "dayNumber": 21091,
+   "startOfDay": 1822255200
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1794519900,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 12,
+    "hour": 22,
+    "minute": 45
+   },
+   "clock": "22:45",
+   "date": "2026-11-12",
+   "weekday": 3,
+   "dayNumber": 20769,
+   "startOfDay": 1794438000
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1822909260,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 7,
+    "hour": 13,
+    "minute": 41
+   },
+   "clock": "13:41",
+   "date": "2027-10-07",
+   "weekday": 3,
+   "dayNumber": 21098,
+   "startOfDay": 1822860000
+  },
+  {
+   "zone": "Europe/Oslo",
+   "instant": 1804950660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 13,
+    "hour": 16,
+    "minute": 11
+   },
+   "clock": "16:11",
+   "date": "2027-03-13",
+   "weekday": 5,
+   "dayNumber": 20890,
+   "startOfDay": 1804892400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1825554300,
+   "wall": {
+    "year": 2027,
+    "month": 11,
+    "day": 7,
+    "hour": 3,
+    "minute": 25
+   },
+   "clock": "03:25",
+   "date": "2027-11-07",
+   "weekday": 6,
+   "dayNumber": 21129,
+   "startOfDay": 1825542000
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1814353440,
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 30,
+    "hour": 13,
+    "minute": 4
+   },
+   "clock": "13:04",
+   "date": "2027-06-30",
+   "weekday": 2,
+   "dayNumber": 20999,
+   "startOfDay": 1814306400
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1788316140,
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 2,
+    "hour": 4,
+    "minute": 29
+   },
+   "clock": "04:29",
+   "date": "2026-09-02",
+   "weekday": 2,
+   "dayNumber": 20698,
+   "startOfDay": 1788300000
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "instant": 1813018680,
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 15,
+    "hour": 2,
+    "minute": 18
+   },
+   "clock": "02:18",
+   "date": "2027-06-15",
+   "weekday": 1,
+   "dayNumber": 20984,
+   "startOfDay": 1813010400
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 1
+   },
+   "clock": "01:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 30
+   },
+   "clock": "02:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792882800
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 0,
+    "minute": 0
+   },
+   "clock": "00:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 0,
+    "minute": 59
+   },
+   "clock": "00:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806192000
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 1
+   },
+   "clock": "01:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 30
+   },
+   "clock": "02:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824937200
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1826182620,
+   "wall": {
+    "year": 2027,
+    "month": 11,
+    "day": 14,
+    "hour": 8,
+    "minute": 57
+   },
+   "clock": "08:57",
+   "date": "2027-11-14",
+   "weekday": 6,
+   "dayNumber": 21136,
+   "startOfDay": 1826150400
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1786654800,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 13,
+    "hour": 22,
+    "minute": 0
+   },
+   "clock": "22:00",
+   "date": "2026-08-13",
+   "weekday": 3,
+   "dayNumber": 20678,
+   "startOfDay": 1786575600
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1827585840,
+   "wall": {
+    "year": 2027,
+    "month": 11,
+    "day": 30,
+    "hour": 14,
+    "minute": 44
+   },
+   "clock": "14:44",
+   "date": "2027-11-30",
+   "weekday": 1,
+   "dayNumber": 21152,
+   "startOfDay": 1827532800
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "instant": 1788159180,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 31,
+    "hour": 7,
+    "minute": 53
+   },
+   "clock": "07:53",
+   "date": "2026-08-31",
+   "weekday": 0,
+   "dayNumber": 20696,
+   "startOfDay": 1788130800
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 0,
+    "minute": 0
+   },
+   "clock": "00:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792886400
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 0,
+    "minute": 59
+   },
+   "clock": "00:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792886400
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 0,
+    "minute": 0
+   },
+   "clock": "00:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792886400
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 0,
+    "minute": 1
+   },
+   "clock": "00:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792886400
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792886400
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 1,
+    "minute": 30
+   },
+   "clock": "01:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792886400
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 27,
+    "hour": 23,
+    "minute": 0
+   },
+   "clock": "23:00",
+   "date": "2027-03-27",
+   "weekday": 5,
+   "dayNumber": 20904,
+   "startOfDay": 1806109200
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 27,
+    "hour": 23,
+    "minute": 59
+   },
+   "clock": "23:59",
+   "date": "2027-03-27",
+   "weekday": 5,
+   "dayNumber": 20904,
+   "startOfDay": 1806109200
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806195600
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 1
+   },
+   "clock": "01:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806195600
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806195600
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 30
+   },
+   "clock": "02:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806195600
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 0,
+    "minute": 0
+   },
+   "clock": "00:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824940800
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 0,
+    "minute": 59
+   },
+   "clock": "00:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824940800
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 0,
+    "minute": 0
+   },
+   "clock": "00:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824940800
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 0,
+    "minute": 1
+   },
+   "clock": "00:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824940800
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824940800
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 1,
+    "minute": 30
+   },
+   "clock": "01:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824940800
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1799062140,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 4,
+    "hour": 10,
+    "minute": 29
+   },
+   "clock": "10:29",
+   "date": "2027-01-04",
+   "weekday": 0,
+   "dayNumber": 20822,
+   "startOfDay": 1799024400
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1785961800,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 5,
+    "hour": 20,
+    "minute": 30
+   },
+   "clock": "20:30",
+   "date": "2026-08-05",
+   "weekday": 2,
+   "dayNumber": 20670,
+   "startOfDay": 1785888000
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1799685720,
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 11,
+    "hour": 15,
+    "minute": 42
+   },
+   "clock": "15:42",
+   "date": "2027-01-11",
+   "weekday": 0,
+   "dayNumber": 20829,
+   "startOfDay": 1799629200
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "instant": 1795964100,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 29,
+    "hour": 13,
+    "minute": 55
+   },
+   "clock": "13:55",
+   "date": "2026-11-29",
+   "weekday": 6,
+   "dayNumber": 20786,
+   "startOfDay": 1795914000
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1812086940,
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 4,
+    "hour": 7,
+    "minute": 29
+   },
+   "clock": "07:29",
+   "date": "2027-06-04",
+   "weekday": 4,
+   "dayNumber": 20973,
+   "startOfDay": 1812060000
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1804902540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 13,
+    "hour": 2,
+    "minute": 49
+   },
+   "clock": "02:49",
+   "date": "2027-03-13",
+   "weekday": 5,
+   "dayNumber": 20890,
+   "startOfDay": 1804892400
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1805990220,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 25,
+    "hour": 16,
+    "minute": 57
+   },
+   "clock": "16:57",
+   "date": "2027-03-25",
+   "weekday": 3,
+   "dayNumber": 20902,
+   "startOfDay": 1805929200
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "instant": 1783954620,
+   "wall": {
+    "year": 2026,
+    "month": 7,
+    "day": 13,
+    "hour": 16,
+    "minute": 57
+   },
+   "clock": "16:57",
+   "date": "2026-07-13",
+   "weekday": 0,
+   "dayNumber": 20647,
+   "startOfDay": 1783893600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1819365780,
+   "wall": {
+    "year": 2027,
+    "month": 8,
+    "day": 27,
+    "hour": 13,
+    "minute": 23
+   },
+   "clock": "13:23",
+   "date": "2027-08-27",
+   "weekday": 4,
+   "dayNumber": 21057,
+   "startOfDay": 1819317600
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1821603480,
+   "wall": {
+    "year": 2027,
+    "month": 9,
+    "day": 22,
+    "hour": 10,
+    "minute": 58
+   },
+   "clock": "10:58",
+   "date": "2027-09-22",
+   "weekday": 2,
+   "dayNumber": 21083,
+   "startOfDay": 1821564000
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1793470500,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 31,
+    "hour": 19,
+    "minute": 15
+   },
+   "clock": "19:15",
+   "date": "2026-10-31",
+   "weekday": 5,
+   "dayNumber": 20757,
+   "startOfDay": 1793401200
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "instant": 1788219960,
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 1,
+    "hour": 1,
+    "minute": 46
+   },
+   "clock": "01:46",
+   "date": "2026-09-01",
+   "weekday": 1,
+   "dayNumber": 20697,
+   "startOfDay": 1788213600
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1792886400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1792889940,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1792890000,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1792890060,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1792893600,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1792895400,
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2026-10-25",
+   "weekday": 6,
+   "dayNumber": 20751,
+   "startOfDay": 1792879200
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1806192000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 0
+   },
+   "clock": "01:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1806195540,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 59
+   },
+   "clock": "01:59",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1806195600,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1806195660,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 1
+   },
+   "clock": "03:01",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1806199200,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "clock": "04:00",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1806201000,
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 30
+   },
+   "clock": "04:30",
+   "date": "2027-03-28",
+   "weekday": 6,
+   "dayNumber": 20905,
+   "startOfDay": 1806188400
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1824940800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1824944340,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 59
+   },
+   "clock": "02:59",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1824944400,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 0
+   },
+   "clock": "02:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1824944460,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 2,
+    "minute": 1
+   },
+   "clock": "02:01",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1824948000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 0
+   },
+   "clock": "03:00",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1824949800,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 31,
+    "hour": 3,
+    "minute": 30
+   },
+   "clock": "03:30",
+   "date": "2027-10-31",
+   "weekday": 6,
+   "dayNumber": 21122,
+   "startOfDay": 1824933600
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1794944760,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 17,
+    "hour": 20,
+    "minute": 46
+   },
+   "clock": "20:46",
+   "date": "2026-11-17",
+   "weekday": 1,
+   "dayNumber": 20774,
+   "startOfDay": 1794870000
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1823526000,
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 14,
+    "hour": 17,
+    "minute": 0
+   },
+   "clock": "17:00",
+   "date": "2027-10-14",
+   "weekday": 3,
+   "dayNumber": 21105,
+   "startOfDay": 1823464800
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1794300420,
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 10,
+    "hour": 9,
+    "minute": 47
+   },
+   "clock": "09:47",
+   "date": "2026-11-10",
+   "weekday": 1,
+   "dayNumber": 20767,
+   "startOfDay": 1794265200
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "instant": 1787226180,
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 20,
+    "hour": 13,
+    "minute": 43
+   },
+   "clock": "13:43",
+   "date": "2026-08-20",
+   "weekday": 3,
+   "dayNumber": 20685,
+   "startOfDay": 1787176800
+  }
+ ],
+ "wallToInstant": [
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 23,
+    "hour": 8,
+    "minute": 0
+   },
+   "instant": 1795413600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 3,
+    "minute": 30
+   },
+   "note": "skipped: the moment the clocks jump",
+   "instant": 1806195600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 59
+   },
+   "instant": 1806195540
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 4,
+    "minute": 0
+   },
+   "instant": 1806195600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 3,
+    "minute": 30
+   },
+   "note": "comes twice: the first time",
+   "instant": 1792888200
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 4,
+    "minute": 0
+   },
+   "instant": 1792893600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 2,
+    "minute": 30
+   },
+   "note": "skipped",
+   "instant": 1806195600
+  },
+  {
+   "zone": "Europe/Berlin",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 2,
+    "minute": 30
+   },
+   "note": "comes twice: the first time",
+   "instant": 1792888200
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 1,
+    "minute": 30
+   },
+   "note": "skipped",
+   "instant": 1806195600
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 28,
+    "hour": 0,
+    "minute": 0
+   },
+   "note": "midnight is skipped: the day starts at 01:00",
+   "instant": 1806195600
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 25,
+    "hour": 0,
+    "minute": 30
+   },
+   "note": "comes twice: the first time",
+   "instant": 1792888200
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "wall": {
+    "year": 2026,
+    "month": 12,
+    "day": 31,
+    "hour": 23,
+    "minute": 59
+   },
+   "instant": 1798761540
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 2,
+    "hour": 22,
+    "minute": 30
+   },
+   "instant": 1811964600
+  },
+  {
+   "zone": "Europe/Helsinki",
+   "wall": {
+    "year": 2027,
+    "month": 4,
+    "day": 4,
+    "hour": 20,
+    "minute": 22
+   },
+   "instant": 1806859320
+  },
+  {
+   "zone": "Europe/Vienna",
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 29,
+    "hour": 8,
+    "minute": 51
+   },
+   "instant": 1795938660
+  },
+  {
+   "zone": "Europe/Vienna",
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 7,
+    "hour": 15,
+    "minute": 1
+   },
+   "instant": 1786107660
+  },
+  {
+   "zone": "Europe/Zurich",
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 19,
+    "hour": 11,
+    "minute": 39
+   },
+   "instant": 1787132340
+  },
+  {
+   "zone": "Europe/Zurich",
+   "wall": {
+    "year": 2026,
+    "month": 7,
+    "day": 8,
+    "hour": 9,
+    "minute": 14
+   },
+   "instant": 1783494840
+  },
+  {
+   "zone": "Europe/Prague",
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 16,
+    "hour": 18,
+    "minute": 6
+   },
+   "instant": 1794848760
+  },
+  {
+   "zone": "Europe/Prague",
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 14,
+    "hour": 16,
+    "minute": 10
+   },
+   "instant": 1812982200
+  },
+  {
+   "zone": "Europe/Berlin",
+   "wall": {
+    "year": 2027,
+    "month": 5,
+    "day": 31,
+    "hour": 10,
+    "minute": 23
+   },
+   "instant": 1811751780
+  },
+  {
+   "zone": "Europe/Berlin",
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 5,
+    "hour": 18,
+    "minute": 18
+   },
+   "instant": 1785946680
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 12,
+    "hour": 20,
+    "minute": 48
+   },
+   "instant": 1804880880
+  },
+  {
+   "zone": "Europe/Copenhagen",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 21,
+    "hour": 7,
+    "minute": 18
+   },
+   "instant": 1805609880
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 27,
+    "hour": 7,
+    "minute": 7
+   },
+   "instant": 1790482020
+  },
+  {
+   "zone": "Europe/Tallinn",
+   "wall": {
+    "year": 2027,
+    "month": 8,
+    "day": 18,
+    "hour": 7,
+    "minute": 8
+   },
+   "instant": 1818562080
+  },
+  {
+   "zone": "Europe/Madrid",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 20,
+    "hour": 15,
+    "minute": 28
+   },
+   "instant": 1792502880
+  },
+  {
+   "zone": "Europe/Madrid",
+   "wall": {
+    "year": 2027,
+    "month": 12,
+    "day": 8,
+    "hour": 14,
+    "minute": 49
+   },
+   "instant": 1828273740
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "wall": {
+    "year": 2027,
+    "month": 11,
+    "day": 17,
+    "hour": 11,
+    "minute": 52
+   },
+   "instant": 1826452320
+  },
+  {
+   "zone": "Atlantic/Canary",
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 1,
+    "hour": 11,
+    "minute": 55
+   },
+   "instant": 1822388100
+  },
+  {
+   "zone": "Europe/Athens",
+   "wall": {
+    "year": 2026,
+    "month": 6,
+    "day": 3,
+    "hour": 10,
+    "minute": 49
+   },
+   "instant": 1780472940
+  },
+  {
+   "zone": "Europe/Athens",
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 11,
+    "hour": 20,
+    "minute": 7
+   },
+   "instant": 1789146420
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "wall": {
+    "year": 2026,
+    "month": 6,
+    "day": 16,
+    "hour": 12,
+    "minute": 1
+   },
+   "instant": 1781604060
+  },
+  {
+   "zone": "Europe/Zagreb",
+   "wall": {
+    "year": 2027,
+    "month": 12,
+    "day": 4,
+    "hour": 11,
+    "minute": 20
+   },
+   "instant": 1827915600
+  },
+  {
+   "zone": "Europe/Budapest",
+   "wall": {
+    "year": 2026,
+    "month": 12,
+    "day": 2,
+    "hour": 22,
+    "minute": 24
+   },
+   "instant": 1796246640
+  },
+  {
+   "zone": "Europe/Budapest",
+   "wall": {
+    "year": 2027,
+    "month": 7,
+    "day": 9,
+    "hour": 21,
+    "minute": 52
+   },
+   "instant": 1815162720
+  },
+  {
+   "zone": "Europe/Rome",
+   "wall": {
+    "year": 2027,
+    "month": 9,
+    "day": 28,
+    "hour": 6,
+    "minute": 5
+   },
+   "instant": 1822104300
+  },
+  {
+   "zone": "Europe/Rome",
+   "wall": {
+    "year": 2026,
+    "month": 7,
+    "day": 23,
+    "hour": 21,
+    "minute": 22
+   },
+   "instant": 1784834520
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 19,
+    "hour": 17,
+    "minute": 10
+   },
+   "instant": 1792419000
+  },
+  {
+   "zone": "Europe/Vilnius",
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 1,
+    "hour": 10,
+    "minute": 41
+   },
+   "instant": 1822376460
+  },
+  {
+   "zone": "Europe/Riga",
+   "wall": {
+    "year": 2027,
+    "month": 8,
+    "day": 20,
+    "hour": 16,
+    "minute": 40
+   },
+   "instant": 1818769200
+  },
+  {
+   "zone": "Europe/Riga",
+   "wall": {
+    "year": 2027,
+    "month": 8,
+    "day": 18,
+    "hour": 19,
+    "minute": 5
+   },
+   "instant": 1818605100
+  },
+  {
+   "zone": "Europe/Malta",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 2,
+    "hour": 6,
+    "minute": 38
+   },
+   "instant": 1790915880
+  },
+  {
+   "zone": "Europe/Malta",
+   "wall": {
+    "year": 2026,
+    "month": 7,
+    "day": 24,
+    "hour": 12,
+    "minute": 46
+   },
+   "instant": 1784889960
+  },
+  {
+   "zone": "Europe/Oslo",
+   "wall": {
+    "year": 2026,
+    "month": 8,
+    "day": 23,
+    "hour": 20,
+    "minute": 24
+   },
+   "instant": 1787509440
+  },
+  {
+   "zone": "Europe/Oslo",
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 15,
+    "hour": 10,
+    "minute": 26
+   },
+   "instant": 1800005160
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "wall": {
+    "year": 2027,
+    "month": 3,
+    "day": 31,
+    "hour": 10,
+    "minute": 55
+   },
+   "instant": 1806483300
+  },
+  {
+   "zone": "Europe/Warsaw",
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 8,
+    "hour": 11,
+    "minute": 15
+   },
+   "instant": 1794132900
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 9,
+    "hour": 15,
+    "minute": 10
+   },
+   "instant": 1823091000
+  },
+  {
+   "zone": "Europe/Lisbon",
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 22,
+    "hour": 8,
+    "minute": 57
+   },
+   "instant": 1795337820
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "wall": {
+    "year": 2027,
+    "month": 10,
+    "day": 23,
+    "hour": 8,
+    "minute": 22
+   },
+   "instant": 1824279720
+  },
+  {
+   "zone": "Atlantic/Azores",
+   "wall": {
+    "year": 2027,
+    "month": 9,
+    "day": 26,
+    "hour": 20,
+    "minute": 0
+   },
+   "instant": 1821988800
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "wall": {
+    "year": 2027,
+    "month": 5,
+    "day": 21,
+    "hour": 19,
+    "minute": 8
+   },
+   "instant": 1810919280
+  },
+  {
+   "zone": "Europe/Stockholm",
+   "wall": {
+    "year": 2027,
+    "month": 6,
+    "day": 10,
+    "hour": 7,
+    "minute": 12
+   },
+   "instant": 1812604320
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "wall": {
+    "year": 2026,
+    "month": 10,
+    "day": 10,
+    "hour": 16,
+    "minute": 26
+   },
+   "instant": 1791642360
+  },
+  {
+   "zone": "Europe/Ljubljana",
+   "wall": {
+    "year": 2027,
+    "month": 1,
+    "day": 1,
+    "hour": 10,
+    "minute": 15
+   },
+   "instant": 1798794900
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "wall": {
+    "year": 2026,
+    "month": 11,
+    "day": 20,
+    "hour": 12,
+    "minute": 3
+   },
+   "instant": 1795172580
+  },
+  {
+   "zone": "Europe/Bratislava",
+   "wall": {
+    "year": 2026,
+    "month": 9,
+    "day": 23,
+    "hour": 21,
+    "minute": 58
+   },
+   "instant": 1790193480
+  }
+ ]
+}

@@ -30,3 +30,6 @@ certificates
 
 # night-run goal, log and notes (CLAUDE.md, "Night runs"): local only
 /.fable/
+
+# pipeline output and raw Overpass answers (npm run data); OpenStreetMap data never enters git
+/.data/

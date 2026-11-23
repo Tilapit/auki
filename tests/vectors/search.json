@@ -1,0 +1,1063 @@
+{
+ "about": "The nearest pharmacies through tiles. Each world has a grid (\"d\": a tile exists) and the pharmacies of each tile. A search loads only tiles the grid lists, and stops when no tile it has not loaded could hold something nearer. The answer must equal a search through every pharmacy: nearest first, ties by id. loads says how many tiles the reference implementation needed.",
+ "worlds": [
+  {
+   "name": "Helsinki, dense",
+   "grid": {
+    "z": 10,
+    "x0": 575,
+    "y0": 289,
+    "width": 16,
+    "rows": [
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "ccccccddddcccccc",
+     "ccccccddddcccccc",
+     "ccccccddddcccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc"
+    ]
+   },
+   "tiles": {
+    "582/296": [
+     {
+      "id": "n1",
+      "lat": 60.08642,
+      "lon": 24.65863
+     },
+     {
+      "id": "n2",
+      "lat": 60.16325,
+      "lon": 24.93883
+     },
+     {
+      "id": "n3",
+      "lat": 60.18175,
+      "lon": 24.94453
+     },
+     {
+      "id": "n6",
+      "lat": 60.13077,
+      "lon": 24.9288
+     },
+     {
+      "id": "n9",
+      "lat": 60.17621,
+      "lon": 24.93979
+     },
+     {
+      "id": "n10",
+      "lat": 60.1688,
+      "lon": 24.91382
+     },
+     {
+      "id": "n12",
+      "lat": 60.17758,
+      "lon": 24.93359
+     },
+     {
+      "id": "n13",
+      "lat": 60.17108,
+      "lon": 24.91631
+     },
+     {
+      "id": "n15",
+      "lat": 60.18124,
+      "lon": 24.95612
+     },
+     {
+      "id": "n16",
+      "lat": 60.09491,
+      "lon": 24.62296
+     },
+     {
+      "id": "n21",
+      "lat": 60.1008,
+      "lon": 24.90289
+     },
+     {
+      "id": "n24",
+      "lat": 60.16891,
+      "lon": 24.94532
+     },
+     {
+      "id": "n25",
+      "lat": 60.22674,
+      "lon": 24.71814
+     },
+     {
+      "id": "n30",
+      "lat": 60.15764,
+      "lon": 24.919
+     },
+     {
+      "id": "n33",
+      "lat": 60.17415,
+      "lon": 24.95901
+     },
+     {
+      "id": "n34",
+      "lat": 60.17317,
+      "lon": 24.94996
+     },
+     {
+      "id": "n41",
+      "lat": 60.17466,
+      "lon": 24.91565
+     },
+     {
+      "id": "n45",
+      "lat": 60.15947,
+      "lon": 24.95128
+     },
+     {
+      "id": "n46",
+      "lat": 60.17807,
+      "lon": 24.92911
+     },
+     {
+      "id": "n50",
+      "lat": 60.16914,
+      "lon": 24.9408
+     },
+     {
+      "id": "n51",
+      "lat": 60.13402,
+      "lon": 24.79202
+     },
+     {
+      "id": "n54",
+      "lat": 60.2147,
+      "lon": 24.62986
+     },
+     {
+      "id": "n55",
+      "lat": 60.1746,
+      "lon": 24.93284
+     },
+     {
+      "id": "n56",
+      "lat": 60.17095,
+      "lon": 24.95776
+     },
+     {
+      "id": "n60",
+      "lat": 60.16146,
+      "lon": 24.93962
+     }
+    ],
+    "582/295": [
+     {
+      "id": "n4",
+      "lat": 60.30397,
+      "lon": 24.80687
+     },
+     {
+      "id": "n20",
+      "lat": 60.41136,
+      "lon": 24.72643
+     },
+     {
+      "id": "n26",
+      "lat": 60.30485,
+      "lon": 24.74522
+     },
+     {
+      "id": "n27",
+      "lat": 60.30647,
+      "lon": 24.61798
+     },
+     {
+      "id": "n32",
+      "lat": 60.26112,
+      "lon": 24.78823
+     },
+     {
+      "id": "n40",
+      "lat": 60.3703,
+      "lon": 24.94784
+     },
+     {
+      "id": "n43",
+      "lat": 60.31022,
+      "lon": 24.82305
+     },
+     {
+      "id": "n57",
+      "lat": 60.24126,
+      "lon": 24.83866
+     }
+    ],
+    "583/295": [
+     {
+      "id": "n5",
+      "lat": 60.35784,
+      "lon": 24.96732
+     },
+     {
+      "id": "n19",
+      "lat": 60.37243,
+      "lon": 25.12752
+     },
+     {
+      "id": "n23",
+      "lat": 60.3137,
+      "lon": 25.29409
+     }
+    ],
+    "584/295": [
+     {
+      "id": "n7",
+      "lat": 60.38526,
+      "lon": 25.42042
+     },
+     {
+      "id": "n35",
+      "lat": 60.35168,
+      "lon": 25.37727
+     },
+     {
+      "id": "n49",
+      "lat": 60.31853,
+      "lon": 25.34259
+     }
+    ],
+    "583/296": [
+     {
+      "id": "n8",
+      "lat": 60.09388,
+      "lon": 25.22798
+     },
+     {
+      "id": "n11",
+      "lat": 60.18991,
+      "lon": 25.20358
+     },
+     {
+      "id": "n42",
+      "lat": 60.22608,
+      "lon": 25.00254
+     },
+     {
+      "id": "n44",
+      "lat": 60.18105,
+      "lon": 24.9634
+     },
+     {
+      "id": "n52",
+      "lat": 60.21106,
+      "lon": 25.05594
+     }
+    ],
+    "583/297": [
+     {
+      "id": "n14",
+      "lat": 60.05905,
+      "lon": 24.99552
+     },
+     {
+      "id": "n36",
+      "lat": 59.97466,
+      "lon": 25.10176
+     },
+     {
+      "id": "n39",
+      "lat": 59.9351,
+      "lon": 25.20323
+     },
+     {
+      "id": "n53",
+      "lat": 59.98868,
+      "lon": 25.19117
+     }
+    ],
+    "581/296": [
+     {
+      "id": "n17",
+      "lat": 60.16923,
+      "lon": 24.50368
+     },
+     {
+      "id": "n29",
+      "lat": 60.14887,
+      "lon": 24.55788
+     },
+     {
+      "id": "n47",
+      "lat": 60.22996,
+      "lon": 24.57786
+     }
+    ],
+    "581/295": [
+     {
+      "id": "n18",
+      "lat": 60.39817,
+      "lon": 24.43996
+     }
+    ],
+    "582/297": [
+     {
+      "id": "n22",
+      "lat": 59.92261,
+      "lon": 24.67664
+     },
+     {
+      "id": "n37",
+      "lat": 59.99524,
+      "lon": 24.71901
+     },
+     {
+      "id": "n58",
+      "lat": 60.01552,
+      "lon": 24.8037
+     }
+    ],
+    "584/296": [
+     {
+      "id": "n28",
+      "lat": 60.11184,
+      "lon": 25.42019
+     },
+     {
+      "id": "n38",
+      "lat": 60.10782,
+      "lon": 25.44044
+     },
+     {
+      "id": "n48",
+      "lat": 60.13477,
+      "lon": 25.32919
+     }
+    ],
+    "584/297": [
+     {
+      "id": "n31",
+      "lat": 59.97841,
+      "lon": 25.3418
+     }
+    ],
+    "581/297": [
+     {
+      "id": "n59",
+      "lat": 59.95063,
+      "lon": 24.51893
+     }
+    ]
+   },
+   "searches": [
+    {
+     "position": {
+      "lat": 60.1699,
+      "lon": 24.9384
+     },
+     "count": 20,
+     "radius": 10000,
+     "loads": 4,
+     "nearest": [
+      {
+       "id": "n50",
+       "meters": 157.4
+      },
+      {
+       "id": "n24",
+       "meters": 398.3
+      },
+      {
+       "id": "n55",
+       "meters": 606.4
+      },
+      {
+       "id": "n9",
+       "meters": 705.8
+      },
+      {
+       "id": "n34",
+       "meters": 735.5
+      },
+      {
+       "id": "n2",
+       "meters": 739.8
+      },
+      {
+       "id": "n12",
+       "meters": 894.5
+      },
+      {
+       "id": "n60",
+       "meters": 940.9
+      },
+      {
+       "id": "n46",
+       "meters": 1043.7
+      },
+      {
+       "id": "n56",
+       "meters": 1077.2
+      },
+      {
+       "id": "n13",
+       "meters": 1228.8
+      },
+      {
+       "id": "n33",
+       "meters": 1234
+      },
+      {
+       "id": "n3",
+       "meters": 1360.6
+      },
+      {
+       "id": "n45",
+       "meters": 1361.2
+      },
+      {
+       "id": "n41",
+       "meters": 1365
+      },
+      {
+       "id": "n10",
+       "meters": 1365.1
+      },
+      {
+       "id": "n15",
+       "meters": 1597
+      },
+      {
+       "id": "n30",
+       "meters": 1735
+      },
+      {
+       "id": "n44",
+       "meters": 1857.1
+      },
+      {
+       "id": "n6",
+       "meters": 4383.4
+      }
+     ]
+    },
+    {
+     "position": {
+      "lat": 60.1699,
+      "lon": 24.9384
+     },
+     "count": 5,
+     "radius": 50000,
+     "loads": 4,
+     "nearest": [
+      {
+       "id": "n50",
+       "meters": 157.4
+      },
+      {
+       "id": "n24",
+       "meters": 398.3
+      },
+      {
+       "id": "n55",
+       "meters": 606.4
+      },
+      {
+       "id": "n9",
+       "meters": 705.8
+      },
+      {
+       "id": "n34",
+       "meters": 735.5
+      }
+     ]
+    },
+    {
+     "position": {
+      "lat": 60.1699,
+      "lon": 24.9384
+     },
+     "count": 1,
+     "radius": 30000,
+     "loads": 4,
+     "nearest": [
+      {
+       "id": "n50",
+       "meters": 157.4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "a corner where four squares meet",
+   "grid": {
+    "z": 10,
+    "x0": 572,
+    "y0": 305,
+    "width": 16,
+    "rows": [
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "ccccccdcddcccccc",
+     "ccccccddddcccccc",
+     "cccccccddccccccc",
+     "cccccccddccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc",
+     "cccccccccccccccc"
+    ]
+   },
+   "tiles": {
+    "580/313": [
+     {
+      "id": "n1",
+      "lat": 57.07418,
+      "lon": 24.14673
+     },
+     {
+      "id": "n3",
+      "lat": 57.12462,
+      "lon": 23.91114
+     },
+     {
+      "id": "n22",
+      "lat": 57.07367,
+      "lon": 24.22257
+     },
+     {
+      "id": "n23",
+      "lat": 56.98339,
+      "lon": 24.15325
+     },
+     {
+      "id": "n28",
+      "lat": 57.13155,
+      "lon": 23.91779
+     }
+    ],
+    "580/312": [
+     {
+      "id": "n2",
+      "lat": 57.1438,
+      "lon": 23.91351
+     },
+     {
+      "id": "n5",
+      "lat": 57.14917,
+      "lon": 23.91585
+     },
+     {
+      "id": "n11",
+      "lat": 57.14276,
+      "lon": 23.92168
+     },
+     {
+      "id": "n14",
+      "lat": 57.14652,
+      "lon": 23.92519
+     },
+     {
+      "id": "n16",
+      "lat": 57.14933,
+      "lon": 23.91453
+     },
+     {
+      "id": "n18",
+      "lat": 57.15985,
+      "lon": 24.25066
+     },
+     {
+      "id": "n25",
+      "lat": 57.14938,
+      "lon": 23.93252
+     },
+     {
+      "id": "n31",
+      "lat": 57.19437,
+      "lon": 23.92492
+     },
+     {
+      "id": "n39",
+      "lat": 57.17969,
+      "lon": 24.11943
+     }
+    ],
+    "578/312": [
+     {
+      "id": "n4",
+      "lat": 57.18831,
+      "lon": 23.39514
+     },
+     {
+      "id": "n40",
+      "lat": 57.27583,
+      "lon": 23.43527
+     }
+    ],
+    "581/311": [
+     {
+      "id": "n6",
+      "lat": 57.36232,
+      "lon": 24.33516
+     }
+    ],
+    "580/311": [
+     {
+      "id": "n7",
+      "lat": 57.43066,
+      "lon": 24.16976
+     },
+     {
+      "id": "n9",
+      "lat": 57.42884,
+      "lon": 23.9239
+     },
+     {
+      "id": "n17",
+      "lat": 57.35913,
+      "lon": 24.25116
+     },
+     {
+      "id": "n30",
+      "lat": 57.40763,
+      "lon": 24.07234
+     },
+     {
+      "id": "n32",
+      "lat": 57.36162,
+      "lon": 24.11368
+     }
+    ],
+    "578/311": [
+     {
+      "id": "n8",
+      "lat": 57.42083,
+      "lon": 23.41064
+     },
+     {
+      "id": "n24",
+      "lat": 57.42668,
+      "lon": 23.48256
+     }
+    ],
+    "581/312": [
+     {
+      "id": "n10",
+      "lat": 57.20603,
+      "lon": 24.32431
+     }
+    ],
+    "579/312": [
+     {
+      "id": "n12",
+      "lat": 57.32096,
+      "lon": 23.56636
+     },
+     {
+      "id": "n13",
+      "lat": 57.13827,
+      "lon": 23.89118
+     },
+     {
+      "id": "n26",
+      "lat": 57.14406,
+      "lon": 23.89088
+     },
+     {
+      "id": "n33",
+      "lat": 57.24574,
+      "lon": 23.88877
+     },
+     {
+      "id": "n34",
+      "lat": 57.15002,
+      "lon": 23.88655
+     },
+     {
+      "id": "n37",
+      "lat": 57.1452,
+      "lon": 23.89892
+     }
+    ],
+    "579/313": [
+     {
+      "id": "n15",
+      "lat": 57.08476,
+      "lon": 23.80025
+     },
+     {
+      "id": "n20",
+      "lat": 57.0249,
+      "lon": 23.85065
+     },
+     {
+      "id": "n21",
+      "lat": 57.13012,
+      "lon": 23.89384
+     },
+     {
+      "id": "n27",
+      "lat": 56.9995,
+      "lon": 23.74292
+     },
+     {
+      "id": "n35",
+      "lat": 57.07762,
+      "lon": 23.70871
+     },
+     {
+      "id": "n36",
+      "lat": 57.13391,
+      "lon": 23.88201
+     }
+    ],
+    "580/314": [
+     {
+      "id": "n19",
+      "lat": 56.85244,
+      "lon": 24.25126
+     },
+     {
+      "id": "n38",
+      "lat": 56.94448,
+      "lon": 23.94225
+     }
+    ],
+    "579/314": [
+     {
+      "id": "n29",
+      "lat": 56.90661,
+      "lon": 23.88078
+     }
+    ]
+   },
+   "searches": [
+    {
+     "position": {
+      "lat": 57.13624,
+      "lon": 23.90625
+     },
+     "count": 20,
+     "radius": 10000,
+     "loads": 4,
+     "nearest": [
+      {
+       "id": "n28",
+       "meters": 870
+      },
+      {
+       "id": "n13",
+       "meters": 936.9
+      },
+      {
+       "id": "n2",
+       "meters": 947.9
+      },
+      {
+       "id": "n21",
+       "meters": 1011.9
+      },
+      {
+       "id": "n37",
+       "meters": 1090
+      },
+      {
+       "id": "n11",
+       "meters": 1180
+      },
+      {
+       "id": "n26",
+       "meters": 1271.2
+      },
+      {
+       "id": "n3",
+       "meters": 1325.4
+      },
+      {
+       "id": "n36",
+       "meters": 1485.4
+      },
+      {
+       "id": "n16",
+       "meters": 1538.9
+      },
+      {
+       "id": "n5",
+       "meters": 1550
+      },
+      {
+       "id": "n14",
+       "meters": 1616.3
+      },
+      {
+       "id": "n34",
+       "meters": 1939.1
+      },
+      {
+       "id": "n25",
+       "meters": 2155.6
+      },
+      {
+       "id": "n31",
+       "meters": 6561.1
+      },
+      {
+       "id": "n15",
+       "meters": 8586.8
+      }
+     ]
+    },
+    {
+     "position": {
+      "lat": 57.13624,
+      "lon": 23.90625
+     },
+     "count": 5,
+     "radius": 50000,
+     "loads": 4,
+     "nearest": [
+      {
+       "id": "n28",
+       "meters": 870
+      },
+      {
+       "id": "n13",
+       "meters": 936.9
+      },
+      {
+       "id": "n2",
+       "meters": 947.9
+      },
+      {
+       "id": "n21",
+       "meters": 1011.9
+      },
+      {
+       "id": "n37",
+       "meters": 1090
+      }
+     ]
+    },
+    {
+     "position": {
+      "lat": 57.13624,
+      "lon": 23.90625
+     },
+     "count": 1,
+     "radius": 30000,
+     "loads": 4,
+     "nearest": [
+      {
+       "id": "n28",
+       "meters": 870
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Lapland, sparse",
+   "grid": {
+    "z": 10,
+    "x0": 581,
+    "y0": 227,
+    "width": 19,
+    "rows": [
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccdcccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "cccccccdcccdccccccc",
+     "ccccccccccccccccccc",
+     "ccccccdcccccccccccc",
+     "ccccccccdcccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccdcccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc",
+     "ccccccccccccccccccc"
+    ]
+   },
+   "tiles": {
+    "592/237": [
+     {
+      "id": "n1",
+      "lat": 68.9173,
+      "lon": 28.18514
+     }
+    ],
+    "588/237": [
+     {
+      "id": "n2",
+      "lat": 68.92503,
+      "lon": 26.99835
+     }
+    ],
+    "591/233": [
+     {
+      "id": "n3",
+      "lat": 69.45737,
+      "lon": 27.82695
+     }
+    ],
+    "587/239": [
+     {
+      "id": "n4",
+      "lat": 68.71901,
+      "lon": 26.65209
+     }
+    ],
+    "589/240": [
+     {
+      "id": "n5",
+      "lat": 68.61442,
+      "lon": 27.41921
+     }
+    ],
+    "593/242": [
+     {
+      "id": "n6",
+      "lat": 68.33096,
+      "lon": 28.59055
+     }
+    ]
+   },
+   "searches": [
+    {
+     "position": {
+      "lat": 68.9,
+      "lon": 27
+     },
+     "count": 20,
+     "radius": 10000,
+     "loads": 1,
+     "nearest": [
+      {
+       "id": "n2",
+       "meters": 2784
+      }
+     ]
+    },
+    {
+     "position": {
+      "lat": 68.9,
+      "lon": 27
+     },
+     "count": 5,
+     "radius": 50000,
+     "loads": 4,
+     "nearest": [
+      {
+       "id": "n2",
+       "meters": 2784
+      },
+      {
+       "id": "n4",
+       "meters": 24506.4
+      },
+      {
+       "id": "n5",
+       "meters": 35966.9
+      },
+      {
+       "id": "n1",
+       "meters": 47460.7
+      }
+     ]
+    },
+    {
+     "position": {
+      "lat": 68.9,
+      "lon": 27
+     },
+     "count": 1,
+     "radius": 30000,
+     "loads": 3,
+     "nearest": [
+      {
+       "id": "n2",
+       "meters": 2784
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "nothing near",
+   "grid": {
+    "z": 10,
+    "x0": 449,
+    "y0": 381,
+    "width": 13,
+    "rows": [
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc",
+     "ccccccccccccc"
+    ]
+   },
+   "tiles": {},
+   "searches": [
+    {
+     "position": {
+      "lat": 40,
+      "lon": -20
+     },
+     "count": 20,
+     "radius": 10000,
+     "loads": 0,
+     "nearest": []
+    },
+    {
+     "position": {
+      "lat": 40,
+      "lon": -20
+     },
+     "count": 5,
+     "radius": 50000,
+     "loads": 0,
+     "nearest": []
+    },
+    {
+     "position": {
+      "lat": 40,
+      "lon": -20
+     },
+     "count": 1,
+     "radius": 30000,
+     "loads": 0,
+     "nearest": []
+    }
+   ]
+  }
+ ]
+}

@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Copied from node_modules by scripts/copy-map-worker.mjs:
     "public/maplibre/**",
+    // The pipeline's output and saved Overpass answers (npm run data):
+    ".data/**",
   ]),
 ]);
 

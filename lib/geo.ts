@@ -38,3 +38,14 @@ export function compass(degrees: number): Compass {
   const points: Compass[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
   return points[Math.round((((degrees % 360) + 360) % 360) / 45) % 8];
 }
+
+const EARTH_RADIUS_METERS = 6371008.8;
+
+/** Great-circle distance in metres (haversine). */
+export function distanceMeters(from: { lat: number; lon: number }, to: { lat: number; lon: number }): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(to.lat - from.lat);
+  const dLon = toRad(to.lon - from.lon);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(from.lat)) * Math.cos(toRad(to.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * EARTH_RADIUS_METERS * Math.asin(Math.min(1, Math.sqrt(a)));
+}
