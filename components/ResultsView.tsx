@@ -424,7 +424,11 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           ref={detailRef}
           className={styles.detail}
           aria-labelledby={`${id}-detail`}
-          onClose={() => setDetailId(undefined)}
+          // The dialog says it has closed a moment after it did. If another pharmacy was opened in
+          // that moment, the sheet is open again and this is old news.
+          onClose={(event) => {
+            if (!event.currentTarget.open) setDetailId(undefined);
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Escape') setDetailId(undefined);
           }}

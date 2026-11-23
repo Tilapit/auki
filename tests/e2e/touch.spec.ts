@@ -150,6 +150,9 @@ test('with a mouse: a drag that begins on a marker moves the map and opens nothi
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
   for (let step = 1; step <= 10; step++) await page.mouse.move(from.x - step * 8, from.y + step * 10);
+  // Held still before it is let go: thrown, the map would glide on and could take the marker off the screen.
+  await page.waitForTimeout(200);
+  await page.mouse.move(from.x - 80, from.y + 101);
   await page.mouse.up();
   await expect.poll(async () => (await placeOf(dot(page))).x - before.x).toBeLessThan(-60);
   // The mouse let go on the marker it had been dragging: that is not a press on it.
