@@ -420,3 +420,36 @@ Entry format:
 - Not changed now: the spike keeps all three variants and their screenshots, as the record of what was compared. M4 takes C out of the style code when it builds the real map.
 - Status: accepted (Janne, 22 Nov 2026); details provisional until M4
 
+
+## 2026-11-23: A way to search another place from the results (provisional)
+- Where: Results, the phone's bar and the desktop panel's title (`/dev/states`, proposal "place": current and proposed side by side)
+- Change: On the phone the place name in the bar is a button that opens the place search, marked with a search glyph and named "Hae toinen paikka" for screen readers. On desktop the same action is a line of text with the glyph under the title. Before this, only the browser's back button led to another place.
+- Why: PLAN.md 7.3 promises "search elsewhere" as a way forward from the results, and nothing on screen offered it. The glyph carries meaning here: a bare name doesn't read as something to press.
+- Status: provisional. It changes the bar of a main view, so it is propose-first; built this way in M3 under the night-run rule, waiting for Janne
+
+## 2026-11-23: Data older than seven days: one notice, quiet rows
+- Where: Results with out-of-date data (`/dev/states/stale`)
+- Change: PLAN.md section 5 said a notice takes the card's place. Built: the amber notice of the approximate-location case, with the date of the data and one thing to do ("Soita apteekkiin ennen kuin lähdet"). The heading is "Apteekit lähelläsi", not a count of open ones. The list is headed "Lähimmät apteekit", since there is no card for them to be "the others" of. On the phone the sheet is open from the start: there is no answer to peek at. The rows keep the dashed cross and say "Aukioloajat voivat olla vanhentuneet" in the quiet text colour, not in amber.
+- Why: Ten amber lines would say the same thing ten times; the notice says it once and the rows stay readable as a list of names and distances, which is what is still true.
+- Status: done
+
+## 2026-11-23: At the edge of the coverage: the note and the not-covered view
+- Where: Results near a border (`/dev/states/tiles-edge`), the not-covered view (`/dev/states/not-covered`)
+- Change:
+  - PLAN.md 7.7 worded the note "Ranskan apteekit eivät ole mukana". Built: "Ranska ei ole vielä mukana: sen apteekkeja ei näy tässä." Country names come from the browser (`Intl.DisplayNames`) in the nominative; a genitive would need a hand-kept table of every neighbouring country in two languages.
+  - The note is a single plain sentence in the notice style, without a heading: it qualifies the results, it isn't a problem.
+  - The not-covered view names the country only where the tiles know it (a square on the border, or never for a square that is all outside). Otherwise the heading alone says it. The covered countries are one sentence, in alphabetical order in the UI language.
+- Why: Real names in two languages without a table to keep; and no claim about where the user is that the device can't back.
+- Status: done
+
+## 2026-11-23: The data date in the footer, and the data page
+- Where: Results footer; `/fi/data`, `/en/data` (`/dev/states/data`)
+- Change: PLAN.md section 5 said the data date links to the data page. Built: "Tiedot: OpenStreetMap, haettu 23.11." followed by a link of its own, "Tietoa aineistosta". The page is a table by country (pharmacies, share with hours, share of those read, date fetched), a total, three lines on how to read it and where to fix wrong data. A country whose data is from an earlier run says so in its row.
+- Why: A date is a poor name for a link: a screen reader would announce "23.11., link". On a narrow phone the table scrolls sideways rather than squeezing the numbers.
+- Status: done
+
+## 2026-11-23: The crosses switch on in the list first
+- Where: Results, the card and the list
+- Change: The reveal of PLAN.md section 6 (open crosses switch on in order, 30 ms apart, 180 ms each) is built for the card and the list. The map's markers join in M4, when the real map replaces the placeholder. Nothing moves with `prefers-reduced-motion`.
+- Why: The placeholder map is replaced in M4; animating it now would be thrown away.
+- Status: done, until M4
