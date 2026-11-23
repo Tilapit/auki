@@ -64,6 +64,9 @@ test('a marker opens the same pharmacy as its row, and a row marks its marker', 
 test('the list comes before the map in the tab order, and the map has a name', async ({ page }) => {
   await start(page, world(kamppi));
   await expect(map(page)).toBeVisible();
+  // The map is there while searching too: wait for the results, which bring the rows and the markers.
+  await expect(page.locator('ol > li h3')).toHaveCount(5);
+  await expect(markers(page)).toHaveCount(6);
   const order = await page.evaluate(() => {
     const first = document.querySelector('ol li h3 button');
     const pin = document.querySelector('[data-map] button[aria-pressed]');
@@ -192,8 +195,16 @@ test.describe('on a phone', () => {
       for (let step = 1; step <= 8; step++) await page.mouse.move(from.x, from.y + (by * step) / 8);
       await page.mouse.up();
     };
+    // The sheet glides to its place in 200 ms of real time: press only once it has stopped moving.
     const centre = async (target: typeof open) => {
-      const box = (await target.boundingBox())!;
+      let box = (await target.boundingBox())!;
+      for (let tries = 0; tries < 30; tries++) {
+        await page.waitForTimeout(120);
+        const next = (await target.boundingBox())!;
+        const still = Math.abs(next.y - box.y) < 0.5;
+        box = next;
+        if (still) break;
+      }
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
     };
 
