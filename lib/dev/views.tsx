@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { DataView } from '@/components/DataPage';
 import { CardCases, ComponentSheet } from '@/components/dev/Sheets';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
@@ -9,12 +10,20 @@ import { SearchingView } from '@/components/SearchingView';
 import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/helsinki';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
+import { HERE, MONDAY_EVENING, NINE_DAYS_LATER, farOpen, indexOf, kamppi, kamppiClosed, resultOf } from '@/lib/fixtures/tiles';
+import { toScene } from '@/lib/live';
+import type { SearchResult } from '@/lib/live';
+import { distanceMeters } from '@/lib/geo';
 import { sceneAt } from '@/lib/scene';
 import type { SkyAt } from '@/lib/sky';
 
 /** Fixed moments for the sky. Nothing in /dev/states reads the clock. */
 const at = (iso: string): SkyAt => ({ at: iso, zone: 'Europe/Helsinki' });
 const TWILIGHT = at('2026-11-19T14:10:00Z');
+
+/** A scene as the live app builds it, from tile data at a fixed instant. */
+const fromTiles = (result: SearchResult, now = MONDAY_EVENING) => toScene({ position: HERE, result, now, deviceZone: 'Europe/Helsinki' });
+const far = { pharmacy: farOpen, meters: distanceMeters(HERE, farOpen) };
 
 /** id from viewList.ts to what it renders. Fixtures only: no network, no clock. */
 export const renderers: Record<string, () => ReactNode> = {
@@ -65,6 +74,19 @@ export const renderers: Record<string, () => ReactNode> = {
   'sheet-far': () => <ResultsView scene={rigaFarOpen} sheet="peek" detailId="meness-marupe" />,
   counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" />,
   'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" />,
+
+  'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" placeControl />,
+  tiles: () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="expanded" placeControl />,
+  'tiles-far': () => <ResultsView scene={fromTiles(resultOf(kamppiClosed, { farOpen: far }))} sheet="expanded" placeControl />,
+  'tiles-edge': () => <ResultsView scene={fromTiles(resultOf(kamppi, { missing: ['RU'] }))} sheet="expanded" placeControl />,
+  stale: () => <ResultsView scene={fromTiles(resultOf(kamppi), NINE_DAYS_LATER)} sheet="expanded" placeControl />,
+  'place-current': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
+  'place-proposed': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" placeControl />,
+
+  'not-covered': () => <ProblemView kind="notCovered" scene={sceneAt({ source: 'search', lat: 48.8566, lon: 2.3522, label: 'Pariisi' }, '20:41')} country="FR" />,
+  'not-covered-unknown': () => <ProblemView kind="notCovered" scene={sceneAt(HERE, '20:41')} />,
+  data: () => <DataView loaded={{ status: 'ready', index: indexOf([]) }} />,
+  'data-failed': () => <DataView loaded={{ status: 'failed' }} />,
 
   none: () => <ProblemView kind="none" scene={helsinki} />,
   offline: () => <ProblemView kind="offline" scene={helsinki} />,

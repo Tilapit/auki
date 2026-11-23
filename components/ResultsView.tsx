@@ -35,6 +35,8 @@ export interface ResultsOptions {
   onRefresh?: () => void;
   /** Opens the place search: from the place name, and from the approximate-location notice. */
   onSearch?: () => void;
+  /** Shows the place control without a handler, for /dev/states. */
+  placeControl?: boolean;
   /** In the real flow focus moves to the title when the results arrive. */
   focusTitle?: boolean;
   /** The crosses of the open pharmacies switch on one after another (PLAN.md section 6, "Motion"). */
@@ -42,6 +44,7 @@ export interface ResultsOptions {
 }
 
 const DESKTOP = '(min-width: 900px)';
+const NO_ACTION = () => undefined;
 
 /** Results: map first, with the "Lähin auki nyt" card and the list. */
 export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOptions) {
@@ -194,7 +197,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       peek={stale ? undefined : peek || nothingOpenPeek || undefined}
       emergencyInFooter={!!nearestOpen}
       onRefresh={options.onRefresh}
-      onPlace={options.onSearch}
+      onPlace={options.onSearch ?? (options.placeControl ? NO_ACTION : undefined)}
       dataFrom={scene.dataFrom}
       focusTitle={options.focusTitle}
       distance={scene.distance}

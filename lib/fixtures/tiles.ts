@@ -1,0 +1,96 @@
+import { COUNTRY_CODES } from '../countries';
+import type { SearchResult } from '../live';
+import type { Position } from '../state';
+import { TILE_ZOOM, tileKey, tileOf } from '../tiles';
+import { distanceMeters } from '../geo';
+import type { CountryStats, Hours, IndexJson, TilePharmacy } from '../tiles';
+
+/**
+ * Tile data at a fixed moment, for /dev/states and the browser tests: pharmacies around
+ * Kamppi in Helsinki as a tile would carry them, in the week of Monday 23 November 2026.
+ * Names are invented.
+ */
+
+const utc = (iso: string): number => Date.parse(iso) / 1000;
+
+/** Monday 23 November 2026, 00:00 in Helsinki. */
+export const WEEK_FROM = utc('2026-11-22T22:00:00Z');
+export const WEEK_UNTIL = WEEK_FROM + 8 * 86400;
+export const GENERATED = utc('2026-11-23T01:17:00Z');
+/** Monday 20:41 in Helsinki: the moment of the canvas. */
+export const MONDAY_EVENING = utc('2026-11-23T18:41:00Z');
+/** Nine days later: the data is out of date. */
+export const NINE_DAYS_LATER = MONDAY_EVENING + 9 * 86400;
+
+export const KAMPPI = { lat: 60.16952, lon: 24.93545 };
+export const HERE: Position = { source: 'device', ...KAMPPI, accuracy: 25, approximate: false };
+
+const at = (day: number, clock: string): number => WEEK_FROM + day * 86400 + Number(clock.slice(0, 2)) * 3600 + Number(clock.slice(3)) * 60;
+/** The same hours every day of the window. "26:00" is two at night. */
+export const daily = (open: string, close: string): Hours => ({ kind: 'parsed', open: [0, 1, 2, 3, 4, 5, 6, 7].map((day) => ({ from: at(day, open), to: at(day, close) })), unknown: [] });
+export const ALWAYS: Hours = { kind: 'parsed', open: [{ from: WEEK_FROM, to: WEEK_UNTIL }], unknown: [] };
+
+function pharmacy(id: string, name: string | null, north: number, east: number, hours: Hours, more: Partial<TilePharmacy> = {}): TilePharmacy {
+  return {
+    id,
+    name,
+    lat: Math.round((KAMPPI.lat + north / 111_320) * 1e5) / 1e5,
+    lon: Math.round((KAMPPI.lon + east / 55_400) * 1e5) / 1e5,
+    city: 'Helsinki',
+    country: 'FI',
+    zone: 'Europe/Helsinki',
+    generated: GENERATED,
+    windowFrom: WEEK_FROM,
+    windowUntil: WEEK_UNTIL,
+    hours,
+    ...more,
+  };
+}
+
+/** Around Kamppi, by distance: one closing at 21, one open late, one closed, one without hours, one unreadable. */
+export const kamppi: TilePharmacy[] = [
+  pharmacy('n101', 'Kampin apteekki', 120, 60, daily('08:00', '21:00'), { street: 'Urho Kekkosen katu 1', phone: '+358 9 1234 501', wheelchair: 'yes' }),
+  pharmacy('n102', 'Yliopiston apteekki', -260, 180, daily('07:00', '24:00'), { street: 'Mannerheimintie 5', phone: '+358 9 1234 502' }),
+  pharmacy('n103', 'Hietalahden apteekki', -420, -380, daily('09:00', '18:00'), { street: 'Bulevardi 30' }),
+  pharmacy('n104', null, 610, -240, { kind: 'missing' }, { street: 'Runeberginkatu 6' }),
+  pharmacy('n105', 'Töölön apteekki', 900, -300, { kind: 'unparseable', raw: 'soita ensin' }, { street: 'Töölöntori 4' }),
+  pharmacy('n106', 'Kruununhaan apteekki', 500, 1500, daily('08:00', '20:00'), { street: 'Liisankatu 21' }),
+];
+
+/** Fourteen kilometres north, in the next square: open around the clock. */
+export const farOpen: TilePharmacy = pharmacy('n201', 'Jumbon apteekki', 14_000, 1_200, ALWAYS, { city: 'Vantaa', street: 'Vantaanportinkatu 3' });
+
+/** Everything near Kamppi closes by six: at 20:41 nothing nearby is open. */
+export const kamppiClosed: TilePharmacy[] = kamppi.map((p) => (p.hours.kind === 'parsed' ? { ...p, hours: daily('09:00', '18:00') } : p));
+
+export function resultOf(pharmacies: TilePharmacy[], more: Partial<SearchResult> = {}): SearchResult {
+  const candidates = pharmacies.map((p) => ({ pharmacy: p, meters: distanceMeters(KAMPPI, p) })).sort((a, b) => a.meters - b.meters);
+  return { candidates, missing: [], ...more };
+}
+
+const stats = (pharmacies: number, withHours: number, parsed: number, more: Partial<CountryStats> = {}): CountryStats => ({
+  generated: GENERATED,
+  pharmacies,
+  withHours,
+  parsed,
+  unparseable: withHours - parsed,
+  uncertain: 0,
+  corrected: 0,
+  shareWithHours: Math.round((withHours / pharmacies) * 10000) / 10000,
+  parseRate: Math.round((parsed / withHours) * 10000) / 10000,
+  ...more,
+});
+
+/** An index with every covered country, for the data page. The numbers are made up, in a likely range. */
+export function indexOf(tiles: { x: number; y: number }[], outside: { x: number; y: number }[] = []): IndexJson {
+  const home = tileOf(KAMPPI);
+  const x0 = home.x - 4;
+  const y0 = home.y - 4;
+  const has = new Set(tiles.map(tileKey));
+  const out = new Set(outside.map(tileKey));
+  const rows = Array.from({ length: 9 }, (_, row) => Array.from({ length: 9 }, (_, column) => (out.has(tileKey({ x: x0 + column, y: y0 + row })) ? '.' : has.has(tileKey({ x: x0 + column, y: y0 + row })) ? 'd' : 'c')).join(''));
+  const countries = Object.fromEntries(COUNTRY_CODES.map((code, index) => [code, stats(500 + index * 830, 400 + index * 610, 396 + index * 604)]));
+  countries.FI = stats(787, 624, 624);
+  countries.LV = stats(402, 301, 298, { generated: GENERATED - 2 * 86400, kept: 'fetch' });
+  return { v: 1, generated: GENERATED + 300, attribution: '© OpenStreetMap contributors, ODbL 1.0, https://www.openstreetmap.org/copyright', countries, grid: { z: TILE_ZOOM, x0, y0, width: 9, rows } };
+}
