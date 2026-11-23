@@ -101,12 +101,19 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 - While locating, the button gives way to a status line of the same size; nothing else moves.
 
 ### Results: map first
-- **Phone:** full-screen map. Floating bar on top: app mark, place and how many are open ("2 auki klo 20.41"), refresh, language. Bottom sheet:
-  - collapsed (default): "Lähin auki nyt" peek: name, walking time, "Perillä 20.44, sulkeutuu 21.00", "Reitti", "Kaikki 8 apteekkia";
-  - expanded: the full card (below) and the list.
-  - The sheet opens and closes from its handle and from "Kaikki 8 apteekkia", and it can be dragged: it follows the finger, shows the list once it is past the middle, and settles where it is let go or where it was thrown. Collapsed, the whole sheet is the handle; open, only the handle is, so the list scrolls.
+- **Phone:** full-screen map. Floating bar on top: app mark, place and how many are open ("2 auki klo 20.41"), refresh, language. Bottom sheet, with three places to rest (provisional, `DESIGN-LOG.md` 24 Nov 2026; until then it had two, and a collapsed answer of three lines and two buttons):
+  - at its lowest (default): the handle and one row: the cross, the name, the distance and the status, and one button ("Reitti"; "Soita" where the nearest pharmacy's hours are unknown; "112" where nothing is open). The map has the screen;
+  - at the card: the full card (below) and "Kaikki 8 apteekkia"; never more than 60 % of the screen;
+  - open: the card and the list, up to just under the bar.
+  - The sheet moves by its handle (one place up at a time, and from the list back to the row), by "Kaikki 8 apteekkia" and by dragging: it follows the finger between its three places and settles on the nearest, or one place the way it was thrown. Below the open list the whole sheet is the handle; open, only the handle is, so the list scrolls. With nothing open the sheet starts at the card.
 - **Desktop:** list panel on the left (about 440 px), map on the right. The panel shows every result and scrolls; nothing is hidden behind a "show all" button. Map overlays: legend (Auki / Sulkeutuu pian / Kiinni) top left, zoom and locate bottom right, the map credit bottom left (OpenFreeMap, OpenMapTiles and OpenStreetMap, as the tile host asks). Locate brings the dot back to the middle; it does not search again.
 - **Markers:** open or closing → a capsule with the cross and the walking time; closed → a small unlit disc without a time; hours missing → dashed cross. The selected pharmacy is larger, with a ring and, on desktop, its name on a small plate. At night only open pharmacies glow. An open pharmacy outside the view gets an edge chip with an arrow and its walking time: on the edge, on the line towards it, for at most the three nearest. Markers are real buttons over the map, in the order of the list for a keyboard.
+- **Every pharmacy, not only the list's ten** (provisional, `DESIGN-LOG.md` 24 Nov 2026). The list and its markers are the nearest ten. Every other pharmacy on the tiles the device holds is on the map as a small sign that the map draws itself, as one layer, in the list's four shapes: a lit disc for open and for closing soon, an unlit one for closed, the dashed cross where the hours aren't known. No distance and no glow: those belong to the ten.
+  - Where signs would lie on top of each other the map leaves some out, the open ones last, so a whole city stays readable.
+  - A press on a sign opens the same pharmacy sheet, and that pharmacy has a marker like the list's while it is selected.
+  - Moved by hand to a new area, the map asks for the tiles of the squares it now shows: squares of the map the user is looking at, never the position (section 7.6). A view of more than twelve squares is too far out and asks for nothing. A move the app makes itself (framing the results, following a walk) asks for nothing.
+  - Without MapLibre only the ten are drawn. For a keyboard or a screen reader the pharmacies are the list: one beyond the ten is reached by searching its place.
+- **Touch.** Every touch on the map is the map's own, in every state: before MapLibre has arrived, while it draws, and when it couldn't start (`touch-action: none` on the whole map, so a pinch never zooms the page). A drag or a pinch that begins on a marker moves the map like one that begins beside it: once MapLibre is drawing, the markers live inside the element it listens on. One finger moves the map, and it glides on when thrown; two fingers zoom around themselves; two taps come closer and a tap with two fingers goes back out. While the map moves, positions are written straight to the markers and the chips and nothing is rendered again; a new sun changes colours and the light, not the style.
 - **The first view:** the position in the middle of what the bar and the sheet leave free, wide enough for the nearest five, and closer when the pharmacy in the card is only a block away, so that its marker and the dot stand apart.
 - **You are here:** cobalt dot, white ring, and a halo as wide as the accuracy the device reports. It follows the user while the page is visible (section 7.1, step 11).
 - **When the map can't be drawn** (no WebGL, or the map tiles don't arrive): the markers, the dot and the edge chips stay, on the plain ground colour, and one line says the map didn't load. The list never depended on it.
@@ -122,8 +129,8 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 - Actions: "Reitti", "Soita"; abroad also "Näytä apteekissa" (counter card).
 - "Ei varastossa? Seuraava auki: Yliopiston apteekki, 5 min, auki klo 24 asti."
 - When nothing nearby is open:
-  - If the wider search finds a pharmacy that is open now within 30 km (section 7.1), it leads as "Lähin auki nyt", like the open one on the Riga board: its straight-line distance instead of a walking time, its city when that isn't the place named above the results, and the route hand-off. Beyond 3 km in a straight line the route is no longer offered as a walk: the links name no way of travel and the map app picks one. "Avautuu ensimmäisenä" sits below it in the same card: the nearby pharmacy that opens first. The other closed ones fold into "Kiinni nyt". The collapsed sheet on the phone carries both: the far one, and one line "Avautuu ensimmäisenä huomenna klo 8".
-  - If that search finds nothing either, the card is "Avautuu ensimmäisenä" alone, without a route button, and keeps "Hätätilanteessa soita 112" prominent.
+  - If the wider search finds a pharmacy that is open now within 30 km (section 7.1), it leads as "Lähin auki nyt", like the open one on the Riga board: its straight-line distance instead of a walking time, its city when that isn't the place named above the results, and the route hand-off. Beyond 3 km in a straight line the route is no longer offered as a walk: the links name no way of travel and the map app picks one. "Avautuu ensimmäisenä" sits below it in the same card: the nearby pharmacy that opens first. The other closed ones fold into "Kiinni nyt". On the phone the sheet's row carries the far one; "Avautuu ensimmäisenä" is in the card.
+  - If that search finds nothing either, the card is "Avautuu ensimmäisenä" alone, without a route button, and keeps "Hätätilanteessa soita 112" prominent. On the phone the sheet then starts at the card; pulled down to the row, the row's button is 112.
 - **Hours missing nearby (provisional, `DESIGN-LOG.md` 23 Nov 2026).** In Southern Europe most pharmacies have no opening hours in OpenStreetMap (Greece 7 %, Spain 18 %, Italy 23 %), and the app never guesses them. So the card must not send people past such pharmacies to a far one whose hours are known:
   - When more than half of the pharmacies nearer than the nearest one known to be open have hours the app can't read (missing, unparseable or uncertain), and that one is more than 500 m farther than the nearest of them, the nearest of them leads as "Lähin apteekki", with its own status line. The card says how many nearby pharmacies it is true of, puts "Soita" first, and keeps the one known to be open as one line: "Lähin, jonka tiedetään olevan auki: …". One small line gives the country's share of pharmacies with hours and leads to the data page.
   - The same when no pharmacy is known to be open: then 112 stays prominent, and neither the heading nor the card says that nothing is open.
@@ -371,7 +378,7 @@ flowchart LR
   app -->|"map squares on screen"| maptiles["Map tiles: OpenFreeMap"]
 ```
 
-Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles: free, no key, no cookies. OpenFreeMap's public instance is provided as is, so the address of the tiles is config (`NEXT_PUBLIC_MAP_TILES_URL`, a TileJSON address; the style is our own and stays), and the README documents the fallback: a second provider with the same schema or self-hosted tiles, switched by that one value. The allowed host in `lib/requests.ts`, and with it the Content-Security-Policy, follows from it (decision D6, closed). Markers, the name of the selected pharmacy, the edge chips and the you-are-here dot are our own HTML over the map's canvas, so they share the list's components and focus handling. They are placed by the same arithmetic with MapLibre or without it (`lib/map/camera.ts`): when the map can't be drawn they stay where they were, on the plain ground colour. MapLibre itself is fetched only once results are on screen.
+Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles: free, no key, no cookies. OpenFreeMap's public instance is provided as is, so the address of the tiles is config (`NEXT_PUBLIC_MAP_TILES_URL`, a TileJSON address; the style is our own and stays), and the README documents the fallback: a second provider with the same schema or self-hosted tiles, switched by that one value. The allowed host in `lib/requests.ts`, and with it the Content-Security-Policy, follows from it (decision D6, closed). Markers, the name of the selected pharmacy, the edge chips and the you-are-here dot are our own HTML over the map's canvas, so they share the list's components and focus handling. They are placed by the same arithmetic with MapLibre or without it (`lib/map/camera.ts`): when the map can't be drawn they stay where they were, on the plain ground colour. The pharmacies beyond the list's ten are the exception: a city square can hold a thousand, so the map draws them itself, as one symbol layer on a GeoJSON source (`lib/map/area.ts`, the layer in `lib/map/style.ts`, the signs in `components/mapSigns.ts`). MapLibre itself is fetched only once results are on screen.
 
 ### 7.1 Data flow
 
@@ -380,6 +387,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 3. **Tiles:** from the position the client works out which tiles it needs (section 7.2) and fetches them in parallel from our own origin, together with `index.json`. The requests name squares of 20 to 30 km. The position stays on the device.
    - Candidates: the nearest 20 pharmacies in a straight line within 10 km. If there are none, the nearest five within 50 km. If there are none there either: "None found".
    - The client keeps loading neighbouring tiles until no tile it hasn't loaded could hold a nearer pharmacy. `index.json` says which tiles exist, so empty squares cost nothing.
+   - The map shows every pharmacy on the tiles loaded this way. When the user moves the map to an area whose squares aren't on the device, the client fetches those too: at most twelve squares a view, which squares follows from what the map shows, and nothing is fetched for a move the app made itself. A square that doesn't load is left empty on the map and changes no answer of the search.
 4. **`POST /api/walking`:** the client sends the exact position and the candidates' positions. The server calls the openrouteservice Matrix API (foot-walking, one request, key server-side). This is the only request that carries the position.
    - Responses are `no-store` and nothing is logged.
    - The input is validated: at most 20 destinations, all within 50 km.
@@ -487,7 +495,7 @@ Every request the app makes:
 | Request | When | What it carries | Who receives it |
 |---|---|---|---|
 | The page, its scripts, styles and font | Opening the app | IP address and browser headers. No cookies | Our host |
-| `/tiles/v1/index.json` and `/tiles/v1/10/{x}/{y}.json` | Every search | Which squares of 20 to 30 km are needed | Our host |
+| `/tiles/v1/index.json` and `/tiles/v1/10/{x}/{y}.json` | Every search; and when the user moves the map to an area whose squares aren't on the device yet | Which squares of 20 to 30 km are needed: around the search, or under the part of the map the user moved to | Our host |
 | `POST /api/walking` | Once the pharmacies are known; again for a route line | The exact position and up to 20 pharmacy positions | Our server, which asks openrouteservice. openrouteservice sees our server, not the user |
 | `GET /api/geocode?q=` | Submitting a place search | The text typed | Our server, which asks Nominatim |
 | Map tiles and glyphs | While the map is visible | Which map squares are on screen (1 to 2 km across at the closest zoom), IP address | The map tile host (OpenFreeMap), the only third party |
@@ -645,7 +653,9 @@ Everything else (ET, LT, NO, SV, HR, PT, ES, IT, EL, HU, MT, SL, SK and the miss
 ## 9. Accessibility
 
 - Location is requested only from a button press.
-- The list is the accessible equivalent of the map. Map markers are buttons named like the rows ("Töölön apteekki, closes soon 21:00, 3 min walk"); street labels are hidden from screen readers; the map region has a label. Tab order: list before map.
+- The list is the accessible equivalent of the map. Map markers are buttons named like the rows ("Töölön apteekki, closes soon 21:00, 3 min walk"); street labels are hidden from screen readers; the map region has a label. Tab order: list before map. The map's own signs for the pharmacies beyond the list's ten are drawn on its canvas and are not controls: such a pharmacy is reached by searching its place, which makes it one of the ten.
+- The phone's sheet: its handle is a button whose name says what a press does at each place, with `aria-expanded`. At the card the list is out of reach of the keyboard and screen readers until it is opened, so nothing focused is ever off screen; a card control under the screen's edge opens the sheet when it takes focus; opening the list from "Kaikki 8 apteekkia" moves focus to its first row. The results announcement sits outside everything the sheet hides.
+- Zooming the page with two fingers works everywhere except on the map itself, where two fingers zoom the map.
 - Landmarks: `header`, `main`, `footer`. One `h1`; results `h2` (`tabIndex=-1`, focus target after a search the user started); each pharmacy name is an `h3` inside an `ol`.
 - Real links and buttons with specific names: "Walking directions to Norfos vaistinė", "Call Norfos vaistinė". No whole-row click targets.
 - One polite `role="status"` region announces transitions ("Found 10 pharmacies. Nearest: Norfos vaistinė, 450 metres, open until 21:00"). Errors move focus to the error heading; don't add `role="alert"` on top.
@@ -679,6 +689,7 @@ components/
   FirstVisit.tsx  PlaceSearch.tsx  DuskScene.tsx  Skyline.tsx  SkyScript.tsx
   ProgressView.tsx  ResultsView.tsx  ProblemView.tsx  ResultsShell.tsx
   MapView.tsx                 the map: MapLibre under our own markers, dot, edge chips, legend and controls; works without MapLibre too (M4)
+  mapSigns.ts                 the small signs of the pharmacies beyond the list, drawn once per theme for the map's own layer
   MapMarker.tsx               marker and you-are-here; the edge chip lives in the map component
   NearestOpenCard.tsx         "Lähin auki nyt" + ehditkö + next open
   PharmacyList.tsx  PharmacyRow.tsx   list, rows and the "Kiinni nyt" group
@@ -714,6 +725,7 @@ lib/
   requests.ts                 every request the app may make: builds the CSP, the privacy test and the privacy page
   map/style.ts                MapLibre style built from the design tokens: light, and dusk or night in the dark theme
   map/camera.ts               where things are on the map in pixels: projection, framing, edge chips (pure; with MapLibre or without)
+  map/area.ts                 every pharmacy the device holds, as the map's own layer: its data, and which squares a view of the map touches (pure)
   fixtures/  dev/             M0 fixtures (Helsinki, Riga, stress data) and the /dev/states registry
   server/routing.ts  server/geocode.ts
 pipeline/
@@ -834,7 +846,10 @@ Written for a reader at Treat with five minutes:
 
 - Each state with faked geolocation, fixture tiles and stubbed server routes; axe on each; the counter card's keyboard and focus behaviour.
 - The privacy test (section 7.6).
-- The map (`tests/e2e/map.spec.ts`): every pharmacy in the list has a marker named and lit the same way, a tick changes both, a marker and its row select each other, a map that can't start or has no tiles leaves the list and the markers working, a walk moves the dot and ranks again after 300 m with nothing sent, an edge chip brings its pharmacy into view, the sheet drags. The map tile host is answered by the tests: no test reaches it.
+- The map (`tests/e2e/map.spec.ts`): every pharmacy in the list has a marker named and lit the same way, a tick changes both, a marker and its row select each other, a map that can't start or has no tiles leaves the list and the markers working, a walk moves the dot and ranks again after 300 m with nothing sent, an edge chip brings its pharmacy into view. The map tile host is answered by the tests: no test reaches it.
+- The phone's sheet (`tests/e2e/sheet.spec.ts`): its three places by dragging and by the handle, a short drag settles back, the row's content and button in each case, "Kaikki N apteekkia" opens the list, focus never lands off screen.
+- Touch (`tests/e2e/touch.spec.ts`): with real touch input, which only Chromium's DevTools can give: a drag that begins on a marker moves the map and a tap on it still opens the pharmacy; a pinch with one finger on a marker zooms the map and the page's scale stays 1; two taps and a two-finger tap; the work while panning, on a CPU four times slower, as a reported number. In both browsers: the touch-action of the map and of everything on it, in each of its three states.
+- Every pharmacy on the map (`tests/e2e/area.spec.ts`): the ten as markers and the rest as signs, a press on a sign opens its pharmacy and marks it, and a map moved by hand asks for the new area's squares and for nothing that carries the position.
 - Offline: load results, go offline, reload, and get the same pharmacies with the date of the data. With the clock moved 8 days ahead nothing reads open.
 - Visual comparison: the `/dev/states` screenshots against committed baselines (`tests/e2e/__screenshots__/`), at 1× in the CI's Linux image, where the baselines are also made. Chromium at both sizes; WebKit, which stands in for Safari on an iPhone, at phone size. A commit marked `[baselines]`, or a manual run, makes new ones as an artifact; they are looked at and committed by hand, so the pull request shows old and new side by side. `npm run shots` keeps producing the 2× images for review by eye.
 
