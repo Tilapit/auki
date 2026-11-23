@@ -135,10 +135,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     if (!frame) return;
     const live = map.current;
     const project: Project = live
-      ? (lat, lon) => {
-          const point = live.project([lon, lat]);
-          return { x: Math.round(point.x * 10) / 10, y: Math.round(point.y * 10) / 10 };
-        }
+      ? (lat, lon) => live.project([lon, lat])
       : projector(camera, frame, cameraPadding(frame));
     const zoom = live ? live.getZoom() : camera.zoom;
 
@@ -147,8 +144,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     for (const element of root.current?.querySelectorAll<HTMLElement>('[data-pin]') ?? []) {
       const at = places.get(element.dataset.pin ?? '');
       if (!at) continue;
+      // Whole pixels: a marker's text is then drawn the same way every time, and stays sharp.
       const point = project(at.lat, at.lon);
-      element.style.transform = `translate(${point.x}px, ${point.y}px)`;
+      element.style.transform = `translate(${Math.round(point.x)}px, ${Math.round(point.y)}px)`;
       // The halo is the accuracy the device reports, in the map's own scale, and never smaller than the canvas's 64 px.
       if (element.dataset.pin === YOU) {
         const radius = accuracy !== undefined ? accuracy / metersPerPixel(here.lat, zoom) : approximate ? 95 : 32;
