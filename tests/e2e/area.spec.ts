@@ -1,6 +1,8 @@
 import type { Page } from '@playwright/test';
-import { KAMPPI, beyond, farEast, kamppi } from '@/lib/fixtures/tiles';
+import { KAMPPI, MONDAY_EVENING, beyond, farEast, kamppi } from '@/lib/fixtures/tiles';
+import { DAY, NIGHT, paletteFor } from '@/lib/map/style';
 import { carriesPosition } from '@/lib/requests';
+import { sunPosition } from '@/lib/sky';
 import { tileOf, tilePath } from '@/lib/tiles';
 import { expect, test } from './fixtures';
 import { hasWebGL, startRunning, world } from './helpers';
@@ -33,9 +35,9 @@ async function pixelOf(page: Page, place: { lat: number; lon: number }) {
   return { x: dot.x + east / metersPerPixel, y: dot.y - north / metersPerPixel };
 }
 
-async function live(page: Page) {
-  const asked = await startRunning(page, world(everything));
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('3 apteekkia auki juuri nyt');
+async function live(page: Page, now = MONDAY_EVENING) {
+  const asked = await startRunning(page, world(everything), now);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(now === MONDAY_EVENING ? '3 apteekkia auki juuri nyt' : /apteekkia auki juuri nyt$/);
   test.skip(!(await hasWebGL(page)), 'This browser has no WebGL: the signs are the map’s own drawing.');
   await expect(root(page)).toHaveAttribute('data-basemap', 'live');
   await expect(root(page).locator('canvas')).toBeVisible();
@@ -108,4 +110,55 @@ test('moved by hand to a new area, the map asks for that area’s squares, and f
   await expect(markers(page)).toHaveCount(10);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('3 apteekkia auki juuri nyt');
   for (const text of seen) expect(carriesPosition(text, KAMPPI), text.split('\n')[0]).toBe(false);
+});
+
+/** The map's ground colour, as the map view hands it to its markers: it is the style's own. */
+const ground = (page: Page) => root(page).evaluate((element) => (element as HTMLElement).style.getPropertyValue('--map-land'));
+const meilahti = beyond.find((pharmacy) => pharmacy.name === 'Meilahden apteekki')!;
+
+/** A press on the sign in Meilahti opens it: the layer is there, with its data and its pictures. */
+async function signStillWorks(page: Page) {
+  const at = await pixelOf(page, meilahti);
+  await page.mouse.click(at.x, at.y);
+  await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Meilahden apteekki');
+}
+
+test('the device turns dark: the map turns with it, and keeps every pharmacy', async ({ page }) => {
+  const problems: string[] = [];
+  page.on('pageerror', (error) => problems.push(error.message));
+  await live(page);
+  await zoomOut(page, 3);
+  expect(await ground(page)).toBe(DAY.land);
+
+  // Another theme has other layers: the one case where the style is set as a whole.
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect.poll(() => ground(page)).toBe(NIGHT.land);
+  await expect.poll(() => signs(page)).toBe(4);
+  await signStillWorks(page);
+  expect(problems).toEqual([]);
+});
+
+test('dusk turns to night on the map: its colours change, nothing else does', async ({ page }) => {
+  const problems: string[] = [];
+  page.on('pageerror', (error) => problems.push(error.message));
+  // Monday 23 November 2026 at 15.55 in Helsinki: the sun has just set. An hour and a half later it is night.
+  const dusk = Date.parse('2026-11-23T13:55:00Z') / 1000;
+  const night = dusk + 90 * 60;
+  const groundAt = (instant: number) => paletteFor('dark', sunPosition(instant * 1000, KAMPPI.lat, KAMPPI.lon).altitude).land;
+  expect(groundAt(dusk)).not.toBe(groundAt(night));
+  expect(groundAt(night)).toBe(NIGHT.land);
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await live(page, dusk);
+  await zoomOut(page, 3);
+  expect(await ground(page)).toBe(groundAt(dusk));
+  const before = await zoom(page);
+
+  // The minutes pass: every one of them is a tick, and a few of them a new step towards night.
+  await page.clock.fastForward(90 * 60_000);
+  await expect.poll(() => ground(page)).toBe(NIGHT.land);
+  // The map is where it was, with what it had.
+  expect(await zoom(page)).toBe(before);
+  await signStillWorks(page);
+  expect(problems).toEqual([]);
 });
