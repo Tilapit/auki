@@ -4,7 +4,57 @@
   font-weight: 650;
 }
 
-/* Collapsed sheet on the phone: the answer in three lines. */
+/* The phone's sheet at its lowest: the answer in one row, with its one button. */
+.row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  column-gap: 10px;
+  align-items: center;
+}
+
+/*
+ * The row's button, a little narrower than elsewhere. With the gaps above, that leaves the
+ * line beside it 249 px on a 390 px screen: "120 m · Aukioloaikoja ei ole merkitty" is 244.
+ */
+.row .rowAction {
+  padding-right: 14px;
+  padding-left: 14px;
+}
+
+/* Beside the name and the line under it, also when a long status takes a third line. */
+.rowGlyph {
+  align-self: start;
+  margin-top: 10px;
+}
+
+.rowName {
+  overflow: hidden;
+  font-size: var(--t-body);
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The distance, then the status. At most two lines: a status quoted from OpenStreetMap can be any length. */
+.rowLine {
+  display: -webkit-box;
+  margin-top: 1px;
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.rowDistance {
+  color: var(--ink);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* The sheet as it was, for the comparison in /dev/states: the answer in three lines. */
 .peek {
   display: flex;
   flex-direction: column;

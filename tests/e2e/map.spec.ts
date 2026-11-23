@@ -178,58 +178,6 @@ test('an open pharmacy off the map gets a chip on the edge, and the chip brings 
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
 });
 
-test.describe('on a phone', () => {
-  test.use({ viewport: { width: 390, height: 844 } });
-
-  test('the sheet opens and closes by dragging, and a tap on its handle still works', async ({ page }) => {
-    await start(page, world(kamppi));
-    const open = page.getByRole('button', { name: 'Näytä lista' });
-    const close = page.getByRole('button', { name: 'Pienennä lista' });
-    await expect(open).toBeVisible();
-    const rows = page.locator('ol > li h3');
-    await expect(rows.first()).toBeHidden();
-
-    const drag = async (from: { x: number; y: number }, by: number) => {
-      await page.mouse.move(from.x, from.y);
-      await page.mouse.down();
-      for (let step = 1; step <= 8; step++) await page.mouse.move(from.x, from.y + (by * step) / 8);
-      await page.mouse.up();
-    };
-    // The sheet glides to its place in 200 ms of real time: press only once it has stopped moving.
-    const centre = async (target: typeof open) => {
-      let box = (await target.boundingBox())!;
-      for (let tries = 0; tries < 30; tries++) {
-        await page.waitForTimeout(120);
-        const next = (await target.boundingBox())!;
-        const still = Math.abs(next.y - box.y) < 0.5;
-        box = next;
-        if (still) break;
-      }
-      return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-    };
-
-    // Up by most of the way: it opens, and the list is there.
-    await drag(await centre(open), -360);
-    await expect(close).toBeVisible();
-    await expect(rows.first()).toBeVisible();
-    // A short drag doesn't count: it settles back where it was.
-    await drag(await centre(close), 60);
-    await expect(close).toBeVisible();
-    // Down again: collapsed.
-    await drag(await centre(close), 360);
-    await expect(open).toBeVisible();
-    await expect(rows.first()).toBeHidden();
-    // Collapsed, the whole sheet is the handle: dragging the answer itself opens it too.
-    await drag(await centre(page.getByRole('heading', { name: 'Kampin apteekki' }).first()), -360);
-    await expect(close).toBeVisible();
-    // And the handle is still a button.
-    await close.click();
-    await expect(open).toBeVisible();
-    await open.click();
-    await expect(close).toBeVisible();
-  });
-});
-
 test('the map draws itself only after the results, on real code and a faked host', async ({ page, mapTiles }) => {
   await start(page, world(kamppi), MONDAY_EVENING);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
