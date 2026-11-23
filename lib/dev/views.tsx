@@ -8,6 +8,7 @@ import { ProgressView } from '@/components/ProgressView';
 import { ResultsView } from '@/components/ResultsView';
 import { SearchingView } from '@/components/SearchingView';
 import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/helsinki';
+import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
 import { HERE, MONDAY_EVENING, NINE_DAYS_LATER, farOpen, indexOf, kamppi, kamppiClosed, resultOf } from '@/lib/fixtures/tiles';
@@ -83,7 +84,7 @@ export const renderers: Record<string, () => ReactNode> = {
 
   'not-covered': () => <ProblemView kind="notCovered" scene={sceneAt({ source: 'search', lat: 48.8566, lon: 2.3522, label: 'Pariisi' }, '20:41')} country="FR" />,
   'not-covered-unknown': () => <ProblemView kind="notCovered" scene={sceneAt(HERE, '20:41')} />,
-  data: () => <DataView loaded={{ status: 'ready', index: indexOf([]) }} />,
+  data: () => <DataView loaded={{ status: 'ready', index: indexOf([]) }} zone="Europe/Helsinki" />,
   'data-failed': () => <DataView loaded={{ status: 'failed' }} />,
 
   none: () => <ProblemView kind="none" scene={helsinki} />,
@@ -92,5 +93,13 @@ export const renderers: Record<string, () => ReactNode> = {
 
   components: () => <ComponentSheet />,
   'card-cases': () => <CardCases />,
+
+  // Hours coverage (provisional): most nearby pharmacies have no hours in OpenStreetMap.
+  'hours-current': () => <ResultsView scene={malaga} sheet="expanded" coverage={false} />,
+  'hours-proposed': () => <ResultsView scene={malaga} sheet="expanded" />,
+  'hours-peek': () => <ResultsView scene={malaga} sheet="peek" />,
+  'hours-none': () => <ResultsView scene={malagaLate} sheet="expanded" />,
+  'hours-no-phone': () => <ResultsView scene={malagaNoPhone} sheet="expanded" />,
+  'hours-near': () => <ResultsView scene={malagaNear} sheet="expanded" />,
 
 };

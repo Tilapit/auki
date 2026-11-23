@@ -12,9 +12,10 @@ import type { Country } from '@/pipeline/countries';
 import { INSTANCES, buildQuery, fetchCountry, readAnswer, userAgent } from '@/pipeline/fetch';
 import type { FetchDeps } from '@/pipeline/fetch';
 import { email, normalize, phone, website } from '@/pipeline/normalize';
-import { processCountry } from '@/pipeline/run';
-import { buildSite, countryPath, decodeCountry } from '@/pipeline/write';
-import type { CountryFile } from '@/pipeline/write';
+import { GIVE_UP_AFTER_FAILURES, needsRetry, previousRun, processCountry, readArguments, refreshCountries } from '@/pipeline/run';
+import type { Previous } from '@/pipeline/run';
+import { buildSite, countryPath, decodeCountry, encodeCountry } from '@/pipeline/write';
+import type { CountryData, CountryFile } from '@/pipeline/write';
 
 const fixture = (name: string) => JSON.parse(fs.readFileSync(path.join(__dirname, '../fixtures/overpass', name), 'utf8'));
 const MALTA = countryByCode('MT')!;
@@ -354,6 +355,184 @@ describe('the checks before publishing', () => {
       corrected: 1,
       shareWithHours: 0.8,
       parseRate: 0.5,
+    });
+  });
+});
+
+describe('a run: which countries it refreshes, and what the others keep', () => {
+  const some = ['FI', 'EE', 'LV', 'LT', 'MT'].map((code) => countryByCode(code)!);
+  const answer = (country: Country, fetched = FETCHED) => ({ ...readAnswer(MALTA, fixture('malta.json'), fetched, INSTANCES[0]), country: country.code });
+  /** What the last run published: every country of `some`, fetched a day before. */
+  const lastNight = FETCHED - 86400;
+  const published = new Map<string, CountryData>(some.map((country) => [country.code, processCountry(country, answer(country, lastNight)).data]));
+  const previous = (more: Partial<Record<string, Partial<CountryStats>>> = {}): Previous => ({
+    index: { countries: Object.fromEntries([...published].map(([code, data]) => [code, { ...data.stats, ...more[code] }])) } as IndexJson,
+    from: 'a test',
+    country: async (code) => {
+      const data = published.get(code);
+      return data && { ...data, stats: { ...data.stats, ...more[code] } };
+    },
+  });
+  const firstRun: Previous = { index: undefined, from: 'nowhere', country: async () => undefined };
+  const all = some.map((country) => country.code);
+  /** Overpass, as far as a run can tell: answers for every country but the ones named. */
+  const overpass = (down: string[]) => {
+    const asked: string[] = [];
+    const getExtract = async (country: Country) => {
+      asked.push(country.code);
+      if (down.includes(country.code)) throw new Error('overpass-api.de: HTTP 502; overpass-api.de again: HTTP 502; overpass.private.coffee: HTTP 504');
+      return answer(country);
+    };
+    return { asked, getExtract };
+  };
+  const states = (outcomes: { code: string; state: string }[]) => Object.fromEntries(outcomes.map((outcome) => [outcome.code, outcome.state]));
+
+  it('reads --retry, and countries given in one argument as a workflow gives them', () => {
+    expect(readArguments(['--retry'])).toMatchObject({ retry: true, cached: false, codes: COUNTRY_CODES });
+    expect(readArguments(['fi SE', '--cached'])).toMatchObject({ retry: false, cached: true, codes: ['FI', 'SE'] });
+    expect(readArguments([''])).toMatchObject({ retry: false, codes: COUNTRY_CODES });
+    expect(() => readArguments(['--again'])).toThrow(/Unknown argument/);
+  });
+
+  it('refreshes what is asked for and leaves the rest as the last run had it', async () => {
+    const { asked, getExtract } = overpass([]);
+    const { countries, outcomes } = await refreshCountries({ all: some, asked: ['EE', 'MT'], previous: previous(), getExtract });
+    expect(asked).toEqual(['EE', 'MT']);
+    expect(states(outcomes)).toEqual({ FI: 'kept', EE: 'fresh', LV: 'kept', LT: 'kept', MT: 'fresh' });
+    const generated = Object.fromEntries(countries.map((country) => [country.code, country.stats.generated]));
+    expect(generated).toEqual({ FI: lastNight, EE: FETCHED, LV: lastNight, LT: lastNight, MT: FETCHED });
+    // Not asked for is not a failure: nothing is marked.
+    expect(countries.every((country) => country.stats.kept === undefined)).toBe(true);
+  });
+
+  it('keeps the last data of a country that cannot be fetched, and says so in its numbers', async () => {
+    const { getExtract } = overpass(['LV']);
+    const { countries, outcomes } = await refreshCountries({ all: some, asked: all, previous: previous(), getExtract });
+    expect(states(outcomes)).toEqual({ FI: 'fresh', EE: 'fresh', LV: 'kept', LT: 'fresh', MT: 'fresh' });
+    const latvia = countries.find((country) => country.code === 'LV')!;
+    expect(latvia.stats).toMatchObject({ generated: lastNight, kept: 'fetch' });
+    expect(latvia.pharmacies).toEqual(published.get('LV')!.pharmacies);
+    expect(outcomes.find((outcome) => outcome.code === 'LV')!.reason).toMatch(/^not fetched: overpass-api\.de: HTTP 502/);
+  });
+
+  it('keeps the last data of a country whose new data fails the check', async () => {
+    const { getExtract } = overpass([]);
+    // The last run had ten times as many pharmacies: tonight's answer looks cut short.
+    const before = previous({ EE: { pharmacies: 60 } });
+    const { countries, outcomes } = await refreshCountries({ all: some, asked: all, previous: before, getExtract });
+    expect(states(outcomes).EE).toBe('kept');
+    expect(countries.find((country) => country.code === 'EE')!.stats).toMatchObject({ generated: lastNight, kept: 'check' });
+  });
+
+  it('on a first run has nothing to keep: a country that fails is simply not there', async () => {
+    const { getExtract } = overpass(['LT']);
+    const { countries, outcomes } = await refreshCountries({ all: some, asked: all, previous: firstRun, getExtract });
+    expect(states(outcomes).LT).toBe('missing');
+    expect(countries.map((country) => country.code)).toEqual(['FI', 'EE', 'LV', 'MT']);
+  });
+
+  it('stops asking when three countries in a row get no answer: Overpass is down, and the rest keep their data', async () => {
+    expect(GIVE_UP_AFTER_FAILURES).toBe(3);
+    const { asked, getExtract } = overpass(all);
+    const { countries, outcomes } = await refreshCountries({ all: some, asked: all, previous: previous(), getExtract });
+    expect(asked).toEqual(['FI', 'EE', 'LV']);
+    expect(states(outcomes)).toEqual({ FI: 'kept', EE: 'kept', LV: 'kept', LT: 'kept', MT: 'kept' });
+    expect(countries.map((country) => country.stats.kept)).toEqual(['fetch', 'fetch', 'fetch', 'fetch', 'fetch']);
+    expect(outcomes.find((outcome) => outcome.code === 'MT')!.reason).toMatch(/^not asked: Overpass did not answer for the 3 countries before it/);
+  });
+
+  it('goes on while failures are scattered: an answer in between starts the count again', async () => {
+    const { asked, getExtract } = overpass(['FI', 'EE', 'LT', 'MT']);
+    const { outcomes } = await refreshCountries({ all: some, asked: all, previous: previous(), getExtract });
+    expect(asked).toEqual(all);
+    expect(states(outcomes)).toEqual({ FI: 'kept', EE: 'kept', LV: 'fresh', LT: 'kept', MT: 'kept' });
+  });
+
+  it('never gives up on saved answers: a missing file says nothing about Overpass', async () => {
+    const { asked, getExtract } = overpass(all);
+    await refreshCountries({ all: some, asked: all, previous: previous(), getExtract, giveUpAfter: Infinity });
+    expect(asked).toEqual(all);
+  });
+
+  describe('the second attempt of the night', () => {
+    const now = FETCHED + 2.5 * 3600;
+    const index = (more: Partial<Record<string, Partial<CountryStats>>>) => ({ countries: Object.fromEntries(all.map((code) => [code, { ...published.get(code)!.stats, generated: FETCHED, ...more[code] }])) }) as IndexJson;
+
+    it('has nothing to do after a first attempt that refreshed everything', () => {
+      expect(needsRetry(all, index({}), now)).toEqual([]);
+    });
+
+    it('asks for the countries the first attempt kept from an earlier run, whatever the reason', () => {
+      expect(needsRetry(all, index({ EE: { generated: lastNight, kept: 'fetch' }, MT: { generated: lastNight, kept: 'check' } }), now)).toEqual(['EE', 'MT']);
+    });
+
+    it('asks for a country the last run has no data for', () => {
+      const withoutLatvia = index({});
+      delete withoutLatvia.countries.LV;
+      expect(needsRetry(all, withoutLatvia, now)).toEqual(['LV']);
+    });
+
+    it('asks for everything when the first attempt never ran: data older than twelve hours, or no index at all', () => {
+      const old = Object.fromEntries(all.map((code) => [code, { generated: now - 12 * 3600 - 1 }]));
+      expect(needsRetry(all, index(old), now)).toEqual(all);
+      expect(needsRetry(all, index(Object.fromEntries(all.map((code) => [code, { generated: now - 12 * 3600 }]))), now)).toEqual([]);
+      expect(needsRetry(all, undefined, now)).toEqual(all);
+    });
+
+    it('stays within the countries asked for', () => {
+      expect(needsRetry(['FI', 'EE'], index({ EE: { kept: 'fetch' }, MT: { kept: 'fetch' } }), now)).toEqual(['EE']);
+    });
+
+    it('takes the mark off a country that comes through this time', async () => {
+      const before = previous({ LV: { kept: 'fetch' }, MT: { kept: 'fetch' } });
+      const retry = needsRetry(all, { countries: Object.fromEntries(all.map((code) => [code, { ...before.index!.countries[code], generated: code === 'LV' || code === 'MT' ? lastNight : FETCHED }])) }, now);
+      expect(retry).toEqual(['LV', 'MT']);
+      const { asked, getExtract } = overpass(['MT']);
+      const { countries } = await refreshCountries({ all: some, asked: retry, previous: before, getExtract });
+      expect(asked).toEqual(['LV', 'MT']);
+      const kept = Object.fromEntries(countries.map((country) => [country.code, country.stats.kept]));
+      expect(kept).toEqual({ FI: undefined, EE: undefined, LV: undefined, LT: undefined, MT: 'fetch' });
+    });
+  });
+
+  describe('reading the last run from the data host', () => {
+    const ORIGIN = 'https://data.example.org';
+    const nowhere = path.join(os.tmpdir(), 'no-such-site');
+    const malta = published.get('MT')!;
+    const host = (replies: Record<string, { status: number; body?: unknown } | Error>) =>
+      (async (url: string | URL | Request) => {
+        const reply = replies[new URL(String(url)).pathname];
+        if (!reply) return new Response('not found', { status: 404 });
+        if (reply instanceof Error) throw reply;
+        return new Response(JSON.stringify(reply.body ?? {}), { status: reply.status });
+      }) as typeof fetch;
+    const anIndex = { v: 1, generated: lastNight, countries: { MT: malta.stats } };
+
+    it('takes a host that has never been published to as a first run', async () => {
+      const last = await previousRun(nowhere, ORIGIN, host({}));
+      expect(last.index).toBeUndefined();
+      expect(last.from).toMatch(/first run/);
+      expect(await last.country('MT')).toBeUndefined();
+    });
+
+    it('reads the index and a country file', async () => {
+      const last = await previousRun(nowhere, ORIGIN, host({ [INDEX_PATH]: { status: 200, body: anIndex }, [countryPath('MT')]: { status: 200, body: encodeCountry(malta) } }));
+      expect(last.index?.countries.MT.pharmacies).toBe(malta.stats.pharmacies);
+      expect(last.from).toBe('data.example.org');
+      expect(await last.country('MT')).toEqual(malta);
+      expect(await last.country('FI')).toBeUndefined();
+    });
+
+    it('stops the run when the host cannot say what the last run was: nothing is written over it', async () => {
+      await expect(previousRun(nowhere, ORIGIN, host({ [INDEX_PATH]: { status: 503 } }))).rejects.toThrow(/could not be read from data\.example\.org.*HTTP 503/);
+      await expect(previousRun(nowhere, ORIGIN, host({ [INDEX_PATH]: new Error('fetch failed') }))).rejects.toThrow(/could not be read from data\.example\.org.*fetch failed/);
+    });
+
+    it('stops the run when a country of the last run cannot be read back', async () => {
+      const broken = await previousRun(nowhere, ORIGIN, host({ [INDEX_PATH]: { status: 200, body: anIndex }, [countryPath('MT')]: { status: 500 } }));
+      await expect(broken.country('MT')).rejects.toThrow(/HTTP 500/);
+      const halfPublished = await previousRun(nowhere, ORIGIN, host({ [INDEX_PATH]: { status: 200, body: anIndex } }));
+      await expect(halfPublished.country('MT')).rejects.toThrow(/lists MT, but .*countries\/MT\.json is missing/);
     });
   });
 });

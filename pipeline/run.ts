@@ -3,13 +3,18 @@
  * for some countries only.
  *
  *   --cached      use the Overpass answers saved in .data/raw instead of asking again
+ *   --retry       the second attempt of the night: of the countries asked for, only those the
+ *                 last run could not refresh. With none of them, nothing is fetched or written.
  *   --out=<dir>   where the site is written (default .data/site)
  *
  * A country that isn't asked for, can't be fetched or fails its checks keeps the data of the
  * last run: from the output directory if it has any, else from TILES_ORIGIN.
  *
- * Exit code: 0 when every country asked for is fresh, 2 when the site was written but some
- * country kept older data, 1 when nothing could be written.
+ * When three countries in a row can't be fetched, Overpass is taken to be down: the rest are
+ * not asked, they keep their data, and the second attempt takes them up.
+ *
+ * Exit code: 0 when every country asked for is fresh (or a retry had nothing to do), 2 when
+ * the site was written but some country kept older data, 1 when nothing could be written.
  */
 
 import fs from 'node:fs';
@@ -30,25 +35,44 @@ import type { CountryData, CountryFile, SiteSummary } from './write.ts';
 
 const PAUSE_BETWEEN_COUNTRIES_MS = 10_000;
 const RAW_DIR = '.data/raw';
+/** The second attempt asks again for a country whose data is older than this: the first attempt didn't reach it. */
+export const RETRY_OLDER_THAN_SECONDS = 12 * 60 * 60;
+/** This many countries in a row that can't be fetched, and Overpass is taken to be down for now. */
+export const GIVE_UP_AFTER_FAILURES = 3;
 
-interface Options {
+export interface Options {
   codes: string[];
   cached: boolean;
+  retry: boolean;
   outDir: string;
 }
 
-function readArguments(argv: string[]): Options {
+export function readArguments(argv: string[]): Options {
   const codes: string[] = [];
   let cached = false;
+  let retry = false;
   let outDir = '.data/site';
   // "FI SE" in one argument is as good as two: a workflow input arrives that way.
   for (const argument of argv.flatMap((value) => value.split(/[\s,]+/)).filter(Boolean)) {
     if (argument === '--cached') cached = true;
+    else if (argument === '--retry') retry = true;
     else if (argument.startsWith('--out=')) outDir = argument.slice('--out='.length);
     else if (COUNTRY_CODES.includes(argument.toUpperCase())) codes.push(argument.toUpperCase());
     else throw new Error(`Unknown argument "${argument}". Countries: ${COUNTRY_CODES.join(' ')}`);
   }
-  return { codes: codes.length > 0 ? codes : COUNTRY_CODES, cached, outDir };
+  return { codes: codes.length > 0 ? codes : COUNTRY_CODES, cached, retry, outDir };
+}
+
+/**
+ * What the second attempt of the night asks for (`--retry`): the countries that the last
+ * run marked as kept from an earlier one, those it has no data for at all, and those whose
+ * data is older than twelve hours, which is what a first attempt that never ran leaves behind.
+ */
+export function needsRetry(codes: string[], index: Pick<IndexJson, 'countries'> | undefined, now: number): string[] {
+  return codes.filter((code) => {
+    const stats = index?.countries[code];
+    return !stats || stats.kept !== undefined || now - stats.generated > RETRY_OLDER_THAN_SECONDS;
+  });
 }
 
 /** One country, from an Overpass answer to the pharmacies of its tiles. Pure. */
@@ -80,14 +104,20 @@ export function processCountry(country: Country, extract: CountryExtract): { dat
   };
 }
 
-interface Previous {
+export interface Previous {
   index: IndexJson | undefined;
   country: (code: string) => Promise<CountryData | undefined>;
   from: string;
 }
 
-/** The last run: the output directory if it holds one, else the published site. */
-async function previousRun(outDir: string, origin: string | undefined): Promise<Previous> {
+/**
+ * The last run: the output directory if it holds one, else the published site.
+ *
+ * A published site that answers 404 for its index has never been published to: a first run.
+ * Any other failure to read it stops this run. Writing a site without knowing the last one
+ * would drop every country that can't be fetched tonight, and publishing replaces the lot.
+ */
+export async function previousRun(outDir: string, origin: string | undefined, fetcher: typeof fetch = fetch): Promise<Previous> {
   const localIndex = path.join(outDir, INDEX_PATH);
   if (fs.existsSync(localIndex)) {
     return {
@@ -100,19 +130,27 @@ async function previousRun(outDir: string, origin: string | undefined): Promise<
     };
   }
   if (origin) {
+    const host = new URL(origin).host;
+    /** undefined for a file that isn't there; throws when the host can't say. */
     const get = async <T>(pathname: string): Promise<T | undefined> => {
+      let response: Response;
       try {
-        const response = await fetch(new URL(pathname, origin));
-        return response.ok ? ((await response.json()) as T) : undefined;
-      } catch {
-        return undefined;
+        response = await fetcher(new URL(pathname, origin));
+      } catch (error) {
+        throw new Error(`the last run could not be read from ${host}: ${pathname}: ${error instanceof Error ? error.message : String(error)}`);
       }
+      if (response.status === 404) return undefined;
+      if (!response.ok) throw new Error(`the last run could not be read from ${host}: ${pathname}: HTTP ${response.status}`);
+      return (await response.json()) as T;
     };
+    const index = await get<IndexJson>(INDEX_PATH);
     return {
-      index: await get<IndexJson>(INDEX_PATH),
-      from: new URL(origin).host,
+      index,
+      from: index ? host : `nowhere: ${host} has not been published to, so this is a first run`,
       country: async (code) => {
         const file = await get<CountryFile>(countryPath(code));
+        // The index and the country files are published together: one without the other is a broken site, not a new country.
+        if (!file && index?.countries[code]) throw new Error(`the last run on ${host} lists ${code}, but ${countryPath(code)} is missing`);
         return file ? decodeCountry(file) : undefined;
       },
     };
@@ -120,7 +158,7 @@ async function previousRun(outDir: string, origin: string | undefined): Promise<
   return { index: undefined, from: 'nowhere: this is a first run', country: async () => undefined };
 }
 
-interface Outcome {
+export interface Outcome {
   code: string;
   state: 'fresh' | 'kept' | 'missing';
   /** Why it isn't fresh. */
@@ -132,11 +170,11 @@ interface Outcome {
 const percent = (share: number): string => `${(share * 100).toFixed(1)} %`;
 const kilobytes = (bytes: number): string => `${(bytes / 1024).toFixed(1)} KB`;
 
-function report(outcomes: Outcome[], site: SiteSummary | undefined, previousFrom: string): string {
+function report(outcomes: Outcome[], site: SiteSummary | undefined, previousFrom: string, attempt: string): string {
   const lines = [
     '## Pharmacy data',
     '',
-    `Compared with the last run from ${previousFrom}.`,
+    `${attempt} Compared with the last run from ${previousFrom}.`,
     '',
     '| Country | State | Pharmacies | With hours | Parse rate | Corrected | Unparseable | Uncertain | Note |',
     '|---|---|---:|---:|---:|---:|---:|---:|---|',
@@ -167,52 +205,54 @@ function report(outcomes: Outcome[], site: SiteSummary | undefined, previousFrom
   return lines.join('\n');
 }
 
-async function main(): Promise<number> {
-  const options = readArguments(process.argv.slice(2));
-  const contact = process.env.CONTACT_EMAIL;
-  if (!options.cached && !contact) {
-    console.error('CONTACT_EMAIL is not set. Overpass asks callers to identify themselves, so nothing was fetched. Put it in .env.local (see .env.example).');
-    return 1;
-  }
+export interface Refresh {
+  /** Every covered country, in the order of the coverage list. */
+  all: Country[];
+  /** The codes to refresh in this run. The others keep the data of the last run. */
+  asked: string[];
+  previous: Previous;
+  /** One country's Overpass answer: fetched, or read from a saved file. Rejects when there is none. */
+  getExtract: (country: Country) => Promise<CountryExtract>;
+  /** How many fetch failures in a row end the asking. Infinity: never. */
+  giveUpAfter?: number;
+  log?: (line: string) => void;
+}
 
-  const startedAt = Math.floor(Date.now() / 1000);
-  const previous = await previousRun(options.outDir, process.env.TILES_ORIGIN);
-  const deps: FetchDeps = {
-    fetch,
-    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
-    now: () => Math.floor(Date.now() / 1000),
-    contact: contact ?? '',
-    log: (line) => console.log(line),
-  };
-
+/**
+ * Refreshes the countries asked for, one after another, and keeps the data of the last run
+ * for every other one and for each that can't be fetched or fails its check.
+ */
+export async function refreshCountries({ all, asked, previous, getExtract, giveUpAfter = GIVE_UP_AFTER_FAILURES, log = () => undefined }: Refresh): Promise<{ countries: CountryData[]; outcomes: Outcome[] }> {
   const countries: CountryData[] = [];
   const outcomes: Outcome[] = [];
-  let fetches = 0;
+  let failuresInARow = 0;
 
-  for (const country of COUNTRIES) {
+  for (const country of all) {
     const code = country.code;
-    const asked = options.codes.includes(code);
+    const wanted = asked.includes(code);
     let fresh: CountryData | undefined;
     let reason: string | undefined;
     let kept: CountryStats['kept'];
     const t0 = Date.now();
 
-    if (asked) {
+    if (wanted && failuresInARow >= giveUpAfter) {
+      // Overpass is down, not this country's query: asking on would only add to its load and to our wait.
+      reason = `not asked: Overpass did not answer for the ${giveUpAfter} countries before it`;
+      kept = 'fetch';
+    } else if (wanted) {
+      let extract: CountryExtract | undefined;
       try {
-        let extract: CountryExtract;
-        const rawFile = path.join(RAW_DIR, `${code}.json`);
-        if (options.cached) {
-          if (!fs.existsSync(rawFile)) throw new Error(`no saved answer in ${rawFile}`);
-          extract = JSON.parse(fs.readFileSync(rawFile, 'utf8')) as CountryExtract;
-        } else {
-          if (fetches++ > 0) await deps.sleep(PAUSE_BETWEEN_COUNTRIES_MS);
-          extract = await fetchCountry(country, deps);
-          fs.mkdirSync(RAW_DIR, { recursive: true });
-          fs.writeFileSync(rawFile, JSON.stringify(extract));
-        }
+        extract = await getExtract(country);
+        failuresInARow = 0;
+      } catch (error) {
+        failuresInARow++;
+        reason = `not fetched: ${error instanceof Error ? error.message : String(error)}`;
+        kept = 'fetch';
+      }
+      if (extract) {
         const { data, dropped } = processCountry(country, extract);
         const verdict = check(data.stats, previous.index?.countries[code]);
-        console.log(
+        log(
           `${code}: ${data.stats.pharmacies} pharmacies (${dropped.duplicate} duplicates, ${dropped.private} private and ${dropped.noPosition} without a position left out), ` +
             `${percent(data.stats.shareWithHours)} with hours, parse rate ${percent(data.stats.parseRate)}`,
         );
@@ -221,9 +261,6 @@ async function main(): Promise<number> {
           reason = `failed its check: ${verdict.reason}`;
           kept = 'check';
         }
-      } catch (error) {
-        reason = `not fetched: ${error instanceof Error ? error.message : String(error)}`;
-        kept = 'fetch';
       }
     }
 
@@ -236,14 +273,80 @@ async function main(): Promise<number> {
     const old = await previous.country(code);
     if (old) {
       // Asked for and failed: say so in the index. Not asked for: it simply stays as it was.
-      const stats: CountryStats = asked ? { ...old.stats, kept } : old.stats;
+      const stats: CountryStats = wanted ? { ...old.stats, kept } : old.stats;
       countries.push({ ...old, stats });
       outcomes.push({ code, state: 'kept', stats, reason: reason ?? 'not asked for in this run' });
     } else {
       outcomes.push({ code, state: 'missing', reason: reason ?? 'not asked for, and no earlier data' });
     }
-    if (reason) console.error(`${code}: ${reason}`);
+    if (reason) log(`${code}: ${reason}`);
   }
+
+  return { countries, outcomes };
+}
+
+async function main(): Promise<number> {
+  const options = readArguments(process.argv.slice(2));
+  const contact = process.env.CONTACT_EMAIL;
+  if (!options.cached && !contact) {
+    console.error('CONTACT_EMAIL is not set. Overpass asks callers to identify themselves, so nothing was fetched. Put it in .env.local (see .env.example).');
+    return 1;
+  }
+
+  const startedAt = Math.floor(Date.now() / 1000);
+  const summary = process.env.GITHUB_STEP_SUMMARY;
+  const output = process.env.GITHUB_OUTPUT;
+  const previous = await previousRun(options.outDir, process.env.TILES_ORIGIN);
+
+  let asked = options.codes;
+  let attempt = 'First attempt.';
+  if (options.retry) {
+    asked = needsRetry(options.codes, previous.index, startedAt);
+    if (asked.length === 0) {
+      const text = 'Second attempt: nothing to do. The last run refreshed every country.';
+      console.log(text);
+      if (summary) fs.appendFileSync(summary, `## Pharmacy data\n\n${text}\n`);
+      return 0;
+    }
+    attempt = `Second attempt, for the countries the last run could not refresh: ${asked.join(' ')}.`;
+    console.log(attempt);
+  }
+
+  const deps: FetchDeps = {
+    fetch,
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    now: () => Math.floor(Date.now() / 1000),
+    contact: contact ?? '',
+    log: (line) => console.log(line),
+  };
+
+  let fetches = 0;
+  const getExtract = async (country: Country): Promise<CountryExtract> => {
+    const rawFile = path.join(RAW_DIR, `${country.code}.json`);
+    if (options.cached) {
+      if (!fs.existsSync(rawFile)) throw new Error(`no saved answer in ${rawFile}`);
+      return JSON.parse(fs.readFileSync(rawFile, 'utf8')) as CountryExtract;
+    }
+    if (fetches++ > 0) await deps.sleep(PAUSE_BETWEEN_COUNTRIES_MS);
+    const extract = await fetchCountry(country, deps);
+    fs.mkdirSync(RAW_DIR, { recursive: true });
+    fs.writeFileSync(rawFile, JSON.stringify(extract));
+    return extract;
+  };
+
+  const { countries, outcomes } = await refreshCountries({
+    all: COUNTRIES,
+    asked,
+    previous,
+    getExtract,
+    // A missing saved answer says nothing about Overpass.
+    giveUpAfter: options.cached ? Infinity : GIVE_UP_AFTER_FAILURES,
+    log: (line) => console.log(line),
+  });
+
+  const failed = outcomes.filter((outcome) => asked.includes(outcome.code) && outcome.state !== 'fresh');
+  // For the workflow's last step, so that a failed run names its countries where the run is listed.
+  if (output) fs.appendFileSync(output, `not_fresh=${failed.map((outcome) => outcome.code).join(' ')}\n`);
 
   if (countries.length === 0) {
     console.error('No country has data: nothing was written.');
@@ -257,15 +360,12 @@ async function main(): Promise<number> {
   fs.rmSync(options.outDir, { recursive: true, force: true });
   fs.renameSync(nextDir, options.outDir);
 
-  const text = report(outcomes, site, previous.from);
+  const text = report(outcomes, site, previous.from, attempt);
   console.log(`\n${text}\n`);
   fs.writeFileSync(path.join(path.dirname(options.outDir), 'report.md'), `${text}\n`);
-  const summary = process.env.GITHUB_STEP_SUMMARY;
   if (summary) fs.appendFileSync(summary, `${text}\n`);
-  const output = process.env.GITHUB_OUTPUT;
   if (output) fs.appendFileSync(output, 'written=true\n');
 
-  const failed = outcomes.filter((outcome) => options.codes.includes(outcome.code) && outcome.state !== 'fresh');
   if (failed.length > 0) {
     console.error(`Not fresh: ${failed.map((outcome) => outcome.code).join(', ')}. The site was written with their earlier data where there was any.`);
     return 2;

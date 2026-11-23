@@ -124,6 +124,12 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 - When nothing nearby is open:
   - If the wider search finds a pharmacy that is open now within 30 km (section 7.1), it leads as "Lähin auki nyt", like the open one on the Riga board: its straight-line distance instead of a walking time, its city when that isn't the place named above the results, and the route hand-off. Beyond 3 km in a straight line the route is no longer offered as a walk: the links name no way of travel and the map app picks one. "Avautuu ensimmäisenä" sits below it in the same card: the nearby pharmacy that opens first. The other closed ones fold into "Kiinni nyt". The collapsed sheet on the phone carries both: the far one, and one line "Avautuu ensimmäisenä huomenna klo 8".
   - If that search finds nothing either, the card is "Avautuu ensimmäisenä" alone, without a route button, and keeps "Hätätilanteessa soita 112" prominent.
+- **Hours missing nearby (provisional, `DESIGN-LOG.md` 23 Nov 2026).** In Southern Europe most pharmacies have no opening hours in OpenStreetMap (Greece 7 %, Spain 18 %, Italy 23 %), and the app never guesses them. So the card must not send people past such pharmacies to a far one whose hours are known:
+  - When more than half of the pharmacies nearer than the nearest one known to be open have hours the app can't read (missing, unparseable or uncertain), and that one is more than 500 m farther than the nearest of them, the nearest of them leads as "Lähin apteekki", with its own status line. The card says how many nearby pharmacies it is true of, puts "Soita" first, and keeps the one known to be open as one line: "Lähin, jonka tiedetään olevan auki: …". One small line gives the country's share of pharmacies with hours and leads to the data page.
+  - The same when no pharmacy is known to be open: then 112 stays prominent, and neither the heading nor the card says that nothing is open.
+  - In this case the heading and the phone's bar don't count open pharmacies: "Lähimpien apteekkien aukioloaikoja ei tiedetä".
+  - Where the open one is at most 500 m farther, it leads as before, and one line says how many nearer pharmacies have hours the app can't read.
+  - Where night duty rotates, the duty lookup of M6 joins this card under the line of the one known to be open.
 - **Rotating night duty.** In many countries (Germany, Austria, Italy, Spain and Greece among them) pharmacies take turns at night and on Sundays, and OpenStreetMap hours don't show whose turn it is. So where `duty` is `rotating` (section 8.1), "nothing open nearby" can be wrong:
   - When nothing nearby is open, the country's duty lookup leads the card, above the farther open pharmacy and "Avautuu ensimmäisenä": "Tämän yön päivystävä apteekki" with the official lookup (a link or a phone number), and one line on why our list may miss it.
   - When we do show an open pharmacy while the nearer ones are closed, our answer stays first and the lookup is one line under it. An external link shouldn't push a pharmacy we know is open out of the first place.
@@ -155,7 +161,7 @@ Section 7.7.
 A short text page, linked from the footer sentence "Sijaintiasi ei tallenneta.": every request the app makes, what it carries and who receives it, and what the device keeps for offline use (section 7.6).
 
 ### The data
-A short page, linked from the data date in the results footer: per country the number of pharmacies, the share with opening hours, the parse rate and the time of the last run, read from `index.json` (section 7.2). The pipeline's quality is the core of the app, so it is shown, not claimed.
+A short page, linked from the data date in the results footer: per country the number of pharmacies, the share with opening hours, the parse rate and the date and time of the country's last successful fetch, read from `index.json` (section 7.2). Above the table: when the last run was; a country that run could not refresh says so in its row. The page also says what a low share with hours means for the results (section 5, "Lähin auki nyt" card). The pipeline's quality is the core of the app, so it is shown, not claimed.
 
 ### Offline
 Abroad, people are often without data or with weak signal indoors. After one visit the app opens without a connection and answers from the tiles of the area searched last, with the date of the data and straight-line distances. The counter card works offline too. The map may be blank; the list doesn't need it.
@@ -388,7 +394,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 
 ### 7.2 Data pipeline and tiles
 
-**Pipeline.** Lives in `pipeline/`. `.github/workflows/data.yml` runs it every night; by hand it is `npm run data`, or `npm run data -- FI` for one country. Coverage is a list, `pipeline/countries.ts`: Finland and the twenty other countries of section 8 (AT, CH, CZ, DE, DK, EE, ES, GR, HR, HU, IT, LT, LV, MT, NO, PL, PT, SE, SI, SK). A country joins by adding a line.
+**Pipeline.** Lives in `pipeline/`. `.github/workflows/data.yml` runs it every night, and once more for the countries that failed; by hand it is `npm run data`, or `npm run data -- FI` for one country. Coverage is a list, `pipeline/countries.ts`: Finland and the twenty other countries of section 8 (AT, CH, CZ, DE, DK, EE, ES, GR, HR, HU, IT, LT, LV, MT, NO, PL, PT, SE, SI, SK). A country joins by adding a line.
 
 1. **Fetch.** One Overpass query per country, in sequence, with a pause between them.
    - `amenity=pharmacy` and `healthcare=pharmacy` as nodes, ways and relations inside the country's area, output as centre points with tags (`out center tags`).
@@ -396,6 +402,10 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
    - Rules from the main instance's policy: an identifying User-Agent with `CONTACT_EMAIL`; after a 429 or a gateway error (502 to 504), wait as long as the server asks, and at least half a minute after a gateway error, and try once more; then one try on `overpass.private.coffee`; no retry loops; never the Russian-hosted VK Maps instance.
    - An answer with a `remark` (Overpass ran out of time or memory and cut the list short) counts as a failure, and so does a state that comes back without a single pharmacy.
    - A country that still fails keeps the tiles it had, with their older date, and the run is marked failed so that it gets noticed. The pipeline reads the country's earlier rows from a file of its own on the data host (`/tiles/v1/countries/{CC}.json`), which every run publishes next to the tiles.
+   - A second attempt later the same night (Janne's decision of 23 Nov 2026). Two and a half hours after the first run the workflow starts the pipeline again with `--retry`, which asks only for the countries the first run could not refresh: those the published index marks as kept from an earlier run, those it has no data for, and those whose data is older than 12 hours (a first run that never started). With none of them it fetches nothing and publishes nothing. Each attempt is still one query per country with one retry and one fallback: no loops.
+   - When three countries in a row get no answer, Overpass is taken to be down: the run stops asking, the rest keep their data for the second attempt, and what was fetched is still published. A country that fails costs about ten minutes of waiting, so asking on would run into the job's time limit and publish nothing.
+   - The last run is read from the data host before anything is fetched. A host that has never been published to (404) is a first run. Any other failure to read it stops the run with nothing written: publishing replaces the whole site, and a site written without the last one would drop every country that can't be fetched that night.
+   - Open: the public instances may not be the right source for long. On 23 Nov 2026 the main instance answered 502 for much of the afternoon, with a notice that it is "intended for browser-based and human-operated tools" and that automated use should run its own instance. After a week of nightly runs the failures per country are counted from the workflow's runs, and Janne decides between region-split queries and extracts.
 2. **Normalise.**
    - If there's no name, fall back to brand, then operator. With none of them the UI says "Apteekki" / "Pharmacy".
    - Keep the address (including `addr:city`, which names the place for a located user), phone, email (`email`, else `contact:email`), website (`website`, else `contact:website`; `http` and `https` only), wheelchair access with its description, and the hours' `check_date`.
@@ -419,7 +429,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 - **Size:** measured in M2 (median and largest tile, compressed) and recorded in the README. If the densest city squares turn out too heavy for the phone budget of section 12, those squares are split into zoom 11 or 12 and listed in the index. Decide from the measurement, not before. The measurement is in the README: no square is split.
 - **Hosting (decision D7):** the tiles are plain static files. The Action deploys them as a static project of their own (one archive, `vercel deploy --archive=tgz`, because there are thousands of files), and the app serves them under its own origin through a rewrite (`/tiles/*`), cached by the CDN. The app is not rebuilt for data, the data never enters git, and the browser talks to one origin. In development the rewrite points at `npm run data:serve`.
 - **Licence:** the tiles are OpenStreetMap data under the ODbL. `index.json` and the UI carry the attribution.
-- One query per country a night is light use of the public Overpass instance. A commercial service should build from a planet extract or its own Overpass instance. Note this in the README.
+- One query per country a night, and a second one only for a country that failed, is light use of the public Overpass instance. A commercial service should build from a planet extract or its own Overpass instance. Note this in the README.
 - In a public repository GitHub disables scheduled workflows after 60 days without activity. The data page and the 7-day rule would show it. Note it in the README, with the way to switch the workflow back on.
 
 ### 7.3 States (one view each, typed reducer)
@@ -835,7 +845,7 @@ A new push to a branch cancels the run still going for it: the repository is pri
 1. Type check and lint.
 2. Unit, corpus and property tests.
 3. Production build, then Lighthouse CI (`@lhci/cli`) on the first-visit page, median of three runs, with budgets:
-   - initial JavaScript: at most 200 KB gzipped. Lighthouse measures 156 KB on `/fi` at M1, nearly all of it React and the Next.js runtime. The views behind the first window load when they are needed, and the map gets its own budget when it lands in M4.
+   - initial JavaScript: at most 185 KB gzipped (Janne's decision of 23 Nov 2026; 200 KB until then). Lighthouse measures 156 KB on `/fi` at M1 and 168 KB at M3, nearly all of it React and the Next.js runtime; the 12 KB of M3 are the tile search and the status logic. The views behind the first window load when they are needed, and the map gets its own budget when it lands in M4.
    - mobile LCP: at most 2.5 s on Lighthouse's phone profile (slow 4G, 4× CPU slowdown).
 4. A check that nothing under `/dev` exists in that build. Then a second build that keeps the `/dev` pages (`DEV_ROUTES=1`) and Playwright against it, with the visual comparison: a production server answers several times faster than the dev server. Failed comparisons are uploaded as images.
 5. Time to first result: a Playwright run in Chromium on the same throttled phone profile, location already allowed, cold cache, from navigation to the first rendered result (`tests/e2e/perf.spec.ts`; the app marks the moment with `performance.mark('first-result')`).

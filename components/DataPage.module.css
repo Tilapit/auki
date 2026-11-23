@@ -80,6 +80,8 @@
   /* Long headings wrap; the numbers under them don't. */
   white-space: normal;
   vertical-align: bottom;
+  /* Whole words where there is room. The browser's own hyphenation differs by platform, and the table's width with it. */
+  hyphens: none;
 }
 
 .table tbody th {
@@ -92,8 +94,89 @@
   font-weight: 650;
 }
 
+/* "(aiempi haku)", on a line of its own under the time: beside it, it made the table wider than the page. */
 .kept {
+  display: block;
   color: var(--soon);
+}
+
+/* When the pipeline last ran, above the table. */
+.run {
+  margin-top: 18px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.run + .note {
+  margin-top: 6px;
+  max-width: 62ch;
+  line-height: 1.5;
+}
+
+/* The share with hours once more as a length: the column reads down at a glance. Decorative; the number is the text. */
+.meter {
+  display: block;
+  width: 3.5rem;
+  height: 3px;
+  margin: 5px 0 1px auto;
+  border-radius: 2px;
+  background: var(--hair);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--link);
+}
+
+/* The time of the last fetch: a column of its own where there is room, a line under the country's name where there isn't. */
+.fetchedUnder {
+  display: none;
+}
+
+@media (max-width: 699px) {
+  .table .fetched {
+    display: none;
+  }
+
+  /* On a narrow screen the headings break at the soft hyphens written into the strings, and nowhere else. */
+  .table thead th {
+    hyphens: manual;
+  }
+
+  /* One step down the type scale: four columns of numbers then fit a 375 px phone with room to spare. */
+  .table {
+    font-size: var(--t-s);
+  }
+
+  .fetchedUnder {
+    display: block;
+    margin-top: 2px;
+    color: var(--meta);
+    font-size: var(--t-xs);
+    font-weight: 400;
+  }
+
+  .table th,
+  .table td {
+    padding-inline: 8px;
+    vertical-align: top;
+  }
+
+  .table th:first-child {
+    padding-inline-start: 12px;
+  }
+
+  .table th:last-child,
+  .table td:nth-last-child(2) {
+    padding-inline-end: 12px;
+  }
+
+  .table thead th {
+    vertical-align: bottom;
+  }
 }
 
 .explain {

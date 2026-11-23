@@ -31,6 +31,8 @@ interface Props {
   /** Night case: how many nearer pharmacies are closed, and when most of them open. */
   closerClosed?: number;
   closedOpens?: Scene['closedOpens'];
+  /** How many nearer pharmacies have hours we can't read: this one is then only the nearest we know to be open. */
+  closerUnknown?: number;
   /** Abroad: offers the counter card. */
   country?: CountryInfo;
   onRoute?: (pharmacy: Pharmacy) => void;
@@ -55,6 +57,7 @@ export function NearestOpenCard({
   firstToOpen,
   closerClosed = 0,
   closedOpens,
+  closerUnknown = 0,
   country,
   onRoute,
   onSelect,
@@ -141,6 +144,8 @@ export function NearestOpenCard({
           {!firstToOpen && closedOpens && ` ${t.results.mostOpenTomorrow(f.hourRange(closedOpens.from, closedOpens.to))}`}
         </p>
       )}
+
+      {closerUnknown > 0 && <p className={styles.context}>{t.results.closerUnknown(closerUnknown)}</p>}
 
       {tooLate ? (
         <>
@@ -296,6 +301,136 @@ function FirstToOpen({ pharmacy, distance, onSelect }: { pharmacy: Pharmacy; dis
           )}
         </div>
       </div>
+    </section>
+  );
+}
+
+interface HoursUnknownProps {
+  /** The nearest pharmacy whose hours we can't read. */
+  pharmacy: Pharmacy;
+  city?: string;
+  distance: Scene['distance'];
+  /** How many of the pharmacies shown have hours we can't read, this one included. */
+  count: number;
+  /** The nearest pharmacy whose hours say it is open now, when there is one. */
+  knownOpen?: Pharmacy;
+  knownOpenWithStreet?: boolean;
+  /** The country's share of pharmacies with opening hours in OpenStreetMap. */
+  hoursListed?: Scene['hoursListed'];
+  country?: CountryInfo;
+  onRoute?: (pharmacy: Pharmacy) => void;
+  onSelect?: (pharmacy: Pharmacy) => void;
+  onShowCard?: () => void;
+  children?: ReactNode;
+}
+
+/**
+ * Hours coverage (provisional, DESIGN-LOG.md 23 Nov 2026). Where most nearby pharmacies have
+ * no hours we can read, the card doesn't send anyone past them to a far one that has: the
+ * nearest leads, with what we don't know said plainly and the call button first. The nearest
+ * one known to be open stays as a line under it. Nothing here guesses at hours.
+ */
+export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, knownOpenWithStreet, hoursListed, country, onRoute, onSelect, onShowCard, children }: HoursUnknownProps) {
+  const i18n = useI18n();
+  const { t, f, locale } = i18n;
+  const id = useId();
+  const label = fullName(i18n, pharmacy, pharmacy.name === null);
+  const way = travel(i18n, pharmacy, distance);
+  const address = [pharmacy.street, city].filter(Boolean).join(', ');
+  const walk = withinWalk(pharmacy);
+  const knownWay = knownOpen && travel(i18n, knownOpen, distance);
+  const knownDetails = knownOpen && knownWay && [knownOpenWithStreet && knownOpen.street, knownWay.primary.short, lowerFirst(statusText(i18n, knownOpen.status))].filter(Boolean).join(', ');
+
+  return (
+    <section className={styles.card} aria-labelledby={`${id}-h`}>
+      <h2 id={`${id}-h`} className={styles.label}>
+        {t.results.nearestUnlisted}
+      </h2>
+
+      <div className={styles.head}>
+        <span className={styles.glyph}>
+          <CrossGlyph state={glyphFor(pharmacy.status)} size={24} />
+        </span>
+        <div className={styles.who}>
+          <h3 className={styles.name}>{displayName(i18n, pharmacy)}</h3>
+          {address && <p className={styles.address}>{address}</p>}
+        </div>
+        <div className={styles.travel}>
+          <p className={cx(styles.time, 'tnum')}>
+            <Measure {...way.primary} />
+          </p>
+          <p className={cx(styles.distance, 'tnum')}>
+            <Measure short={way.secondary.short} long={way.secondary.long || way.secondary.short} />
+          </p>
+        </div>
+      </div>
+
+      <OpenStatus status={pharmacy.status} strong className={styles.status} />
+
+      {pharmacy.dispensing === false && <p className={styles.context}>{t.status.noPrescriptions}</p>}
+
+      <p className={styles.context}>
+        {t.results.unlistedNearby(count)} {pharmacy.phone ? t.results.unlistedCall : t.results.unlistedNoPhone}
+      </p>
+
+      {/* The call comes first: it is the one way to know before the walk. */}
+      <div className={styles.actions}>
+        {pharmacy.phone && (
+          <Button variant="primary" icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(label)}>
+            {t.card.call}
+          </Button>
+        )}
+        <Button
+          variant={pharmacy.phone ? 'secondary' : 'primary'}
+          icon={walk ? 'walk' : 'directions'}
+          aria-label={(walk ? t.card.routeLabel : t.card.directionsLabel)(label)}
+          onClick={() => onRoute?.(pharmacy)}
+        >
+          {t.card.route}
+        </Button>
+        {country && (
+          <Button icon="card" aria-label={t.card.showAtCounterLabel(country.inLanguage[locale])} onClick={onShowCard}>
+            {t.card.showAtCounter}
+          </Button>
+        )}
+      </div>
+
+      {knownOpen && knownDetails && (
+        <div className={styles.next}>
+          <span className={styles.nextGlyph}>
+            <CrossGlyph state={glyphFor(knownOpen.status)} size={18} />
+          </span>
+          <p>
+            {rich(t.results.knownOpen, {
+              name: (
+                <a
+                  href={`#${knownOpen.id}`}
+                  className={styles.nextName}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onSelect?.(knownOpen);
+                  }}
+                >
+                  {displayName(i18n, knownOpen)}
+                </a>
+              ),
+              details: knownDetails,
+            })}
+          </p>
+        </div>
+      )}
+
+      {/* M6: where night duty rotates, the country's official duty-pharmacy lookup goes here (PLAN.md section 5). */}
+
+      {hoursListed && (
+        <p className={styles.coverage}>
+          {t.results.hoursListed(f.countryName(hoursListed.country), f.percent(hoursListed.share, 0))} <a href={`/${locale}/data`}>{t.footer.aboutData}</a>
+        </p>
+      )}
+
+      {/* With no pharmacy known to be open, the one number that always works stays in view. */}
+      {!knownOpen && <p className={styles.emergency}>{rich(t.footer.emergency, { number: <a href="tel:112">112</a> })}</p>}
+      {children}
     </section>
   );
 }

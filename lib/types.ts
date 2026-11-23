@@ -102,6 +102,8 @@ export interface Scene {
   dataFrom?: number;
   /** Countries next to the position that are not covered, as ISO codes: the results say what is missing. */
   missing?: string[];
+  /** The country of the nearest pharmacy, and the share of its pharmacies that have opening hours in OpenStreetMap (index.json). */
+  hoursListed?: { country: string; share: number };
   country?: CountryInfo;
   card?: CardPhrases;
   views: { phone: MapViewSpec; desktop: MapViewSpec };

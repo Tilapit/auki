@@ -7,7 +7,9 @@ import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
 import { pickLocale } from '@/lib/i18n';
 import { appleDirectionsUrl, googleDirectionsUrl } from '@/lib/maps';
-import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
+import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
+import { DETOUR_METERS, arrange, cityIfElsewhere, hoursUnknown, placeLabel } from '@/lib/results';
+import type { OpenStatus, Pharmacy } from '@/lib/types';
 import { withinWalk } from '@/lib/travel';
 
 describe('pickLocale', () => {
@@ -86,6 +88,112 @@ describe('arrange', () => {
       const times = scene.pharmacies.map((p) => p.walkMin ?? 0);
       expect(times).toEqual([...times].sort((a, b) => a - b));
       expect(scene.pharmacies.length).toBeLessThanOrEqual(10);
+    }
+  });
+});
+
+describe('arrange, where hours are missing (hours coverage, provisional)', () => {
+  const missing: OpenStatus = { kind: 'missing' };
+  const open: OpenStatus = { kind: 'open', closes: '22:00' };
+  const closed: OpenStatus = { kind: 'closed', opens: { day: 'tomorrow', time: '09:00' } };
+  const at = (meters: number, status: OpenStatus): Pharmacy => ({ id: `p${meters}`, name: `Farmacia ${meters}`, lat: 0, lon: 0, status, straightMeters: meters });
+  const ids = (pharmacies: Pharmacy[]) => pharmacies.map((p) => p.id);
+
+  it('five without hours before an open one 3 km away: the nearest of them leads, and the open one is kept', () => {
+    const pharmacies = [at(120, missing), at(200, missing), at(350, missing), at(500, missing), at(800, missing), at(3000, open), at(3400, missing)];
+    const result = arrange({ pharmacies });
+    // The count is of all the pharmacies shown, so that it agrees with the list under the card.
+    expect(result.unlisted).toEqual({ lead: pharmacies[0], count: 6 });
+    expect(result.closerUnknown).toBe(5);
+    expect(result.nearestOpen?.id).toBe('p3000');
+    // Neither of the two in the card is repeated in the list.
+    expect(ids(result.others)).toEqual(['p200', 'p350', 'p500', 'p800', 'p3400']);
+    expect(result.closedGroup).toEqual([]);
+    expect(result.firstToOpen).toBeUndefined();
+  });
+
+  it('one without hours at 200 m and an open one at 300 m: the open one leads, and the card can say what lies nearer', () => {
+    const result = arrange({ pharmacies: [at(200, missing), at(300, open), at(900, missing)] });
+    expect(result.unlisted).toBeUndefined();
+    expect(result.nearestOpen?.id).toBe('p300');
+    expect(result.closerUnknown).toBe(1);
+  });
+
+  it('the detour is measured from the nearest one without hours: 500 m more is the same errand, a metre more is not', () => {
+    expect(DETOUR_METERS).toBe(500);
+    expect(arrange({ pharmacies: [at(200, missing), at(400, missing), at(700, open)] }).unlisted).toBeUndefined();
+    expect(arrange({ pharmacies: [at(200, missing), at(400, missing), at(701, open)] }).unlisted?.lead.id).toBe('p200');
+  });
+
+  it('takes most of the nearer ones: half is not most, and a closed pharmacy with known hours is not in doubt', () => {
+    expect(arrange({ pharmacies: [at(100, closed), at(200, missing), at(3000, open)] }).unlisted).toBeUndefined();
+    expect(arrange({ pharmacies: [at(100, closed), at(200, missing), at(300, missing), at(3000, open)] }).unlisted).toEqual({ lead: expect.objectContaining({ id: 'p200' }), count: 2 });
+    const mostlyClosed = arrange({ pharmacies: [at(100, missing), at(200, closed), at(300, closed), at(400, closed), at(3000, open)] });
+    expect(mostlyClosed.unlisted).toBeUndefined();
+    expect(mostlyClosed.closerUnknown).toBe(1);
+  });
+
+  it('counts hours that are listed but can not be read or trusted', () => {
+    expect([missing, { kind: 'unparseable', raw: 'mañanas' }, { kind: 'uncertain', raw: 'sunrise-sunset' }].map((status) => hoursUnknown(status as OpenStatus))).toEqual([true, true, true]);
+    expect([open, closed, { kind: 'soon', closes: '21:00' }, { kind: 'open24' }, { kind: 'stale' }].map((status) => hoursUnknown(status as OpenStatus))).toEqual([false, false, false, false, false]);
+  });
+
+  it('treats the farther open one from the wider search like any other', () => {
+    const farOpen = at(14_000, open);
+    const unknownNearby = arrange({ pharmacies: [at(100, missing), at(200, missing), at(300, closed)], farOpen });
+    expect(unknownNearby.unlisted?.count).toBe(2);
+    expect(unknownNearby.nearestOpen).toBe(farOpen);
+    expect(unknownNearby.far).toBe(true);
+    expect(unknownNearby.total).toBe(4);
+    const closedNearby = arrange({ pharmacies: [at(100, closed), at(200, closed), at(300, missing)], farOpen });
+    expect(closedNearby.unlisted).toBeUndefined();
+    expect(closedNearby.firstToOpen?.id).toBe('p100');
+  });
+
+  it('with no pharmacy known to be open and most hours unknown: no first to open, since nothing says the others are closed', () => {
+    const result = arrange({ pharmacies: [at(100, missing), at(200, missing), at(300, closed)] });
+    expect(result.unlisted?.lead.id).toBe('p100');
+    expect(result.nearestOpen).toBeUndefined();
+    expect(result.firstToOpen).toBeUndefined();
+    expect(ids(result.others)).toEqual(['p200', 'p300']);
+  });
+
+  it('with no pharmacy known to be open but most of them closed: the first to open leads as before', () => {
+    const result = arrange({ pharmacies: [at(100, closed), at(200, closed), at(300, missing)] });
+    expect(result.unlisted).toBeUndefined();
+    expect(result.firstToOpen?.id).toBe('p100');
+  });
+
+  it('can be switched off, for the comparison in /dev/states', () => {
+    const pharmacies = [at(120, missing), at(200, missing), at(3000, open)];
+    const before = arrange({ pharmacies }, { coverage: false });
+    expect(before.unlisted).toBeUndefined();
+    expect(before.closerUnknown).toBe(0);
+    expect(ids(before.others)).toEqual(['p120', 'p200']);
+  });
+
+  it('Málaga, from tile data: seven of the eight nearer ones are unknown, so the nearest leads; later nothing is known open', () => {
+    const evening = arrange(malaga);
+    expect(evening.closerUnknown).toBe(7);
+    expect(evening.unlisted).toEqual({ lead: expect.objectContaining({ id: 'n301' }), count: 8 });
+    expect(evening.nearestOpen?.id).toBe('n309');
+    expect(evening.others).toHaveLength(8);
+    expect(malaga.hoursListed).toEqual({ country: 'ES', share: 0.1815 });
+    const late = arrange(malagaLate);
+    expect(late.unlisted?.count).toBe(8);
+    expect(late.nearestOpen).toBeUndefined();
+    expect(arrange(malagaNoPhone).unlisted?.lead.phone).toBeUndefined();
+    const near = arrange(malagaNear);
+    expect(near.unlisted).toBeUndefined();
+    expect(near.nearestOpen?.id).toBe('n303');
+    expect(near.closerUnknown).toBe(2);
+  });
+
+  it('leaves the fixtures of the canvas as they were', () => {
+    for (const scene of [helsinki, riga, rigaFarOpen, rigaNothingOpen, stress]) {
+      const result = arrange(scene);
+      expect(result.unlisted).toBeUndefined();
+      expect(result.closerUnknown).toBe(0);
     }
   });
 });

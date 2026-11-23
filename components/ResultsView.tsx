@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
-import { displayName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
+import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
 import type { Pharmacy, Scene } from '@/lib/types';
 import { ApproximateNotice } from './ApproximateNotice';
@@ -15,7 +15,7 @@ import { CrossGlyph } from './CrossGlyph';
 import { cx } from './cx';
 import { LiveStatus } from './LiveStatus';
 import { Measure } from './Measure';
-import { NearestOpenCard, NothingOpenCard } from './NearestOpenCard';
+import { HoursUnknownCard, NearestOpenCard, NothingOpenCard } from './NearestOpenCard';
 import { OpenStatus } from './OpenStatus';
 import { ClosedGroup, PharmacyList } from './PharmacyList';
 import { PharmacySheet } from './PharmacySheet';
@@ -45,6 +45,8 @@ export interface ResultsOptions {
   focusTitle?: boolean;
   /** The crosses of the open pharmacies switch on one after another (PLAN.md section 6, "Motion"). */
   reveal?: boolean;
+  /** false shows the results as they were before the hours-coverage proposal, for the comparison in /dev/states. */
+  coverage?: boolean;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -55,8 +57,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const i18n = useI18n();
   const { t, f } = i18n;
   const id = useId();
-  const arranged = useMemo(() => arrange(scene), [scene]);
-  const { nearestOpen, far, firstToOpen, others, closedGroup, closerClosed, nextOpen, needsStreet } = arranged;
+  const arranged = useMemo(() => arrange(scene, { coverage: options.coverage }), [scene, options.coverage]);
+  const { nearestOpen, far, firstToOpen, others, closedGroup, closerClosed, nextOpen, needsStreet, unlisted, closerUnknown } = arranged;
   const place = placeLabel(scene, i18n.locale);
 
   const [sheet, setSheet] = useState<SheetState>(options.sheet ?? 'peek');
@@ -66,8 +68,9 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
   const everyone = useMemo(() => [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])], [scene]);
   const detail = everyone.find((p) => p.id === detailId);
-  const selectedId = detailId ?? (nearestOpen ?? firstToOpen)?.id;
+  const selectedId = detailId ?? (unlisted?.lead ?? nearestOpen ?? firstToOpen)?.id;
   const select = (pharmacy: Pharmacy) => setDetailId(pharmacy.id);
+  const fullNameOf = (pharmacy: Pharmacy) => fullName(i18n, pharmacy, pharmacy.name === null);
   // One surface: abroad, the prescription banner is a section of the card.
   const banner = scene.country && <CountryBanner country={scene.country} />;
 
@@ -100,9 +103,11 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const stale = scene.stale === true;
   const message = stale
     ? t.results.foundStale(arranged.total)
-    : nearestOpen && way
-      ? t.results.found(arranged.total, displayName(i18n, nearestOpen), way.distance?.long ?? way.primary.long, statusText(i18n, nearestOpen.status))
-      : t.results.foundNoneOpen(arranged.total);
+    : unlisted
+      ? t.results.foundUnlisted(arranged.total, unlisted.count)
+      : nearestOpen && way
+        ? t.results.found(arranged.total, displayName(i18n, nearestOpen), way.distance?.long ?? way.primary.long, statusText(i18n, nearestOpen.status))
+        : t.results.foundNoneOpen(arranged.total);
   const missing = (scene.missing ?? []).map((code) => f.countryName(code));
   const firstWay = firstToOpen && travel(i18n, firstToOpen, scene.distance);
   const allButton = (
@@ -180,6 +185,54 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     </section>
   );
 
+  // Hours coverage (provisional): the nearest pharmacy leads although we can't say that it is open.
+  const lead = unlisted?.lead;
+  const leadWay = lead && travel(i18n, lead, scene.distance);
+  const unlistedPeek = lead && leadWay && (
+    <section aria-labelledby={`${id}-peek`} className={styles.peek}>
+      <h2 id={`${id}-peek`} className={styles.label}>
+        {t.results.nearestUnlisted}
+      </h2>
+      <div className={styles.peekRow}>
+        <CrossGlyph state={glyphFor(lead.status)} size={24} />
+        <div className={styles.peekWho}>
+          <h3 className={styles.peekName}>{displayName(i18n, lead)}</h3>
+          <OpenStatus status={lead.status} />
+        </div>
+        <p className={cx(styles.peekTime, 'tnum')}>
+          <Measure {...leadWay.primary} />
+        </p>
+      </div>
+      {nearestOpen && way && (
+        <div className={styles.peekFirst}>
+          <CrossGlyph state={glyphFor(nearestOpen.status)} />
+          <p>{t.results.knownOpenShort(displayName(i18n, nearestOpen))}</p>
+          <p className={cx(styles.peekFirstTime, 'tnum')}>
+            <Measure {...way.primary} />
+          </p>
+        </div>
+      )}
+      <div className={styles.peekActions}>
+        {lead.phone ? (
+          <Button variant="primary" icon="phone" href={`tel:${lead.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(fullNameOf(lead))}>
+            {t.card.call}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            icon={withinWalk(lead) ? 'walk' : 'directions'}
+            aria-label={(withinWalk(lead) ? t.card.routeLabel : t.card.directionsLabel)(fullNameOf(lead))}
+            onClick={() => select(lead)}
+          >
+            {t.card.route}
+          </Button>
+        )}
+        {allButton}
+      </div>
+      {!nearestOpen && <p className={styles.peekEmergency}>{rich(t.footer.emergency, { number: <a href="tel:112">112</a> })}</p>}
+    </section>
+  );
+
   const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status));
   const detailNext = detail && nextFor(detail);
 
@@ -188,17 +241,20 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       place={place}
       updated={scene.updated}
       // Out-of-date data says nothing about what is open: neither does the heading.
-      title={stale ? t.results.title : t.results.openNow(openCount, night)}
+      // Nor do unknown hours: where they lead, the heading counts nothing as open or closed.
+      title={stale ? t.results.title : unlisted ? t.results.unlistedTitle : t.results.openNow(openCount, night)}
       barLine={
         stale
           ? t.results.staleShort
-          : rich(t.results.openAt(openCount), {
-              time: <time dateTime={scene.updated}>{f.clock(scene.updated)}</time>,
-            })
+          : unlisted
+            ? t.results.unlistedShort
+            : rich(t.results.openAt(openCount), {
+                time: <time dateTime={scene.updated}>{f.clock(scene.updated)}</time>,
+              })
       }
       sheet={stale ? 'static' : sheet}
       onSheetChange={setSheet}
-      peek={stale ? undefined : peek || nothingOpenPeek || undefined}
+      peek={stale ? undefined : unlistedPeek || peek || nothingOpenPeek || undefined}
       emergencyInFooter={!!nearestOpen}
       onRefresh={options.onRefresh}
       onPlace={options.onSearch ?? NO_ACTION}
@@ -266,7 +322,25 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
         {missing.length > 0 && <ResultsNotice>{missing.length === 1 ? t.results.missingOne(missing[0]) : t.results.missingMany(f.list(missing))}</ResultsNotice>}
 
-        {nearestOpen && (
+        {lead && (
+          <HoursUnknownCard
+            pharmacy={lead}
+            city={cityIfElsewhere(lead, place, i18n.locale)}
+            distance={scene.distance}
+            count={unlisted.count}
+            knownOpen={nearestOpen}
+            knownOpenWithStreet={nearestOpen && needsStreet.has(nearestOpen.id)}
+            hoursListed={scene.hoursListed}
+            country={scene.country}
+            onRoute={select}
+            onSelect={select}
+            onShowCard={() => setCounterOpen(true)}
+          >
+            {banner}
+          </HoursUnknownCard>
+        )}
+
+        {!lead && nearestOpen && (
           <NearestOpenCard
             pharmacy={nearestOpen}
             city={cityIfElsewhere(nearestOpen, place, i18n.locale)}
@@ -277,6 +351,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
             firstToOpen={firstToOpen}
             closerClosed={closedGroup.length > 0 ? closerClosed : 0}
             closedOpens={scene.closedOpens}
+            closerUnknown={closerUnknown}
             country={scene.country}
             onRoute={select}
             onSelect={select}
@@ -286,7 +361,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           </NearestOpenCard>
         )}
 
-        {!nearestOpen && firstToOpen && (
+        {!lead && !nearestOpen && firstToOpen && (
           <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select}>
             {banner}
           </NothingOpenCard>
@@ -299,7 +374,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
             needsStreet={needsStreet}
             selectedId={detailId}
             onSelect={select}
-            alone={!nearestOpen && !firstToOpen}
+            alone={!lead && !nearestOpen && !firstToOpen}
           />
         )}
 

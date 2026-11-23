@@ -81,7 +81,39 @@ const stats = (pharmacies: number, withHours: number, parsed: number, more: Part
   ...more,
 });
 
-/** An index with every covered country, for the data page. The numbers are made up, in a likely range. */
+/**
+ * Pharmacies, how many of them have opening hours, and how many of those were read, per
+ * country: the pipeline's run of 23 November 2026 on OpenStreetMap's data of that day.
+ */
+export const RUN_OF_23_NOV: Record<string, [pharmacies: number, withHours: number, parsed: number]> = {
+  FI: [787, 624, 624],
+  AT: [1517, 1189, 1188],
+  CH: [1646, 1036, 1035],
+  CZ: [2540, 2283, 2283],
+  DE: [17084, 14023, 14023],
+  DK: [545, 308, 308],
+  EE: [480, 289, 289],
+  ES: [18253, 3313, 3306],
+  GR: [5600, 409, 407],
+  HR: [916, 330, 329],
+  HU: [2358, 1160, 1160],
+  IT: [16875, 3829, 3827],
+  LT: [773, 454, 454],
+  LV: [694, 532, 532],
+  MT: [156, 44, 43],
+  NO: [1081, 1025, 1024],
+  PL: [12809, 4892, 4887],
+  PT: [2746, 645, 642],
+  SE: [1110, 622, 622],
+  SI: [315, 130, 130],
+  SK: [1702, 943, 942],
+};
+
+/**
+ * An index with every covered country, for the data page: the real numbers of one run, each
+ * country fetched a little after the one before it, as in a real night. Latvia could not be
+ * refreshed and keeps the data of two nights earlier.
+ */
 export function indexOf(tiles: { x: number; y: number }[], outside: { x: number; y: number }[] = []): IndexJson {
   const home = tileOf(KAMPPI);
   const x0 = home.x - 4;
@@ -89,8 +121,7 @@ export function indexOf(tiles: { x: number; y: number }[], outside: { x: number;
   const has = new Set(tiles.map(tileKey));
   const out = new Set(outside.map(tileKey));
   const rows = Array.from({ length: 9 }, (_, row) => Array.from({ length: 9 }, (_, column) => (out.has(tileKey({ x: x0 + column, y: y0 + row })) ? '.' : has.has(tileKey({ x: x0 + column, y: y0 + row })) ? 'd' : 'c')).join(''));
-  const countries = Object.fromEntries(COUNTRY_CODES.map((code, index) => [code, stats(500 + index * 830, 400 + index * 610, 396 + index * 604)]));
-  countries.FI = stats(787, 624, 624);
-  countries.LV = stats(402, 301, 298, { generated: GENERATED - 2 * 86400, kept: 'fetch' });
-  return { v: 1, generated: GENERATED + 300, attribution: '© OpenStreetMap contributors, ODbL 1.0, https://www.openstreetmap.org/copyright', countries, grid: { z: TILE_ZOOM, x0, y0, width: 9, rows } };
+  const countries = Object.fromEntries(COUNTRY_CODES.map((code, index) => [code, stats(...RUN_OF_23_NOV[code], { generated: GENERATED + index * 47 })]));
+  countries.LV = { ...countries.LV, generated: GENERATED - 2 * 86400 + 11 * 47, kept: 'fetch' };
+  return { v: 1, generated: GENERATED + 21 * 47 + 5, attribution: '© OpenStreetMap contributors, ODbL 1.0, https://www.openstreetmap.org/copyright', countries, grid: { z: TILE_ZOOM, x0, y0, width: 9, rows } };
 }
