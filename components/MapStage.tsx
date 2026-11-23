@@ -63,5 +63,5 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix }: { state: 
     if (noneShownOpen(result, now) && !(result.farOpen && staysOpen(result.farOpen.pharmacy, now))) onFarOpen(now);
   }, [result, now, onFarOpen]);
 
-  return <ResultsView scene={scene} onRefresh={onRefresh} onSearch={onSearch} focusTitle reveal basemap now={now} you={fix} />;
+  return <ResultsView scene={scene} onRefresh={onRefresh} onSearch={onSearch} focusTitle reveal basemap now={now} you={fix ?? (position.source === 'device' ? position : undefined)} />;
 }

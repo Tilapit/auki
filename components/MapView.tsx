@@ -261,6 +261,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         if (frame) created.setPadding(cameraPadding(frame));
 
         created.on('move', place);
+        created.on('resize', place);
         // Tiles that never arrive leave the land colour and the markers: the map then says what is missing.
         // One loaded tile is enough to call the map drawn; a single square that fails later is not news.
         let drawn = false;
@@ -298,13 +299,13 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     map.current?.setStyle(buildStyle({ ...latest.current.look, tiles: MAP_TILES_URL }));
   }, [key, mode]);
 
-  // The sheet opened or closed: keep the camera's centre in the part of the map that shows.
+  // The sheet opened or closed, or the layout changed: keep the camera's centre in the part of the map that shows.
   const pad = frame?.pad;
   useEffect(() => {
     const frame = latest.current.frame;
     if (mode !== 'live' || !frame) return;
     map.current?.easeTo({ padding: cameraPadding(frame), duration: 200 });
-  }, [pad, mode]);
+  }, [pad, desktop, mode]);
 
   // A pharmacy picked in the list comes into view on the map, together with the dot.
   const picked = useRef(selectedId);
