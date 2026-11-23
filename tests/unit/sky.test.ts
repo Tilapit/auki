@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeSky } from '@/lib/sky';
+import { computeSky, sunPosition } from '@/lib/sky';
 
 const at = (iso: string, zone = 'Europe/Helsinki') => computeSky(Date.parse(iso), zone);
 
@@ -77,3 +77,42 @@ describe('inline script', () => {
     expect(copy(now, 'Europe/Helsinki')).toEqual(computeSky(now, 'Europe/Helsinki'));
   });
 });
+
+describe('sunPosition', () => {
+  // Reference values from SunCalc 2.1.4, an independent implementation (degrees; azimuth clockwise from north).
+  // Its altitudes include atmospheric refraction, up to 0.48 degrees at and below the horizon; ours are geometric.
+  const reference = [
+    ['Helsinki, 19 Nov, local noon', '2026-11-19T10:00:00Z', 60.1699, 24.9384, 10.4, 178.65],
+    ['Helsinki, 19 Nov, dusk', '2026-11-19T14:10:00Z', 60.1699, 24.9384, -3.16, 235.75],
+    ['Helsinki, 19 Nov, evening', '2026-11-19T18:41:00Z', 60.1699, 24.9384, -35.29, 295.22],
+    ['Helsinki, midsummer noon', '2026-06-21T10:20:00Z', 60.1699, 24.9384, 53.28, 179.21],
+    ['Helsinki, midsummer sunset', '2026-06-21T20:00:00Z', 60.1699, 24.9384, -1.02, 327.76],
+    ['Riga, 20 Nov, night', '2026-11-20T21:40:00Z', 56.9496, 24.1052, -52.01, 348.64],
+    ['Lisbon, equinox morning', '2026-03-20T07:00:00Z', 38.7223, -9.1393, 3.25, 92.59],
+    ['Athens, August afternoon', '2026-08-01T15:00:00Z', 37.9838, 23.7275, 28.76, 270.96],
+  ] as const;
+
+  it.each(reference)('%s: azimuth within 0.3 degrees of the reference, altitude within refraction', (_, iso, lat, lon, altitude, azimuth) => {
+    const sun = sunPosition(Date.parse(iso), lat, lon);
+    expect(Math.abs(sun.azimuth - azimuth)).toBeLessThan(0.3);
+    expect(Math.abs(sun.altitude - altitude)).toBeLessThan(0.6);
+    expect(sun.altitude).toBeLessThanOrEqual(altitude + 0.05);
+  });
+
+  it('agrees with the altitude the first-visit sky is drawn from', () => {
+    const at = '2026-11-19T14:10:00Z';
+    expect(Math.abs(sunPosition(Date.parse(at), 60.17, 24.94).altitude - computeSky(Date.parse(at), 'Europe/Helsinki').altitude)).toBeLessThan(0.01);
+  });
+
+  it('stands in the south at local noon and moves east to west', () => {
+    const noon = sunPosition(Date.parse('2026-06-21T10:20:00Z'), 60.1699, 24.9384);
+    expect(Math.abs(noon.azimuth - 180)).toBeLessThan(2);
+    const morning = sunPosition(Date.parse('2026-06-21T05:00:00Z'), 60.1699, 24.9384);
+    const evening = sunPosition(Date.parse('2026-06-21T16:00:00Z'), 60.1699, 24.9384);
+    expect(morning.azimuth).toBeGreaterThan(45);
+    expect(morning.azimuth).toBeLessThan(135);
+    expect(evening.azimuth).toBeGreaterThan(225);
+    expect(evening.azimuth).toBeLessThan(315);
+  });
+});
+

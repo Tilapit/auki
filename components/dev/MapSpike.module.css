@@ -1,0 +1,22 @@
+.frame {
+  position: fixed;
+  inset: 0;
+  background: var(--paper);
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+/* The attribution in our own type and tone, wherever MapLibre puts it. */
+.frame :global(.maplibregl-ctrl-attrib) {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--meta);
+  font: inherit;
+  font-size: 0.75rem;
+}
+
+.frame :global(.maplibregl-ctrl-attrib a) {
+  color: var(--meta);
+}

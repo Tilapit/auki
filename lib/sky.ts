@@ -208,3 +208,37 @@ export interface SkyAt {
 export function skyAt({ at, zone }: SkyAt): Sky {
   return computeSky(Date.parse(at), zone);
 }
+
+export interface SunPosition {
+  /** Degrees above the horizon; negative below it. */
+  altitude: number;
+  /** Degrees clockwise from north: 90 east, 180 south, 270 west. */
+  azimuth: number;
+}
+
+/**
+ * Where the sun stands at a place and an instant. The same low-precision almanac formulas
+ * as in computeSky (which has to keep its own copy, because it is serialised alone into the
+ * inline script), good to about 0.1 degrees. The map uses the azimuth to light its buildings
+ * from the side the sun is really on.
+ */
+export function sunPosition(ms: number, lat: number, lon: number): SunPosition {
+  const RAD = Math.PI / 180;
+  const days = ms / 86400000 - 10957.5; // days since J2000.0
+  const meanLongitude = 280.46 + 0.9856474 * days;
+  const meanAnomaly = (357.528 + 0.9856003 * days) * RAD;
+  const eclipticLongitude = (meanLongitude + 1.915 * Math.sin(meanAnomaly) + 0.02 * Math.sin(2 * meanAnomaly)) * RAD;
+  const obliquity = (23.439 - 0.0000004 * days) * RAD;
+  const rightAscension = Math.atan2(Math.cos(obliquity) * Math.sin(eclipticLongitude), Math.cos(eclipticLongitude));
+  const declination = Math.asin(Math.sin(obliquity) * Math.sin(eclipticLongitude));
+  const siderealHours = 18.697374558 + 24.06570982441908 * days;
+  const hourAngle = (siderealHours * 15 + lon) * RAD - rightAscension;
+  const latitude = lat * RAD;
+
+  const altitude = Math.asin(Math.sin(latitude) * Math.sin(declination) + Math.cos(latitude) * Math.cos(declination) * Math.cos(hourAngle));
+  // Measured from south towards west by the textbook formula; turned to "clockwise from north".
+  const fromSouth = Math.atan2(Math.sin(hourAngle), Math.cos(hourAngle) * Math.sin(latitude) - Math.tan(declination) * Math.cos(latitude));
+  const azimuth = (((fromSouth / RAD + 180) % 360) + 360) % 360;
+
+  return { altitude: Math.round((altitude / RAD) * 100) / 100, azimuth: Math.round(azimuth * 100) / 100 };
+}

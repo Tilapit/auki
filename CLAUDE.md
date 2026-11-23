@@ -68,5 +68,6 @@ Visual baselines live in `tests/e2e/__screenshots__/`, at 1×, and are made in t
 2. `gh run download <run id> -n baselines -D tests/e2e/__screenshots__`
 3. Look at the changed images, commit them, push. That run compares, and the pull request shows old and new side by side.
 - On a phone in the same network: the dev server listens on every interface, so open `http://<this machine's LAN address>:<port>/fi` (`ipconfig getifaddr en0`). `next.config.ts` allows the machine's LAN addresses as dev origins at start-up; restart the dev server after changing networks. Geolocation needs HTTPS: `npm run dev:https`.
+- `/dev/map` (redirects to `/fi/dev/map`): the map spike, on real OpenFreeMap tiles. `DEV_ROUTES=1 npm run build` and `DEV_ROUTES=1 npm run start` keep it in a production build, to measure it there.
 - `/dev/states` (redirects to `/fi/dev/states`): every view and state from fixtures. Add new views to `lib/dev/viewList.ts` and `lib/dev/views.tsx`. Nothing there may read the clock or call a service.
 - Place search needs `CONTACT_EMAIL` in `.env.local` (Nominatim asks callers to identify themselves). Without it `/api/geocode` answers 503 and the view says the search isn't available. Tests never call Nominatim: they answer `/api/geocode` themselves.
