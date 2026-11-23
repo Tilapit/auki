@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useLivePosition, type Fix } from '@/hooks/useLivePosition';
 import { useNow } from '@/hooks/useNow';
-import { noneShownOpen, staysOpen, toScene } from '@/lib/live';
+import { distanceMeters } from '@/lib/geo';
+import { noneShownOpen, staysOpen, toPharmacy, toScene } from '@/lib/live';
+import { areaLayer, type Bounds } from '@/lib/map/area';
 import { sceneAt } from '@/lib/scene';
 import type { MapView } from '@/lib/state';
+import type { TilePharmacy } from '@/lib/tiles';
 import { ProblemView } from './ProblemView';
 import { ResultsView } from './ResultsView';
 import { SearchingView } from './SearchingView';
@@ -21,20 +24,24 @@ interface Props {
   onFarOpen: (now: number) => void;
   /** Every fix while the device's position is followed. */
   onFix: (fix: Fix) => void;
+  /** Every pharmacy on the tiles the device holds: the map draws them all, the list its nearest ten. */
+  area: readonly TilePharmacy[];
+  /** The map was moved by hand to here. */
+  onArea: (bounds: Bounds) => void;
 }
 
 /**
  * Every view that comes once the position is known: searching, results, and the problems
  * the tiles can bring. One chunk, loaded while the browser asks for permission.
  */
-export function MapStage({ state, onRefresh, onSearch, onSearchFor, onRetry, onFarOpen, onFix }: Props) {
+export function MapStage({ state, onRefresh, onSearch, onSearchFor, onRetry, onFarOpen, onFix, area, onArea }: Props) {
   const empty = useMemo(() => sceneAt(state.position, state.at), [state.position, state.at]);
 
   switch (state.view) {
     case 'searching':
       return <SearchingView scene={empty} onRefresh={onRefresh} onSearch={onSearch} focusTitle />;
     case 'results':
-      return <LiveResults state={state} onRefresh={onRefresh} onSearch={onSearch} onFarOpen={onFarOpen} onFix={onFix} />;
+      return <LiveResults state={state} onRefresh={onRefresh} onSearch={onSearch} onFarOpen={onFarOpen} onFix={onFix} area={area} onArea={onArea} />;
     case 'none':
       return <ProblemView kind="none" scene={empty} onSearch={onSearchFor} />;
     case 'notCovered':
@@ -45,13 +52,27 @@ export function MapStage({ state, onRefresh, onSearch, onSearchFor, onRetry, onF
 }
 
 /** Results that keep time: every minute the statuses are worked out again from the intervals on the device. */
-function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix }: { state: Extract<MapView, { view: 'results' }> } & Pick<Props, 'onRefresh' | 'onSearch' | 'onFarOpen' | 'onFix'>) {
+function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onArea }: { state: Extract<MapView, { view: 'results' }> } & Pick<Props, 'onRefresh' | 'onSearch' | 'onFarOpen' | 'onFix' | 'area' | 'onArea'>) {
   const now = useNow();
   const deviceZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
   const { position, result } = state;
   const scene = useMemo(() => toScene({ position, result, now, deviceZone }), [position, result, now, deviceZone]);
   // The dot follows the device while the page is visible. A searched place is not where the user is: no watch there.
   const fix = useLivePosition(position.source === 'device', onFix);
+
+  // The map's own layer: every pharmacy on the device that the results don't already mark, with the
+  // sign it has at this minute. One picked there is worded like a result, by the same code.
+  const layer = useMemo(() => {
+    const marked = new Set([...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])].map((pharmacy) => pharmacy.id));
+    return areaLayer(area, now, marked);
+  }, [area, now, scene]);
+  const findInArea = useCallback(
+    (id: string) => {
+      const pharmacy = area.find((candidate) => candidate.id === id);
+      return pharmacy && toPharmacy({ pharmacy, meters: distanceMeters(position, pharmacy) }, now, deviceZone);
+    },
+    [area, position, now, deviceZone],
+  );
 
   // The moment the first result is on screen, for the measurement of PLAN.md section 12.
   useEffect(() => {
@@ -63,5 +84,19 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix }: { state: 
     if (noneShownOpen(result, now) && !(result.farOpen && staysOpen(result.farOpen.pharmacy, now))) onFarOpen(now);
   }, [result, now, onFarOpen]);
 
-  return <ResultsView scene={scene} onRefresh={onRefresh} onSearch={onSearch} focusTitle reveal basemap now={now} you={fix ?? (position.source === 'device' ? position : undefined)} />;
+  return (
+    <ResultsView
+      scene={scene}
+      onRefresh={onRefresh}
+      onSearch={onSearch}
+      focusTitle
+      reveal
+      basemap
+      now={now}
+      you={fix ?? (position.source === 'device' ? position : undefined)}
+      area={layer}
+      findInArea={findInArea}
+      onArea={onArea}
+    />
+  );
 }

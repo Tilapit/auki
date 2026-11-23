@@ -6,9 +6,11 @@
  */
 
 import { coverageAt } from './coverage';
+import { squaresIn } from './map/area.ts';
+import type { Bounds } from './map/area.ts';
 import { NEAR, OPEN_SEARCH_RADIUS, SHOWN, WIDE, noneShownOpen, staysOpen } from './live';
 import type { SearchResult } from './live';
-import { INDEX_PATH, decodeTile, searchStep, tileKey, tileOf, tilePath } from './tiles.ts';
+import { INDEX_PATH, decodeTile, hasTile, searchStep, tileKey, tileOf, tilePath } from './tiles.ts';
 import type { BorderGrid, Found, IndexJson, LatLon, TileJson, TilePharmacy, TileRef } from './tiles.ts';
 
 export type Outcome =
@@ -27,6 +29,9 @@ export class Tiles {
   readonly pharmacies = new Map<string, readonly TilePharmacy[]>();
   readonly borders = new Map<string, BorderGrid>();
   readonly failed = new Set<string>();
+  /** Squares the map asked for that didn't load. Apart from `failed`: the search's answer never depended on them. */
+  readonly unreachable = new Set<string>();
+  private readonly asking = new Set<string>();
   private readonly load: Load;
 
   constructor(load: Load) {
@@ -40,7 +45,7 @@ export class Tiles {
   }
 
   /** Loads tiles side by side. One that fails is remembered and not asked for again. */
-  async loadTiles(tiles: TileRef[]): Promise<void> {
+  async loadTiles(tiles: TileRef[], failed: Set<string> = this.failed): Promise<void> {
     await Promise.all(
       tiles.map(async (tile) => {
         const key = tileKey(tile);
@@ -49,10 +54,41 @@ export class Tiles {
           this.pharmacies.set(key, decoded.pharmacies);
           if (decoded.border) this.borders.set(key, decoded.border);
         } catch {
-          this.failed.add(key);
+          failed.add(key);
         }
       }),
     );
+  }
+
+  /** Every pharmacy on the tiles loaded so far, for the map (lib/map/area.ts). */
+  all(): TilePharmacy[] {
+    return [...this.pharmacies.values()].flat();
+  }
+
+  count(): number {
+    let count = 0;
+    for (const pharmacies of this.pharmacies.values()) count += pharmacies.length;
+    return count;
+  }
+
+  /**
+   * Loads the squares a view of the map touches, where the index says there is a tile and
+   * it isn't here yet. Answers whether anything new arrived. The requests name squares of
+   * the map, as the search's do; a view too wide to be worth it asks for nothing.
+   */
+  async loadArea(bounds: Bounds): Promise<boolean> {
+    const grid = this.index?.grid;
+    const squares = squaresIn(bounds);
+    if (!grid || !squares) return false;
+    const need = squares.filter((tile) => {
+      const key = tileKey(tile);
+      return hasTile(grid, tile) && !this.pharmacies.has(key) && !this.failed.has(key) && !this.unreachable.has(key) && !this.asking.has(key);
+    });
+    if (need.length === 0) return false;
+    for (const tile of need) this.asking.add(tileKey(tile));
+    await this.loadTiles(need, this.unreachable);
+    for (const tile of need) this.asking.delete(tileKey(tile));
+    return need.some((tile) => this.pharmacies.has(tileKey(tile)));
   }
 
   /** The nearest matches, loading tiles until no unloaded tile could hold a nearer one. */

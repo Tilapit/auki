@@ -3,6 +3,15 @@
   inset: 0;
   overflow: hidden;
   background: var(--map-land);
+  /*
+   * Every touch on the map is the map's own, whatever is drawing it: the plain ground before
+   * MapLibre has arrived, MapLibre, or the ground again when it couldn't start. Without this a
+   * pinch that began on a marker, or before the map was ready, zoomed the whole page.
+   */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Measures how much of the map the phone's sheet covers: the shell sets --map-pad. */
@@ -22,6 +31,14 @@
   width: 0;
   height: 0;
   color: light-dark(rgb(255 255 255), rgb(0 0 0));
+  visibility: hidden;
+}
+
+/* Resolves the colour tokens for the signs the map draws itself (mapSigns.ts). */
+.colourProbe {
+  position: absolute;
+  width: 0;
+  height: 0;
   visibility: hidden;
 }
 
@@ -79,7 +96,7 @@
   pointer-events: none;
 }
 
-/* A point on the map. The script moves it; what it holds is centred on it. */
+/* A point on the map. The script moves it on every frame of a pan; what it holds is centred on it. */
 .pin {
   position: absolute;
   top: 0;
@@ -87,6 +104,8 @@
   z-index: 1;
   width: 0;
   height: 0;
+  /* A layer of its own: moving it then repaints nothing, not even its glow. */
+  will-change: transform;
 }
 
 [data-map='pending'] .pin {
@@ -138,6 +157,8 @@
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
+  /* Shown once the script has put it on the edge. */
+  visibility: hidden;
 }
 
 /* The visible chip is 34 px tall inside a 44 px target. */

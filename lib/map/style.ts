@@ -1,5 +1,7 @@
 import type { LayerSpecification, StyleSpecification } from 'maplibre-gl';
 import type { Locale } from '../i18n';
+import { NO_AREA } from './area.ts';
+import type { AreaData } from './area.ts';
 
 /**
  * The map's look, built from the design tokens of PLAN.md section 6. It is our own style on
@@ -132,7 +134,15 @@ export interface StyleOptions {
   glyphs?: string;
   /** Typeface stacks for labels, as named under the glyphs URL. */
   fonts?: { regular: string[]; strong: string[] };
+  /** The pharmacies of the area layer. Left out, the layer starts empty and the map is given them afterwards. */
+  area?: AreaData;
 }
+
+/** The pharmacies beyond the list (lib/map/area.ts): one source of points, one layer of small signs. */
+export const AREA_SOURCE = 'area';
+export const AREA_LAYER = 'area-pharmacies';
+/** The name of a sign's picture. The map asks for it when it first needs it; MapView draws it in the theme's colours. */
+export const AREA_ICON = 'pharmacy-';
 
 export const OPENFREEMAP_TILES = 'https://tiles.openfreemap.org/planet';
 /** Our own typeface on the map, served from our origin. */
@@ -306,12 +316,25 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
       layout: { 'text-field': name, 'text-font': fonts.strong, 'text-size': ['interpolate', ['linear'], ['zoom'], 5, 12, 11, 17], 'text-max-width': 7 },
       paint: { 'text-color': c.placeLabel, ...halo },
     },
+    // Every pharmacy on the tiles the device holds, above the labels: a street name gives way to a pharmacy.
+    // Signs that would overlap are thinned out, the open ones last, so a whole city stays readable.
+    {
+      id: AREA_LAYER,
+      type: 'symbol',
+      source: AREA_SOURCE,
+      layout: {
+        'icon-image': ['concat', AREA_ICON, ['get', 'glyph']],
+        'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.5, 12, 0.75, 14.5, 1],
+        'icon-padding': 1,
+        'symbol-sort-key': ['get', 'rank'],
+      },
+    },
   ];
 
   return {
     version: 8,
     name: `map-${theme}`,
-    sources: { tiles: { type: 'vector', url: options.tiles ?? OPENFREEMAP_TILES } },
+    sources: { tiles: { type: 'vector', url: options.tiles ?? OPENFREEMAP_TILES }, [AREA_SOURCE]: { type: 'geojson', data: options.area ?? NO_AREA } },
     glyphs: options.glyphs ?? OWN_GLYPHS,
     layers,
     light: lightFor(theme, sun),
@@ -326,4 +349,40 @@ export function styleKey({ theme, locale, sun }: Pick<StyleOptions, 'theme' | 'l
   if (!sun) return `${theme}/${locale}`;
   const up = sun.altitude > 0;
   return [theme, locale, theme === 'dark' ? nightShare(sun.altitude) : '', up ? Math.round(sun.azimuth / 10) : 'down', up ? Math.round(Math.max(sun.altitude, 55) / 5) : ''].join('/');
+}
+
+export interface StyleChange {
+  kind: 'paint' | 'layout';
+  layer: string;
+  property: string;
+  /** undefined puts the property back to its default. */
+  value: unknown;
+}
+
+const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * What it takes to turn one of our styles into another without building the map again: the
+ * properties that differ, layer by layer. A new sun or a new step of dusk is a handful of
+ * colours and the light; the tiles, the layers and everything already drawn stay.
+ *
+ * Undefined when the two don't have the same layers (the light theme has road casings, the
+ * dark one doesn't): then the style has to be set as a whole.
+ */
+export function styleChanges(before: StyleSpecification, after: StyleSpecification): StyleChange[] | undefined {
+  if (before.layers.length !== after.layers.length || before.glyphs !== after.glyphs || !same(before.sources.tiles, after.sources.tiles)) return undefined;
+  const changes: StyleChange[] = [];
+  for (let index = 0; index < after.layers.length; index++) {
+    const from = before.layers[index] as unknown as Record<string, unknown>;
+    const to = after.layers[index] as unknown as Record<string, unknown>;
+    if (['id', 'type', 'source', 'source-layer', 'minzoom', 'maxzoom', 'filter'].some((key) => !same(from[key], to[key]))) return undefined;
+    for (const kind of ['paint', 'layout'] as const) {
+      const old = (from[kind] ?? {}) as Record<string, unknown>;
+      const next = (to[kind] ?? {}) as Record<string, unknown>;
+      for (const property of new Set([...Object.keys(old), ...Object.keys(next)])) {
+        if (!same(old[property], next[property])) changes.push({ kind, layer: String(to.id), property, value: next[property] });
+      }
+    }
+  }
+  return changes;
 }

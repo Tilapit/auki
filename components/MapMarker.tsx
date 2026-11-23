@@ -34,7 +34,7 @@ export function MapMarker({ pharmacy, distance, label, selected, onSelect }: Pro
       onClick={() => onSelect?.(pharmacy)}
     >
       {lit ? (
-        <span className={cx(styles.capsule, 'tnum')}>
+        <span data-lit className={cx(styles.capsule, 'tnum')}>
           <CrossGlyph state="mono" size={selected ? 17 : 15} />
           {travel(i18n, pharmacy, distance).primary.short}
         </span>

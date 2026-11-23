@@ -6,6 +6,7 @@ import { rich } from '@/lib/i18n/rich';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
 import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
+import type { AreaLayer, Bounds } from '@/lib/map/area';
 import type { Pharmacy, Scene } from '@/lib/types';
 import { ApproximateNotice } from './ApproximateNotice';
 import { Button } from './Button';
@@ -47,6 +48,12 @@ export interface ResultsOptions {
   reveal?: boolean;
   /** false shows the results as they were before the hours-coverage proposal, for the comparison in /dev/states. */
   coverage?: boolean;
+  /** Every other pharmacy on the tiles the device holds, for the map's own layer (lib/map/area.ts). */
+  area?: AreaLayer;
+  /** One of them, worded like a result: a pharmacy picked on the map opens the same sheet as one from the list. */
+  findInArea?: (id: string) => Pharmacy | undefined;
+  /** The map was moved by hand to here. */
+  onArea?: (bounds: Bounds) => void;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -67,7 +74,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const detailRef = useRef<HTMLDialogElement>(null);
 
   const everyone = useMemo(() => [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])], [scene]);
-  const detail = everyone.find((p) => p.id === detailId);
+  const listed = everyone.find((p) => p.id === detailId);
+  const detail = listed ?? (detailId ? options.findInArea?.(detailId) : undefined);
   const selectedId = detailId ?? (unlisted?.lead ?? nearestOpen ?? firstToOpen)?.id;
   const select = (pharmacy: Pharmacy) => setDetailId(pharmacy.id);
   const fullNameOf = (pharmacy: Pharmacy) => fullName(i18n, pharmacy, pharmacy.name === null);
@@ -273,6 +281,10 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           now={options.now}
           you={options.you}
           reveal={options.reveal}
+          area={options.area}
+          extra={listed ? undefined : detail}
+          onPick={setDetailId}
+          onView={options.onArea}
         />
       }
       detailOpen={!!detail}
