@@ -33,3 +33,6 @@ certificates
 
 # pipeline output and raw Overpass answers (npm run data); OpenStreetMap data never enters git
 /.data/
+
+# worktrees of parallel Claude Code sessions
+/.claude/worktrees/

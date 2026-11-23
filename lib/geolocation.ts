@@ -7,6 +7,12 @@
 export const LOCATE_OPTIONS: PositionOptions = { enableHighAccuracy: false, maximumAge: 5 * 60_000, timeout: 10_000 };
 
 /**
+ * Following a walk (PLAN.md 7.1, step 11) needs what the first answer doesn't: fixes a few
+ * seconds old at most, from the satellites where the device has them.
+ */
+export const WATCH_OPTIONS: PositionOptions = { enableHighAccuracy: true, maximumAge: 5_000, timeout: 30_000 };
+
+/**
  * The timeout above doesn't count the time spent on the permission prompt, so an ignored
  * prompt never calls back. After this long without an answer the view says it is waiting.
  */

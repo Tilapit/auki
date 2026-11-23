@@ -3,6 +3,7 @@
  * and instant always give the same scene, so the views can be tested at fixed moments.
  */
 
+import { distanceMeters } from './geo.ts';
 import { hoursStatus, isOpenStatus, localMoment, openFor } from './hoursStatus.ts';
 import type { HoursStatus } from './hoursStatus.ts';
 import type { Position } from './state';
@@ -23,6 +24,19 @@ export const OPEN_SEARCH_RADIUS = 30_000;
 export const STAYS_OPEN_SECONDS = 30 * 60;
 /** An interval that ends this far away is, for today's purposes, open around the clock. */
 const NO_CLOSING_IN_SIGHT_SECONDS = 24 * 60 * 60;
+
+/** After moving this far the list is ranked again around the new position (PLAN.md 7.1, step 11). */
+export const RERANK_AFTER_METERS = 300;
+
+/**
+ * Whether a new fix is a move worth ranking again for: farther than the limit from where the
+ * list was ranked, and by more than the fix's own uncertainty. A fix that only got vaguer
+ * is not a walk.
+ */
+export function movedEnough(from: { lat: number; lon: number }, fix: { lat: number; lon: number; accuracy: number }): boolean {
+  const meters = distanceMeters(from, fix);
+  return meters > RERANK_AFTER_METERS && fix.accuracy < meters;
+}
 
 /** What a search found. The candidates never change order afterwards (PLAN.md 7.1, step 5). */
 export interface SearchResult {

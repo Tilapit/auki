@@ -71,6 +71,8 @@ export type Action =
   | { type: 'searchFailed'; position: Position; offline: boolean }
   /** The far open pharmacy, found or gone, once the search is done. */
   | { type: 'farOpen'; position: Position; farOpen: SearchResult['farOpen'] }
+  /** The device has moved: the tiles ranked again around where it is now (PLAN.md 7.1, step 11). */
+  | { type: 'moved'; from: Position; position: DevicePosition; at: string; result: SearchResult }
   /** Search the same position again: after a failure, or when the connection returns. */
   | { type: 'retry' }
   | { type: 'back'; to: 'ready' | 'search' };
@@ -144,6 +146,10 @@ export function reducer(state: State, action: Action): State {
       // The same answer as before changes nothing, so nothing renders again.
       if (state.result.farOpen?.pharmacy.id === action.farOpen?.pharmacy.id) return state;
       return { ...state, result: { ...state.result, farOpen: action.farOpen } };
+
+    case 'moved':
+      // Only the results that were ranked for the old position move on: anything else has gone its own way.
+      return state.view === 'results' && state.position === action.from ? { view: 'results', position: action.position, at: action.at, result: action.result } : state;
 
     case 'retry':
       // A new position object: the search that watches it starts again.

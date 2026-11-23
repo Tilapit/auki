@@ -35,19 +35,22 @@ export function MapMarker({ pharmacy, distance, label, selected, onSelect }: Pro
     >
       {lit ? (
         <span className={cx(styles.capsule, 'tnum')}>
-          <CrossGlyph state="mono" size={selected ? 16 : 14} />
+          <CrossGlyph state="mono" size={selected ? 17 : 15} />
           {travel(i18n, pharmacy, distance).primary.short}
         </span>
       ) : (
         <span className={styles.disc}>
-          <CrossGlyph state={glyph} size={selected ? 16 : 13} stroke={2.2} />
+          <CrossGlyph state={glyph} size={selected ? 17 : 14} stroke={2.2} />
         </span>
       )}
     </button>
   );
 }
 
-/** You are here: cobalt dot, white ring, accuracy halo. */
+/**
+ * You are here: cobalt dot, white ring, accuracy halo. The halo's width is `--halo`, which
+ * the map sets from the accuracy the device reports; `approximate` is for where no map does.
+ */
 export function YouAreHere({ approximate }: { approximate?: boolean }) {
   return (
     <span aria-hidden="true" className={cx(styles.you, approximate && styles.approximate)}>

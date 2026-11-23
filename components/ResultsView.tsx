@@ -21,7 +21,7 @@ import { ClosedGroup, PharmacyList } from './PharmacyList';
 import { PharmacySheet } from './PharmacySheet';
 import { ResultsNotice } from './ResultsNotice';
 import { ResultsShell, type SheetState } from './ResultsShell';
-import { StaticMap } from './StaticMap';
+import { MapView } from './MapView';
 import styles from './ResultsView.module.css';
 
 export interface ResultsOptions {
@@ -35,8 +35,12 @@ export interface ResultsOptions {
   onRefresh?: () => void;
   /** Opens the place search: from the place name, and from the approximate-location notice. */
   onSearch?: () => void;
-  /** Shows the place control without a handler, for /dev/states. */
-  placeControl?: boolean;
+  /** Draw the map's streets on real tiles. Off in /dev/states, which calls no service. */
+  basemap?: boolean;
+  /** The current instant, epoch seconds: the map's light follows the sun at it. */
+  now?: number;
+  /** The device's latest position while it is followed: the map's dot. */
+  you?: { lat: number; lon: number; accuracy?: number };
   /** In the real flow focus moves to the title when the results arrive. */
   focusTitle?: boolean;
   /** The crosses of the open pharmacies switch on one after another (PLAN.md section 6, "Motion"). */
@@ -197,12 +201,24 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       peek={stale ? undefined : peek || nothingOpenPeek || undefined}
       emergencyInFooter={!!nearestOpen}
       onRefresh={options.onRefresh}
-      onPlace={options.onSearch ?? (options.placeControl ? NO_ACTION : undefined)}
+      onPlace={options.onSearch ?? NO_ACTION}
       dataFrom={scene.dataFrom}
       focusTitle={options.focusTitle}
       distance={scene.distance}
       mapLabel={t.map.label}
-      map={<StaticMap scene={scene} needsStreet={needsStreet} selectedId={selectedId} nearestOpenId={nearestOpen?.id} onSelect={select} />}
+      map={
+        <MapView
+          scene={scene}
+          needsStreet={needsStreet}
+          selectedId={selectedId}
+          nearestOpenId={nearestOpen?.id}
+          onSelect={select}
+          basemap={options.basemap}
+          now={options.now}
+          you={options.you}
+          reveal={options.reveal}
+        />
+      }
       detailOpen={!!detail}
       detail={
         <dialog

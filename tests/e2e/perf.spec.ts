@@ -1,9 +1,10 @@
+import { get } from 'node:http';
 import { gzipSync } from 'node:zlib';
 import { expect, test } from '@playwright/test';
 import { GENERATED, KAMPPI, WEEK_FROM, WEEK_UNTIL, daily, indexOf } from '@/lib/fixtures/tiles';
 import { INDEX_PATH, encodeTile, tileOf, tilePath } from '@/lib/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
-import { fakeLocation } from './helpers';
+import { fakeLocation, fakeMapTiles } from './helpers';
 
 /**
  * Time to first result (PLAN.md section 12): from navigation to the first rendered result,
@@ -68,6 +69,8 @@ test('time to first result on a throttled phone', async ({ browser, browserName 
     // No test clock here: it would replace the browser's performance timeline as well. The
     // real date only decides whether the fixture's hours read as open or as out of date.
     await fakeLocation(page, 'allow', 'granted');
+    // The map loads after the first result. Its host is answered here: no test reaches a real service.
+    await fakeMapTiles(context);
     await page.route('**/tiles/v1/**', async (route) => {
       const body = files[new URL(route.request().url()).pathname];
       if (body === undefined) return route.fulfill({ status: 404, body: '' });
@@ -93,4 +96,80 @@ test('time to first result on a throttled phone', async ({ browser, browserName 
   testInfo.annotations.push({ type: 'time to first result', description: summary });
   console.log(`Time to first result: ${summary}`);
   expect(median, summary).toBeLessThan(LIMIT_MS);
+});
+
+/**
+ * The map's own budget (PLAN.md section 12). MapLibre is by far the heaviest thing in the
+ * app, so it has a number of its own, apart from the first window's: the JavaScript that is
+ * fetched once the results are on screen, its worker included, as it travels (gzipped).
+ *
+ * Measured against a production build only: the dev server's files are neither minified nor
+ * compressed. Set from the first measurement, on 23 Nov 2026: 439 KB with maplibre-gl 6.19 (the library
+ * 283 KB, its worker 155 KB). The budget leaves about five per cent of room.
+ */
+const MAP_JS_BUDGET_BYTES = 460 * 1024;
+
+test('the map loads after the results, and stays inside its own budget', async ({ browser, browserName }, testInfo) => {
+  test.skip(browserName !== 'chromium', 'Transfer sizes are read through Chromium DevTools.');
+  const home = tileOf(KAMPPI);
+  const files: Record<string, unknown> = {
+    [INDEX_PATH]: indexOf([home]),
+    [tilePath(home.x, home.y)]: encodeTile({ ...home, pharmacies: heavyTile().slice(0, 40) }),
+  };
+  const context = await browser.newContext({ viewport: { width: 412, height: 823 }, locale: 'fi-FI', timezoneId: 'Europe/Helsinki' });
+  const page = await context.newPage();
+  await fakeLocation(page, 'allow', 'granted');
+  await fakeMapTiles(context);
+  await page.route('**/tiles/v1/**', async (route) => {
+    const body = files[new URL(route.request().url()).pathname];
+    if (body === undefined) await route.fulfill({ status: 404, body: '' });
+    else await route.fulfill({ json: body });
+  });
+
+  // Every script the page fetches, with the bytes it took on the wire and when it was asked for.
+  const devtools = await context.newCDPSession(page);
+  await devtools.send('Network.enable');
+  const scripts = new Map<string, { url: string; bytes: number; order: number }>();
+  let order = 0;
+  devtools.on('Network.responseReceived', (event) => {
+    const { pathname } = new URL(event.response.url);
+    if (event.type === 'Script' || pathname.endsWith('.js') || pathname.endsWith('.mjs')) scripts.set(event.requestId, { url: pathname, bytes: 0, order: order++ });
+  });
+  devtools.on('Network.loadingFinished', (event) => {
+    const script = scripts.get(event.requestId);
+    if (script) script.bytes = event.encodedDataLength;
+  });
+
+  await page.goto('/fi');
+  await page.waitForFunction(() => performance.getEntriesByName('first-result').length > 0, undefined, { timeout: 60_000 });
+  const before = order;
+  await page.waitForFunction(() => performance.getEntriesByName('map-ready').length > 0, undefined, { timeout: 60_000 });
+  await page.waitForLoadState('networkidle');
+
+  // The worker is fetched by the browser on the page's behalf, outside what DevTools reports for
+  // the page: it is asked for again here, compressed, and its bytes counted as they arrive.
+  const worker = page.workers().find((candidate) => candidate.url().endsWith('maplibre-gl-worker.mjs'));
+  expect(worker, 'the map runs its worker from our own origin').toBeDefined();
+  const workerBytes = await new Promise<number>((resolve, reject) => {
+    get(worker!.url(), { headers: { 'accept-encoding': 'gzip' } }, (response) => {
+      let bytes = 0;
+      response.on('data', (chunk: Buffer) => (bytes += chunk.length));
+      response.on('end', () => resolve(bytes));
+    }).on('error', reject);
+  });
+
+  const all = [...scripts.values()];
+  const first = all.filter((script) => script.order < before);
+  const map = [...all.filter((script) => script.order >= before), { url: 'maplibre-gl-worker.mjs', bytes: workerBytes, order }];
+  const sum = (list: typeof all) => list.reduce((total, script) => total + script.bytes, 0);
+  const kilobytes = (bytes: number) => `${(bytes / 1024).toFixed(1)} KB`;
+  const summary = `until the first result ${kilobytes(sum(first))} in ${first.length} files; the map ${kilobytes(sum(map))} in ${map.length} files (${map.map((script) => `${script.url.split('/').pop()} ${kilobytes(script.bytes)}`).join(', ')})`;
+  testInfo.annotations.push({ type: 'map JavaScript', description: summary });
+  console.log(`JavaScript as it travels: ${summary}`);
+
+  // The map's code was not asked for before the results were on screen: the list never waits for it.
+  expect(sum(first)).toBeLessThan(sum(map));
+  // The budget is for a production build.
+  if (process.env.CI) expect(sum(map), summary).toBeLessThan(MAP_JS_BUDGET_BYTES);
+  await context.close();
 });

@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { canLocate, locateOnce, locationPermission, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import type { Locale } from '@/lib/i18n';
+import { movedEnough } from '@/lib/live';
 import { Tiles, findFarOpen, findPharmacies } from '@/lib/search';
-import { initialState, isMapView, reducer, type Position, type State } from '@/lib/state';
+import { APPROXIMATE_OVER_METERS, initialState, isMapView, reducer, type DevicePosition, type Position, type State } from '@/lib/state';
 
 /** A tile that takes longer than this counts as not loaded. */
 const TILE_TIMEOUT_MS = 10_000;
@@ -46,6 +47,8 @@ export interface PharmacySearch {
   retry: () => void;
   /** Looks for an open pharmacy farther away, when none of those shown is open at `now`. */
   checkFarOpen: (now: number) => void;
+  /** A new fix from the device: after about 300 m the results are ranked again around it. */
+  follow: (fix: { lat: number; lon: number; accuracy: number }) => void;
   back: () => void;
 }
 
@@ -111,7 +114,7 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
   );
 
   // The search through the tiles: once for each position, and again for the same one on a retry.
-  const tiles = useRef<{ position: Position; store: Tiles; controller: AbortController } | null>(null);
+  const tiles = useRef<{ position: Position; store: Tiles; controller: AbortController; ranking?: boolean; tried?: { lat: number; lon: number } } | null>(null);
   useEffect(() => {
     if (!isMapView(state)) {
       tiles.current?.controller.abort();
@@ -152,6 +155,34 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
       .catch(() => undefined)
       .then((farOpen) => {
         if (!current.controller.signal.aborted) dispatch({ type: 'farOpen', position: current.position, farOpen });
+      });
+  }, []);
+
+  // Following a walk: the same tiles, ranked again around the new position. A tile is fetched
+  // only if a new one has come within reach. The fix itself goes nowhere.
+  const shown = useRef(state);
+  useEffect(() => {
+    shown.current = state;
+  }, [state]);
+  const follow = useCallback((fix: { lat: number; lon: number; accuracy: number }) => {
+    const current = tiles.current;
+    const from = current?.position;
+    if (!current || !from || current.ranking || from.source !== 'device') return;
+    if (shown.current.view !== 'results' || shown.current.position !== from) return;
+    // From the last place tried, not only the last place ranked: a tile that fails is not asked for at every fix.
+    if (!movedEnough(current.tried ?? from, fix) || !movedEnough(from, fix)) return;
+    current.ranking = true;
+    current.tried = { lat: fix.lat, lon: fix.lon };
+    current.store.failed.clear();
+    const position: DevicePosition = { source: 'device', lat: fix.lat, lon: fix.lon, accuracy: fix.accuracy, approximate: fix.accuracy > APPROXIMATE_OVER_METERS };
+    void findPharmacies(current.store, position, nowSeconds())
+      .catch(() => undefined)
+      .then((outcome) => {
+        current.ranking = false;
+        // Anything but results (a tile that didn't load, the edge of the coverage) leaves the list as it is.
+        if (current.controller.signal.aborted || tiles.current !== current || outcome?.kind !== 'results') return;
+        current.position = position;
+        dispatch({ type: 'moved', from, position, at: wallClock(new Date()), result: outcome.result });
       });
   }, []);
 
@@ -206,5 +237,5 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     else dispatch({ type: 'back', to: 'ready' });
   }, []);
 
-  return { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, back };
+  return { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, follow, back };
 }

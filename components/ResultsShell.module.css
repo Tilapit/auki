@@ -24,6 +24,16 @@
   inset: 0;
 }
 
+.collapsed {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  height: calc(var(--peek) + 26px + env(safe-area-inset-bottom));
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .bar {
   position: absolute;
   top: calc(12px + env(safe-area-inset-top));
@@ -100,8 +110,11 @@
   min-width: 0;
 }
 
+/* The colour of things that can be pressed, and a heavier line: the glyph is what says the name is a button. */
 .barGlyph {
-  color: var(--ink-2);
+  flex: none;
+  color: var(--link);
+  stroke-width: 2.1;
 }
 
 /* Desktop says the same in words under the title. On the phone the bar does it. */
@@ -127,6 +140,8 @@
 
 [data-sheet='peek'] .panel {
   transform: translateY(calc(var(--sheet-height) - var(--peek) - 26px - env(safe-area-inset-bottom)));
+  /* Collapsed, the whole sheet can be dragged up: the browser leaves the gesture to it. */
+  touch-action: none;
 }
 
 [data-sheet='static'] .panel {
@@ -150,7 +165,8 @@
   border: 0;
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;
   background: transparent;
-  cursor: pointer;
+  cursor: grab;
+  touch-action: none;
 }
 
 /* 44 px target around the small handle. */
@@ -243,8 +259,13 @@
     display: none;
   }
 
+  .collapsed {
+    display: none;
+  }
+
   .panel,
   [data-sheet] .panel {
+    touch-action: auto;
     position: static;
     grid-column: 1;
     height: 100dvh;

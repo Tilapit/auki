@@ -10,7 +10,7 @@ import type { Scene } from '@/lib/types';
 import { Button } from './Button';
 import { PlaceSearch, PlaceSearchForm, type LocationProblem } from './PlaceSearch';
 import { ResultsShell } from './ResultsShell';
-import { StaticMap } from './StaticMap';
+import { MapView } from './MapView';
 import styles from './ProblemView.module.css';
 
 type Props =
@@ -38,7 +38,7 @@ export function ProblemView(props: Props) {
         title={t.results.title}
         sheet="static"
         mapLabel={t.map.label}
-        map={<StaticMap scene={props.scene} needsStreet={NO_STREETS} userOnly />}
+        map={<MapView scene={props.scene} needsStreet={NO_STREETS} userOnly />}
       >
         <section className={styles.problem}>
           <h2 tabIndex={-1} className={styles.title}>
@@ -69,7 +69,7 @@ export function ProblemView(props: Props) {
       title={t.results.title}
       sheet="static"
       mapLabel={t.map.label}
-      map={<StaticMap scene={props.scene} needsStreet={NO_STREETS} userOnly />}
+      map={<MapView scene={props.scene} needsStreet={NO_STREETS} userOnly />}
     >
       <section className={styles.problem}>
         {/* Focus moves here when the problem appears (PLAN.md section 9). */}

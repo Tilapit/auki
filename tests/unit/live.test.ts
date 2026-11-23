@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { coverageAt } from '@/lib/coverage';
 import { COUNTRY_CODES } from '@/lib/countries';
 import { makeI18n } from '@/lib/i18n';
-import { SHOWN, staysOpen, toOpenStatus, toScene } from '@/lib/live';
+import { RERANK_AFTER_METERS, SHOWN, movedEnough, staysOpen, toOpenStatus, toScene } from '@/lib/live';
 import type { SearchResult } from '@/lib/live';
 import { carriesPosition, contentSecurityPolicy, isAllowedUrl, securityHeaders } from '@/lib/requests';
 import { Tiles, findPharmacies } from '@/lib/search';
@@ -225,6 +225,35 @@ describe('the states after the position is known', () => {
     const gone = reducer(withFar, { type: 'farOpen', position: where(results), farOpen: undefined });
     expect(gone.view === 'results' && gone.result.farOpen).toBeUndefined();
   });
+
+  it('after a walk the results move to the new position, and only the results that were ranked for the old one', () => {
+    const results = reducer(searching, { type: 'found', position: where(searching), result });
+    const there = { source: 'device' as const, lat: HERE.lat + 0.004, lon: HERE.lon, accuracy: 12, approximate: false };
+    const ranked: SearchResult = { candidates: found([pharmacy(40, daily('08:00', '21:00'))]), missing: [] };
+    const moved = reducer(results, { type: 'moved', from: where(results), position: there, at: '12:07', result: ranked });
+    expect(moved).toEqual({ view: 'results', position: there, at: '12:07', result: ranked });
+    // An answer that was ranked from somewhere else, or that arrives after the view has changed, is dropped.
+    expect(reducer(results, { type: 'moved', from: { ...where(results) }, position: there, at: '12:07', result: ranked })).toBe(results);
+    expect(reducer(searching, { type: 'moved', from: where(searching), position: there, at: '12:07', result: ranked })).toBe(searching);
+  });
+});
+
+describe('following a walk', () => {
+  const from = { lat: 60.1695, lon: 24.9354 };
+  const north = (meters: number, accuracy = 15) => ({ lat: from.lat + meters / 111_320, lon: from.lon, accuracy });
+
+  it('ranks again after about 300 metres, not before', () => {
+    expect(RERANK_AFTER_METERS).toBe(300);
+    expect(movedEnough(from, north(120))).toBe(false);
+    expect(movedEnough(from, north(299))).toBe(false);
+    expect(movedEnough(from, north(310))).toBe(true);
+  });
+
+  it('does not take a fix that only got vaguer for a walk', () => {
+    // 400 m away, but the device is sure of it only to within 900 m.
+    expect(movedEnough(from, north(400, 900))).toBe(false);
+    expect(movedEnough(from, north(400, 60))).toBe(true);
+  });
 });
 
 describe('the list of requests the app may make', () => {
@@ -238,6 +267,9 @@ describe('the list of requests the app may make', () => {
     const policy = contentSecurityPolicy({ development: false, devRoutes: false });
     expect(policy).toContain("default-src 'self'");
     expect(policy).toContain("connect-src 'self' https://tiles.openfreemap.org;");
+    // The map draws on a canvas from vector data: no image from anywhere else, and no blob: either.
+    expect(policy).toContain("img-src 'self' data:;");
+    expect(policy).toContain("worker-src 'self';");
     expect(policy).toContain("frame-ancestors 'none'");
     expect(policy).toContain("object-src 'none'");
     expect(policy).not.toContain('unsafe-eval');

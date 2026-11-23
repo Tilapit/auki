@@ -1,52 +1,15 @@
-import { expect, test, type Page } from '@playwright/test';
-import { ALWAYS, GENERATED, KAMPPI, MONDAY_EVENING, farOpen, indexOf, kamppi, kamppiClosed } from '@/lib/fixtures/tiles';
-import { carriesPosition, isAllowedUrl, POSITION_REQUEST } from '@/lib/requests';
-import { INDEX_PATH, encodeTile, tileKey, tileOf, tilePath } from '@/lib/tiles';
-import type { TilePharmacy } from '@/lib/tiles';
-import { HERE, fakeLocation, fakePlaces, fakeTiles, locateButton, open } from './helpers';
+import type { Page } from '@playwright/test';
+import { ALWAYS, GENERATED, MONDAY_EVENING, farOpen, kamppi, kamppiClosed } from '@/lib/fixtures/tiles';
+import { carriesPosition, isAllowedUrl, MAP_TILE_HOST, POSITION_REQUEST } from '@/lib/requests';
+import { INDEX_PATH } from '@/lib/tiles';
+import { expect, test } from './fixtures';
+import { HERE, fakeLocation, fakePlaces, fakeTiles, hasWebGL, locateButton, open, settle, start, world } from './helpers';
 
 /**
  * M3: what the tiles say about a position (PLAN.md 7.1, 7.3, 7.4, 7.7). The tiles are
  * answered by the test from fixture data, and the page's clock is the test's: Monday
  * 23 November 2026 at 20:41 in Helsinki unless a test says otherwise.
  */
-
-/** The files of a small world: an index, and one tile per square that has pharmacies. */
-function world(pharmacies: TilePharmacy[], outside = false): Record<string, unknown> {
-  const squares = new Map<string, TilePharmacy[]>();
-  for (const pharmacy of pharmacies) {
-    const key = tileKey(tileOf(pharmacy));
-    squares.set(key, [...(squares.get(key) ?? []), pharmacy]);
-  }
-  const tiles = [...squares].map(([key, list]) => {
-    const [x, y] = key.split('/').map(Number);
-    return { x, y, pharmacies: list };
-  });
-  return {
-    [INDEX_PATH]: indexOf(tiles, outside ? [tileOf(KAMPPI)] : []),
-    ...Object.fromEntries(tiles.map((tile) => [tilePath(tile.x, tile.y), encodeTile(tile)])),
-  };
-}
-
-async function start(page: Page, files: Record<string, unknown> | number, now = MONDAY_EVENING) {
-  await page.clock.install({ time: new Date((now - 60) * 1000) });
-  await fakeLocation(page, 'allow');
-  const asked = await fakeTiles(page, files);
-  await open(page, '/fi');
-  // From here on the page's clock moves only when the test moves it.
-  await page.clock.pauseAt(new Date(now * 1000));
-  await locateButton(page).click();
-  await settle(page);
-  return asked;
-}
-
-/**
- * The map views arrive as a chunk of their own, and React holds a view that was waiting
- * for one back for a moment, on a timer. With the clock paused that moment has to be given.
- */
-async function settle(page: Page) {
-  await page.clock.runFor(1000);
-}
 
 const rows = (page: Page) => page.locator('ol > li h3');
 
@@ -165,11 +128,18 @@ test('the place name leads to another place', async ({ page }) => {
  */
 test('privacy: no request carries the position, and none leaves the allowed hosts', async ({ page, baseURL }) => {
   const seen: { method: string; url: string; text: string }[] = [];
-  page.on('request', (request) => {
+  // On the context, so that what the map's worker asks for is seen too.
+  page.context().on('request', (request) => {
     seen.push({ method: request.method(), url: request.url(), text: [request.url(), JSON.stringify(request.headers()), request.postData() ?? ''].join('\n') });
   });
   await start(page, world([...kamppi, farOpen]));
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
+  // The map draws itself once the results are there. (A browser that can't draw it never asks its host for anything.)
+  const draws = await hasWebGL(page);
+  if (draws) {
+    await expect(page.locator('[data-map]')).toHaveAttribute('data-basemap', 'live');
+    await settle(page);
+  }
   await page.getByRole('button', { name: 'Yliopiston apteekki', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
@@ -187,9 +157,17 @@ test('privacy: no request carries the position, and none leaves the allowed host
     if (!mayCarryIt) expect(carriesPosition(request.text, HERE), `${request.method} ${request.url}`).toBe(false);
   }
   // The tile requests name squares, and nothing but squares.
-  const tiles = seen.filter((request) => new URL(request.url).pathname.startsWith('/tiles/'));
+  const tiles = seen.filter((request) => new URL(request.url).origin === origin && new URL(request.url).pathname.startsWith('/tiles/'));
   expect(tiles.length).toBeGreaterThanOrEqual(2);
   for (const request of tiles) expect(new URL(request.url).pathname).toMatch(/^\/tiles\/v1\/(index|10\/\d+\/\d+)\.json$/);
+  // The map tile host is the one third party, and it is asked for map squares and nothing else.
+  if (draws) expect(seen.filter((request) => new URL(request.url).origin === MAP_TILE_HOST).length).toBeGreaterThan(0);
+  const thirdParties = new Set(seen.map((request) => new URL(request.url).origin).filter((other) => other !== origin));
+  expect([...thirdParties].every((other) => other === MAP_TILE_HOST)).toBe(true);
+  for (const request of seen.filter((request) => new URL(request.url).origin === MAP_TILE_HOST)) {
+    expect(new URL(request.url).pathname).toMatch(/^\/planet(\/|$)/);
+    expect(new URL(request.url).search).toBe('');
+  }
 });
 
 test('the security headers are on every page', async ({ request }) => {

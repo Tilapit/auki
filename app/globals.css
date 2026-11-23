@@ -53,20 +53,22 @@
     0 0 0 1px light-dark(transparent, rgb(61 219 160 / 0.08)), 0 18px 40px light-dark(transparent, rgb(0 0 0 / 0.25));
   --scrim: light-dark(rgb(11 27 49 / 0.32), rgb(2 8 18 / 0.6));
 
-  /* Static map (MapLibre style values arrive in M4) */
+  /* The map's ground where MapLibre isn't drawing it (the style itself is lib/map/style.ts), and the markers */
   --map-land: light-dark(#ebf0f5, #0a192e);
   --marker-open: light-dark(#0d6e4f, #3ddba0);
   --marker-open-ink: light-dark(#ffffff, #03241a);
   --marker-ring: light-dark(#ffffff, #071427);
+  /* The thin ring every marker stands on, so that streets and roofs don't run into it. */
+  --marker-ground: 0 0 0 2px var(--marker-ring);
   --marker-shadow:
-    0 1px 2px light-dark(rgb(11 27 49 / 0.25), transparent), 0 4px 10px light-dark(rgb(11 27 49 / 0.14), transparent);
-  --marker-open-glow: 0 0 14px 2px light-dark(transparent, rgb(61 219 160 / 0.38));
+    0 1px 3px light-dark(rgb(11 27 49 / 0.32), transparent), 0 5px 12px light-dark(rgb(11 27 49 / 0.2), transparent);
+  --marker-open-glow: 0 0 16px 3px light-dark(transparent, rgb(61 219 160 / 0.45));
   --marker-selected-shadow: 0 0 0 3px var(--marker-ring), 0 6px 16px light-dark(rgb(11 27 49 / 0.3), transparent);
   --marker-selected-glow:
     0 0 0 1px light-dark(transparent, rgb(127 245 201 / 0.7)), 0 0 18px 4px light-dark(transparent, rgb(61 219 160 / 0.5)),
     0 0 48px 14px light-dark(transparent, rgb(61 219 160 / 0.22));
-  --disc: light-dark(#ffffff, #0e2342);
-  --disc-ring: light-dark(#bfcad8, #2b4468);
+  --disc: light-dark(#ffffff, #132c52);
+  --disc-ring: light-dark(#93a1b5, #5a7096);
   --you: light-dark(#2f5ca6, #5b8def);
   --you-ring: light-dark(#ffffff, #eaf1f8);
 }

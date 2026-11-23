@@ -75,13 +75,11 @@ export const renderers: Record<string, () => ReactNode> = {
   counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" />,
   'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" />,
 
-  'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" placeControl />,
-  tiles: () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="expanded" placeControl />,
-  'tiles-far': () => <ResultsView scene={fromTiles(resultOf(kamppiClosed, { farOpen: far }))} sheet="expanded" placeControl />,
-  'tiles-edge': () => <ResultsView scene={fromTiles(resultOf(kamppi, { missing: ['RU'] }))} sheet="expanded" placeControl />,
-  stale: () => <ResultsView scene={fromTiles(resultOf(kamppi), NINE_DAYS_LATER)} sheet="expanded" placeControl />,
-  'place-current': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
-  'place-proposed': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" placeControl />,
+  'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
+  tiles: () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="expanded" />,
+  'tiles-far': () => <ResultsView scene={fromTiles(resultOf(kamppiClosed, { farOpen: far }))} sheet="expanded" />,
+  'tiles-edge': () => <ResultsView scene={fromTiles(resultOf(kamppi, { missing: ['RU'] }))} sheet="expanded" />,
+  stale: () => <ResultsView scene={fromTiles(resultOf(kamppi), NINE_DAYS_LATER)} sheet="expanded" />,
 
   'not-covered': () => <ProblemView kind="notCovered" scene={sceneAt({ source: 'search', lat: 48.8566, lon: 2.3522, label: 'Pariisi' }, '20:41')} country="FR" />,
   'not-covered-unknown': () => <ProblemView kind="notCovered" scene={sceneAt(HERE, '20:41')} />,
