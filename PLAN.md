@@ -144,7 +144,7 @@ Name, address, status, walking time and distance; hours for the coming seven day
 Same sky as the first visit. A search field and "Hae". Every location problem (denied, unavailable, timeout, unsupported) lands here with a note that starts with a heading. When location is blocked: "Sijainti on estetty tältä sivulta. Voit sallia sen selaimen asetuksista." and "Näin sallit sijainnin". A search that finds no place says which name it looked for and keeps it in the field; a failed lookup and a missing connection each say so.
 
 ### Data that is out of date
-The results footer always says when the data was fetched ("Tiedot: OpenStreetMap, haettu 22.11."). When it is more than 7 days old, nothing is shown as open: every pharmacy gets the dashed cross and "Aukioloajat voivat olla vanhentuneet", a notice takes the place of the "Lähin auki nyt" card, and the list stays in distance order. Designed in M3 and reviewed in `/dev/states`.
+The results footer always says when the data was fetched ("Tiedot: OpenStreetMap, haettu 22.11."). When it is more than 7 days old, nothing is shown as open: every pharmacy gets the dashed cross and "Aukioloajat voivat olla vanhentuneet", a notice takes the place of the "Lähin auki nyt" card, and the list stays in distance order. Built in M3 (`/dev/states/stale`): the notice gives the date of the data and says to call before going; the heading no longer counts open pharmacies; on the phone the sheet is open from the start. The footer's data date is followed by a link to the data page, "Tietoa aineistosta".
 
 ### Outside the covered countries
 Section 7.7.
@@ -424,7 +424,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 | Ready | First-visit window | Locate, or search a place |
 | Locating | "Finding your location…"; after 8 s without an answer to the prompt: "Waiting for location permission" | Search a place instead |
 | Searching | Status line + fixed-height placeholder list; the map shows only you-are-here | |
-| Results | Map and list (bottom sheet on phone) + footnote (distance type, data source and its date) | Update location, search elsewhere |
+| Results | Map and list (bottom sheet on phone) + footnote (distance type, data source and its date) | Update location; search elsewhere, from the place name in the bar (provisional, `DESIGN-LOG.md`) |
 | Data out of date | Results in distance order, every status uncertain, the date of the data (section 5) | Call the pharmacy; try again later |
 | None found | "No pharmacies within 50 km in OpenStreetMap" (inside a covered country) | Search a place; link to add one on OSM |
 | Not covered (7.7) | "Auki doesn't cover this country yet", the countries it covers, 112 | Search pharmacies in a map app; search a place |
@@ -519,7 +519,7 @@ The tiles cover 21 countries. A Finn in Paris, Amsterdam or London will open the
 2. **No live fallback.** Querying Overpass live for the rest of the world would bring back what the pipeline removed (rate limits, a second code path, a position sent to our server) for results we can't check as well.
 3. **Know where coverage ends, on the device.** `index.json` says which squares hold a covered country. A square that also touches a country outside the coverage carries a coarse grid of country codes (cells of about 1.5 km, made in the pipeline with `@rapideditor/country-coder`).
    - The position and every cell around it are outside: the not-covered view.
-   - The position is near the edge: results as usual, with a notice that names what is missing ("Ranskan apteekit eivät ole mukana").
+   - The position is near the edge (its own cell of the grid or one next to it is in a country outside the coverage): results as usual, with a note that names what is missing ("Ranska ei ole vielä mukana: sen apteekkeja ei näy tässä."). The country's name comes from the browser in the UI language.
    - So a coarse border can only cost an extra notice. It can't hide real results.
 4. **Grow by list.** A country joins by adding it to `pipeline/countries.ts`, once its parse rate is measured and its holidays are in the library. Pharmacy coverage can run ahead of the prescription guidance of section 8: a country without guidance gets no banner. Next candidates: France, the Netherlands, Belgium and the United Kingdom.
 
@@ -659,6 +659,8 @@ app/
   globals.css                 tokens (light-dark), sky defaults, focus ring, visually-hidden, hyphenation
 components/
   PharmacyFinder.tsx          client; owns the reducer, picks the view (M1)
+  MapStage.tsx                every view once the position is known, in one chunk loaded after the first paint; keeps time (M3)
+  DataPage.tsx  ResultsNotice.tsx   the data page; a notice above the results (M3)
   FirstVisit.tsx  PlaceSearch.tsx  DuskScene.tsx  Skyline.tsx  SkyScript.tsx
   ProgressView.tsx  ResultsView.tsx  ProblemView.tsx  ResultsShell.tsx
   MapView.tsx                 MapLibre map, custom style, route line; loaded after first paint (M4)
@@ -684,6 +686,10 @@ lib/
   sky.ts                      sun altitude and azimuth → first-visit sky and the map's light (pure; also serialised into the inline script)
   status.ts  results.ts  travel.ts   status text and glyph, list arrangement, distance wording (pure)
   exonyms.ts                  city names in the UI language ("Rīga" → "Riika" / "Riga"), OSM spelling otherwise
+  search.ts                   the search through tiles for a position: near, wide, the farther open one; what the answer is (M3)
+  live.ts                     tile rows + position + instant → what the results views show (pure, M3)
+  coverage.ts                 covered, near the edge or outside, from the index and a border grid (pure, M3)
+  countries.ts                the covered countries' ISO codes, for the views that name them
   tiles.ts                    tile schema; position → tile addresses; the search for the nearest; writing and reading a tile (pure, shared with the pipeline)
   hoursStatus.ts              intervals + now → status (pure, client)
   zone.ts                     time-zone arithmetic with Intl alone (pure, shared with the pipeline)
@@ -752,7 +758,7 @@ Each milestone is a branch (`m1`, `m2`, …) and a pull request. The description
 | M1 | Geolocation + reducer with real states; first-visit window; place-search path. The product name from one constant (D4). CI on every push: type check, lint, unit tests, Playwright with visual comparison of `/dev/states`, Lighthouse budgets (section 12) | Allow, deny, ignore the prompt, timeout: each lands in the right view. A push that changes a view or breaks a budget fails. Changing the constant renames the app everywhere, `<title>` included |
 | S1 (spike, decided) | The map's look on `/dev/map`, on real OpenFreeMap tiles with our own style, not wired into the app. Variant A: flat and calm. B: A plus 3D buildings lit from the sun's real direction. C: B plus a pitched camera and the map's sky. Each in day, dusk and night, Helsinki and one city abroad. Numbers: `maplibre-gl` gzipped, style size, first map render on the throttled phone profile | Janne picked from the screenshots in `design/map-spike/`: top-down only, A's flat look at overview zooms, B's sun-lit buildings from about zoom 15, C dropped |
 | M2 (built) | The data pipeline (section 7.2) for the whole coverage list: Overpass per country, normalise, hours into 8 days of intervals with holidays, tiles and `index.json`, the checks, the nightly Action and the data host. The tile contract with it: `lib/tiles.ts`, `lib/hoursStatus.ts`, their property tests, the corpus test, `tests/vectors/` and `docs/tiles.md` | The Action has published tiles for all 21 countries with a generated-at time. `index.json` gives count, share with hours and parse rate per country. The corpus test passes on every real value. A country whose query fails keeps its previous tiles. Tile sizes are measured. The vectors exist, so the iOS track can start |
-| M3 | The client on tiles: tile selection, real pharmacies in a straight-line list, status from the intervals, lit crosses + reveal, minute tick, the farther open pharmacy, out-of-date and not-covered handling, the data date in the footer and the data page. `lib/requests.ts`, the security headers and the privacy test. Time to first result measured | Real pharmacies near you, sorted, with a status that ticks every minute. With the clock moved 8 days ahead nothing reads open. The privacy test passes: no request carries the position. The data page shows the numbers of the last nightly run |
+| M3 (built) | The client on tiles: tile selection, real pharmacies in a straight-line list, status from the intervals, lit crosses + reveal, minute tick, the farther open pharmacy, out-of-date and not-covered handling, the data date in the footer and the data page. `lib/requests.ts`, the security headers and the privacy test. Time to first result measured | Real pharmacies near you, sorted, with a status that ticks every minute. With the clock moved 8 days ahead nothing reads open. The privacy test passes: no request carries the position. The data page shows the numbers of the last nightly run |
 | M4 | MapLibre map in the look chosen in S1 (top-down; flat at overview zooms, sun-lit 3D buildings from about zoom 15), with stronger markers and dusk and night clearly different; you-are-here with `watchPosition`, list ↔ map selection, edge chip, bottom sheet drag gesture | Map and list always agree; the dot follows a walk; list still works if the map fails; the map tile host is the one third party the privacy test sees |
 | M5 | Walking times and the route line through the one `/api/walking` endpoint (ORS Matrix and Directions) + budget + fallback; "Lähin auki nyt" card with the ehditkö rule; next open; pharmacy sheet with Google/Apple Maps hand-off, website, email and the OpenStreetMap note link | List renders once; ehditkö tested at its boundaries; `/api/walking` is the only request with the position; time to first result measured again; the note link opens the form at the pharmacy |
 | M6 | Abroad: banner with the field result, counter card, wake lock, the duty-pharmacy lookup with every source verified; the hand-off link (section 7.8); offline (service worker, section 7.6); place search polish; the "what the app sends" page; fi/en | Denied location still gets the user to a result; banner only outside Finland; the nothing-open state in Germany shows the duty lookup first and Finland's doesn't; the hand-off link presets the card; after one visit the app answers offline with the data date |
@@ -825,8 +831,8 @@ A new push to a branch cancels the run still going for it: the repository is pri
    - initial JavaScript: at most 200 KB gzipped. Lighthouse measures 156 KB on `/fi` at M1, nearly all of it React and the Next.js runtime. The views behind the first window load when they are needed, and the map gets its own budget when it lands in M4.
    - mobile LCP: at most 2.5 s on Lighthouse's phone profile (slow 4G, 4× CPU slowdown).
 4. A check that nothing under `/dev` exists in that build. Then a second build that keeps the `/dev` pages (`DEV_ROUTES=1`) and Playwright against it, with the visual comparison: a production server answers several times faster than the dev server. Failed comparisons are uploaded as images.
-5. Time to first result: a Playwright run in Chromium on the same throttled phone profile, location already allowed, cold cache, from navigation to the first rendered result.
-   - CI runs it with fixture tiles and a stubbed walking response, and fails above a limit set from the first measurement in M3.
+5. Time to first result: a Playwright run in Chromium on the same throttled phone profile, location already allowed, cold cache, from navigation to the first rendered result (`tests/e2e/perf.spec.ts`; the app marks the moment with `performance.mark('first-result')`).
+   - CI runs it with a fixture tile as heavy as the heaviest real one (1,272 pharmacies, delivered as 56 KB at the profile's speed), median of five, and fails above a limit set from the first measurement in M3. The walking response joins in M5.
    - The README number is the same script against the live site: median of five runs, with its date.
 
 ---
