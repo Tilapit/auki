@@ -239,7 +239,7 @@ const en: Dictionary = {
     title: 'Where the pharmacy data comes from',
     intro: 'The pharmacies and their opening hours come from OpenStreetMap. The data is fetched every night, and the opening hours are worked out for the next eight days. Below is the result of the latest run, by country.',
     caption: 'Pharmacy data by country',
-    columns: { country: 'Country', pharmacies: 'Pharmacies', withHours: 'Hours listed', parsed: 'Hours read', fetched: 'Last fetched' },
+    columns: { country: 'Country', pharmacies: 'Phar\u00ADma\u00ADcies', withHours: 'Hours listed', parsed: 'Hours read', fetched: 'Last fetched' },
     fetchedShort: 'last fetched',
     all: 'All',
     kept: 'earlier run',

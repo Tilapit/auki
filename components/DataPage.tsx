@@ -102,7 +102,7 @@ function DataTable({ index, zone }: { index: IndexJson; zone?: string }) {
     const fetchedAt = fetched !== undefined && (
       <>
         {when(fetched)}
-        {earlier && <span className={styles.kept}> ({t.data.kept})</span>}
+        {earlier && <span className={styles.kept}>({t.data.kept})</span>}
       </>
     );
     return (

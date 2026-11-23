@@ -80,6 +80,8 @@
   /* Long headings wrap; the numbers under them don't. */
   white-space: normal;
   vertical-align: bottom;
+  /* Whole words where there is room. The browser's own hyphenation differs by platform, and the table's width with it. */
+  hyphens: none;
 }
 
 .table tbody th {
@@ -92,7 +94,9 @@
   font-weight: 650;
 }
 
+/* "(aiempi haku)", on a line of its own under the time: beside it, it made the table wider than the page. */
 .kept {
+  display: block;
   color: var(--soon);
 }
 
@@ -132,9 +136,19 @@
   display: none;
 }
 
-@media (max-width: 599px) {
+@media (max-width: 699px) {
   .table .fetched {
     display: none;
+  }
+
+  /* On a narrow screen the headings break at the soft hyphens written into the strings, and nowhere else. */
+  .table thead th {
+    hyphens: manual;
+  }
+
+  /* One step down the type scale: four columns of numbers then fit a 375 px phone with room to spare. */
+  .table {
+    font-size: var(--t-s);
   }
 
   .fetchedUnder {
@@ -145,14 +159,19 @@
     font-weight: 400;
   }
 
-  .fetchedUnder .kept {
-    display: block;
-  }
-
   .table th,
   .table td {
-    padding-inline: 10px;
+    padding-inline: 8px;
     vertical-align: top;
+  }
+
+  .table th:first-child {
+    padding-inline-start: 12px;
+  }
+
+  .table th:last-child,
+  .table td:nth-last-child(2) {
+    padding-inline-end: 12px;
   }
 
   .table thead th {

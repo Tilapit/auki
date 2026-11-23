@@ -267,7 +267,8 @@ const fi = {
     title: 'Mistä apteekkitiedot tulevat',
     intro: 'Apteekit ja niiden aukioloajat tulevat OpenStreetMapista. Tiedot haetaan joka yö, ja aukioloajat lasketaan valmiiksi kahdeksalle päivälle. Alla on viimeisimmän haun tulos maittain.',
     caption: 'Apteekkitiedot maittain',
-    columns: { country: 'Maa', pharmacies: 'Apteekkeja', withHours: 'Aukioloajat merkitty', parsed: 'Ajat luettu', fetched: 'Haettu viimeksi' },
+    // \u00AD is a soft hyphen: the headings break there on a narrow screen, with or without a hyphenation dictionary in the browser.
+    columns: { country: 'Maa', pharmacies: 'Apteek\u00ADkeja', withHours: 'Aukiolo\u00ADajat merkitty', parsed: 'Ajat luettu', fetched: 'Haettu viimeksi' },
     /** Under the country heading on a narrow screen, where the time sits under each country's name. */
     fetchedShort: 'haettu viimeksi',
     all: 'Kaikki',

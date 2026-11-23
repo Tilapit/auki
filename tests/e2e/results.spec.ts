@@ -265,6 +265,33 @@ test('the data page shows the numbers of the last run', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Takaisin apteekkihakuun' }).last()).toHaveAttribute('href', '/fi');
 });
 
+test('the data table fits the page on a phone and on a desktop, in both languages', async ({ page }, testInfo) => {
+  // The browsers of CI have no Finnish hyphenation dictionary: the table may not count on one to fit.
+  await fakeTiles(page, world(kamppi));
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport);
+    for (const locale of ['fi', 'en']) {
+      await page.goto(`/${locale}/data`);
+      const table = page.getByRole('table');
+      await expect(table.getByRole('row')).toHaveCount(23);
+      const { needed, room } = await table.evaluate((element) => {
+        const box = element.parentElement as HTMLElement;
+        const room = box.clientWidth;
+        // The narrowest the table can be: every heading broken where it may break, no number broken.
+        (element as HTMLElement).style.width = '1px';
+        const needed = (element as HTMLElement).offsetWidth;
+        (element as HTMLElement).style.width = '';
+        return { needed, room };
+      });
+      testInfo.annotations.push({ type: 'data table', description: `${locale} at ${viewport.width} px: needs ${needed} px, has ${room} px` });
+      expect(needed, `${locale} at ${viewport.width} px`).toBeLessThanOrEqual(room);
+      // And the time of the last fetch is on screen once at either size: under the name, or in its own column.
+      // Latvia's, because no other country shares its minute.
+      await expect(page.locator('time', { hasText: locale === 'fi' ? '21.11. klo 3.25' : '21 Nov, 03:25' }).locator('visible=true')).toHaveCount(1);
+    }
+  }
+});
+
 test('the data page says so when the numbers do not load', async ({ page }) => {
   await fakeTiles(page, 503);
   await page.goto('/en/data');
