@@ -1,0 +1,194 @@
+{
+ "at": 1795446929,
+ "countries": {
+  "FI": {
+   "values": 327,
+   "withHours": 624,
+   "parsed": 624,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 2,
+   "parseRate": 1
+  },
+  "AT": {
+   "values": 344,
+   "withHours": 1189,
+   "parsed": 1188,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 0.9992
+  },
+  "CH": {
+   "values": 672,
+   "withHours": 1036,
+   "parsed": 1035,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 3,
+   "parseRate": 0.999
+  },
+  "CZ": {
+   "values": 890,
+   "withHours": 2283,
+   "parsed": 2283,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 3,
+   "parseRate": 1
+  },
+  "DE": {
+   "values": 5630,
+   "withHours": 14023,
+   "parsed": 14023,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 106,
+   "parseRate": 1
+  },
+  "DK": {
+   "values": 224,
+   "withHours": 308,
+   "parsed": 308,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 3,
+   "parseRate": 1
+  },
+  "EE": {
+   "values": 196,
+   "withHours": 289,
+   "parsed": 289,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 1
+  },
+  "ES": {
+   "values": 1557,
+   "withHours": 3313,
+   "parsed": 3306,
+   "unparseable": 6,
+   "uncertain": 1,
+   "corrected": 26,
+   "parseRate": 0.9979
+  },
+  "GR": {
+   "values": 183,
+   "withHours": 409,
+   "parsed": 407,
+   "unparseable": 2,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 0.9951
+  },
+  "HR": {
+   "values": 164,
+   "withHours": 330,
+   "parsed": 329,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 1,
+   "parseRate": 0.997
+  },
+  "HU": {
+   "values": 567,
+   "withHours": 1160,
+   "parsed": 1160,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 3,
+   "parseRate": 1
+  },
+  "IT": {
+   "values": 2420,
+   "withHours": 3829,
+   "parsed": 3827,
+   "unparseable": 2,
+   "uncertain": 0,
+   "corrected": 51,
+   "parseRate": 0.9995
+  },
+  "LT": {
+   "values": 286,
+   "withHours": 454,
+   "parsed": 454,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 3,
+   "parseRate": 1
+  },
+  "LV": {
+   "values": 321,
+   "withHours": 532,
+   "parsed": 532,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 1
+  },
+  "MT": {
+   "values": 37,
+   "withHours": 44,
+   "parsed": 43,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 0.9773
+  },
+  "NO": {
+   "values": 200,
+   "withHours": 1025,
+   "parsed": 1024,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 0.999
+  },
+  "PL": {
+   "values": 1618,
+   "withHours": 4892,
+   "parsed": 4887,
+   "unparseable": 5,
+   "uncertain": 0,
+   "corrected": 13,
+   "parseRate": 0.999
+  },
+  "PT": {
+   "values": 389,
+   "withHours": 645,
+   "parsed": 642,
+   "unparseable": 3,
+   "uncertain": 0,
+   "corrected": 3,
+   "parseRate": 0.9953
+  },
+  "SE": {
+   "values": 361,
+   "withHours": 622,
+   "parsed": 622,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 4,
+   "parseRate": 1
+  },
+  "SI": {
+   "values": 96,
+   "withHours": 130,
+   "parsed": 130,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 2,
+   "parseRate": 1
+  },
+  "SK": {
+   "values": 371,
+   "withHours": 943,
+   "parsed": 942,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 0.9989
+  }
+ }
+}

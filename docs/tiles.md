@@ -55,7 +55,7 @@ whole design rests on (PLAN.md 7.6).
   },
   "grid": {
     "z": 10,
-    "x0": 420, "y0": 211,               // the square of the first character of the first row
+    "x0": 420, "y0": 97,                // the square of the first character of the first row
     "width": 185,
     "rows": ["....ccccdd..", "…"]       // one string per row of squares, north to south
   }

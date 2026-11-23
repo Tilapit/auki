@@ -15,8 +15,11 @@ export const BORDER_CELLS = 16;
 /** Territories with a code of their own whose pharmacies come with a covered country's query. */
 const PART_OF: Record<string, string> = { AX: 'FI', EA: 'ES', SJ: 'NO' };
 
-/** The squares looked at: everything from the Azores to eastern Finland, the Canaries to the North Cape. */
-export const EXTENT = { north: 72, south: 27, west: -32, east: 32.5 };
+/**
+ * The squares looked at: from the Azores to eastern Finland, and from the Canaries to
+ * Svalbard, whose one pharmacy comes with Norway's.
+ */
+export const EXTENT = { north: 81, south: 27, west: -32, east: 32.5 };
 
 export function countryAt(lat: number, lon: number): string | null {
   const code = iso1A2Code([lon, lat], { level: 'territory' });
