@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { OSM_COPYRIGHT_URL } from '@/lib/maps';
@@ -37,7 +36,8 @@ export function SiteFooter({ variant, distance, credit, emergency, dataFrom }: P
         <p>
           {rich(t.footer.fetched, {
             date: <time dateTime={new Date(dataFrom * 1000).toISOString()}>{f.dayOf(dataFrom)}</time>,
-            about: <Link href={`/${locale}/data`}>{t.footer.aboutData}</Link>,
+            // A plain link: the footer is on the first window too, and the router's link would add to its JavaScript.
+            about: <a href={`/${locale}/data`}>{t.footer.aboutData}</a>,
           })}
         </p>
       )}

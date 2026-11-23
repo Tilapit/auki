@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { canLocate, locateOnce, locationPermission, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import type { Locale } from '@/lib/i18n';
-import { Tiles, findFarOpen, findPharmacies } from '@/lib/search';
+import type { Tiles } from '@/lib/search';
 import { initialState, isMapView, reducer, type Position, type State } from '@/lib/state';
+
+// The search through the tiles is not needed for the first window: it loads when a position is known.
+const loadSearch = () => import('@/lib/search');
 
 /** A tile that takes longer than this counts as not loaded. */
 const TILE_TIMEOUT_MS = 10_000;
@@ -111,7 +114,7 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
   );
 
   // The search through the tiles: once for each position, and again for the same one on a retry.
-  const tiles = useRef<{ position: Position; store: Tiles; controller: AbortController } | null>(null);
+  const tiles = useRef<{ position: Position; store: Tiles | undefined; controller: AbortController } | null>(null);
   useEffect(() => {
     if (!isMapView(state)) {
       tiles.current?.controller.abort();
@@ -122,15 +125,22 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     tiles.current?.controller.abort();
     const { position } = state;
     const controller = new AbortController();
-    const store = new Tiles(loader(controller.signal));
-    tiles.current = { position, store, controller };
-    void findPharmacies(store, position, nowSeconds()).then((outcome) => {
-      if (controller.signal.aborted) return;
-      if (outcome.kind === 'results') dispatch({ type: 'found', position, result: outcome.result });
-      else if (outcome.kind === 'none') dispatch({ type: 'noneFound', position });
-      else if (outcome.kind === 'notCovered') dispatch({ type: 'notCovered', position, country: outcome.country });
-      else dispatch({ type: 'searchFailed', position, offline: navigator.onLine === false });
-    });
+    const search = { position, store: undefined as Tiles | undefined, controller };
+    tiles.current = search;
+    void loadSearch()
+      .then(async ({ Tiles, findPharmacies }) => {
+        search.store = new Tiles(loader(controller.signal));
+        return findPharmacies(search.store, position, nowSeconds());
+      })
+      // The search code itself didn't arrive: the same as tiles that didn't.
+      .catch(() => ({ kind: 'failed' as const }))
+      .then((outcome) => {
+        if (controller.signal.aborted) return;
+        if (outcome.kind === 'results') dispatch({ type: 'found', position, result: outcome.result });
+        else if (outcome.kind === 'none') dispatch({ type: 'noneFound', position });
+        else if (outcome.kind === 'notCovered') dispatch({ type: 'notCovered', position, country: outcome.country });
+        else dispatch({ type: 'searchFailed', position, offline: navigator.onLine === false });
+      });
   }, [state]);
 
   useEffect(() => () => tiles.current?.controller.abort(), []);
@@ -147,8 +157,10 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
 
   const checkFarOpen = useCallback((now: number) => {
     const current = tiles.current;
-    if (!current) return;
-    void findFarOpen(current.store, current.position, now)
+    const store = current?.store;
+    if (!current || !store) return;
+    void loadSearch()
+      .then(({ findFarOpen }) => findFarOpen(store, current.position, now))
       .catch(() => undefined)
       .then((farOpen) => {
         if (!current.controller.signal.aborted) dispatch({ type: 'farOpen', position: current.position, farOpen });
