@@ -118,6 +118,8 @@ const fi = {
     byWalking: 'Kävelymatkan mukaan',
     byStraight: 'Linnuntietä',
     allPharmacies: (count: number) => `Kaikki ${count} apteekkia`,
+    /** The phone's sheet handle says what a press does: from the row to the card, from the card to the list, and back down. */
+    showMore: 'Näytä lisää',
     expandSheet: 'Näytä lista',
     collapseSheet: 'Pienennä lista',
     closedNow: 'Kiinni nyt',

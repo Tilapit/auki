@@ -3,20 +3,42 @@
   position: relative;
   height: 100dvh;
   overflow: hidden;
+  /* Not a scroll container: focus on something the sheet holds below the screen's edge must not shift the whole view. */
+  overflow: clip;
   background: var(--paper);
   color: var(--ink);
-  --peek: 190px;
-  --sheet-top: min(44dvh, 372px);
+  /* Until they are measured: about a row, and about a card. */
+  --peek: 62px;
+  --lead: 300px;
+  /* Open, the sheet leaves the bar and a strip of the map. */
+  --sheet-top: calc(88px + env(safe-area-inset-top));
   --sheet-height: calc(100dvh - var(--sheet-top));
-  --map-pad: calc(var(--peek) + 26px + env(safe-area-inset-bottom));
+  /* How much of the sheet shows at its lowest (the handle and the row) and at the card (never more than 60 % of the screen). */
+  --peek-visible: calc(var(--peek) + 26px + env(safe-area-inset-bottom));
+  --half-visible: min(60dvh, var(--sheet-height), max(calc(var(--peek-visible) + 120px), calc(var(--lead) + 42px + env(safe-area-inset-bottom))));
+  --map-pad: var(--peek-visible);
 }
 
+/* The open list covers the map: the camera stays where the card left it. */
+.shell[data-sheet='half'],
 .shell[data-sheet='expanded'] {
-  --map-pad: var(--sheet-height);
+  --map-pad: var(--half-visible);
 }
 
 .shell[data-sheet='static'] {
   --map-pad: var(--static-pad, 300px);
+}
+
+/* The sheet as it was: two places, a tall collapsed answer, and an open list that leaves the upper half of the map. */
+@media (max-width: 899.98px) {
+  .shell[data-sheet-style='classic'] {
+    --peek: 190px;
+    --sheet-top: min(44dvh, 372px);
+  }
+
+  .shell[data-sheet-style='classic'][data-sheet='expanded'] {
+    --map-pad: var(--sheet-height);
+  }
 }
 
 .map {
@@ -24,14 +46,22 @@
   inset: 0;
 }
 
-.collapsed {
+.peekProbe,
+.halfProbe {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 1px;
-  height: calc(var(--peek) + 26px + env(safe-area-inset-bottom));
   visibility: hidden;
   pointer-events: none;
+}
+
+.peekProbe {
+  height: var(--peek-visible);
+}
+
+.halfProbe {
+  height: var(--half-visible);
 }
 
 .bar {
@@ -122,7 +152,7 @@
   display: none;
 }
 
-/* The sheet is laid out at its expanded size and slid down to show only the peek. */
+/* The sheet is laid out at its open size and slid down to its two lower places. */
 .panel {
   position: absolute;
   top: var(--sheet-top);
@@ -135,12 +165,18 @@
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;
   background: var(--sheet);
   box-shadow: var(--shadow-sheet);
-  transition: transform 200ms ease;
+  /* Quick off the mark and slow to stop: from the row to the open list is most of the screen. */
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.25, 1);
 }
 
+/* Below the open list the whole sheet can be dragged: the browser leaves the gesture to it. */
 [data-sheet='peek'] .panel {
-  transform: translateY(calc(var(--sheet-height) - var(--peek) - 26px - env(safe-area-inset-bottom)));
-  /* Collapsed, the whole sheet can be dragged up: the browser leaves the gesture to it. */
+  transform: translateY(calc(var(--sheet-height) - var(--peek-visible)));
+  touch-action: none;
+}
+
+[data-sheet='half'] .panel {
+  transform: translateY(calc(var(--sheet-height) - var(--half-visible)));
   touch-action: none;
 }
 
@@ -190,11 +226,14 @@
   overscroll-behavior: contain;
 }
 
-[data-sheet='peek'] .scroll {
+/* Only the open list scrolls. */
+[data-sheet='peek'] .scroll,
+[data-sheet='half'] .scroll {
   overflow: hidden;
 }
 
 .main {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -226,6 +265,22 @@
   padding-bottom: 16px;
 }
 
+/*
+ * Above its lowest place the sheet shows the card in the row's stead. The row keeps its box
+ * out of sight, and so does the card under the row: their heights are known before the
+ * sheet is dragged to them, and nothing in them animates again each time it returns.
+ */
+[data-sheet='half'] .peek,
+[data-sheet='expanded'] .peek,
+[data-sheet='static'] .peek {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  left: 16px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .full {
   display: flex;
   flex-direction: column;
@@ -233,10 +288,56 @@
 }
 
 [data-sheet='peek'] .full,
-[data-sheet='peek'] .footer,
-[data-sheet='expanded'] .peek,
-[data-sheet='static'] .peek {
-  display: none;
+[data-sheet='peek'] .footer {
+  visibility: hidden;
+}
+
+/* The lists are part of the column above them: this box only says when they are there. */
+.lists {
+  display: contents;
+}
+
+/*
+ * At the card the list waits under the screen's edge, out of sight and out of reach of the
+ * keyboard and of screen readers, until it is opened: nothing can be focused where it can't be seen.
+ */
+[data-sheet='half'] .lists,
+[data-sheet='half'] .footer {
+  visibility: hidden;
+}
+
+/*
+ * "Kaikki 8 apteekkia", under the card while the sheet rests there. It lies over the top of
+ * the list, which starts right under the card, and reaches the screen's lower edge. So
+ * opening the list moves nothing: the button fades and the list is there.
+ */
+.more {
+  position: relative;
+  /* Over the list's rows, which are positioned too. */
+  z-index: 1;
+  height: 0;
+  /* Takes no room of its own: this undoes the gap after it. */
+  margin-bottom: -18px;
+}
+
+.moreBox {
+  position: absolute;
+  top: 0;
+  right: -16px;
+  left: -16px;
+  padding: 0 16px calc(40px + env(safe-area-inset-bottom));
+  background: var(--sheet);
+  transition: opacity 160ms ease;
+}
+
+[data-sheet='expanded'] .moreBox,
+[data-sheet='static'] .moreBox {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    visibility 0s 160ms;
 }
 
 .footer {
@@ -259,7 +360,8 @@
     display: none;
   }
 
-  .collapsed {
+  .peekProbe,
+  .halfProbe {
     display: none;
   }
 
@@ -297,7 +399,7 @@
   }
 
   .scroll,
-  [data-sheet='peek'] .scroll {
+  [data-sheet] .scroll {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -370,9 +472,23 @@
   }
 
   .full,
-  [data-sheet='peek'] .full {
+  [data-sheet] .full {
     display: flex;
     gap: 16px;
+    visibility: visible;
+  }
+
+  /* The card and the lists are one column here, as they were. */
+  .lead {
+    display: contents;
+  }
+
+  [data-sheet] .lists {
+    visibility: visible;
+  }
+
+  .more {
+    display: none;
   }
 
   /* The pharmacy details take the list's place. */
@@ -381,8 +497,9 @@
   }
 
   .footer,
-  [data-sheet='peek'] .footer {
+  [data-sheet] .footer {
     display: block;
     padding-bottom: 0;
+    visibility: visible;
   }
 }

@@ -57,17 +57,23 @@ export const renderers: Record<string, () => ReactNode> = {
     <SearchingView scene={sceneAt({ source: 'device', lat: 60.1689, lon: 24.9325, accuracy: 2400, approximate: true }, '20:41')} />
   ),
   'helsinki-peek': () => <ResultsView scene={helsinki} sheet="peek" />,
+  'helsinki-half': () => <ResultsView scene={helsinki} sheet="half" />,
   helsinki: () => <ResultsView scene={helsinki} sheet="expanded" />,
   'riga-peek': () => <ResultsView scene={riga} sheet="peek" />,
+  'riga-half': () => <ResultsView scene={riga} sheet="half" />,
   riga: () => <ResultsView scene={riga} sheet="expanded" />,
   'riga-closed': () => <ResultsView scene={riga} sheet="expanded" closedOpen />,
   'far-open-peek': () => <ResultsView scene={rigaFarOpen} sheet="peek" />,
+  'far-open-half': () => <ResultsView scene={rigaFarOpen} sheet="half" />,
   'far-open': () => <ResultsView scene={rigaFarOpen} sheet="expanded" />,
   'nothing-open-peek': () => <ResultsView scene={rigaNothingOpen} sheet="peek" />,
+  // No sheet given: with nothing open it starts at the card.
+  'nothing-open-half': () => <ResultsView scene={rigaNothingOpen} />,
   'nothing-open': () => <ResultsView scene={rigaNothingOpen} sheet="expanded" />,
   searched: () => <ResultsView scene={helsinkiSearched} sheet="peek" />,
   straight: () => <ResultsView scene={helsinkiStraight} sheet="expanded" />,
   'stress-peek': () => <ResultsView scene={stress} sheet="peek" />,
+  'stress-half': () => <ResultsView scene={stress} sheet="half" />,
   stress: () => <ResultsView scene={stress} sheet="expanded" />,
 
   sheet: () => <ResultsView scene={helsinki} sheet="peek" detailId="yliopiston" />,
@@ -77,6 +83,7 @@ export const renderers: Record<string, () => ReactNode> = {
   'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" />,
 
   'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
+  'tiles-half': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="half" />,
   tiles: () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="expanded" />,
   'tiles-far': () => <ResultsView scene={fromTiles(resultOf(kamppiClosed, { farOpen: far }))} sheet="expanded" />,
   'tiles-edge': () => <ResultsView scene={fromTiles(resultOf(kamppi, { missing: ['RU'] }))} sheet="expanded" />,
@@ -94,10 +101,15 @@ export const renderers: Record<string, () => ReactNode> = {
   components: () => <ComponentSheet />,
   'card-cases': () => <CardCases />,
 
+  // The phone's sheet (provisional): as it was, and at its lowest as proposed.
+  'sheet-current': () => <ResultsView scene={helsinki} sheet="peek" sheetStyle="classic" />,
+  'sheet-proposed': () => <ResultsView scene={helsinki} sheet="peek" />,
+
   // Hours coverage (provisional): most nearby pharmacies have no hours in OpenStreetMap.
   'hours-current': () => <ResultsView scene={malaga} sheet="expanded" coverage={false} />,
   'hours-proposed': () => <ResultsView scene={malaga} sheet="expanded" />,
   'hours-peek': () => <ResultsView scene={malaga} sheet="peek" />,
+  'hours-half': () => <ResultsView scene={malaga} sheet="half" />,
   'hours-none': () => <ResultsView scene={malagaLate} sheet="expanded" />,
   'hours-no-phone': () => <ResultsView scene={malagaNoPhone} sheet="expanded" />,
   'hours-near': () => <ResultsView scene={malagaNear} sheet="expanded" />,

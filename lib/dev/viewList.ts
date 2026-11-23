@@ -33,6 +33,7 @@ export const SIZES: Record<Size, { width: number; height: number }> = {
 };
 
 const SKY: Theme[] = ['light'];
+const PHONE: Size[] = ['phone'];
 
 export const groups: ViewGroup[] = [
   {
@@ -75,22 +76,27 @@ export const groups: ViewGroup[] = [
       { id: 'searching', title: 'Searching' },
       { id: 'searching-place', title: 'Searching: a searched place, named in the bar and the title' },
       { id: 'searching-approximate', title: 'Searching: approximate location, with the way to place search' },
-      { id: 'helsinki-peek', title: 'Helsinki, Thu 20.41: sheet collapsed', note: 'Desktop has no sheet; it shows the panel.' },
+      { id: 'helsinki-peek', title: 'Helsinki, Thu 20.41: sheet at its lowest, one row', note: 'Desktop has no sheet; it shows the panel.' },
+      { id: 'helsinki-half', title: 'Helsinki, Thu 20.41: sheet at the card', sizes: PHONE },
       { id: 'helsinki', title: 'Helsinki, Thu 20.41: card with timeline, full list' },
-      { id: 'riga-peek', title: 'Riga, Fri 23.40: sheet collapsed' },
+      { id: 'riga-peek', title: 'Riga, Fri 23.40: sheet at its lowest' },
+      { id: 'riga-half', title: 'Riga, Fri 23.40: sheet at the card, which is taller than the 60 % it may take', sizes: PHONE },
       { id: 'riga', title: 'Riga, Fri 23.40: one open, closed ones in one row, banner in the card, edge chip' },
       { id: 'riga-closed', title: 'Riga: "Kiinni nyt" opened (same names with streets)' },
-      { id: 'far-open-peek', title: 'Nothing open nearby, a farther one is: sheet collapsed' },
+      { id: 'far-open-peek', title: 'Nothing open nearby, a farther one is: sheet at its lowest' },
+      { id: 'far-open-half', title: 'Nothing open nearby, a farther one is: sheet at the card', sizes: PHONE },
       {
         id: 'far-open',
         title: 'Nothing open nearby, a farther one is: it leads as "Lähin auki nyt", "Avautuu ensimmäisenä" below it',
         note: 'The 24-hour search within 30 km found one, 6.3 km away in the next town. No walking time, and the route names no way of travel.',
       },
-      { id: 'nothing-open-peek', title: 'Nothing open within 30 km: sheet collapsed' },
+      { id: 'nothing-open-peek', title: 'Nothing open within 30 km: sheet pulled down to its lowest, 112 is the row\'s button' },
+      { id: 'nothing-open-half', title: 'Nothing open within 30 km: sheet at the card, where it starts', sizes: PHONE },
       { id: 'nothing-open', title: 'Nothing open within 30 km: the first to open, 112 kept prominent' },
       { id: 'searched', title: 'Searched place: the name from the search, however long' },
       { id: 'straight', title: 'Straight-line fallback (no walking times)' },
-      { id: 'stress-peek', title: 'Stress data, Tue 13.15: sheet collapsed' },
+      { id: 'stress-peek', title: 'Stress data, Tue 13.15: sheet at its lowest' },
+      { id: 'stress-half', title: 'Stress data, Tue 13.15: sheet at the card', sizes: PHONE },
       { id: 'stress', title: 'Stress data: ten results, long and repeated names, unclear hours, approximate location' },
     ],
   },
@@ -99,7 +105,8 @@ export const groups: ViewGroup[] = [
     title: 'Results from tiles (M3)',
     note: 'Built from tile data at a fixed moment, Monday 23 Nov 2026 at 20.41, through the same code as the live app. Straight-line distances: walking times arrive in M5.',
     views: [
-      { id: 'tiles-peek', title: 'From tiles: sheet collapsed, the place name is the way to another place' },
+      { id: 'tiles-peek', title: 'From tiles: sheet at its lowest, the place name is the way to another place' },
+      { id: 'tiles-half', title: 'From tiles: sheet at the card', sizes: PHONE },
       { id: 'tiles', title: 'From tiles: one closing soon leads, the data date in the footer' },
       { id: 'tiles-far', title: 'From tiles: nothing nearby open, one 14 km away is' },
       { id: 'tiles-edge', title: 'From tiles: near the edge of the coverage, the note names what is missing' },
@@ -111,7 +118,8 @@ export const groups: ViewGroup[] = [
     title: 'Hours coverage (provisional): most nearby pharmacies have no listed hours',
     note: 'Málaga on Mon 23 Nov 2026, from tile data: in Spain 18 % of pharmacies have opening hours in OpenStreetMap. The main case is under "Proposals", current and proposed side by side.',
     views: [
-      { id: 'hours-peek', title: 'Sheet collapsed: the nearest pharmacy leads, the call comes first, the one known to be open is a line', sizes: ['phone'] },
+      { id: 'hours-peek', title: 'Sheet at its lowest: the nearest pharmacy leads, and the call is the row\'s button', sizes: ['phone'] },
+      { id: 'hours-half', title: 'Sheet at the card: the call comes first, the one known to be open is a line', sizes: ['phone'] },
       { id: 'hours-none', title: '22.30, no pharmacy known to be open: no claim that all are closed, 112 kept prominent' },
       { id: 'hours-no-phone', title: 'The nearest has no phone number either: the route leads, and the text says why', sizes: ['phone'] },
       { id: 'hours-near', title: 'The open one is 220 m past the nearest: it leads as before, and the card says what lies nearer', sizes: ['phone'] },
@@ -175,7 +183,17 @@ const hoursCoverage: Proposal = {
   proposed: { id: 'hours-proposed', title: 'Proposed: the nearest leads, call first, the known open one as a line' },
 };
 
+/** The phone's sheet, from Janne's notes of 23 Nov 2026 after trying M4 on an iPhone: built provisionally, waiting for a look. */
+const compactSheet: Proposal = {
+  id: 'sheet',
+  title: 'The phone\'s sheet rests on one row, and has three places',
+  reason:
+    'On an iPhone the collapsed "Lähin auki nyt" took a quarter of the screen, and the sheet could not go lower. Proposed: at its lowest the sheet is the handle and one row (the cross, the name, the distance and the status, and the route as the row\'s button), so the map has the screen. One pull up is the card, the next is the list, nearly full height. Provisional: waiting for Janne.',
+  current: { id: 'sheet-current', title: 'Current: the collapsed sheet is the answer in three lines with two buttons', sizes: PHONE },
+  proposed: { id: 'sheet-proposed', title: 'Proposed: one row; the card and the list are one and two pulls up', sizes: PHONE },
+};
+
 /** Open proposals, each shown as current and proposed side by side. Decided ones move to DESIGN-LOG.md. */
-export const proposals: Proposal[] = [hoursCoverage];
+export const proposals: Proposal[] = [compactSheet, hoursCoverage];
 
 export const allViews: ViewInfo[] = [...groups.flatMap((group) => group.views), ...proposals.flatMap((p) => [p.current, p.proposed])];
