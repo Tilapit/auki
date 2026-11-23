@@ -57,6 +57,27 @@ export const kamppi: TilePharmacy[] = [
   pharmacy('n106', 'Kruununhaan apteekki', 500, 1500, daily('08:00', '20:00'), { street: 'Liisankatu 21' }),
 ];
 
+/**
+ * Farther out around Kamppi. With these there are more pharmacies than the list's ten: the
+ * first four are near enough to be listed, the last four are on the map only.
+ */
+export const beyond: TilePharmacy[] = [
+  pharmacy('n301', 'Ruoholahden apteekki', -700, -1100, daily('08:00', '20:00'), { street: 'Itämerenkatu 21' }),
+  pharmacy('n302', 'Kallion apteekki', 1500, 900, daily('08:00', '22:00'), { street: 'Siltasaarenkatu 12' }),
+  pharmacy('n303', 'Punavuoren apteekki', -1500, 300, daily('09:00', '19:00'), { street: 'Fredrikinkatu 20' }),
+  pharmacy('n304', 'Hakaniemen apteekki', 1300, 1200, { kind: 'missing' }, { street: 'Hämeentie 1' }),
+  pharmacy('n305', 'Meilahden apteekki', 2600, -900, daily('08:00', '22:00'), { street: 'Mannerheimintie 96' }),
+  pharmacy('n306', 'Lauttasaaren apteekki', -1000, -3200, daily('09:00', '18:00'), { street: 'Lauttasaarentie 28' }),
+  pharmacy('n307', 'Vallilan apteekki', 2700, 1100, { kind: 'missing' }, { street: 'Mäkelänkatu 30' }),
+  pharmacy('n308', 'Munkkiniemen apteekki', 2900, -3300, daily('09:00', '20:30'), { street: 'Munkkiniemen puistotie 14' }),
+];
+
+/** Twenty kilometres east, two squares away: no search from Kamppi reaches them. The map does, when it is moved there. */
+export const farEast: TilePharmacy[] = [
+  pharmacy('n401', 'Söderkullan apteekki', 2500, 21_500, daily('08:00', '22:00'), { city: 'Sipoo', street: 'Amiraalintie 2' }),
+  pharmacy('n402', 'Nikkilän apteekki', 9000, 22_800, daily('09:00', '18:00'), { city: 'Sipoo', street: 'Iso Kylätie 12' }),
+];
+
 /** Fourteen kilometres north, in the next square: open around the clock. */
 export const farOpen: TilePharmacy = pharmacy('n201', 'Jumbon apteekki', 14_000, 1_200, ALWAYS, { city: 'Vantaa', street: 'Vantaanportinkatu 3' });
 
