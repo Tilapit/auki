@@ -74,6 +74,28 @@ describe('status lines', () => {
     expect(statusText(fi, { kind: 'closed' })).toBe('Kiinni');
   });
 
+  it('says a share with a decimal in a table and without one in a sentence', () => {
+    expect(fi.f.percent(0.1815)).toBe(`18,2${NBSP}%`);
+    expect(fi.f.percent(0.1815, 0)).toBe(`18${NBSP}%`);
+    expect(en.f.percent(0.073, 0)).toBe('7%');
+    expect(fi.t.results.hoursListed('Espanja', fi.f.percent(0.1815, 0))).toBe(`Espanja: aukioloajat on merkitty 18${NBSP}%:lle apteekeista.`);
+  });
+
+  it('says a day and a time on the device clock, or in a zone when one is given', () => {
+    const fetched = Date.parse('2026-11-23T01:17:00Z') / 1000;
+    expect(fi.f.dayAndTime(fetched, 'Europe/Helsinki')).toBe(`23.11. klo${NBSP}3.17`);
+    expect(en.f.dayAndTime(fetched, 'Europe/Helsinki')).toBe('23 Nov, 03:17');
+    // The tests run with TZ=UTC: without a zone the runtime's own is used.
+    expect(fi.f.dayAndTime(fetched)).toBe(`23.11. klo${NBSP}1.17`);
+  });
+
+  it('counts the pharmacies without known hours in the singular and the plural', () => {
+    expect(fi.t.results.unlistedNearby(1)).toBe('Apteekki voi silti olla auki.');
+    expect(fi.t.results.unlistedNearby(7)).toBe('Lähistöllä on 7 apteekkia, joiden aukioloaikoja ei tiedetä. Osa niistä voi olla auki.');
+    expect(fi.t.results.closerUnknown(1)).toBe('Lähempänä on yksi apteekki, jonka aukioloaikoja ei tiedetä.');
+    expect(en.t.results.closerUnknown(2)).toBe('2 closer pharmacies have no known opening hours.');
+  });
+
   it('has no exclamation marks or em dashes in either dictionary', () => {
     const texts: string[] = [];
     const walk = (value: unknown) => {

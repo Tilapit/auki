@@ -1,7 +1,7 @@
 import { cityName } from './exonyms';
 import type { Locale } from './i18n';
 import { isOpenNow } from './status';
-import type { Pharmacy, Scene } from './types';
+import type { OpenStatus, Pharmacy, Scene } from './types';
 
 export interface Arranged {
   /** The nearest open pharmacy: from the list, or the farther one from the 24-hour search. */
@@ -24,10 +24,36 @@ export interface Arranged {
   /** Ids whose name is shared with another result, so the street is shown next to it. */
   needsStreet: Set<string>;
   total: number;
+  /**
+   * Hours coverage (provisional, DESIGN-LOG.md 23 Nov 2026). Set when most of the pharmacies
+   * nearer than the nearest one known to be open have hours we can't read, and that one is a
+   * detour of more than DETOUR_METERS past the nearest of them, or there is none at all.
+   * The card then doesn't send anyone past them: `lead`, the nearest of them, takes it, and
+   * `nearestOpen` becomes a line under it. `count`: how many of the nearer ones it is true of.
+   */
+  unlisted?: { lead: Pharmacy; count: number };
+  /**
+   * How many pharmacies nearer than `nearestOpen` have hours we can't read. Above zero, "the
+   * nearest open one" is only the nearest we know of, and the card says so.
+   */
+  closerUnknown: number;
 }
 
 const COLLAPSE_FROM = 3;
 const CITY_FROM_NEAREST = 5;
+/**
+ * How much farther a pharmacy known to be open may be than the nearest one with unknown
+ * hours and still lead the card: about six minutes more on foot, a fair price for knowing.
+ */
+export const DETOUR_METERS = 500;
+
+/** Hours that can't say open or closed: none listed, or listed in a way that can't be read or trusted. */
+export const hoursUnknown = (status: OpenStatus): boolean => status.kind === 'missing' || status.kind === 'unparseable' || status.kind === 'uncertain';
+
+export interface ArrangeOptions {
+  /** false shows the results as they were before the hours-coverage proposal, for the comparison in /dev/states. */
+  coverage?: boolean;
+}
 
 type Opening = NonNullable<Extract<Pharmacy['status'], { kind: 'closed' }>['opens']>;
 
@@ -41,16 +67,25 @@ export function earliestToOpen(pharmacies: Pharmacy[]): { pharmacy: Pharmacy; op
 }
 
 /** Splits a sorted result list into the card, the list and the collapsed closed group. Pure. */
-export function arrange(scene: Pick<Scene, 'pharmacies' | 'farOpen'>): Arranged {
+export function arrange(scene: Pick<Scene, 'pharmacies' | 'farOpen'>, options: ArrangeOptions = {}): Arranged {
   const { pharmacies, farOpen } = scene;
   const openIndex = pharmacies.findIndex((p) => isOpenNow(p.status));
   const noneNear = openIndex < 0;
   const nearestOpen = noneNear ? farOpen : pharmacies[openIndex];
   const far = noneNear && farOpen !== undefined;
-  const firstToOpen = noneNear ? earliestToOpen(pharmacies)?.pharmacy : undefined;
-  const rest = pharmacies.filter((p) => p !== nearestOpen && p !== firstToOpen);
-
   const nearer = noneNear ? pharmacies : pharmacies.slice(0, openIndex);
+
+  // Don't guess hours: a pharmacy without them may well be open. Where most of the nearer ones
+  // are like that, the open one we know of leads only if it is hardly farther than they are.
+  const unknown = options.coverage === false ? [] : nearer.filter((p) => hoursUnknown(p.status));
+  const closerUnknown = unknown.length;
+  const detour = nearestOpen === undefined || nearestOpen.straightMeters - (unknown[0]?.straightMeters ?? 0) > DETOUR_METERS;
+  const unlisted = closerUnknown > 0 && closerUnknown * 2 > nearer.length && detour ? { lead: unknown[0], count: closerUnknown } : undefined;
+
+  // The first to open is named only where we can say that nothing is open; with unknown hours in the lead we can't.
+  const firstToOpen = noneNear && !unlisted ? earliestToOpen(pharmacies)?.pharmacy : undefined;
+  const rest = pharmacies.filter((p) => p !== nearestOpen && p !== firstToOpen && p !== unlisted?.lead);
+
   const closerClosed = nearer.filter((p) => p.status.kind === 'closed').length;
   // With nothing open at all there is nothing to fold the closed ones behind: they are the list.
   const collapse = nearestOpen !== undefined && closerClosed >= COLLAPSE_FROM && closerClosed === nearer.length;
@@ -75,6 +110,8 @@ export function arrange(scene: Pick<Scene, 'pharmacies' | 'farOpen'>): Arranged 
     needsStreet,
     // The far open one is a result too, although it is not in the list.
     total: pharmacies.length + (far ? 1 : 0),
+    ...(unlisted ? { unlisted } : {}),
+    closerUnknown,
   };
 }
 

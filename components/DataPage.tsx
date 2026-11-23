@@ -36,8 +36,11 @@ export function DataPage() {
   return <DataView loaded={loaded} />;
 }
 
-/** The page for a given state of the numbers. Also rendered in /dev/states, from a fixture. */
-export function DataView({ loaded }: { loaded: Loaded }) {
+/**
+ * The page for a given state of the numbers. Also rendered in /dev/states, from a fixture:
+ * there the times are said in a fixed zone, so that the server and the browser agree.
+ */
+export function DataView({ loaded, zone }: { loaded: Loaded; zone?: string }) {
   const { t, locale } = useI18n();
   return (
     <div className={styles.page}>
@@ -62,7 +65,7 @@ export function DataView({ loaded }: { loaded: Loaded }) {
             {t.data.failed}
           </p>
         )}
-        {loaded.status === 'ready' && <DataTable index={loaded.index} />}
+        {loaded.status === 'ready' && <DataTable index={loaded.index} zone={zone} />}
 
         <ul className={styles.explain}>
           {t.data.explain.map((line) => (
@@ -81,7 +84,7 @@ export function DataView({ loaded }: { loaded: Loaded }) {
   );
 }
 
-function DataTable({ index }: { index: IndexJson }) {
+function DataTable({ index, zone }: { index: IndexJson; zone?: string }) {
   const { t, f, locale } = useI18n();
   const rows = Object.entries(index.countries)
     .map(([code, stats]) => ({ code, name: f.countryName(code), stats }))
@@ -91,33 +94,59 @@ function DataTable({ index }: { index: IndexJson }) {
     { pharmacies: 0, withHours: 0, parsed: 0 },
   );
   const share = (part: number, whole: number) => (whole === 0 ? '' : f.percent(part / whole));
-  const anyKept = rows.some(({ stats }) => stats.kept);
+  const kept = rows.filter(({ stats }) => stats.kept).map(({ name }) => name);
+  // On the device's clock: the page is about when the data was fetched, not about a pharmacy's day.
+  const when = (seconds: number) => <time dateTime={new Date(seconds * 1000).toISOString()}>{f.dayAndTime(seconds, zone)}</time>;
 
-  const line = (name: string, stats: Pick<CountryStats, 'pharmacies' | 'withHours' | 'parsed'>, fetched?: number, kept?: boolean) => (
-    <>
-      <th scope="row">{name}</th>
-      <td>{f.count(stats.pharmacies)}</td>
-      <td>{share(stats.withHours, stats.pharmacies)}</td>
-      <td>{share(stats.parsed, stats.withHours)}</td>
-      <td>
-        {fetched !== undefined && <time dateTime={new Date(fetched * 1000).toISOString()}>{f.dayOf(fetched)}</time>}
-        {kept && <span className={styles.kept}> ({t.data.kept})</span>}
-      </td>
-    </>
-  );
+  const line = (name: string, stats: Pick<CountryStats, 'pharmacies' | 'withHours' | 'parsed'>, fetched?: number, earlier?: boolean) => {
+    const fetchedAt = fetched !== undefined && (
+      <>
+        {when(fetched)}
+        {earlier && <span className={styles.kept}> ({t.data.kept})</span>}
+      </>
+    );
+    return (
+      <>
+        <th scope="row">
+          {name}
+          {/* A narrow screen has no room for the last column: the time sits under the name instead. */}
+          {fetchedAt && <span className={styles.fetchedUnder}>{fetchedAt}</span>}
+        </th>
+        <td>{f.count(stats.pharmacies)}</td>
+        <td>
+          {share(stats.withHours, stats.pharmacies)}
+          {/* The share again as a length, so that the column can be read down at a glance. */}
+          {stats.pharmacies > 0 && (
+            <span aria-hidden="true" className={styles.meter}>
+              <span style={{ width: `${Math.round((stats.withHours / stats.pharmacies) * 100)}%` }} />
+            </span>
+          )}
+        </td>
+        <td>{share(stats.parsed, stats.withHours)}</td>
+        <td className={styles.fetched}>{fetchedAt}</td>
+      </>
+    );
+  };
 
   return (
     <>
+      <p className={styles.run}>{rich(t.data.lastRun, { time: when(index.generated) })}</p>
+      {kept.length > 0 && <p className={styles.note}>{t.data.keptNote(f.list(kept))}</p>}
       <div className={styles.scroll}>
         <table className={styles.table}>
           <caption className="visually-hidden">{t.data.caption}</caption>
           <thead>
             <tr>
-              <th scope="col">{t.data.columns.country}</th>
+              <th scope="col">
+                {t.data.columns.country}
+                <span className={styles.fetchedUnder}>{t.data.fetchedShort}</span>
+              </th>
               <th scope="col">{t.data.columns.pharmacies}</th>
               <th scope="col">{t.data.columns.withHours}</th>
               <th scope="col">{t.data.columns.parsed}</th>
-              <th scope="col">{t.data.columns.fetched}</th>
+              <th scope="col" className={styles.fetched}>
+                {t.data.columns.fetched}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -130,7 +159,6 @@ function DataTable({ index }: { index: IndexJson }) {
           </tfoot>
         </table>
       </div>
-      {anyKept && <p className={styles.note}>{t.data.keptNote}</p>}
     </>
   );
 }

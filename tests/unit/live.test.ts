@@ -153,6 +153,16 @@ describe('the search through tiles', () => {
     for (const path of asked) expect(carriesPosition(path, HERE)).toBe(false);
   });
 
+  it('says how well the hours of the nearest pharmacy\'s country are covered, from the index', async () => {
+    const { load, files } = world([{ tile: home, pharmacies: [pharmacy(100, { kind: 'missing' })] }]);
+    const index = files.get(INDEX_PATH) as IndexJson;
+    index.countries.FI = { ...index.countries.FI, pharmacies: 5600, withHours: 409, shareWithHours: 0.073 };
+    const outcome = await findPharmacies(new Tiles(load), HERE, NOON);
+    expect(outcome.kind === 'results' && outcome.result.hoursListed).toEqual({ country: 'FI', share: 0.073 });
+    // And the scene carries it to the card.
+    expect(outcome.kind === 'results' && toScene({ position: { source: 'device', ...HERE, accuracy: 10, approximate: false }, result: outcome.result, now: NOON, deviceZone: 'Europe/Helsinki' }).hoursListed).toEqual({ country: 'FI', share: 0.073 });
+  });
+
   it('looks farther when nothing is within 10 km, and says none when nothing is within 50', async () => {
     const north = { x: home.x, y: home.y - 1 };
     const far = pharmacy(25_000, daily('08:00', '21:00'));

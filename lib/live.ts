@@ -32,6 +32,8 @@ export interface SearchResult {
   farOpen?: Found;
   /** Countries next to the position that the tiles don't cover, as ISO codes. */
   missing: string[];
+  /** The country of the nearest pharmacy and its share of pharmacies with opening hours, from the index. */
+  hoursListed?: { country: string; share: number };
 }
 
 /** True for a pharmacy that is open at `now` and stays open for half an hour more. */
@@ -130,6 +132,7 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
     ...(stale ? { stale } : {}),
     ...(dataFrom !== undefined ? { dataFrom } : {}),
     ...(result.missing.length > 0 ? { missing: result.missing } : {}),
+    ...(result.hoursListed ? { hoursListed: result.hoursListed } : {}),
     views: { phone: { center, zoom: zoomToFit(reach, position.lat, 150) }, desktop: { center, zoom: zoomToFit(reach, position.lat, 330) } },
   };
 }

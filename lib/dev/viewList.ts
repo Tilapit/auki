@@ -107,6 +107,17 @@ export const groups: ViewGroup[] = [
     ],
   },
   {
+    id: 'hours',
+    title: 'Hours coverage (provisional): most nearby pharmacies have no listed hours',
+    note: 'Málaga on Mon 23 Nov 2026, from tile data: in Spain 18 % of pharmacies have opening hours in OpenStreetMap. The main case is under "Proposals", current and proposed side by side.',
+    views: [
+      { id: 'hours-peek', title: 'Sheet collapsed: the nearest pharmacy leads, the call comes first, the one known to be open is a line', sizes: ['phone'] },
+      { id: 'hours-none', title: '22.30, no pharmacy known to be open: no claim that all are closed, 112 kept prominent' },
+      { id: 'hours-no-phone', title: 'The nearest has no phone number either: the route leads, and the text says why', sizes: ['phone'] },
+      { id: 'hours-near', title: 'The open one is 220 m past the nearest: it leads as before, and the card says what lies nearer', sizes: ['phone'] },
+    ],
+  },
+  {
     id: 'details',
     title: 'Pharmacy sheet and counter card',
     views: [
@@ -154,6 +165,16 @@ export interface Proposal {
   proposed: ViewInfo;
 }
 
+/** Hours coverage, Janne's decision 1 of 23 Nov 2026 on the M3 report: built provisionally, waiting for a look. */
+const hoursCoverage: Proposal = {
+  id: 'hours',
+  title: 'Where most nearby pharmacies have no listed hours, the card does not send people past them',
+  reason:
+    'In Southern Europe most pharmacies have no opening hours in OpenStreetMap (Greece 7 %, Spain 18 %). Today the card leads with the nearest pharmacy whose hours say it is open, here 1.9 km away past seven that may well be open. Proposed: when most of the nearer pharmacies have hours we can\'t read and the open one is more than 500 m farther than the nearest of them, the nearest leads. The card says how many there are, puts the call first, and keeps the one known to be open as a line. The heading stops counting open pharmacies. Provisional: waiting for Janne.',
+  current: { id: 'hours-current', title: 'Current: the far one with known hours leads' },
+  proposed: { id: 'hours-proposed', title: 'Proposed: the nearest leads, call first, the known open one as a line' },
+};
+
 /** Open proposals, each shown as current and proposed side by side. Decided ones move to DESIGN-LOG.md. */
 export const proposals: Proposal[] = [
   {
@@ -164,6 +185,7 @@ export const proposals: Proposal[] = [
     current: { id: 'place-current', title: 'Current: the place name is text' },
     proposed: { id: 'place-proposed', title: 'Proposed: the place name opens the place search' },
   },
+  hoursCoverage,
 ];
 
 export const allViews: ViewInfo[] = [...groups.flatMap((group) => group.views), ...proposals.flatMap((p) => [p.current, p.proposed])];

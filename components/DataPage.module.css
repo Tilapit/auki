@@ -96,6 +96,70 @@
   color: var(--soon);
 }
 
+/* When the pipeline last ran, above the table. */
+.run {
+  margin-top: 18px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.run + .note {
+  margin-top: 6px;
+  max-width: 62ch;
+  line-height: 1.5;
+}
+
+/* The share with hours once more as a length: the column reads down at a glance. Decorative; the number is the text. */
+.meter {
+  display: block;
+  width: 3.5rem;
+  height: 3px;
+  margin: 5px 0 1px auto;
+  border-radius: 2px;
+  background: var(--hair);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--link);
+}
+
+/* The time of the last fetch: a column of its own where there is room, a line under the country's name where there isn't. */
+.fetchedUnder {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .table .fetched {
+    display: none;
+  }
+
+  .fetchedUnder {
+    display: block;
+    margin-top: 2px;
+    color: var(--meta);
+    font-size: var(--t-xs);
+    font-weight: 400;
+  }
+
+  .fetchedUnder .kept {
+    display: block;
+  }
+
+  .table th,
+  .table td {
+    padding-inline: 10px;
+    vertical-align: top;
+  }
+
+  .table thead th {
+    vertical-align: bottom;
+  }
+}
+
 .explain {
   max-width: 62ch;
   margin-top: 22px;

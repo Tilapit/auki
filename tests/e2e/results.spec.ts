@@ -102,8 +102,49 @@ test('nothing nearby open: a farther open pharmacy leads, with the one that open
   await expect(card).toContainText('Auki ympäri vuorokauden');
   await expect(card).toContainText('Vantaa');
   await expect(card).toContainText('Avautuu ensimmäisenä');
+  // Two of the six nearer ones have hours that can't be read: the card says so, it doesn't guess.
+  await expect(card).toContainText('Lähempänä on 2 apteekkia, joiden aukioloaikoja ei tiedetä.');
   // It took the square to the north as well as our own.
   expect(new Set(asked).size).toBeGreaterThanOrEqual(3);
+});
+
+test('most nearby pharmacies without hours: the nearest leads with the call first, and nobody is sent past them', async ({ page }) => {
+  // Hours coverage (provisional). Around Kamppi nothing has opening hours; the one pharmacy known to be open is 14 km away.
+  const unlisted = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, hours: { kind: 'missing' } }));
+  await start(page, world([...unlisted, farOpen]));
+  // The heading counts nothing as open or closed.
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Lähimpien apteekkien aukioloaikoja ei tiedetä');
+  await expect(page.getByRole('heading', { name: 'Lähin auki nyt' })).toHaveCount(0);
+  const card = page.locator('section', { has: page.getByRole('heading', { name: 'Lähin apteekki', exact: true }) }).last();
+  await expect(card.getByRole('heading', { level: 3 })).toHaveText('Kampin apteekki');
+  await expect(card).toContainText('Aukioloaikoja ei ole merkitty');
+  await expect(card).toContainText('Lähistöllä on 6 apteekkia, joiden aukioloaikoja ei tiedetä. Osa niistä voi olla auki. Soita ennen kuin lähdet.');
+  // The call is the first action, the route the second.
+  const actions = card.locator('a[href^="tel:"], button');
+  await expect(actions.first()).toHaveAttribute('href', 'tel:+35891234501');
+  await expect(actions.first()).toHaveAccessibleName('Soita: Kampin apteekki');
+  await expect(actions.nth(1)).toHaveAccessibleName('Kävelyreitti: Kampin apteekki');
+  // The one known to be open is kept, as a line; and the card says how well the country's hours are covered.
+  await expect(card).toContainText('Lähin, jonka tiedetään olevan auki: Jumbon apteekki, 14,0 km, auki ympäri vuorokauden.');
+  await expect(card).toContainText('Suomi: aukioloajat on merkitty 79 %:lle apteekeista.');
+  await expect(card.getByRole('link', { name: 'Tietoa aineistosta' })).toHaveAttribute('href', '/fi/data');
+  // The others stay in the list in distance order; the two in the card are not repeated.
+  await expect(rows(page)).toHaveText(['Yliopiston apteekki', 'Hietalahden apteekki', 'Apteekki Runeberginkatu 6', 'Töölön apteekki', 'Kruununhaan apteekki']);
+  await card.getByRole('link', { name: 'Jumbon apteekki' }).click();
+  await expect(page.getByRole('dialog').getByRole('heading', { name: 'Jumbon apteekki' })).toBeVisible();
+});
+
+test('no pharmacy known to be open and most hours missing: says so, without claiming that all are closed', async ({ page }) => {
+  const unlisted = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, phone: undefined, hours: { kind: 'missing' } }));
+  await start(page, world(unlisted));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Lähimpien apteekkien aukioloaikoja ei tiedetä');
+  await expect(page.getByText('Lähistöllä ei ole yhtään apteekkia auki')).toHaveCount(0);
+  const card = page.locator('section', { has: page.getByRole('heading', { name: 'Lähin apteekki', exact: true }) }).last();
+  // Without a phone number the route leads, and the text says why.
+  await expect(card).toContainText('Lähimmän puhelinnumeroa ei ole merkitty, joten sen aukiolo selviää vain paikan päällä.');
+  await expect(card.locator('a[href^="tel:"]', { hasText: 'Soita' })).toHaveCount(0);
+  await expect(card.getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' })).toBeVisible();
+  await expect(card.getByRole('link', { name: '112' })).toBeVisible();
 });
 
 test('no pharmacy within 50 km: says so, and a place search from there works', async ({ page }) => {
@@ -210,8 +251,16 @@ test('the data page shows the numbers of the last run', async ({ page }) => {
   await expect(finland).toContainText('787');
   await expect(finland).toContainText('79,3 %');
   await expect(finland).toContainText('100,0 %');
-  await expect(finland).toContainText('23.11.');
-  await expect(page.getByRole('row', { name: /Latvia/ })).toContainText('aiempi haku');
+  // Each country's last successful fetch, with its time, on the device's clock.
+  await expect(finland).toContainText('23.11. klo 3.17');
+  // When the last run was, and which countries it could not refresh.
+  await expect(page.getByText('Viimeisin haku: 23.11. klo 3.33')).toBeVisible();
+  await expect(page.getByText('Ei päivittynyt viimeisimmässä haussa: Latvia.')).toBeVisible();
+  const latvia = page.getByRole('row', { name: /Latvia/ });
+  await expect(latvia).toContainText('21.11. klo 3.25');
+  await expect(latvia).toContainText('aiempi haku');
+  await expect(page.getByRole('row', { name: /Kreikka/ })).toContainText('7,3 %');
+  await expect(page.getByText('Missä osuus on pieni, useimmat apteekit näkyvät tuloksissa merkinnällä')).toBeVisible();
   await expect(page.getByRole('row')).toHaveCount(23);
   await expect(page.getByRole('link', { name: 'Takaisin apteekkihakuun' }).last()).toHaveAttribute('href', '/fi');
 });

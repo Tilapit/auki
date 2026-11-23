@@ -94,6 +94,10 @@ export async function findPharmacies(tiles: Tiles, position: LatLon, now: number
   if (candidates.length === 0) return { kind: 'none' };
 
   const result: SearchResult = { candidates, missing: coverage.missing };
+  // How well the country's hours are covered: the results say it where most hours are missing.
+  const country = candidates[0].pharmacy.country;
+  const stats = index.countries[country];
+  if (stats && stats.pharmacies > 0) result.hoursListed = { country, share: stats.shareWithHours };
   if (noneShownOpen(result, now)) {
     const farOpen = await findFarOpen(tiles, position, now);
     // Only one that isn't in the list already: a candidate beyond the ten shown still counts.
