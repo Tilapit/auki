@@ -95,7 +95,8 @@ const NAME_PADDING = 24;
 
 /** Where the edge chips may sit: clear of the phone's bar and sheet, the desktop legend and credit. */
 const chipInsets = (frame: Frame): Insets =>
-  frame.desktop ? { top: 64, right: 16, bottom: 44, left: 16 } : { top: 76, right: 12, bottom: frame.pad + 12, left: 12 };
+  // On the phone the credit lies just above the sheet: the chips keep clear of it.
+  frame.desktop ? { top: 64, right: 16, bottom: 44, left: 16 } : { top: 76, right: 12, bottom: frame.pad + 40, left: 12 };
 /** The camera's centre sits in the middle of what the phone's bar and sheet leave free. */
 const cameraPadding = (frame: Frame): Insets => ({ top: frame.desktop ? 0 : 64, right: 0, bottom: frame.pad, left: 0 });
 
