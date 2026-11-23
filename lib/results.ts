@@ -29,7 +29,8 @@ export interface Arranged {
    * nearer than the nearest one known to be open have hours we can't read, and that one is a
    * detour of more than DETOUR_METERS past the nearest of them, or there is none at all.
    * The card then doesn't send anyone past them: `lead`, the nearest of them, takes it, and
-   * `nearestOpen` becomes a line under it. `count`: how many of the nearer ones it is true of.
+   * `nearestOpen` becomes a line under it. `count`: how many of the pharmacies shown have such
+   * hours, which is the number a reader can check against the list.
    */
   unlisted?: { lead: Pharmacy; count: number };
   /**
@@ -77,10 +78,11 @@ export function arrange(scene: Pick<Scene, 'pharmacies' | 'farOpen'>, options: A
 
   // Don't guess hours: a pharmacy without them may well be open. Where most of the nearer ones
   // are like that, the open one we know of leads only if it is hardly farther than they are.
-  const unknown = options.coverage === false ? [] : nearer.filter((p) => hoursUnknown(p.status));
+  const allUnknown = options.coverage === false ? [] : pharmacies.filter((p) => hoursUnknown(p.status));
+  const unknown = allUnknown.filter((p) => nearer.includes(p));
   const closerUnknown = unknown.length;
   const detour = nearestOpen === undefined || nearestOpen.straightMeters - (unknown[0]?.straightMeters ?? 0) > DETOUR_METERS;
-  const unlisted = closerUnknown > 0 && closerUnknown * 2 > nearer.length && detour ? { lead: unknown[0], count: closerUnknown } : undefined;
+  const unlisted = closerUnknown > 0 && closerUnknown * 2 > nearer.length && detour ? { lead: unknown[0], count: allUnknown.length } : undefined;
 
   // The first to open is named only where we can say that nothing is open; with unknown hours in the lead we can't.
   const firstToOpen = noneNear && !unlisted ? earliestToOpen(pharmacies)?.pharmacy : undefined;

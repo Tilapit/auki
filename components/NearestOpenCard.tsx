@@ -310,7 +310,7 @@ interface HoursUnknownProps {
   pharmacy: Pharmacy;
   city?: string;
   distance: Scene['distance'];
-  /** How many nearby pharmacies have hours we can't read, this one included. */
+  /** How many of the pharmacies shown have hours we can't read, this one included. */
   count: number;
   /** The nearest pharmacy whose hours say it is open now, when there is one. */
   knownOpen?: Pharmacy;

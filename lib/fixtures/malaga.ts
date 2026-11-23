@@ -49,7 +49,7 @@ function pharmacy(id: string, name: string | null, north: number, east: number, 
   };
 }
 
-/** Ten nearest: seven without hours we can read, one closed since 20.30, one open until 22, 1.9 km away. */
+/** Ten nearest: eight without hours we can read, one closed since 20.30, one open until 22, 1.9 km away. */
 const centre: TilePharmacy[] = [
   pharmacy('n301', 'Farmacia Alameda', 90, -80, MISSING, { street: 'Alameda Principal 12', phone: '+34 952 000 101' }),
   pharmacy('n302', null, -150, 170, MISSING, { street: 'Calle Nueva 9' }),

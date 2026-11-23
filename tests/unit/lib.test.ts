@@ -116,12 +116,14 @@ describe('arrange, where hours are missing (hours coverage, provisional)', () =>
   const ids = (pharmacies: Pharmacy[]) => pharmacies.map((p) => p.id);
 
   it('five without hours before an open one 3 km away: the nearest of them leads, and the open one is kept', () => {
-    const pharmacies = [at(120, missing), at(200, missing), at(350, missing), at(500, missing), at(800, missing), at(3000, open)];
+    const pharmacies = [at(120, missing), at(200, missing), at(350, missing), at(500, missing), at(800, missing), at(3000, open), at(3400, missing)];
     const result = arrange({ pharmacies });
-    expect(result.unlisted).toEqual({ lead: pharmacies[0], count: 5 });
+    // The count is of all the pharmacies shown, so that it agrees with the list under the card.
+    expect(result.unlisted).toEqual({ lead: pharmacies[0], count: 6 });
+    expect(result.closerUnknown).toBe(5);
     expect(result.nearestOpen?.id).toBe('p3000');
     // Neither of the two in the card is repeated in the list.
-    expect(ids(result.others)).toEqual(['p200', 'p350', 'p500', 'p800']);
+    expect(ids(result.others)).toEqual(['p200', 'p350', 'p500', 'p800', 'p3400']);
     expect(result.closedGroup).toEqual([]);
     expect(result.firstToOpen).toBeUndefined();
   });
@@ -188,7 +190,8 @@ describe('arrange, where hours are missing (hours coverage, provisional)', () =>
 
   it('Málaga, from tile data: seven of the eight nearer ones are unknown, so the nearest leads; later nothing is known open', () => {
     const evening = arrange(malaga);
-    expect(evening.unlisted).toEqual({ lead: expect.objectContaining({ id: 'n301' }), count: 7 });
+    expect(evening.closerUnknown).toBe(7);
+    expect(evening.unlisted).toEqual({ lead: expect.objectContaining({ id: 'n301' }), count: 8 });
     expect(evening.nearestOpen?.id).toBe('n309');
     expect(evening.others).toHaveLength(8);
     expect(malaga.hoursListed).toEqual({ country: 'ES', share: 0.1815 });
