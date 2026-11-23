@@ -4,6 +4,8 @@ name: Data
 # countries, as static tiles on a host of their own. The app is not rebuilt for data.
 #
 # - Every night, and by hand: the whole coverage, then publish.
+# - Later the same night, a second attempt for the countries the first one could not
+#   refresh. With none of them it fetches nothing and publishes nothing.
 # - On a push that touches the pipeline: Malta alone, nothing published. It shows in the
 #   pull request that the pipeline still runs here and that Overpass answers this runner.
 #
@@ -14,12 +16,18 @@ on:
   schedule:
     # 01:17 UTC: night in Europe, and off the hour, when the shared runners are less busy.
     - cron: '17 1 * * *'
+    # The second attempt, two and a half hours later. The same line is in RETRY_SCHEDULE below.
+    - cron: '47 3 * * *'
   workflow_dispatch:
     inputs:
       countries:
         description: Countries to refresh, as ISO codes with spaces between (empty for all)
         type: string
         default: ''
+      retry:
+        description: Only the countries the last run could not refresh
+        type: boolean
+        default: false
       publish:
         description: Publish the tiles
         type: boolean
@@ -40,9 +48,10 @@ permissions:
 env:
   # The opening_hours library reads local time: the pipeline treats it as wall clock (PLAN.md 7.4).
   TZ: UTC
-  # The published site, read for the last run's numbers and for the data of a country that
-  # can't be refreshed. Empty until the data project exists (decision D7): then every run is a first run.
-  TILES_ORIGIN: ''
+  # The published site (decision D7), read for the last run's numbers and for the data of a
+  # country that can't be refreshed. Until it has been published to, every run is a first run.
+  TILES_ORIGIN: https://auki-data.vercel.app
+  RETRY_SCHEDULE: '47 3 * * *'
 
 jobs:
   data:
@@ -68,7 +77,8 @@ jobs:
         env:
           CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL }}
           COUNTRIES: ${{ github.event_name == 'push' && 'MT' || inputs.countries }}
-        run: npm run data -- $COUNTRIES
+          RETRY: ${{ (github.event.schedule == env.RETRY_SCHEDULE || inputs.retry == true) && '--retry' || '' }}
+        run: npm run data -- $RETRY $COUNTRIES
 
       - name: Publish the tiles
         if: steps.pipeline.outputs.written == 'true' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish))
@@ -86,6 +96,9 @@ jobs:
 
       - name: Fail when a country was not refreshed
         if: steps.pipeline.outcome == 'failure'
+        env:
+          NOT_FRESH: ${{ steps.pipeline.outputs.not_fresh }}
         run: |
-          echo "::error::The pipeline did not refresh every country it was asked for. See the table in the summary."
+          # The countries are named here so that the list of runs answers "which ones, how often".
+          echo "::error::Not refreshed: ${NOT_FRESH:-nothing could be written}. See the table in the summary."
           exit 1
