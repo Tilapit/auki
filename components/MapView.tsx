@@ -367,8 +367,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         // Moved by hand, the map may show squares whose pharmacies aren't on the device yet. A move
         // the app made itself (framing the results, following a walk) asks for nothing: what is
         // loaded then follows from where the user looks, never from where they are.
+        if (home) home.dataset.zoom = live.getZoom().toFixed(2);
         live.on('moveend', (event) => {
-          if (root.current) root.current.dataset.zoom = live.getZoom().toFixed(2);
+          if (home) home.dataset.zoom = live.getZoom().toFixed(2);
           if (!('originalEvent' in event) && !(event as { byHand?: boolean }).byHand) return;
           const bounds = live.getBounds();
           latest.current.onView?.({ north: bounds.getNorth(), south: bounds.getSouth(), west: bounds.getWest(), east: bounds.getEast() });
