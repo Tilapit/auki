@@ -102,7 +102,7 @@ const en: Dictionary = {
     refresh: 'Update location and results',
     nearestOpen: 'Nearest open now',
     others: 'Others nearby',
-    byWalking: 'By walking distance',
+    byWalking: 'By walking time',
     byStraight: 'In a straight line',
     allPharmacies: (count) => `All ${count} pharmacies`,
     showMore: 'Show more',

@@ -641,6 +641,7 @@ Entry format:
   - A walk is never taken to be shorter than the straight line at 5 km/h.
   - A pharmacy with no walking route comes after all that have one and keeps its straight-line distance, labelled "linnuntietä", in a list that is otherwise on foot.
   - When walking times don't come within a second and a half the list is by straight line, the list's heading says "Linnuntietä" and the footer "Etäisyydet ovat linnuntietä.", as the M0 fallback view had it.
+  - The list's own line about its order stays "Kävelymatkan mukaan" in Finnish, where the word covers the walk either way; in English it is now "By walking time" (it was "By walking distance").
 - Why: The rows lead with the minutes, so the number the eye runs down is the one that is in order (openrouteservice walks at one speed, so the two orders differ only on a hiking trail). Rounded up, because the same number says whether one gets there before closing: "3 min" must not mean three and a half. The lower bound, because the service measures between the nearest points of the street network: from a park to a pharmacy inside a block it can come out shorter than the straight line, and ehditkö would then promise too much.
 - Status: done
 
