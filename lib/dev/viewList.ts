@@ -145,10 +145,14 @@ export const groups: ViewGroup[] = [
   {
     id: 'medicine',
     title: 'Medicine availability (provisional): where to check, never whether',
-    note: 'The app hands the question to the country\'s own stock search. The line that opens the dialog is under the card and in every pharmacy sheet of a country that has such a service (see "Proposals" and the sheet views below); Riga has none, so its views are as they were. The last view is the seam for live stock, on invented figures: nothing of it is in the live app.',
+    note: 'The app hands the question to the country\'s own stock search. The line that opens the dialog is in the card and in every pharmacy sheet of a country that has such a service (see "Proposals" and the sheet views below); Riga has none, so its views are as they were. The dialogs of the other countries are shown over the Helsinki results: only the dialog differs. The last view is the seam for live stock, on invented figures: nothing of it is in the live app.',
     views: [
       { id: 'medicine-fi', title: 'Finland: the field, the link to apteekki.fi, what is sent and what is not', ready: 'dialog[open]' },
       { id: 'medicine-fi-typed', title: 'Finland, a name typed: the link now carries it', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-de', title: 'Germany: no national stock search; a reservation service that under half of the pharmacies have joined, and the dialog says so', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-at', title: 'Austria: the lookup is in an app, so there is no field: the link leads to the Chamber\'s page about the app', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-no', title: 'Norway: no national stock search; the pharmacy association\'s page on how to check each chain', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-se', title: 'Sweden, not in the live app: ready, and waiting for Lif\'s free linking agreement (Fass terms 4.5)', ready: 'dialog[open]', sizes: PHONE, themes: ['light'] },
       { id: 'medicine-stock', title: 'The seam: live stock from a provider, on example data, labelled as such', ready: '[data-stock-example]' },
     ],
   },

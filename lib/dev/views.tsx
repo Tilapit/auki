@@ -134,6 +134,10 @@ export const renderers: Record<string, () => ReactNode> = {
       medicineExample={<StockExample medicine={EXAMPLE_MEDICINE} pharmacies={helsinki.pharmacies} zone="Europe/Helsinki" />}
     />
   ),
+  'medicine-de': () => <ResultsView scene={helsinki} sheet="peek" medicine="DE" />,
+  'medicine-at': () => <ResultsView scene={helsinki} sheet="peek" medicine="AT" />,
+  'medicine-no': () => <ResultsView scene={helsinki} sheet="peek" medicine="NO" />,
+  'medicine-se': () => <ResultsView scene={helsinki} sheet="peek" medicine="SE" medicineReview />,
   'medicine-current': () => <ResultsView scene={helsinki} sheet="expanded" medicine={false} />,
   'medicine-proposed': () => <ResultsView scene={helsinki} sheet="expanded" />,
 

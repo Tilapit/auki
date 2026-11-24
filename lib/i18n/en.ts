@@ -225,20 +225,40 @@ const en: Dictionary = {
     title: "Check a medicine's availability",
     label: 'Name of the medicine',
     sent: "The name goes from your device straight to {site} when you open the link. It is not sent to this app's server and is not saved.",
-    nothingSent: "The link opens {site}. Type the medicine's name into its own search: this app neither asks for it nor sees it.",
+    nothingSent: "The link carries no medicine's name. Type it into the service's own search: this app neither asks for it nor sees it.",
     confirm: "The stock information is the service's own, and this app does not see it. Check with the pharmacy before you go.",
     coverage: {
       most: 'Most pharmacies take part, not all.',
       some: 'Only some pharmacies take part.',
       chain: "Only the chain's own pharmacies take part.",
     },
-    inApp: "The stock shows in the service's app.",
     services: {
       apteekkiFi: {
         site: 'apteekki.fi',
         intro: 'In Finland, Lääkehaku shows pharmacy by pharmacy whether a medicine is in stock. It is run by the Association of Finnish Pharmacies.',
-        hint: 'Lääkehaku searches by product name or Vnr number.',
+        hint: 'Lääkehaku searches by product name or Vnr number. Type the name alone, without the strength.',
         open: 'Open apteekki.fi',
+      },
+      ihreApotheken: {
+        site: 'ihreapotheken.de',
+        intro: 'Germany has no stock search that covers every pharmacy. IhreApotheken.de is a service for reserving a medicine at a pharmacy you choose.',
+        open: 'Open ihreapotheken.de',
+      },
+      apoApp: {
+        site: 'apothekerkammer.at',
+        intro: 'In Austria, ApoApp, the app of the Austrian Chamber of Pharmacists, shows pharmacy by pharmacy whether a medicine is in stock. There is no search on the web.',
+        note: 'The app is not in the Finnish App Store (checked {date}).',
+        open: 'Open apothekerkammer.at',
+      },
+      apotekNo: {
+        site: 'apotek.no',
+        intro: "Norway has no stock search that covers every pharmacy. The Norwegian Pharmacy Association's page explains how to check a prescription medicine's stock on each pharmacy chain's own site.",
+        open: 'Open apotek.no',
+      },
+      fass: {
+        site: 'fass.se',
+        intro: 'In Sweden, Fass shows pharmacy by pharmacy whether a medicine is in stock. It is run by Lif, the association of the pharmaceutical industry.',
+        open: 'Open fass.se',
       },
     },
     stock: {

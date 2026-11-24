@@ -273,6 +273,23 @@
   line-height: 1.45;
 }
 
+/*
+ * The way to a medicine's stock search (the line comes from ResultsView, as the card's last
+ * child). Under "Ei varastossa?" it is the second line of the same thought: no rule between
+ * them, and it starts where that text starts. Anywhere else it is a section of its own.
+ */
+.medicine {
+  padding-top: 14px;
+  border-top: 1px solid var(--hair-2);
+}
+
+.next + .medicine {
+  margin-top: -10px;
+  padding-top: 0;
+  padding-left: 28px;
+  border-top: 0;
+}
+
 .next + .coverage {
   margin-top: -6px;
   padding-top: 0;

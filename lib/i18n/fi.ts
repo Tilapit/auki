@@ -262,7 +262,7 @@ const fi = {
     /** Under the link, when its address carries the name. "{site}" is the host, as the address bar will show it. */
     sent: 'Nimi siirtyy laitteeltasi suoraan sivustolle {site}, kun avaat linkin. Sitä ei lähetetä tämän sovelluksen palvelimelle eikä tallenneta.',
     /** The same place, for a service whose address takes no name: there is no field then. */
-    nothingSent: 'Linkki avaa sivuston {site}. Kirjoita lääkkeen nimi sen omaan hakuun: tämä sovellus ei kysy eikä näe sitä.',
+    nothingSent: 'Linkissä ei ole lääkkeen nimeä. Kirjoita se palvelun omaan hakuun: tämä sovellus ei kysy eikä näe sitä.',
     confirm: 'Varastotieto on palvelun oma, eikä tämä sovellus näe sitä. Varmista apteekista ennen kuin lähdet.',
     /** After a service's own sentence, when not every pharmacy of the country reports to it. */
     coverage: {
@@ -270,14 +270,39 @@ const fi = {
       some: 'Mukana on vain osa apteekeista.',
       chain: 'Mukana ovat vain ketjun omat apteekit.',
     },
-    inApp: 'Varastotilanne näkyy palvelun sovelluksessa.',
-    /** One entry per provider of lib/stock/providers.ts, by its id. Names of services are not translated. */
+    /**
+     * One entry per provider of lib/stock/providers.ts, by its id. Names of services are not
+     * translated. `hint`: what the service's search goes by. `note`: what else the user should
+     * know before leaving; "{date}" is the day the provider was checked.
+     */
     services: {
       apteekkiFi: {
         site: 'apteekki.fi',
         intro: 'Suomessa lääkkeen saatavuuden apteekeittain näyttää Lääkehaku, jota ylläpitää Suomen Apteekkariliitto.',
-        hint: 'Lääkehaku hakee valmisteen nimellä tai Vnr-numerolla.',
+        hint: 'Lääkehaku hakee valmisteen nimellä tai Vnr-numerolla. Kirjoita pelkkä nimi, ilman vahvuutta.',
         open: 'Avaa apteekki.fi',
+      },
+      ihreApotheken: {
+        site: 'ihreapotheken.de',
+        intro: 'Saksassa ei ole kaikkien apteekkien yhteistä varastohakua. IhreApotheken.de on palvelu, jossa lääkkeen voi varata valitsemastaan apteekista.',
+        open: 'Avaa ihreapotheken.de',
+      },
+      apoApp: {
+        site: 'apothekerkammer.at',
+        intro: 'Itävallassa lääkkeen saatavuuden apteekeittain näyttää ApoApp, Itävallan apteekkarikamarin sovellus. Verkossa hakua ei ole.',
+        note: 'Suomen App Storessa sovellusta ei ole (tarkistettu {date}).',
+        open: 'Avaa apothekerkammer.at',
+      },
+      apotekNo: {
+        site: 'apotek.no',
+        intro: 'Norjassa ei ole kaikkien apteekkien yhteistä varastohakua. Norjan apteekkiyhdistyksen sivu neuvoo, miten reseptilääkkeen saatavuus tarkistetaan apteekkiketjujen omilta sivuilta.',
+        open: 'Avaa apotek.no',
+      },
+      /** Not offered yet: waits for Lif's linking agreement (lib/stock/providers.ts). */
+      fass: {
+        site: 'fass.se',
+        intro: 'Ruotsissa lääkkeen saatavuuden apteekeittain näyttää Fass, jota ylläpitää lääketeollisuuden järjestö Lif.',
+        open: 'Avaa fass.se',
       },
     },
     /** Live stock through a provider: the seam of PLAN.md 7.9. Shown in /dev/states only, with invented figures. */

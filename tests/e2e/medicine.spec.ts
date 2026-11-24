@@ -112,6 +112,18 @@ test('a pharmacy\'s details offer the same check, and Escape closes it without c
   await expect(open).toBeFocused();
 });
 
+test('a service whose address takes no name is never asked for one', async ({ page }) => {
+  // The same pharmacies as if they stood in Austria, where the stock lookup lives in the Chamber's app.
+  const austrian = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, country: 'AT' }));
+  await start(page, world(austrian));
+  await card(page).getByRole('button', { name: 'Tarkista saatavuus' }).click();
+  const dialog = medicine(page);
+  await expect(dialog).toContainText('ApoApp');
+  await expect(dialog.getByRole('textbox')).toHaveCount(0);
+  await expect(dialog.getByRole('link', { name: 'Avaa apothekerkammer.at' })).toHaveAttribute('href', 'https://www.apothekerkammer.at/apoapp');
+  await expect(dialog).toContainText('Linkissä ei ole lääkkeen nimeä. Kirjoita se palvelun omaan hakuun: tämä sovellus ei kysy eikä näe sitä.');
+});
+
 test('in a country without a stock search of its own, nothing is offered', async ({ page }) => {
   // The same pharmacies as if they stood in Latvia, which has no such service to hand over to.
   const latvian = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, country: 'LV' }));

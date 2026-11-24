@@ -49,7 +49,7 @@ interface Props {
  * - the link has no referrer and opens the service the button names, in a tab of its own.
  */
 export function MedicineDialog({ provider, open, onClose, initialValue = '', children }: Props) {
-  const { t } = useI18n();
+  const { t, f } = useI18n();
   const id = useId();
   const ref = useRef<HTMLDialogElement>(null);
   const [value, setValue] = useState(initialValue);
@@ -93,11 +93,16 @@ export function MedicineDialog({ provider, open, onClose, initialValue = '', chi
       </div>
 
       <div className={styles.body}>
-        <p className={styles.intro}>
-          {copy.intro}
-          {provider.coverage && ` ${t.medicine.coverage[provider.coverage]}`}
-          {provider.channel === 'app' && ` ${t.medicine.inApp}`}
-        </p>
+        <div className={styles.about}>
+          <p className={styles.intro}>{copy.intro}</p>
+          {/* What the user should know of the service before leaving: who is missing from it, and what may stand in the way. */}
+          {(provider.coverage || 'note' in copy) && (
+            <p className={styles.limits}>
+              {provider.coverage && t.medicine.coverage[provider.coverage]}
+              {'note' in copy && <> {rich(copy.note, { date: <time dateTime={provider.checked}>{f.date(provider.checked)}</time> })}</>}
+            </p>
+          )}
+        </div>
 
         {provider.takesMedicine && (
           <div className={styles.field}>
@@ -128,7 +133,7 @@ export function MedicineDialog({ provider, open, onClose, initialValue = '', chi
         </Button>
 
         <div className={styles.notes}>
-          <p id={`${id}-sent`}>{rich(provider.takesMedicine ? t.medicine.sent : t.medicine.nothingSent, { site: <span className={styles.site}>{copy.site}</span> })}</p>
+          <p id={`${id}-sent`}>{provider.takesMedicine ? rich(t.medicine.sent, { site: <span className={styles.site}>{copy.site}</span> }) : t.medicine.nothingSent}</p>
           <p>{t.medicine.confirm}</p>
         </div>
 

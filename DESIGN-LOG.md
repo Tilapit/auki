@@ -702,7 +702,7 @@ Entry format:
   - Only where the pharmacy's country has a stock search of its own that the app may link to (PLAN.md 7.9). Elsewhere there is no line: Riga's views are as they were.
   - With out-of-date data, where a notice has the card's place, the line stands under the notice.
   - Nothing is asked before the line is pressed, and the first window is untouched.
-- Why: The card and the sheet are where the app already says "Ei varastossa?". The question belongs next to that line, and "Reitti" opens the sheet, so everyone on their way to a pharmacy passes it. One line costs the phone's card 45 px; a field or a button of its own would have pushed "Kaikki 6 apteekkia" off the card's place on the screen.
+- Why: The card and the sheet are where the app already says "Ei varastossa?". The question belongs next to that line, and "Reitti" opens the sheet, so everyone on their way to a pharmacy passes it. One line makes the card 53 px taller (measured at 390 and 1440 px); a field or a button of its own would have cost three times that.
   - Considered and not taken: a search field on the first window (questions on the first visit are on the rejected list); a fourth block button in the sheet (three are already there, and this is not what most people came for); the line at the end of the list (out of sight on the phone until the list is open and scrolled).
 - Status: provisional, waiting for Janne: the placement, and the wording of both halves of the line
 
@@ -727,7 +727,7 @@ Entry format:
 - Why: Janne's rule 4 of 24 Nov: a medicine's name is health information and never goes to our server. Each choice closes one way it could leak:
   - A form without an action submits to the page's own address, so a press of Enter before the scripts have loaded would have put the name into our server's log. Without a form there is nothing to submit.
   - With `autocomplete` on, the browser keeps the name and offers it to the next person who uses the device.
-  - Chrome's and Edge's enhanced spell-check send what is typed to their makers. apteekki.fi's own field underlines a medicine's name as a spelling mistake.
+  - Chrome's and Edge's enhanced spell-check send what is typed to their makers, and a medicine's name is exactly the kind of word a spell-checker stops at.
   - Without `noopener` the service's tab could reach back into ours.
 - Status: done. Not in our hands: the phone's own keyboard may learn the word, and the service sees the user's IP address with the name, as it would had they typed it there.
 

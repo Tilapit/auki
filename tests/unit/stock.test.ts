@@ -5,10 +5,13 @@ import { COUNTRY_CODES } from '@/lib/countries';
 import { EXAMPLE_ANSWER, exampleProvider } from '@/lib/fixtures/stock';
 import { getDictionary, locales } from '@/lib/i18n';
 import { MEDICINE_MAX_LENGTH, medicineText } from '@/lib/stock/provider';
-import { PROVIDERS, providerFor } from '@/lib/stock/providers';
+import { AWAITING_AGREEMENT, PROVIDERS, providerFor, providerForReview } from '@/lib/stock/providers';
 
 /** A name no medicine has, with everything an address has to carry safely: a space, letters outside ASCII, and the characters that mean something in a URL. */
 const NAME = 'Zzyx-Koevalmiste 12 mg/ml & ä?#+%';
+
+/** Those the app offers, and those that are ready and wait for an agreement: the same rules hold for both. */
+const ALL = [...PROVIDERS, ...AWAITING_AGREEMENT];
 
 /** Where a name is in an address, whichever way the provider writes it: a query value, a part of the path, or the fragment. */
 function carried(url: string): string[] {
@@ -34,18 +37,28 @@ describe('the medicine name as it goes into a link', () => {
 
 describe('the countries\' own stock searches', () => {
   it('one provider per country, each for a country the app covers', () => {
-    const countries = PROVIDERS.map((provider) => provider.country);
+    const countries = ALL.map((provider) => provider.country);
     expect(new Set(countries).size).toBe(countries.length);
     for (const country of countries) expect(COUNTRY_CODES as readonly string[], country).toContain(country);
     for (const provider of PROVIDERS) expect(providerFor(provider.country)).toBe(provider);
   });
 
   it('a country without one gets nothing', () => {
-    expect(providerFor('LV')).toBeUndefined();
-    expect(providerFor(undefined)).toBeUndefined();
+    // Denmark's lookup is in an app, behind the Danish e-ID, for one's own prescriptions: nothing to hand over to.
+    for (const country of ['LV', 'DK', undefined]) expect(providerFor(country)).toBeUndefined();
   });
 
-  it.each(PROVIDERS.map((provider) => [provider.country, provider] as const))('%s: without a name the link opens the service itself, on its own host, over https', (_, provider) => {
+  it('a provider that waits for its operator\'s agreement is not offered, and /dev/states can still show it', () => {
+    expect(AWAITING_AGREEMENT.map((provider) => provider.country)).toEqual(['SE']);
+    for (const provider of AWAITING_AGREEMENT) {
+      expect(PROVIDERS.map((offered) => offered.country)).not.toContain(provider.country);
+      expect(providerFor(provider.country)).toBeUndefined();
+      expect(providerForReview(provider.country)).toBe(provider);
+    }
+    for (const provider of PROVIDERS) expect(providerForReview(provider.country)).toBe(provider);
+  });
+
+  it.each(ALL.map((provider) => [provider.country, provider] as const))('%s: without a name the link opens the service itself, on its own host, over https', (_, provider) => {
     for (const handoff of [provider.handoff(), provider.handoff({}), provider.handoff({ medicine: '   ' })]) {
       const url = new URL(handoff.url);
       expect(url.protocol).toBe('https:');
@@ -55,7 +68,7 @@ describe('the countries\' own stock searches', () => {
     }
   });
 
-  it.each(PROVIDERS.map((provider) => [provider.country, provider] as const))('%s: with a name the link carries it exactly, or not at all', (_, provider) => {
+  it.each(ALL.map((provider) => [provider.country, provider] as const))('%s: with a name the link carries it exactly, or not at all', (_, provider) => {
     const plain = provider.handoff();
     const handoff = provider.handoff({ medicine: `  ${NAME} ` });
     const url = new URL(handoff.url);
@@ -74,11 +87,11 @@ describe('the countries\' own stock searches', () => {
   });
 
   it('none of them fetches stock: the seam is empty in the live app', () => {
-    for (const provider of PROVIDERS) expect(provider.stock, provider.country).toBeUndefined();
+    for (const provider of ALL) expect(provider.stock, provider.country).toBeUndefined();
   });
 
   it('each one was checked on a date, and has its texts in both languages', () => {
-    for (const provider of PROVIDERS) {
+    for (const provider of ALL) {
       expect(provider.checked).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       for (const locale of locales) {
         const services: Record<string, { site: string; intro: string; open: string }> = getDictionary(locale).medicine.services;
@@ -91,7 +104,7 @@ describe('the countries\' own stock searches', () => {
       }
     }
     // And no texts for a service that is not offered.
-    for (const locale of locales) expect(Object.keys(getDictionary(locale).medicine.services).sort()).toEqual(PROVIDERS.map((provider) => provider.id).sort());
+    for (const locale of locales) expect(Object.keys(getDictionary(locale).medicine.services).sort()).toEqual(ALL.map((provider) => provider.id).sort());
   });
 });
 

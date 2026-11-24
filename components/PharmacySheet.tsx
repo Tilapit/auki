@@ -192,7 +192,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
         </p>
       )}
 
-      {onMedicine && <MedicineLine onOpen={onMedicine} />}
+      {onMedicine && <MedicineLine className={styles.medicine} onOpen={onMedicine} />}
 
       <p className={styles.footnote}>
         {t.sheet.handOff} {pharmacy.checkDate ? t.sheet.sourceChecked(f.date(pharmacy.checkDate)) : t.sheet.source} {rich(t.sheet.wrong, { link: fix })}

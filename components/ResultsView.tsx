@@ -6,7 +6,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
 import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
-import { providerFor } from '@/lib/stock/providers';
+import { providerFor, providerForReview } from '@/lib/stock/providers';
 import { travel, withinWalk } from '@/lib/travel';
 import type { AreaLayer, Bounds } from '@/lib/map/area';
 import type { Pharmacy, Scene } from '@/lib/types';
@@ -19,6 +19,7 @@ import { cx } from './cx';
 import { LiveStatus } from './LiveStatus';
 import { Measure } from './Measure';
 import { HoursUnknownCard, NearestOpenCard, NothingOpenCard } from './NearestOpenCard';
+import cardStyles from './NearestOpenCard.module.css';
 import { OpenStatus } from './OpenStatus';
 import { ClosedGroup, PharmacyList } from './PharmacyList';
 import { PharmacySheet } from './PharmacySheet';
@@ -72,6 +73,8 @@ export interface ResultsOptions {
   /** /dev/states only: a name in the dialog's field, and what stands under its link. */
   medicineValue?: string;
   medicineExample?: ReactNode;
+  /** /dev/states only: the dialog may also be that of a provider that waits for its operator's agreement. */
+  medicineReview?: boolean;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -116,7 +119,9 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
   const cardProvider = offered ? providerFor((unlisted?.lead ?? nearestOpen ?? firstToOpen ?? scene.pharmacies[0])?.country) : undefined;
-  const medicineLine = cardProvider && <MedicineLine className={styles.medicine} onOpen={() => setMedicineFor(cardProvider.country)} />;
+  const openMedicine = cardProvider && (() => setMedicineFor(cardProvider.country));
+  // In the card it is styled by the card: next to "Ei varastossa?" where that line is, else a section of its own.
+  const medicineLine = openMedicine && <MedicineLine className={cardStyles.medicine} onOpen={openMedicine} />;
 
   // Phone: a modal bottom sheet. Desktop: the details take the list's place in the panel.
   useEffect(() => {
@@ -434,7 +439,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               </NothingOpenCard>
             )}
 
-            {lineAlone && medicineLine}
+            {lineAlone && openMedicine && <MedicineLine onOpen={openMedicine} />}
           </div>
         ) : undefined
       }
@@ -500,7 +505,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
         <>
           {scene.card && <CounterCard card={scene.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} />}
           {offered && (
-            <MedicineDialog provider={providerFor(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
+            <MedicineDialog provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
               {options.medicineExample}
             </MedicineDialog>
           )}
