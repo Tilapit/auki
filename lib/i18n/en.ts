@@ -105,6 +105,7 @@ const en: Dictionary = {
     byWalking: 'By walking distance',
     byStraight: 'In a straight line',
     allPharmacies: (count) => `All ${count} pharmacies`,
+    showMore: 'Show more',
     expandSheet: 'Show the list',
     collapseSheet: 'Shrink the list',
     closedNow: 'Closed now',

@@ -564,3 +564,72 @@ Entry format:
   - The fixture behind `/dev/states/data` now holds the real numbers of the run of 23 Nov 2026. With made-up numbers every country sat between 73 and 80 %, and the page hid what it is there to show.
 - Why: Janne's decisions of 23 Nov: show each country's last successful run (the pipeline now makes a second attempt at night for the countries that failed), and show each country's coverage.
 - Status: done for the times and the last run (decided). The bar and the explanation belong to the hours-coverage work above and are provisional with it
+
+## 2026-11-24: Every touch on the map is the map's own
+- Where: `components/MapView.tsx`, `MapView.module.css`; `tests/e2e/touch.spec.ts`
+- Change: Janne tried the map on an iPhone on 23 Nov: a pinch sometimes zoomed the whole page, a one-finger drag did nothing or felt stiff, and the map didn't always react. Two causes, both ours:
+  - MapLibre only counts the touches that begin inside the element it listens on. The markers lay beside that element, each with a 44 px target, so a drag that began on one moved nothing, and a pinch with one finger on one was a one-finger gesture to the map. In a city centre the ten markers cover a good part of the middle of the screen. Once MapLibre is drawing, the markers now live inside that element: a drag or a pinch that begins on a marker moves the map, and a tap on it still opens the pharmacy. A mouse drag that ends on the marker it began on is not a press on it.
+  - Nothing told the browser to keep its hands off the map before MapLibre had arrived, when it couldn't start, or on the markers and chips at any time: there a pinch zoomed the page. The whole map now has `touch-action: none`, in every state, and that covers everything on it.
+  - The gestures themselves are MapLibre's own and were always switched on: one finger moves the map and it glides on when thrown, two fingers zoom around themselves, two taps come closer, a tap with two fingers goes back out. Turning and tilting stay off (S1).
+- Why: Measured against the code before: with real touch input a drag from a marker moved the map 0 px, and the plain ground, the failed map and every marker answered `touch-action: auto`. Both are tests now. The sheet and the bar still let two fingers zoom the page: text must stay zoomable (PLAN.md section 9).
+- Status: done. Real Safari on Janne's iPhone is the check that counts: DevTools touch in Chromium is the nearest thing a test can get. Not done: the map doesn't move under a finger in the fraction of a second before MapLibre has arrived, or when it can't start; it no longer zooms the page then.
+
+## 2026-11-24: While the map moves, positions are written and nothing is rendered
+- Where: `place` in `components/MapView.tsx`; `styleChanges` in `lib/map/style.ts`
+- Change:
+  - The edge chips' positions were React state. With an open pharmacy off the map, every frame of a pan set that state, and the whole map view with its markers rendered again, sixty times a second. Now the state holds only which chips there are and what they say; where they are is written straight to the elements, by the code that places the markers.
+  - On the phone each marker is a layer of its own (`will-change: transform`), so moving it repaints nothing, not even its glow. Not on the desktop layout: there it changed how the markers' text is drawn, by a few pixels in 52 baseline images, for nothing a mouse needs. The halo's size and the map's ready mark are written only when they change.
+  - A new sun, or a new step from dusk to night, no longer sets the style again. The properties that differ are set one by one, a handful of colours and the light. Only another theme, which has other layers, sets the style as a whole. The style was never set on the minute's tick; that was checked and holds.
+- Why: Measured on a CPU four times slower, phone-sized, real Helsinki pharmacies, the map tile host answered locally, about 310 frames of panning with one edge chip. Script time during the pan: on the dev server 3,209 ms before and 357 ms after, with 46 and then 0 frames longer than 34 ms; on a production build 656 ms before and 263 ms after, no long frames either way. Janne's test ran on the dev server, where React's development build made the per-frame render nine times as expensive: that was the lag. The map's code arrived 0.2 s after the first result on the production build and 0.3 s on the dev server, on this machine: the dev server's chunk is not what kept the map plain for seconds.
+- Status: done. The drawing of real map tiles on the phone's GPU is not in these numbers; the production preview on the phone will show it.
+
+## 2026-11-24: Every pharmacy on the map: the ten as markers, the rest as the map's own signs (provisional)
+- Where: `lib/map/area.ts`, the layer `area-pharmacies` in `lib/map/style.ts`, `components/mapSigns.ts`, `MapView`; `/dev/map` on invented pharmacies
+- Change: Janne, 23 Nov: show all pharmacies on the map, as a map layer and not as HTML markers, thinned out at low zoom; keep HTML only where it adds something; the list stays the nearest ten.
+  - Every pharmacy on the tiles the device holds, apart from those the results already mark, is a point in one GeoJSON source, drawn by MapLibre as one symbol layer above the labels. In Helsinki that is 106 signs from the four squares the search loads.
+  - The signs are the list's four glyphs on a disc, drawn once per theme: a lit disc of 20 px for open (green) and for closing soon (amber), an unlit disc of 18 px with the outlined cross for closed, the dashed cross where the hours aren't known. Smaller than the list's markers, without a distance and without a glow.
+  - Thinning: signs may not overlap, and where they would the open ones are placed first. They shrink to half size by zoom 9. No clusters: a cluster's number says nothing about what is open, and the lit signs are the answer.
+  - A press within 18 px of a sign opens the pharmacy sheet through the same code as a row; while it is selected it has a marker like the list's, with its name.
+  - Statuses follow the clock from the intervals already on the device. The layer is given new data only when a pharmacy opens or closes, a tile arrives or the list is ranked again, not every minute.
+- Why: The tiles were on the phone already and the map showed ten of them. Where this departs from Janne's note: the list's ten keep their HTML markers. They are where HTML adds something: the capsule with the distance is the one bold signal, they are the same component with MapLibre and without it (so the map still works when it can't be drawn, and `/dev/states` shows them), and they stay buttons in the list's order. Ten elements moved by a transform are not what made zooming slow (see the entry above); hundreds would be, and those are the layer. The alternative, the ten as symbols too, would give two renderings of the same marker and a switch between them when MapLibre arrives.
+- Status: provisional. Open in it: whether the ten should become symbols as well; the signs' sizes; whether a pharmacy beyond the ten should be reachable without the map (for a keyboard it is reached by searching its place).
+
+## 2026-11-24: Moved by hand, the map asks for the new area's tiles (provisional)
+- Where: `Tiles.loadArea` in `lib/search.ts`, `squaresIn` in `lib/map/area.ts`, `showArea` in `hooks/usePharmacySearch.ts`; PLAN.md 7.1 and the table of 7.6
+- Change: When the user drags, pinches or zooms the map and it comes to rest on squares whose tiles aren't on the device, the client fetches them and the map draws their pharmacies. The requests are the same as the search's: a tile by its number.
+  - Only a move made by hand asks. Framing the results, selecting a pharmacy and following a walk ask for nothing, so what is requested follows from where the user looks, never from where they are.
+  - A view that touches more than twelve squares (about zoom 8 on a phone) asks for nothing: pharmacies are dots on top of each other there.
+  - A square that doesn't load is remembered apart from the search's own failures: the list never depended on it.
+  - The list, the card and the bar don't change: they are the answer for the place searched.
+- Why: Janne, 23 Nov: load the tiles of a new area when the map is moved there, squares and never the position. It changes one row of the table in PLAN.md 7.6 ("when": also when the user moves the map). The claim itself stands: the position leaves the device in one request, and a tile request names a square.
+- Status: provisional, because it touches the privacy table. Checked by a browser test: after the map is dragged to Sipoo, the new requests are tile numbers and no request carries the position.
+
+## 2026-11-24: The phone's sheet rests on one row (provisional)
+- Where: `ResultsView` (`SheetRow`), `/dev/states`, proposal "sheet" with the old and the new collapsed sheet side by side
+- Change: At its lowest the sheet is the handle and one row: the cross, the name, then the distance in bold and the status in its tone, and one button. "Reitti" for an open pharmacy, "Soita" (else "Reitti") where the hours are unknown, "112" where nothing is open. The second lines of the old collapsed sheet and "Kaikki N apteekkia" moved to the card. The row's buttons are words without icons, except 112. The ehditkö line is not in the row: the too-late warning still takes the status's place.
+- Why: Janne on an iPhone, 23 Nov: the collapsed answer took too much of the screen. It was 179 px of 844; the row is 86, and 105 when the status wraps. An icon in the button and the timeline line each cost more width than the row has at 390 px: "3 min · Perillä 20.44, sulkeutuu 21.00" measures 256 px against 249.
+- Status: provisional. It changes the layout of a main view.
+
+## 2026-11-24: Three places for the sheet: the row, the card, the list (provisional)
+- Where: `ResultsShell`
+- Change: The sheet rests on the row, at the card (as tall as the notices, the card and "Kaikki N apteekkia", at most 60 % of the screen) and open at nearly full height (its top 88 px down, the bar stays). It drags between all three, settles on the nearest or one place the way it was thrown, and shows the list as soon as it is pulled 24 px above the card. The handle steps up one place at a time and from the list back to the row; its name says what a press does. The glide is 260 ms. With nothing open the sheet starts at the card.
+- Why: Janne: the sheet must go down so that the map gets the screen, then the card, then the list, as in Apple Maps and Google Maps. The old open sheet (473 px) was about as tall as a card (432 px in Helsinki), so the list needed a place of its own. 112 must stay prominent when nothing is open (PLAN.md 7.6): there the card is what the user meets first.
+- Status: provisional. For Janne's phone: the throw (0.5 px a millisecond), whether the whole card as the handle feels right, the bottom safe area under the row, and whether 60 % is the right cap.
+
+## 2026-11-24: The list waits out of reach until it is opened (provisional)
+- Where: `ResultsShell`
+- Change: At the card the lists and the footer are hidden from sight, the keyboard and screen readers. A card control under the screen's edge opens the sheet when it takes focus. Opening the list from "Kaikki N apteekkia" moves focus to the first row, because the button then goes away. The results announcement sits outside everything the sheet hides; before, on the phone, it sat inside content that was not displayed while the sheet was collapsed.
+- Why: Nothing focused may be out of sight, and a screen reader's press on a covered row would land on whatever covers it.
+- Status: provisional with the sheet
+
+## 2026-11-24: The map waits for the sheet, and the chips keep off the credit
+- Where: `--map-pad` in `ResultsShell.module.css`; `chipInsets` in `MapView`
+- Change: The camera's free area is above the row at the lowest place, and above the card both at the card and with the list open. It doesn't move during a drag or when the list opens. On the phone the edge chips stay 40 px above the sheet, clear of the map's credit line.
+- Why: The open list covers nearly the whole map: moving the camera under it would only show as a jump when the list closes. With the lower sheet the bottom edge of the map is in use, and a chip there lay on the credit.
+- Status: done
+
+## 2026-11-24: A mouse drags the sheet, not what is written on it
+- Where: `ResultsShell` (`onDragStart`, and the drag's first step)
+- Change: While the sheet is dragged its text can't be selected, and any selection is dropped when the drag begins. Where a press can move the sheet, the browser may not pick up a link or selected text and carry it off instead.
+- Why: CI's Linux browsers found it, in both engines: dragging the sheet by a pharmacy's name selected the text on the way, and the next press on it started the browser's own drag-and-drop, which cancels the sheet's. A link (the call) would be carried off the same way on any desktop browser. A finger never did this; a mouse in a narrow window did. The text stays selectable whenever the sheet isn't being dragged.
+- Status: done

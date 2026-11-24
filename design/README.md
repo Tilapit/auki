@@ -33,3 +33,7 @@ From the Claude Design canvas "Auki: nettisivujen design", 22 Nov 2026. This is 
 | `GuideDE.dc.html` | Maaopas: Saksa | Country guide with the doctor's-email message |
 
 Sample data: OpenStreetMap, fetched 19 Nov 2026. Times are simulated (Helsinki on a Thursday at 20:41, Riga on a Friday at 23:40). Pharmacy names are examples only.
+
+## The phone, 24 Nov 2026 (`phone/`)
+
+Screenshots for the pull request "The map and the sheet on the phone": the sheet's three places against the old collapsed sheet (`sheet.jpg`, `sheet-cases.jpg`, from `/dev/states`), and the real app in Helsinki with every pharmacy on the map (`map.jpg`, `desktop.jpg`: real map tiles, OpenStreetMap's pharmacies of 23 Nov, the clock set to Tuesday at 14.00 and at 20.41).

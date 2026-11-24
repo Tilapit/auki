@@ -1,21 +1,24 @@
 'use client';
 
-import type { Map as MapLibreMap } from 'maplibre-gl';
+import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
-import { boxOf, cameraOf, edgeChip, fit, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type EdgeChip, type Insets, type Project } from '@/lib/map/camera';
-import { buildStyle, paletteFor, styleKey, type MapTheme } from '@/lib/map/style';
+import { NO_AREA, type AreaLayer, type Bounds } from '@/lib/map/area';
+import { boxOf, cameraOf, edgeChip, fit, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type Insets, type Project } from '@/lib/map/camera';
+import { AREA_ICON, AREA_LAYER, AREA_SOURCE, buildStyle, paletteFor, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 import { MAP_CREDITS, OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { MAP_TILES_URL } from '@/lib/requests';
 import { sunPosition } from '@/lib/sky';
 import { fullName, glyphFor, isOpenNow, statusText } from '@/lib/status';
 import { travel } from '@/lib/travel';
+import type { Compass } from '@/lib/geo';
 import type { GlyphState, Pharmacy, Scene } from '@/lib/types';
 import { CrossGlyph } from './CrossGlyph';
 import { cx } from './cx';
 import { Icon } from './Icon';
 import { MapMarker, YouDot, YouHalo } from './MapMarker';
+import { drawSign, SIGN_TOKENS, SIGNS, type SignColours } from './mapSigns';
 import styles from './MapView.module.css';
 
 interface Props {
@@ -39,6 +42,17 @@ interface Props {
   you?: { lat: number; lon: number; accuracy?: number };
   /** The lit markers switch on one after another (PLAN.md section 6, "Motion"). */
   reveal?: boolean;
+  /**
+   * Every other pharmacy on the tiles the device holds (lib/map/area.ts). The map itself draws
+   * them, as one layer of small signs: only where MapLibre is drawing.
+   */
+  area?: AreaLayer;
+  /** A pharmacy picked from that layer, while it is the selected one: it gets a marker like the scene's own. */
+  extra?: Pharmacy;
+  /** One of the layer's signs was pressed: its pharmacy's id. */
+  onPick?: (id: string) => void;
+  /** The map was moved by hand: what it shows now, for loading the squares that came into view. */
+  onView?: (bounds: Bounds) => void;
 }
 
 interface Frame {
@@ -49,8 +63,14 @@ interface Frame {
   desktop: boolean;
 }
 
+/**
+ * What of the map's overlay is React's to render: which chips there are and what they say,
+ * and where the name plate goes. Where things are is not in it: positions are written
+ * straight to the elements on every frame of a pan or a zoom, and rendering sixty times a
+ * second for them is what made the map lag on a phone.
+ */
 interface Overlay {
-  chips: (EdgeChip & { id: string })[];
+  chips: { id: string; side: Compass }[];
   /** The selected pharmacy's name goes above its marker when there is no room beside it. */
   nameAbove: boolean;
 }
@@ -64,6 +84,12 @@ const ORDER: GlyphState[] = ['closed', 'unknown', 'soon', 'open'];
 const NO_OVERLAY: Overlay = { chips: [], nameAbove: false };
 /** At most this many chips: the nearest open ones that are off the map. */
 const CHIPS = 3;
+/** A press this near a sign of the area layer counts as a press on it: the signs are 20 px, a fingertip is 44. */
+const PICK_WITHIN_PX = 18;
+/** A press that travelled farther than this was a drag of the map, not a press on the marker it began on. */
+const DRAG_FROM_PX = 6;
+/** The click a mouse makes when it lets go after such a drag comes within this time of letting go. */
+const CLICK_AFTER_DRAG_MS = 400;
 /** Rough sizes, for deciding whether a name fits beside its marker: half a marker's width, a letter, the plate's padding. */
 const MARKER_HALF = 52;
 const NAME_CHAR = 7.8;
@@ -71,12 +97,13 @@ const NAME_PADDING = 24;
 
 /** Where the edge chips may sit: clear of the phone's bar and sheet, the desktop legend and credit. */
 const chipInsets = (frame: Frame): Insets =>
-  frame.desktop ? { top: 64, right: 16, bottom: 44, left: 16 } : { top: 76, right: 12, bottom: frame.pad + 12, left: 12 };
+  // On the phone the credit lies just above the sheet: the chips keep clear of it.
+  frame.desktop ? { top: 64, right: 16, bottom: 44, left: 16 } : { top: 76, right: 12, bottom: frame.pad + 40, left: 12 };
 /** The camera's centre sits in the middle of what the phone's bar and sheet leave free. */
 const cameraPadding = (frame: Frame): Insets => ({ top: frame.desktop ? 0 : 64, right: 0, bottom: frame.pad, left: 0 });
 
 const sameOverlay = (a: Overlay, b: Overlay): boolean =>
-  a.nameAbove === b.nameAbove && a.chips.length === b.chips.length && a.chips.every((chip, i) => chip.id === b.chips[i].id && chip.x === b.chips[i].x && chip.y === b.chips[i].y && chip.degrees === b.chips[i].degrees);
+  a.nameAbove === b.nameAbove && a.chips.length === b.chips.length && a.chips.every((chip, i) => chip.id === b.chips[i].id && chip.side === b.chips[i].side);
 
 /**
  * The map (PLAN.md section 5): our own style on OpenFreeMap's tiles, with the app's own
@@ -85,16 +112,25 @@ const sameOverlay = (a: Overlay, b: Overlay): boolean =>
  * Everything on the map is placed by the same arithmetic whether MapLibre draws the streets
  * or not (lib/map/camera.ts). So when MapLibre can't start, or its tiles don't load, the
  * markers, the edge chips and the list go on working, and the map says what is missing.
+ *
+ * Touch: the whole map is the map's to handle (touch-action: none, so a pinch never zooms
+ * the page), and once MapLibre is drawing, the markers live inside the element it listens
+ * on. A drag or a pinch that begins on a marker then moves the map like any other.
  */
-export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal }: Props) {
+export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, onPick, onView }: Props) {
   const i18n = useI18n();
   const { t, locale } = i18n;
 
   const root = useRef<HTMLDivElement>(null);
   const base = useRef<HTMLDivElement>(null);
+  const pins = useRef<HTMLDivElement>(null);
+  const colourProbe = useRef<HTMLSpanElement>(null);
   const padProbe = useRef<HTMLSpanElement>(null);
   const themeProbe = useRef<HTMLSpanElement>(null);
   const map = useRef<MapLibreMap | null>(null);
+  /** Where the press on a marker began, and when it ended if it had become a drag of the map: the events' own clock. */
+  const pressed = useRef<{ x: number; y: number } | null>(null);
+  const dragEnded = useRef<number | null>(null);
 
   const [frame, setFrame] = useState<Frame>();
   const [theme, setTheme] = useState<MapTheme>('light');
@@ -111,7 +147,11 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const camera = useMemo(() => (moved?.framing === framing ? moved.camera : cameraOf(view)), [moved, framing, view]);
 
   const here = you ?? scene.user;
-  const all = useMemo(() => (userOnly ? [] : [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])]), [scene, userOnly]);
+  const all = useMemo(() => {
+    if (userOnly) return [];
+    const own = [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])];
+    return extra && !own.some((pharmacy) => pharmacy.id === extra.id) ? [...own, extra] : own;
+  }, [scene, userOnly, extra]);
   const drawn = useMemo(
     () => all.map((pharmacy) => ({ pharmacy, glyph: glyphFor(pharmacy.status) })).sort((a, b) => ORDER.indexOf(a.glyph) - ORDER.indexOf(b.glyph)),
     [all],
@@ -123,7 +163,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const key = styleKey({ theme, locale, sun });
 
   // What the handlers below read: always the latest, without being set up again.
-  const current = { all, lit, here, frame, camera, framing, selectedId, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun } };
+  const current = { all, lit, here, frame, camera, framing, selectedId, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, onPick, onView };
   const latest = useRef(current);
   useLayoutEffect(() => {
     latest.current = current;
@@ -150,7 +190,11 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       // The halo is the accuracy the device reports, in the map's own scale, and never smaller than the canvas's 64 px.
       if (element.dataset.pin === YOU) {
         const radius = accuracy !== undefined ? accuracy / metersPerPixel(here.lat, zoom) : approximate ? 95 : 32;
-        element.style.setProperty('--halo', `${Math.round(Math.min(Math.max(radius, 32), 600) * 2)}px`);
+        const halo = `${Math.round(Math.min(Math.max(radius, 32), 600) * 2)}px`;
+        if (element.dataset.halo !== halo) {
+          element.dataset.halo = halo;
+          element.style.setProperty('--halo', halo);
+        }
       }
     }
 
@@ -162,6 +206,15 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       }).slice(0, CHIPS),
       box,
     );
+    // A chip that is already there moves with the map; one that has just come in is placed after it is rendered.
+    for (const chip of chips) {
+      const element = root.current?.querySelector<HTMLElement>(`[data-chip="${CSS.escape(chip.id)}"]`);
+      if (!element) continue;
+      element.style.transform = `translate(${chip.x}px, ${chip.y}px) translate(-50%, -50%)`;
+      element.style.visibility = 'visible';
+      const arrow = element.querySelector<HTMLElement>('[data-arrow]');
+      if (arrow) arrow.style.transform = `rotate(${chip.degrees}deg)`;
+    }
     // The name stands beside its marker unless the map's edge or another marker is in the way there.
     const selected = all.find((pharmacy) => pharmacy.id === selectedId);
     const at = selected && project(selected.lat, selected.lon);
@@ -176,9 +229,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           const point = project(other.lat, other.lon);
           return point.x > at.x && point.x - MARKER_HALF < at.x + reach && Math.abs(point.y - at.y) < 32;
         }));
-    const next = { chips, nameAbove };
+    const next = { chips: chips.map(({ id, side }) => ({ id, side })), nameAbove };
     setOverlay((current) => (sameOverlay(current, next) ? current : next));
-    root.current?.setAttribute('data-map', 'ready');
+    if (root.current && root.current.dataset.map !== 'ready') root.current.dataset.map = 'ready';
   }, []);
 
   // The container's size, how much of it the sheet covers, and which layout this is.
@@ -225,23 +278,40 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     map.current?.easeTo({ center: [next.lon, next.lat], zoom: next.zoom, duration: 400 });
   }, [framing]);
 
+  /** The signs of the area layer in the colours of the theme in force, read from the tokens of app/globals.css. */
+  const sign = useCallback((glyph: GlyphState) => {
+    const probe = colourProbe.current;
+    if (!probe) return undefined;
+    const colours = Object.fromEntries(
+      Object.entries(SIGN_TOKENS).map(([name, token]) => {
+        probe.style.color = `var(${token})`;
+        return [name, getComputedStyle(probe).color];
+      }),
+    ) as unknown as SignColours;
+    const ratio = Math.min(3, Math.ceil(window.devicePixelRatio || 1));
+    return { image: drawSign(glyph, colours, ratio), ratio };
+  }, []);
+
   // MapLibre, loaded only now: it is by far the heaviest thing in the app, and nothing waits for it.
-  const styled = useRef(key);
+  const styled = useRef<{ key: string; theme: MapTheme; style?: ReturnType<typeof buildStyle> }>({ key, theme });
   const measured = frame !== undefined;
   useEffect(() => {
     if (!basemap || !measured || !base.current) return;
     let cancelled = false;
     let created: MapLibreMap | undefined;
+    const home = root.current;
+    const layer = pins.current;
     void import('maplibre-gl')
       .then(({ Map, setWorkerUrl }) => {
         if (cancelled || !base.current) return;
-        const { frame, camera, look } = latest.current;
-        styled.current = styleKey(look);
+        const { frame, camera, look, area } = latest.current;
+        const style = buildStyle({ ...look, tiles: MAP_TILES_URL, area: area?.data });
+        styled.current = { key: styleKey(look), theme: look.theme, style };
         // The worker is served from our own origin (scripts/copy-map-worker.mjs).
         setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
         created = new Map({
           container: base.current,
-          style: buildStyle({ ...look, tiles: MAP_TILES_URL }),
+          style,
           center: [camera.lon, camera.lat],
           zoom: camera.zoom,
           minZoom: MIN_ZOOM,
@@ -259,9 +329,62 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         created.touchZoomRotate.disableRotation();
         created.keyboard.disableRotation();
         if (frame) created.setPadding(cameraPadding(frame));
+        const live = created;
 
-        created.on('move', place);
-        created.on('resize', place);
+        live.on('move', place);
+        live.on('resize', place);
+
+        // The area layer's signs are drawn when the map first needs one.
+        live.setMissingStyleImageResolver((id) => {
+          const glyph = SIGNS.find((candidate) => id === AREA_ICON + candidate);
+          const drawn = glyph && sign(glyph);
+          if (drawn && !live.hasImage(id)) live.addImage(id, drawn.image, { pixelRatio: drawn.ratio });
+        });
+
+        // A press on one of those signs picks its pharmacy: the nearest one within a fingertip of the press.
+        const signAt = (point: { x: number; y: number }): string | undefined => {
+          if (!live.getLayer(AREA_LAYER)) return undefined;
+          const reach = PICK_WITHIN_PX;
+          let nearest: { id: string; distance: number } | undefined;
+          for (const feature of live.queryRenderedFeatures([[point.x - reach, point.y - reach], [point.x + reach, point.y + reach]], { layers: [AREA_LAYER] })) {
+            if (feature.geometry.type !== 'Point') continue;
+            const at = live.project(feature.geometry.coordinates as [number, number]);
+            const distance = Math.hypot(at.x - point.x, at.y - point.y);
+            if (distance <= reach && (!nearest || distance < nearest.distance)) nearest = { id: String(feature.properties.id), distance };
+          }
+          return nearest?.id;
+        };
+        live.on('click', (event) => {
+          // A press on one of the app's own markers is that marker's: it has its own handler.
+          if ((event.originalEvent.target as Element | null)?.closest?.('[data-pin]')) return;
+          const id = signAt(event.point);
+          if (id !== undefined) latest.current.onPick?.(id);
+        });
+        let pointing = false;
+        live.on('mousemove', (event) => {
+          const over = !live.isMoving() && signAt(event.point) !== undefined;
+          if (over === pointing) return;
+          pointing = over;
+          live.getCanvas().style.cursor = over ? 'pointer' : '';
+        });
+
+        // Moved by hand, the map may show squares whose pharmacies aren't on the device yet. A move
+        // the app made itself (framing the results, following a walk) asks for nothing: what is
+        // loaded then follows from where the user looks, never from where they are.
+        if (home) home.dataset.zoom = live.getZoom().toFixed(2);
+        live.on('moveend', (event) => {
+          if (home) home.dataset.zoom = live.getZoom().toFixed(2);
+          if (!('originalEvent' in event) && !(event as { byHand?: boolean }).byHand) return;
+          const bounds = live.getBounds();
+          latest.current.onView?.({ north: bounds.getNorth(), south: bounds.getSouth(), west: bounds.getWest(), east: bounds.getEast() });
+        });
+
+        // The markers move into the element MapLibre listens on, so a drag or a pinch that begins
+        // on one of them reaches the map. Being moved would play their switching-on again: it has been played.
+        if (layer) {
+          for (const capsule of layer.querySelectorAll<HTMLElement>('[data-lit]')) capsule.style.animation = 'none';
+          live.getCanvasContainer().appendChild(layer);
+        }
         // Tiles that never arrive leave the land colour and the markers: the map then says what is missing.
         // One loaded tile is enough to call the map drawn; a single square that fails later is not news.
         let drawn = false;
@@ -284,6 +407,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     return () => {
       cancelled = true;
       map.current = null;
+      // The markers come back out before the map takes its elements away.
+      if (layer && home && layer.parentElement !== home) home.appendChild(layer);
       created?.remove();
       setMode('plain');
     };
@@ -291,12 +416,53 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [basemap, measured]);
 
-  // A new theme, language or sun: the same map in its new colours.
+  // A new sun or a new step of dusk: the same map with a few colours and its light changed. The
+  // style is not set again for it: that would go through every layer and source for a handful of
+  // properties. Only another theme, which has other layers, sets the style as a whole.
   useEffect(() => {
-    if (mode !== 'live' || styled.current === key) return;
-    styled.current = key;
-    map.current?.setStyle(buildStyle({ ...latest.current.look, tiles: MAP_TILES_URL }));
-  }, [key, mode]);
+    const live = map.current;
+    const from = styled.current;
+    if (mode !== 'live' || !live || from.key === key) return;
+    const { look, area } = latest.current;
+    const style = buildStyle({ ...look, tiles: MAP_TILES_URL });
+    const changes = from.style && styleChanges(from.style, style);
+    if (changes) {
+      for (const change of changes) {
+        if (change.kind === 'paint') live.setPaintProperty(change.layer, change.property as never, change.value as never);
+        else live.setLayoutProperty(change.layer, change.property as never, change.value as never);
+      }
+      if (style.light) live.setLight(style.light);
+    } else {
+      live.setStyle({ ...style, sources: { ...style.sources, [AREA_SOURCE]: { type: 'geojson', data: area?.data ?? NO_AREA } } });
+    }
+    // The signs follow the theme, not the sun.
+    if (from.theme !== look.theme) {
+      for (const glyph of SIGNS) {
+        const drawn = live.hasImage(AREA_ICON + glyph) && sign(glyph);
+        if (drawn) live.updateImage(AREA_ICON + glyph, drawn.image);
+      }
+    }
+    styled.current = { key, theme: look.theme, style };
+  }, [key, mode, sign]);
+
+  // The pharmacies of the area layer. Its key changes when a tile arrives, when the list is ranked
+  // again, and when one of them opens or closes: not on every minute's tick.
+  const areaKey = area?.key ?? '';
+  useEffect(() => {
+    const live = map.current;
+    if (mode !== 'live' || !live) return;
+    const give = () => {
+      if (map.current !== live) return;
+      const data = latest.current.area?.data ?? NO_AREA;
+      const source = live.getSource(AREA_SOURCE) as GeoJSONSource | undefined;
+      // Before the style has settled there is no source yet: the data waits for it.
+      if (!source) return void live.once('style.load', give);
+      // A map taken away before the data has settled is nothing to report.
+      source.setData(data as never).catch(() => undefined);
+      if (root.current) root.current.dataset.area = String(data.features.length);
+    };
+    give();
+  }, [areaKey, mode]);
 
   // The sheet opened or closed, or the layout changed: keep the camera's centre in the part of the map that shows.
   const pad = frame?.pad;
@@ -327,12 +493,12 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   }, [selectedId]);
 
   const zoomBy = (step: number) => {
-    if (map.current) map.current.easeTo({ zoom: map.current.getZoom() + step, duration: 200 });
+    if (map.current) map.current.easeTo({ zoom: map.current.getZoom() + step, duration: 200 }, { byHand: true });
     else setMoved({ framing, camera: { ...camera, zoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, camera.zoom + step)) } });
   };
   const recentre = () => {
     const zoom = cameraOf(view).zoom;
-    if (map.current && frame) map.current.easeTo({ center: [here.lon, here.lat], zoom: Math.max(map.current.getZoom(), zoom), padding: cameraPadding(frame), duration: 400 });
+    if (map.current && frame) map.current.easeTo({ center: [here.lon, here.lat], zoom: Math.max(map.current.getZoom(), zoom), padding: cameraPadding(frame), duration: 400 }, { byHand: true });
     else setMoved({ framing, camera: { lat: here.lat, lon: here.lon, zoom } });
   };
 
@@ -350,9 +516,33 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     <div ref={root} className={styles.map} data-map="pending" data-basemap={mode} data-reveal={reveal || undefined} style={ground}>
       <span ref={padProbe} aria-hidden="true" className={styles.padProbe} />
       <span ref={themeProbe} aria-hidden="true" className={styles.themeProbe} />
+      <span ref={colourProbe} aria-hidden="true" className={styles.colourProbe} />
       {basemap && <div ref={base} className={styles.base} />}
 
-      <div className={styles.pins}>
+      <div
+        ref={pins}
+        className={styles.pins}
+        // A mouse drag that begins on a marker moves the map and ends on the same marker: the click that
+        // follows is not a press on it. Only that click: one from the keyboard or a screen reader comes
+        // without a drag before it, and one long after a drag is its own.
+        onPointerDownCapture={(event) => {
+          pressed.current = { x: event.clientX, y: event.clientY };
+        }}
+        onPointerUpCapture={(event) => {
+          const from = pressed.current;
+          pressed.current = null;
+          dragEnded.current = from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > DRAG_FROM_PX ? event.timeStamp : null;
+        }}
+        onPointerCancelCapture={() => {
+          pressed.current = null;
+          dragEnded.current = null;
+        }}
+        onClickCapture={(event) => {
+          const ended = dragEnded.current;
+          dragEnded.current = null;
+          if (ended !== null && event.timeStamp - ended < CLICK_AFTER_DRAG_MS) event.stopPropagation();
+        }}
+      >
         <span data-pin={YOU} className={cx(styles.pin, styles.haloPin)}>
           <YouHalo />
         </span>
@@ -385,12 +575,12 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           <button
             key={chip.id}
             type="button"
+            data-chip={chip.id}
             className={cx(styles.edge, 'tnum')}
-            style={{ transform: `translate(${chip.x}px, ${chip.y}px) translate(-50%, -50%)` }}
             aria-label={(pharmacy.id === nearestOpenId ? t.map.edgeNearest : t.map.edge)(fullName(i18n, pharmacy, needsStreet.has(pharmacy.id)), way.primary.long, t.map.directions[chip.side])}
             onClick={() => onSelect?.(pharmacy)}
           >
-            <span className={styles.arrow} style={{ transform: `rotate(${chip.degrees}deg)` }}>
+            <span data-arrow className={styles.arrow}>
               <Icon name="arrowUp" size={16} />
             </span>
             <CrossGlyph state="open" size={15} />

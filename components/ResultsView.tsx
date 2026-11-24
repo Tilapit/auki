@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
 import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
+import type { AreaLayer, Bounds } from '@/lib/map/area';
 import type { Pharmacy, Scene } from '@/lib/types';
 import { ApproximateNotice } from './ApproximateNotice';
 import { Button } from './Button';
@@ -25,8 +26,13 @@ import { MapView } from './MapView';
 import styles from './ResultsView.module.css';
 
 export interface ResultsOptions {
-  /** Phone: start with the sheet collapsed (the default) or expanded. */
-  sheet?: 'peek' | 'expanded';
+  /**
+   * Phone: where the sheet starts. By default at its lowest, the one row; at the card when
+   * nothing is open, so that the emergency number is in view from the start.
+   */
+  sheet?: 'peek' | 'half' | 'expanded';
+  /** 'classic' shows the sheet as it was before the compact one, for the comparison in /dev/states. */
+  sheetStyle?: 'classic';
   /** Start with a pharmacy's details open. */
   detailId?: string;
   /** Start with the counter card open. */
@@ -47,6 +53,12 @@ export interface ResultsOptions {
   reveal?: boolean;
   /** false shows the results as they were before the hours-coverage proposal, for the comparison in /dev/states. */
   coverage?: boolean;
+  /** Every other pharmacy on the tiles the device holds, for the map's own layer (lib/map/area.ts). */
+  area?: AreaLayer;
+  /** One of them, worded like a result: a pharmacy picked on the map opens the same sheet as one from the list. */
+  findInArea?: (id: string) => Pharmacy | undefined;
+  /** The map was moved by hand to here. */
+  onArea?: (bounds: Bounds) => void;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -60,14 +72,18 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const arranged = useMemo(() => arrange(scene, { coverage: options.coverage }), [scene, options.coverage]);
   const { nearestOpen, far, firstToOpen, others, closedGroup, closerClosed, nextOpen, needsStreet, unlisted, closerUnknown } = arranged;
   const place = placeLabel(scene, i18n.locale);
+  const classic = options.sheetStyle === 'classic';
 
-  const [sheet, setSheet] = useState<SheetState>(options.sheet ?? 'peek');
+  // Nothing open at all: the card, with 112 prominent, is what the user meets first (PLAN.md 7.6).
+  const nothingOpen = !unlisted && !nearestOpen && !!firstToOpen;
+  const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
   const [detailId, setDetailId] = useState(options.detailId);
   const [counterOpen, setCounterOpen] = useState(options.counter !== undefined);
   const detailRef = useRef<HTMLDialogElement>(null);
 
   const everyone = useMemo(() => [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])], [scene]);
-  const detail = everyone.find((p) => p.id === detailId);
+  const listed = everyone.find((p) => p.id === detailId);
+  const detail = listed ?? (detailId ? options.findInArea?.(detailId) : undefined);
   const selectedId = detailId ?? (unlisted?.lead ?? nearestOpen ?? firstToOpen)?.id;
   const select = (pharmacy: Pharmacy) => setDetailId(pharmacy.id);
   const fullNameOf = (pharmacy: Pharmacy) => fullName(i18n, pharmacy, pharmacy.name === null);
@@ -110,13 +126,15 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
         : t.results.foundNoneOpen(arranged.total);
   const missing = (scene.missing ?? []).map((code) => f.countryName(code));
   const firstWay = firstToOpen && travel(i18n, firstToOpen, scene.distance);
+  // The sheet as it was, for the comparison in /dev/states: the answer in three lines, with
+  // its buttons under it. The three blocks below are that sheet's collapsed content.
   const allButton = (
     <Button trailing="chevron" onClick={() => setSheet('expanded')}>
       {t.results.allPharmacies(arranged.total)}
     </Button>
   );
 
-  const peek = nearestOpen && way && (
+  const openPeek = nearestOpen && way && (
     <section aria-labelledby={`${id}-peek`} className={styles.peek}>
       <h2 id={`${id}-peek`} className={styles.label}>
         {t.results.nearestOpen}
@@ -232,6 +250,67 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       {!nearestOpen && <p className={styles.peekEmergency}>{rich(t.footer.emergency, { number: <a href="tel:112">112</a> })}</p>}
     </section>
   );
+  const classicPeek = unlistedPeek || openPeek || nothingOpenPeek || undefined;
+
+  // The sheet at its lowest (PLAN.md section 5): the answer in one row, and the one thing to
+  // do about it. The second lines of the old collapsed sheet and "Kaikki N apteekkia" are in
+  // the card, one pull up.
+  // The row's button is its word alone ("Reitti", "Soita"): an icon would cost the line beside
+  // it the room that keeps the status of a pharmacy open around the clock on one line. The icons are in the card.
+  const routeButton = (pharmacy: Pharmacy, name: string) => (
+    <Button variant="primary" className={styles.rowAction} aria-label={(withinWalk(pharmacy) ? t.card.routeLabel : t.card.directionsLabel)(name)} onClick={() => select(pharmacy)}>
+      {t.card.route}
+    </Button>
+  );
+  const row = lead ? (
+    // Hours unknown: the call is the one way to know before the walk, as in the card.
+    <SheetRow
+      id={`${id}-peek`}
+      label={t.results.nearestUnlisted}
+      pharmacy={lead}
+      distance={scene.distance}
+      reveal={options.reveal}
+      action={
+        lead.phone ? (
+          <Button variant="primary" className={styles.rowAction} href={`tel:${lead.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(fullNameOf(lead))}>
+            {t.card.call}
+          </Button>
+        ) : (
+          routeButton(lead, fullNameOf(lead))
+        )
+      }
+    />
+  ) : nearestOpen ? (
+    <SheetRow
+      id={`${id}-peek`}
+      label={t.results.nearestOpen}
+      pharmacy={nearestOpen}
+      distance={scene.distance}
+      reveal={options.reveal}
+      // Too late to make it: the row has to say so. The timeline, arrival against closing, is in
+      // the card: "Perillä 20.44, sulkeutuu 21.00" after the distance is wider than the row.
+      status={ehditko.kind === 'tooLate' ? <span className={styles.late}>{t.card.tooLate}</span> : undefined}
+      action={routeButton(nearestOpen, displayName(i18n, nearestOpen))}
+    />
+  ) : firstToOpen ? (
+    // Nothing open: no route to a closed door. The number that always works is the row's one action.
+    <SheetRow
+      id={`${id}-peek`}
+      label={t.results.opensFirst}
+      pharmacy={firstToOpen}
+      distance={scene.distance}
+      reveal={options.reveal}
+      action={
+        <Button icon="phone" className={styles.rowAction} href="tel:112" aria-label={t.footer.emergency.replace('{number}', '112')}>
+          112
+        </Button>
+      }
+    />
+  ) : undefined;
+
+  const hasNotices = !!scene.user.approximate || (stale && scene.dataFrom !== undefined) || missing.length > 0;
+  const hasCard = !!lead || !!nearestOpen || !!firstToOpen;
+  const hasLists = others.length > 0 || closedGroup.length > 0;
 
   const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status));
   const detailNext = detail && nextFor(detail);
@@ -254,7 +333,67 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       }
       sheet={stale ? 'static' : sheet}
       onSheetChange={setSheet}
-      peek={stale ? undefined : unlistedPeek || peek || nothingOpenPeek || undefined}
+      sheetStyle={options.sheetStyle}
+      peek={stale ? undefined : classic ? classicPeek : row}
+      status={<LiveStatus message={message} />}
+      // The card is the sheet's middle place. Under it, the way to the list, when there is more to see.
+      listLabel={!stale && hasCard && hasLists ? t.results.allPharmacies(arranged.total) : undefined}
+      lead={
+        hasNotices || hasCard ? (
+          <div className={styles.content} data-reveal={options.reveal || undefined}>
+            {scene.user.approximate && <ApproximateNotice onSearch={options.onSearch} />}
+
+            {stale && scene.dataFrom !== undefined && <ResultsNotice title={t.results.staleTitle}>{t.results.staleBody(f.dayOf(scene.dataFrom))}</ResultsNotice>}
+
+            {missing.length > 0 && <ResultsNotice>{missing.length === 1 ? t.results.missingOne(missing[0]) : t.results.missingMany(f.list(missing))}</ResultsNotice>}
+
+            {lead && unlisted && (
+              <HoursUnknownCard
+                pharmacy={lead}
+                city={cityIfElsewhere(lead, place, i18n.locale)}
+                distance={scene.distance}
+                count={unlisted.count}
+                knownOpen={nearestOpen}
+                knownOpenWithStreet={nearestOpen && needsStreet.has(nearestOpen.id)}
+                hoursListed={scene.hoursListed}
+                country={scene.country}
+                onRoute={select}
+                onSelect={select}
+                onShowCard={() => setCounterOpen(true)}
+              >
+                {banner}
+              </HoursUnknownCard>
+            )}
+
+            {!lead && nearestOpen && (
+              <NearestOpenCard
+                pharmacy={nearestOpen}
+                city={cityIfElsewhere(nearestOpen, place, i18n.locale)}
+                distance={scene.distance}
+                ehditko={ehditko}
+                nextOpen={nextOpen}
+                nextOpenWithStreet={nextOpen && needsStreet.has(nextOpen.id)}
+                firstToOpen={firstToOpen}
+                closerClosed={closedGroup.length > 0 ? closerClosed : 0}
+                closedOpens={scene.closedOpens}
+                closerUnknown={closerUnknown}
+                country={scene.country}
+                onRoute={select}
+                onSelect={select}
+                onShowCard={() => setCounterOpen(true)}
+              >
+                {banner}
+              </NearestOpenCard>
+            )}
+
+            {!lead && !nearestOpen && firstToOpen && (
+              <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select}>
+                {banner}
+              </NothingOpenCard>
+            )}
+          </div>
+        ) : undefined
+      }
       emergencyInFooter={!!nearestOpen}
       onRefresh={options.onRefresh}
       onPlace={options.onSearch ?? NO_ACTION}
@@ -273,6 +412,10 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           now={options.now}
           you={options.you}
           reveal={options.reveal}
+          area={options.area}
+          extra={listed ? undefined : detail}
+          onPick={setDetailId}
+          onView={options.onArea}
         />
       }
       detailOpen={!!detail}
@@ -281,7 +424,11 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           ref={detailRef}
           className={styles.detail}
           aria-labelledby={`${id}-detail`}
-          onClose={() => setDetailId(undefined)}
+          // The dialog says it has closed a moment after it did. If another pharmacy was opened in
+          // that moment, the sheet is open again and this is old news.
+          onClose={(event) => {
+            if (!event.currentTarget.open) setDetailId(undefined);
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Escape') setDetailId(undefined);
           }}
@@ -313,83 +460,77 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
         )
       }
     >
-      <LiveStatus message={message} />
+      {hasLists && (
+        <div className={styles.content} data-reveal={options.reveal || undefined}>
+          {others.length > 0 && (
+            <PharmacyList
+              pharmacies={others}
+              distance={scene.distance}
+              needsStreet={needsStreet}
+              selectedId={detailId}
+              onSelect={select}
+              alone={!lead && !nearestOpen && !firstToOpen}
+            />
+          )}
 
-      <div className={styles.content} data-reveal={options.reveal || undefined}>
-        {scene.user.approximate && <ApproximateNotice onSearch={options.onSearch} />}
-
-        {stale && scene.dataFrom !== undefined && <ResultsNotice title={t.results.staleTitle}>{t.results.staleBody(f.dayOf(scene.dataFrom))}</ResultsNotice>}
-
-        {missing.length > 0 && <ResultsNotice>{missing.length === 1 ? t.results.missingOne(missing[0]) : t.results.missingMany(f.list(missing))}</ResultsNotice>}
-
-        {lead && (
-          <HoursUnknownCard
-            pharmacy={lead}
-            city={cityIfElsewhere(lead, place, i18n.locale)}
-            distance={scene.distance}
-            count={unlisted.count}
-            knownOpen={nearestOpen}
-            knownOpenWithStreet={nearestOpen && needsStreet.has(nearestOpen.id)}
-            hoursListed={scene.hoursListed}
-            country={scene.country}
-            onRoute={select}
-            onSelect={select}
-            onShowCard={() => setCounterOpen(true)}
-          >
-            {banner}
-          </HoursUnknownCard>
-        )}
-
-        {!lead && nearestOpen && (
-          <NearestOpenCard
-            pharmacy={nearestOpen}
-            city={cityIfElsewhere(nearestOpen, place, i18n.locale)}
-            distance={scene.distance}
-            ehditko={ehditko}
-            nextOpen={nextOpen}
-            nextOpenWithStreet={nextOpen && needsStreet.has(nextOpen.id)}
-            firstToOpen={firstToOpen}
-            closerClosed={closedGroup.length > 0 ? closerClosed : 0}
-            closedOpens={scene.closedOpens}
-            closerUnknown={closerUnknown}
-            country={scene.country}
-            onRoute={select}
-            onSelect={select}
-            onShowCard={() => setCounterOpen(true)}
-          >
-            {banner}
-          </NearestOpenCard>
-        )}
-
-        {!lead && !nearestOpen && firstToOpen && (
-          <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select}>
-            {banner}
-          </NothingOpenCard>
-        )}
-
-        {others.length > 0 && (
-          <PharmacyList
-            pharmacies={others}
-            distance={scene.distance}
-            needsStreet={needsStreet}
-            selectedId={detailId}
-            onSelect={select}
-            alone={!lead && !nearestOpen && !firstToOpen}
-          />
-        )}
-
-        {closedGroup.length > 0 && (
-          <ClosedGroup
-            pharmacies={closedGroup}
-            distance={scene.distance}
-            needsStreet={needsStreet}
-            selectedId={detailId}
-            onSelect={select}
-            initiallyOpen={options.closedOpen}
-            firstShownAbove={!!firstToOpen}
-          />
-        )}
-      </div>
+          {closedGroup.length > 0 && (
+            <ClosedGroup
+              pharmacies={closedGroup}
+              distance={scene.distance}
+              needsStreet={needsStreet}
+              selectedId={detailId}
+              onSelect={select}
+              initiallyOpen={options.closedOpen}
+              firstShownAbove={!!firstToOpen}
+            />
+          )}
+        </div>
+      )}
     </ResultsShell>
+  );
+}
+
+interface SheetRowProps {
+  /** The id of the row's heading. */
+  id: string;
+  /** What the row is, for screen readers: "Lähin auki nyt". On screen the lit cross and the bar's count say it. */
+  label: string;
+  pharmacy: Pharmacy;
+  distance: Scene['distance'];
+  /** In place of the pharmacy's status line, where another line says more: ehditkö. */
+  status?: ReactNode;
+  /** The row's one button. */
+  action: ReactNode;
+  /** The row's cross switches on with the markers (PLAN.md section 6, "Motion"). */
+  reveal?: boolean;
+}
+
+/**
+ * The phone's sheet at its lowest: one pharmacy in one row. The cross, the name, how far
+ * and whether it is open, and one button. The second line starts with the distance, so it
+ * is in the same place in every row, and wraps when a status is long: no status is cut off.
+ */
+function SheetRow({ id, label, pharmacy, distance, status, action, reveal }: SheetRowProps) {
+  const i18n = useI18n();
+  const way = travel(i18n, pharmacy, distance);
+  return (
+    <section aria-labelledby={id} className={styles.row} data-reveal={reveal || undefined}>
+      <CrossGlyph state={glyphFor(pharmacy.status)} size={24} className={styles.rowGlyph} />
+      <div className={styles.rowWho}>
+        <h2 id={id} className="visually-hidden">
+          {label}
+        </h2>
+        <h3 className={styles.rowName}>{displayName(i18n, pharmacy)}</h3>
+        <p className={styles.rowLine}>
+          <span className={cx(styles.rowDistance, 'tnum')}>
+            <Measure {...way.primary} />
+          </span>
+          <span aria-hidden="true"> · </span>
+          <span className="visually-hidden">, </span>
+          {status ?? <OpenStatus status={pharmacy.status} inline />}
+        </p>
+      </div>
+      {action}
+    </section>
   );
 }

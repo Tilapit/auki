@@ -167,3 +167,53 @@ export async function start(page: Page, files: Record<string, unknown> | number,
 export async function settle(page: Page) {
   await page.clock.runFor(1000);
 }
+
+/**
+ * The same start with the page's clock running on from the test's moment, for what happens
+ * over real time: gestures, the map's own easing, its inertia. Location is already allowed,
+ * so the results come by themselves.
+ */
+export async function startRunning(page: Page, files: Record<string, unknown>, now = MONDAY_EVENING) {
+  await page.clock.install({ time: new Date(now * 1000) });
+  await fakeLocation(page, 'allow', 'granted');
+  const asked = await fakeTiles(page, files);
+  await page.goto('/fi');
+  return asked;
+}
+
+export interface Finger {
+  x: number;
+  y: number;
+}
+
+/**
+ * Real touch input, as a phone's screen gives it: Chromium only, through DevTools. Playwright's
+ * own touchscreen can tap, and nothing more. Every step waits a frame, as a finger would take.
+ */
+export async function touchscreen(page: Page) {
+  const devtools = await page.context().newCDPSession(page);
+  const send = (type: 'touchStart' | 'touchMove' | 'touchEnd', fingers: Finger[]) => devtools.send('Input.dispatchTouchEvent', { type, touchPoints: fingers.map((finger, id) => ({ x: Math.round(finger.x), y: Math.round(finger.y), id })) });
+  const between = (from: Finger, to: Finger, share: number): Finger => ({ x: from.x + (to.x - from.x) * share, y: from.y + (to.y - from.y) * share });
+  /** Moves every finger from its first place to its last, in steps a frame apart. */
+  const move = async (from: Finger[], to: Finger[], steps: number) => {
+    await send('touchStart', from);
+    for (let step = 1; step <= steps; step++) {
+      await send('touchMove', from.map((finger, index) => between(finger, to[index], step / steps)));
+      await page.waitForTimeout(16);
+    }
+    // Held still for a moment: let go without speed, the map stays where it was put.
+    await page.waitForTimeout(120);
+    await send('touchMove', to);
+    await send('touchEnd', []);
+  };
+  return {
+    devtools,
+    drag: (from: Finger, to: Finger, steps = 24) => move([from], [to], steps),
+    pinch: (from: [Finger, Finger], to: [Finger, Finger], steps = 24) => move(from, to, steps),
+    async tap(...fingers: Finger[]) {
+      await send('touchStart', fingers);
+      await page.waitForTimeout(30);
+      await send('touchEnd', []);
+    },
+  };
+}

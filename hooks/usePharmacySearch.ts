@@ -1,11 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { canLocate, locateOnce, locationPermission, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import type { Locale } from '@/lib/i18n';
 import { movedEnough } from '@/lib/live';
+import type { Bounds } from '@/lib/map/area';
 import { Tiles, findFarOpen, findPharmacies } from '@/lib/search';
 import { APPROXIMATE_OVER_METERS, initialState, isMapView, reducer, type DevicePosition, type Position, type State } from '@/lib/state';
+import type { TilePharmacy } from '@/lib/tiles';
 
 /** A tile that takes longer than this counts as not loaded. */
 const TILE_TIMEOUT_MS = 10_000;
@@ -30,6 +32,8 @@ function loader(signal: AbortSignal) {
 
 const nowSeconds = (): number => Math.floor(Date.now() / 1000);
 
+const NOTHING: readonly TilePharmacy[] = [];
+
 interface PlaceAnswer {
   place: { lat: number; lon: number; label: string } | null;
 }
@@ -49,6 +53,10 @@ export interface PharmacySearch {
   checkFarOpen: (now: number) => void;
   /** A new fix from the device: after about 300 m the results are ranked again around it. */
   follow: (fix: { lat: number; lon: number; accuracy: number }) => void;
+  /** Every pharmacy on the tiles the device holds for this search: the map draws them all. */
+  area: readonly TilePharmacy[];
+  /** The map was moved by hand: loads the squares that came into view, if they aren't here yet. */
+  showArea: (bounds: Bounds) => void;
   back: () => void;
 }
 
@@ -58,6 +66,7 @@ export interface PharmacySearch {
  */
 export function usePharmacySearch(locale: Locale): PharmacySearch {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [area, setArea] = useState(NOTHING);
   const attempt = useRef(0);
   const lookup = useRef<AbortController | null>(null);
 
@@ -129,6 +138,7 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     tiles.current = { position, store, controller };
     void findPharmacies(store, position, nowSeconds()).then((outcome) => {
       if (controller.signal.aborted) return;
+      if (outcome.kind === 'results') setArea(store.all());
       if (outcome.kind === 'results') dispatch({ type: 'found', position, result: outcome.result });
       else if (outcome.kind === 'none') dispatch({ type: 'noneFound', position });
       else if (outcome.kind === 'notCovered') dispatch({ type: 'notCovered', position, country: outcome.country });
@@ -154,7 +164,10 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     void findFarOpen(current.store, current.position, now)
       .catch(() => undefined)
       .then((farOpen) => {
-        if (!current.controller.signal.aborted) dispatch({ type: 'farOpen', position: current.position, farOpen });
+        if (current.controller.signal.aborted) return;
+        // The wider search may have brought tiles of its own: the map shows their pharmacies too.
+        setArea((shown) => (shown.length === current.store.count() ? shown : current.store.all()));
+        dispatch({ type: 'farOpen', position: current.position, farOpen });
       });
   }, []);
 
@@ -182,7 +195,21 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
         // Anything but results (a tile that didn't load, the edge of the coverage) leaves the list as it is.
         if (current.controller.signal.aborted || tiles.current !== current || outcome?.kind !== 'results') return;
         current.position = position;
+        setArea(current.store.all());
         dispatch({ type: 'moved', from, position, at: wallClock(new Date()), result: outcome.result });
+      });
+  }, []);
+
+  // The map shows every pharmacy on the tiles the device holds. Moved by hand to a new area, it
+  // asks for that area's squares: tile numbers that follow from the map, never from the position.
+  const showArea = useCallback((bounds: Bounds) => {
+    const current = tiles.current;
+    if (!current || shown.current.view !== 'results') return;
+    void current.store
+      .loadArea(bounds)
+      .catch(() => false)
+      .then((arrived) => {
+        if (arrived && !current.controller.signal.aborted && tiles.current === current) setArea(current.store.all());
       });
   }, []);
 
@@ -237,5 +264,6 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     else dispatch({ type: 'back', to: 'ready' });
   }, []);
 
-  return { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, follow, back };
+  // The pharmacies of an earlier search are not this one's: the map gets them only with the results they came with.
+  return { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, follow, area: state.view === 'results' ? area : NOTHING, showArea, back };
 }

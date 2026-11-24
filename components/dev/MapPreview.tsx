@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
-import { MAP_MOMENTS, type MapPreviewView } from '@/lib/dev/mapViews';
+import { inventedArea, MAP_MOMENTS, type MapPreviewView } from '@/lib/dev/mapViews';
 import { helsinki } from '@/lib/fixtures/helsinki';
+import { distanceMeters } from '@/lib/geo';
 import { riga } from '@/lib/fixtures/riga';
-import type { Scene } from '@/lib/types';
+import type { Pharmacy, Scene } from '@/lib/types';
 import { ResultsView } from '../ResultsView';
 
 const SCENES: Record<MapPreviewView['city'], Scene> = { helsinki, riga };
@@ -14,6 +15,10 @@ const SCENES: Record<MapPreviewView['city'], Scene> = { helsinki, riga };
  * own style, at a fixed moment. The pharmacies and their statuses are the fixture's own
  * (Helsinki on a Thursday at 20.41, Riga on a Friday at 23.40) whatever the moment: this
  * view is for judging the map, its light and the markers on it.
+ *
+ * Around them, 160 invented pharmacies as the map's own signs, the way the live app draws
+ * every pharmacy beyond the list's ten. A press on one opens a sheet with as little as a
+ * pharmacy without a name or hours has.
  */
 export function MapPreview({ view, zoom, sheet = 'peek' }: { view: MapPreviewView; zoom?: number; sheet?: 'peek' | 'expanded' }) {
   const at = MAP_MOMENTS.find((moment) => moment.id === view.moment)!.at;
@@ -23,5 +28,14 @@ export function MapPreview({ view, zoom, sheet = 'peek' }: { view: MapPreviewVie
     // Scene views count 256 px tiles: one level more than the map's own zoom.
     return { ...fixture, views: { phone: { ...fixture.views.phone, zoom: zoom + 1 }, desktop: { ...fixture.views.desktop, zoom: zoom + 1 } } };
   }, [view.city, zoom]);
-  return <ResultsView scene={scene} sheet={sheet} basemap now={Math.floor(Date.parse(at) / 1000)} reveal />;
+  const area = useMemo(() => inventedArea(SCENES[view.city].user, view.moment), [view.city, view.moment]);
+  const findInArea = (id: string): Pharmacy | undefined => {
+    const feature = area.data.features.find((candidate) => candidate.properties.id === id);
+    if (!feature) return undefined;
+    const [lon, lat] = feature.geometry.coordinates;
+    const { glyph } = feature.properties;
+    const status: Pharmacy['status'] = glyph === 'open' ? { kind: 'open', closes: '22:00' } : glyph === 'soon' ? { kind: 'soon', closes: '21:00' } : glyph === 'closed' ? { kind: 'closed', opens: { day: 'tomorrow', time: '09:00' } } : { kind: 'missing' };
+    return { id, name: null, lat, lon, status, straightMeters: Math.round(distanceMeters(scene.user, { lat, lon })) };
+  };
+  return <ResultsView scene={scene} sheet={sheet} basemap now={Math.floor(Date.parse(at) / 1000)} reveal area={area} findInArea={findInArea} />;
 }
