@@ -6,14 +6,15 @@ import type { Locale } from '../i18n';
  * OpenFreeMap's vector tiles (OpenMapTiles schema), not one of the tile host's ready styles:
  * the only green on the map is the lit cross, so parks are muted, and there are few labels.
  *
- * Spike (PLAN.md section 11, S1). Three variants:
- *   a  flat and calm: water, parks, three road weights, flat buildings.
- *   b  a, plus buildings in 3D from zoom 15, lit from the side the sun is really on.
- *   c  b, plus a sky for a pitched camera, in the colours of the first-visit sky.
+ * Chosen from the spike (S1): top-down only, flat and calm at overview zooms, and from about
+ * zoom 15 the buildings rise in 3D, lit from the side the sun is really on.
+ *
+ * The device theme picks light or dark, as everywhere else in the app. The sun never changes
+ * the theme. It moves the light on the buildings, and in the dark theme it sets how deep
+ * the dark is: `DUSK` while there is still light in the sky, `NIGHT` after it.
  */
 
-export type MapVariant = 'a' | 'b' | 'c';
-export type MapPhase = 'day' | 'dusk' | 'night';
+export type MapTheme = 'light' | 'dark';
 
 export interface MapPalette {
   land: string;
@@ -24,7 +25,7 @@ export interface MapPalette {
   /** Roof and wall colour of 3D buildings before the light is applied. */
   building3d: string;
   major: string;
-  /** Road casings exist in daylight only: at night the roads themselves are the lighter lines. */
+  /** Road casings exist in the light theme only: in the dark the roads themselves are the lighter lines. */
   majorCasing?: string;
   minor: string;
   minorCasing?: string;
@@ -71,39 +72,61 @@ export const NIGHT: MapPalette = {
   waterLabel: '#3f5f8f',
 };
 
+/**
+ * The dark theme while there is light in the sky: the blue of the first-visit twilight, a
+ * clear step lighter than night. Water is the darkest thing on it, as it is at that hour.
+ */
+export const DUSK: MapPalette = {
+  land: '#1b3763',
+  water: '#0d2450',
+  park: '#1a3d62',
+  building: '#234273',
+  buildingEdge: '#2b4b7f',
+  building3d: '#2a4a7e',
+  major: '#4668a2',
+  minor: '#31528a',
+  path: '#2c4b80',
+  rail: '#2f4d80',
+  label: '#a9bad3',
+  placeLabel: '#d3ddeb',
+  waterLabel: '#6c8ec2',
+};
+
 function mix(a: string, b: string, t: number): string {
   const channel = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
   return `#${[0, 1, 2].map((i) => Math.round(channel(a, i) + (channel(b, i) - channel(a, i)) * t).toString(16).padStart(2, '0')).join('')}`;
 }
 
-/** Blue hour: the night map with the sky's last light still on it. Roads have not yet become the lighter lines. */
-export const DUSK: MapPalette = {
-  land: mix(NIGHT.land, '#2f5ca6', 0.22),
-  water: mix(NIGHT.water, '#0e2652', 0.55),
-  park: mix(NIGHT.park, '#2f5ca6', 0.18),
-  building: mix(NIGHT.building, '#3e5f96', 0.3),
-  buildingEdge: mix(NIGHT.buildingEdge, '#3e5f96', 0.35),
-  building3d: mix(NIGHT.building3d, '#3e5f96', 0.3),
-  major: mix(NIGHT.major, '#8bbaec', 0.22),
-  minor: mix(NIGHT.minor, '#8bbaec', 0.14),
-  path: mix(NIGHT.path, '#8bbaec', 0.12),
-  rail: mix(NIGHT.rail, '#8bbaec', 0.12),
-  label: '#93a6c2',
-  placeLabel: '#c3cfdf',
-  waterLabel: '#5a7bab',
-};
+/** Sun altitudes, in degrees, between which the dark map goes from dusk to night. */
+export const DUSK_UNTIL = -4;
+export const NIGHT_FROM = -8;
+const STEPS = 4;
 
-export const PALETTES: Record<MapPhase, MapPalette> = { day: DAY, dusk: DUSK, night: NIGHT };
+/**
+ * How far into the night the dark map is: 0 while there is light in the sky, 1 once it is
+ * gone, and a few steps between, so the map never jumps from one to the other.
+ */
+export function nightShare(sunAltitude: number): number {
+  const share = (DUSK_UNTIL - sunAltitude) / (DUSK_UNTIL - NIGHT_FROM);
+  return Math.round(Math.min(1, Math.max(0, share)) * STEPS) / STEPS;
+}
+
+/** The colours for a theme and a sun. Without a sun the dark theme is night. */
+export function paletteFor(theme: MapTheme, sunAltitude?: number): MapPalette {
+  if (theme === 'light') return DAY;
+  const share = sunAltitude === undefined ? 1 : nightShare(sunAltitude);
+  if (share === 1) return NIGHT;
+  if (share === 0) return DUSK;
+  const keys = Object.keys(NIGHT) as (keyof MapPalette)[];
+  return Object.fromEntries(keys.map((key) => [key, mix(DUSK[key]!, NIGHT[key]!, share)])) as unknown as MapPalette;
+}
 
 export interface StyleOptions {
-  variant: MapVariant;
-  phase: MapPhase;
+  theme: MapTheme;
   /** Labels prefer this language where OpenStreetMap has the name in it. */
   locale: Locale;
-  /** The sun at the map's centre, for the light on 3D buildings. */
+  /** The sun at the map's centre: the light on the 3D buildings, and dusk or night in the dark theme. */
   sun?: { altitude: number; azimuth: number };
-  /** Sky colours for variant c, top to horizon: the first-visit sky of the same moment. */
-  sky?: { top: string; horizon: string };
   /** Vector tiles (TileJSON) and label glyphs. Config, so the tile host can be swapped (PLAN.md, decision D6). */
   tiles?: string;
   glyphs?: string;
@@ -116,6 +139,10 @@ export const OPENFREEMAP_TILES = 'https://tiles.openfreemap.org/planet';
 export const OWN_GLYPHS = '/glyphs/{fontstack}/{range}.pbf';
 export const OWN_FONTS = { regular: ['Atkinson Hyperlegible Next Regular'], strong: ['Atkinson Hyperlegible Next SemiBold'] };
 
+/** The buildings start to rise here and stand at full height a little over half a zoom level on. */
+export const RISE_FROM = 15;
+export const RISE_UNTIL = 15.6;
+
 const MAJOR = ['motorway', 'trunk', 'primary', 'secondary'];
 const MINOR = ['tertiary', 'minor', 'service'];
 const PATHS = ['path', 'pedestrian', 'track'];
@@ -123,26 +150,27 @@ const PATHS = ['path', 'pedestrian', 'track'];
 const width = (stops: [number, number][]) => ['interpolate', ['exponential', 1.6], ['zoom'], ...stops.flat()] as unknown as number;
 
 /**
- * The light on 3D buildings. In daylight it comes from the side the sun is really on; after
- * sunset it is dim and from straight above. The light itself is always white: a coloured
- * light tints the dark palettes (MapLibre adds a floor of the complementary colour), and the
- * coolness of dusk and night is already in the building colours.
+ * The light on 3D buildings. With the sun up it comes from the side the sun is really on;
+ * after sunset it is dim and from straight above. The light itself is always white: a
+ * coloured light tints the dark palettes (MapLibre adds a floor of the complementary colour),
+ * and the coolness of dusk and night is already in the building colours.
  */
-function light(phase: MapPhase, sun: StyleOptions['sun']): StyleSpecification['light'] {
+export function lightFor(theme: MapTheme, sun: StyleOptions['sun']): NonNullable<StyleSpecification['light']> {
   if (!sun || sun.altitude <= 0) {
-    return { anchor: 'map', position: [1.15, 0, 12], color: '#ffffff', intensity: phase === 'night' ? 0.16 : 0.22 };
+    const night = theme === 'dark' && (!sun || nightShare(sun.altitude) === 1);
+    return { anchor: 'map', position: [1.15, 0, 12], color: '#ffffff', intensity: night ? 0.16 : 0.22 };
   }
   // The real azimuth. The height is kept above 55 degrees: lower than that and the roofs,
   // which are most of what a map shows, go grey. At northern noon in November the sun is at 10.
   const polar = 90 - Math.max(sun.altitude, 55);
-  return { anchor: 'map', position: [1.15, sun.azimuth, polar], color: '#ffffff', intensity: 0.3 };
+  return { anchor: 'map', position: [1.15, Math.round(sun.azimuth), polar], color: '#ffffff', intensity: theme === 'light' ? 0.3 : 0.24 };
 }
 
 export function buildStyle(options: StyleOptions): StyleSpecification {
-  const { variant, phase, locale, sun } = options;
-  const c = PALETTES[phase];
+  const { theme, locale, sun } = options;
+  const c = paletteFor(theme, sun?.altitude);
+  const light = theme === 'light';
   const fonts = options.fonts ?? OWN_FONTS;
-  const flatOnly = variant === 'a';
   const name = ['coalesce', ['get', `name:${locale}`], ['get', 'name:latin'], ['get', 'name']] as unknown as string;
   const halo = { 'text-halo-color': c.land, 'text-halo-width': 1.4 };
 
@@ -165,10 +193,12 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
   });
 
   // Widths at zoom 16 follow PLAN.md section 6: major 8.5 px, minor 4.2 px, paths 1.3 px.
-  const major: [number, number][] = [[9, 0.6], [13, 2.6], [16, phase === 'day' ? 8.5 : 7.5], [19, 26]];
-  const minor: [number, number][] = [[12, 0.4], [14, 1.4], [16, phase === 'day' ? 4.2 : 3.8], [19, 16]];
-  const paths: [number, number][] = [[14, 0.5], [16, phase === 'day' ? 1.3 : 1.2], [19, 4]];
+  const major: [number, number][] = [[9, 0.6], [13, 2.6], [16, light ? 8.5 : 7.5], [19, 26]];
+  const minor: [number, number][] = [[12, 0.4], [14, 1.4], [16, light ? 4.2 : 3.8], [19, 16]];
+  const paths: [number, number][] = [[14, 0.5], [16, light ? 1.3 : 1.2], [19, 4]];
   const casing = (stops: [number, number][]) => stops.map(([zoom, w]) => [zoom, w + (zoom >= 15 ? 2 : 1.2)] as [number, number]);
+  // From nothing to the building's own height, between the two zooms.
+  const rising = (property: string) => ['interpolate', ['linear'], ['zoom'], RISE_FROM, 0, RISE_UNTIL, ['get', property]] as unknown as number;
 
   const layers: LayerSpecification[] = [
     { id: 'land', type: 'background', paint: { 'background-color': c.land } },
@@ -190,13 +220,13 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
       minzoom: 12,
       paint: { 'line-color': c.water, 'line-width': width([[12, 0.8], [16, 3], [19, 10]]) },
     },
+    // The flat footprints stay under the 3D ones, so nothing pops when those fade in.
     {
       id: 'building',
       type: 'fill',
       source: 'tiles',
       'source-layer': 'building',
       minzoom: 13,
-      ...(flatOnly ? {} : { maxzoom: 15 }),
       paint: { 'fill-color': c.building, 'fill-outline-color': c.buildingEdge },
     },
     ...(c.minorCasing ? [road('minor-casing', MINOR, c.minorCasing, casing(minor), 13)] : []),
@@ -213,25 +243,22 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
       filter: ['==', ['get', 'class'], 'rail'],
       paint: { 'line-color': c.rail, 'line-width': width([[12, 0.6], [16, 1.6], [19, 4]]) },
     },
-    ...(flatOnly
-      ? []
-      : [
-          {
-            id: 'building-3d',
-            type: 'fill-extrusion',
-            source: 'tiles',
-            'source-layer': 'building',
-            minzoom: 15,
-            filter: ['!', ['has', 'hide_3d']],
-            paint: {
-              'fill-extrusion-color': c.building3d,
-              'fill-extrusion-height': ['get', 'render_height'],
-              'fill-extrusion-base': ['get', 'render_min_height'],
-              'fill-extrusion-vertical-gradient': true,
-              'fill-extrusion-opacity': 1,
-            },
-          } satisfies LayerSpecification,
-        ]),
+    {
+      id: 'building-3d',
+      type: 'fill-extrusion',
+      source: 'tiles',
+      'source-layer': 'building',
+      minzoom: RISE_FROM,
+      filter: ['!', ['has', 'hide_3d']],
+      paint: {
+        'fill-extrusion-color': c.building3d,
+        'fill-extrusion-height': rising('render_height'),
+        'fill-extrusion-base': rising('render_min_height'),
+        'fill-extrusion-vertical-gradient': true,
+        // Height carries the change; the opacity only keeps the first frame from popping.
+        'fill-extrusion-opacity': ['interpolate', ['linear'], ['zoom'], RISE_FROM, 0, RISE_FROM + 0.4, 1],
+      },
+    },
     {
       id: 'water-name',
       type: 'symbol',
@@ -283,23 +310,20 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
 
   return {
     version: 8,
-    name: `map-${variant}-${phase}`,
+    name: `map-${theme}`,
     sources: { tiles: { type: 'vector', url: options.tiles ?? OPENFREEMAP_TILES } },
     glyphs: options.glyphs ?? OWN_GLYPHS,
     layers,
-    ...(flatOnly ? {} : { light: light(phase, sun) }),
-    ...(variant === 'c' && options.sky
-      ? {
-          sky: {
-            'sky-color': options.sky.top,
-            'horizon-color': options.sky.horizon,
-            'fog-color': mix(c.land, options.sky.horizon, 0.45),
-            'sky-horizon-blend': 0.7,
-            'horizon-fog-blend': 0.55,
-            'fog-ground-blend': 0.75,
-            'atmosphere-blend': 0,
-          },
-        }
-      : {}),
+    light: lightFor(theme, sun),
   };
+}
+
+/**
+ * What decides the style, as one string: the map is restyled only when this changes, not on
+ * every minute's tick. The sun's direction counts in steps of ten degrees.
+ */
+export function styleKey({ theme, locale, sun }: Pick<StyleOptions, 'theme' | 'locale' | 'sun'>): string {
+  if (!sun) return `${theme}/${locale}`;
+  const up = sun.altitude > 0;
+  return [theme, locale, theme === 'dark' ? nightShare(sun.altitude) : '', up ? Math.round(sun.azimuth / 10) : 'down', up ? Math.round(Math.max(sun.altitude, 55) / 5) : ''].join('/');
 }

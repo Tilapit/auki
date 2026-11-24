@@ -1,4 +1,8 @@
-import type { Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
+import { MONDAY_EVENING, KAMPPI, indexOf } from '@/lib/fixtures/tiles';
+import { MAP_TILE_HOST, MAP_TILES_URL } from '@/lib/requests';
+import { INDEX_PATH, encodeTile, tileKey, tileOf, tilePath } from '@/lib/tiles';
+import type { TilePharmacy } from '@/lib/tiles';
 
 /**
  * What the flow tests share: a scripted geolocation, so each case behaves the same in
@@ -34,8 +38,21 @@ export async function fakeLocation(page: Page, mode: Mode, permission: 'prompt' 
             // 'ignore': the permission prompt is left unanswered, so nothing ever calls back.
           });
         },
-        watchPosition: () => 0,
-        clearWatch: () => undefined,
+        // Following a walk: the test moves the device with window.walk(), which says how many watches heard it.
+        watchPosition(success: PositionCallback) {
+          const id = ++watches;
+          watching.set(id, success);
+          return id;
+        },
+        clearWatch(id: number) {
+          watching.delete(id);
+        },
+      };
+      let watches = 0;
+      const watching = new Map<number, PositionCallback>();
+      (window as unknown as { walk: (lat: number, lon: number, accuracy?: number) => number }).walk = (lat, lon, accuracy = 15) => {
+        for (const success of watching.values()) success({ coords: { latitude: lat, longitude: lon, accuracy }, timestamp: 0 } as GeolocationPosition);
+        return watching.size;
       };
       Object.defineProperty(Navigator.prototype, 'geolocation', { get: () => (mode === 'unsupported' ? undefined : geolocation), configurable: true });
       Object.defineProperty(Navigator.prototype, 'permissions', { get: () => ({ query: async () => ({ state: permission }) }), configurable: true });
@@ -82,4 +99,71 @@ export async function fakeTiles(page: Page, files: Record<string, unknown> | 'ho
     else await route.fulfill({ status: 404, body: '' });
   });
   return asked;
+}
+
+/** Moves the device, as the watch of the live position hears it. Returns how many watches were listening. */
+export function walkTo(page: Page, place: { lat: number; lon: number }, accuracy = 15): Promise<number> {
+  return page.evaluate(([lat, lon, radius]) => (window as unknown as { walk: (lat: number, lon: number, accuracy: number) => number }).walk(lat, lon, radius), [place.lat, place.lon, accuracy]);
+}
+
+/**
+ * Answers the map tile host, so that no test reaches it: a description of the tiles, and
+ * every tile empty. 'down': the host answers 503. Returns the paths that were asked for.
+ * Routed on the context where one is given, which also covers the map's worker.
+ */
+export async function fakeMapTiles(target: Page | BrowserContext, mode: 'empty' | 'down' = 'empty'): Promise<string[]> {
+  const asked: string[] = [];
+  const cors = { 'access-control-allow-origin': '*' };
+  await target.route(`${MAP_TILE_HOST}/**`, async (route) => {
+    const url = new URL(route.request().url());
+    asked.push(url.pathname);
+    if (mode === 'down') await route.fulfill({ status: 503, body: '', headers: cors });
+    else if (url.href === MAP_TILES_URL) await route.fulfill({ json: { tilejson: '3.0.0', tiles: [`${MAP_TILE_HOST}/planet/test/{z}/{x}/{y}.pbf`], minzoom: 0, maxzoom: 14 }, headers: cors });
+    else await route.fulfill({ status: 204, body: '', headers: cors });
+  });
+  return asked;
+}
+
+/** Whether this browser can draw the map at all: without WebGL the app keeps the markers on a plain ground. */
+export const hasWebGL = (page: Page): Promise<boolean> => page.evaluate(() => !!document.createElement('canvas').getContext('webgl2'));
+
+/** The files of a small world: an index, and one tile per square that has pharmacies. */
+export function world(pharmacies: TilePharmacy[], outside = false): Record<string, unknown> {
+  const squares = new Map<string, TilePharmacy[]>();
+  for (const pharmacy of pharmacies) {
+    const key = tileKey(tileOf(pharmacy));
+    squares.set(key, [...(squares.get(key) ?? []), pharmacy]);
+  }
+  const tiles = [...squares].map(([key, list]) => {
+    const [x, y] = key.split('/').map(Number);
+    return { x, y, pharmacies: list };
+  });
+  return {
+    [INDEX_PATH]: indexOf(tiles, outside ? [tileOf(KAMPPI)] : []),
+    ...Object.fromEntries(tiles.map((tile) => [tilePath(tile.x, tile.y), encodeTile(tile)])),
+  };
+}
+
+/**
+ * From the first window to what the tiles say, with the page's clock in the test's hands:
+ * Monday 23 November 2026 at 20:41 in Helsinki unless a test says otherwise.
+ */
+export async function start(page: Page, files: Record<string, unknown> | number, now = MONDAY_EVENING) {
+  await page.clock.install({ time: new Date((now - 60) * 1000) });
+  await fakeLocation(page, 'allow');
+  const asked = await fakeTiles(page, files);
+  await open(page, '/fi');
+  // From here on the page's clock moves only when the test moves it.
+  await page.clock.pauseAt(new Date(now * 1000));
+  await locateButton(page).click();
+  await settle(page);
+  return asked;
+}
+
+/**
+ * The map views arrive as a chunk of their own, and React holds a view that was waiting
+ * for one back for a moment, on a timer. With the clock paused that moment has to be given.
+ */
+export async function settle(page: Page) {
+  await page.clock.runFor(1000);
 }

@@ -5,7 +5,7 @@ import type { Scene } from '@/lib/types';
 import { ApproximateNotice } from './ApproximateNotice';
 import { CrossGlyph } from './CrossGlyph';
 import { ResultsShell } from './ResultsShell';
-import { StaticMap } from './StaticMap';
+import { MapView } from './MapView';
 import styles from './ProgressView.module.css';
 
 interface Props {
@@ -33,7 +33,7 @@ export function SearchingView({ scene, onRefresh, onSearch, focusTitle }: Props)
       barLine={t.results.searchingShort}
       sheet="static"
       mapLabel={t.map.label}
-      map={<StaticMap scene={scene} needsStreet={NO_STREETS} userOnly />}
+      map={<MapView scene={scene} needsStreet={NO_STREETS} userOnly />}
       onRefresh={onRefresh}
       focusTitle={focusTitle}
     >

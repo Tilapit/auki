@@ -104,11 +104,13 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 - **Phone:** full-screen map. Floating bar on top: app mark, place and how many are open ("2 auki klo 20.41"), refresh, language. Bottom sheet:
   - collapsed (default): "Lähin auki nyt" peek: name, walking time, "Perillä 20.44, sulkeutuu 21.00", "Reitti", "Kaikki 8 apteekkia";
   - expanded: the full card (below) and the list.
-  - The sheet opens and closes from its handle and from "Kaikki 8 apteekkia"; dragging it arrives in M4.
-- **Desktop:** list panel on the left (about 440 px), map on the right. The panel shows every result and scrolls; nothing is hidden behind a "show all" button. Map overlays: legend (Auki / Sulkeutuu pian / Kiinni) top left, zoom and locate bottom right, OSM attribution bottom left.
-- **Markers:** open or closing → a capsule with the cross and the walking time; closed → a small unlit disc without a time; hours missing → dashed cross. The selected pharmacy is larger, with a ring and its name. At night only open pharmacies glow. An open pharmacy outside the view gets an edge chip with an arrow and its walking time.
-- **You are here:** cobalt dot, white ring, accuracy halo. It follows the user while the page is visible.
-- **Route:** the walking route to the selected pharmacy, cobalt by day, glowing sky blue at night.
+  - The sheet opens and closes from its handle and from "Kaikki 8 apteekkia", and it can be dragged: it follows the finger, shows the list once it is past the middle, and settles where it is let go or where it was thrown. Collapsed, the whole sheet is the handle; open, only the handle is, so the list scrolls.
+- **Desktop:** list panel on the left (about 440 px), map on the right. The panel shows every result and scrolls; nothing is hidden behind a "show all" button. Map overlays: legend (Auki / Sulkeutuu pian / Kiinni) top left, zoom and locate bottom right, the map credit bottom left (OpenFreeMap, OpenMapTiles and OpenStreetMap, as the tile host asks). Locate brings the dot back to the middle; it does not search again.
+- **Markers:** open or closing → a capsule with the cross and the walking time; closed → a small unlit disc without a time; hours missing → dashed cross. The selected pharmacy is larger, with a ring and, on desktop, its name on a small plate. At night only open pharmacies glow. An open pharmacy outside the view gets an edge chip with an arrow and its walking time: on the edge, on the line towards it, for at most the three nearest. Markers are real buttons over the map, in the order of the list for a keyboard.
+- **The first view:** the position in the middle of what the bar and the sheet leave free, wide enough for the nearest five, and closer when the pharmacy in the card is only a block away, so that its marker and the dot stand apart.
+- **You are here:** cobalt dot, white ring, and a halo as wide as the accuracy the device reports. It follows the user while the page is visible (section 7.1, step 11).
+- **When the map can't be drawn** (no WebGL, or the map tiles don't arrive): the markers, the dot and the edge chips stay, on the plain ground colour, and one line says the map didn't load. The list never depended on it.
+- **Route:** the walking route to the selected pharmacy, cobalt by day, glowing sky blue at night (M5).
 
 ### "Lähin auki nyt" card
 - Name, address, walking time (the largest number), distance.
@@ -236,25 +238,28 @@ Each token is defined once in `app/globals.css` with `light-dark()`. The theme f
 
 Colours sampled from treat.health's CSS tokens and Treat's LinkedIn banner and logo tile. There is no brand book, and the app doesn't present itself as Treat's, so the sampled palette stays (decision D3). All contrast figures computed (WCAG 2.x).
 
-Map style (MapLibre, custom; values from the canvas). The look comes from our own style (`lib/map/style.ts`, built from these tokens), not from the tile host's ready styles. The spike on `/dev/map` (section 11, S1) showed it on real tiles in three variants, and Janne chose from them: top-down only, flat and calm at overview zooms, and from about zoom 15 buildings in 3D, lit from the side the sun is really on. No pitched camera and no sky on the map. M4 makes the markers stronger and dusk and night clearly different, and settles the details (`DESIGN-LOG.md`). The values so far:
+Map style (MapLibre, custom; values from the canvas). The look comes from our own style (`lib/map/style.ts`, built from these tokens), not from the tile host's ready styles. The spike (section 11, S1) showed it on real tiles in three variants, and Janne chose from them: top-down only, flat and calm at overview zooms, and from about zoom 15 buildings in 3D, lit from the side the sun is really on. No pitched camera and no sky on the map. Built in M4 (`/dev/map` shows it on real tiles at three moments in both themes):
 
-| Layer | Light | Dark |
-|---|---|---|
-| Land | `#EBF0F5` | `#0A192E` |
-| Water | `#B9D2EA` | `#030C1A` |
-| Parks (muted, never status green) | `#DCE7E0` | `#0B1F31` |
-| Buildings / edge | `#DEE5ED` / `#D2DBE5` | `#0F2240` / `#132948` |
-| Major roads / casing | `#FFFFFF` / `#C2CEDC`, 8.5 px | `#28456E`, 7.5 px |
-| Minor roads / casing | `#FFFFFF` / `#D3DCE7`, 4.2 px | `#1A3254`, 3.8 px |
-| Paths | `#FFFFFF`, 1.3 px | `#18304F`, 1.2 px |
-| Street labels / halo | `#55657D` / land | `#7B8FAC` / land |
-| Route | `#2F5CA6` 5.5 px on a white 10 px casing | `#8BBAEC` 5 px with a blurred 14 px glow |
+- **Buildings** rise between zoom 15 and 15.6, from nothing to their own height. With the sun up the light comes from its real direction; after sunset it is dim and from straight above.
+- **The sun and the theme (provisional, `DESIGN-LOG.md`).** The device theme picks light or dark, as everywhere else: the sun never changes the theme. It moves the light on the buildings, and in the dark theme it sets how deep the dark is: the dusk column while there is light in the sky (the sun above −4°), the dark column once it is gone (below −8°), and steps between. So the light theme is the light column at any hour, and the dark theme is never lighter at night than by day.
 
-Markers: open capsule `#0D6E4F` with white cross and text (light), `#3DDBA0` with `#03241A` and a mint glow (dark); closing soon `#F2B544` with `#3D2A00`; closed disc white with a `#BFCAD8` ring and a `#6B7990` outline cross (dark: `#0E2342`, `#2B4468`, `#7487A5`). You-are-here `#2F5CA6` (dark `#5B8DEF`), white ring, 64 px halo at 14 %.
+| Layer | Light | Dark, light in the sky (dusk) | Dark, night |
+|---|---|---|---|
+| Land | `#EBF0F5` | `#1B3763` | `#0A192E` |
+| Water | `#B9D2EA` | `#0D2450` | `#030C1A` |
+| Parks (muted, never status green) | `#DCE7E0` | `#1A3D62` | `#0B1F31` |
+| Buildings / edge | `#DEE5ED` / `#D2DBE5` | `#234273` / `#2B4B7F` | `#0F2240` / `#132948` |
+| Major roads / casing | `#FFFFFF` / `#C2CEDC`, 8.5 px | `#4668A2`, 7.5 px | `#28456E`, 7.5 px |
+| Minor roads / casing | `#FFFFFF` / `#D3DCE7`, 4.2 px | `#31528A`, 3.8 px | `#1A3254`, 3.8 px |
+| Paths | `#FFFFFF`, 1.3 px | `#2C4B80`, 1.2 px | `#18304F`, 1.2 px |
+| Street labels / halo | `#55657D` / land | `#A9BAD3` / land | `#7B8FAC` / land |
+| Route (M5) | `#2F5CA6` 5.5 px on a white 10 px casing | `#8BBAEC` 5 px with a blurred 14 px glow | the same |
+
+Markers, made stronger in M4 (provisional, `DESIGN-LOG.md`): every marker stands on a 2 px ring in white (dark: `#071427`), which keeps streets and roofs from running into it. Open capsule 30 px tall, `#0D6E4F` with white cross and text (dark: `#3DDBA0` with `#03241A` and a mint glow); closing soon `#F2B544` with `#3D2A00`; closed disc 25 px, white with a `#93A1B5` ring and a `#6B7990` outline cross (dark: `#132C52`, `#5A7096`, `#7487A5`). You-are-here `#2F5CA6` (dark `#5B8DEF`), white ring, halo at 14 % and at least 64 px wide, under every marker.
 
 ### First-visit sky
 
-The sky on the first visit and the place search follows the sun, not the clock (`lib/sky.ts`). The map views stay on the light and dark themes.
+The sky on the first visit and the place search follows the sun, not the clock (`lib/sky.ts`). The map views stay on the light and dark themes: there the sun moves only the map's light and, in the dark theme, its depth ("Map style" above).
 
 - Sun altitude is computed for an approximate position taken from the device time zone (a table of European zones, Helsinki as fallback). No location permission and no network request.
 - Four looks, blended linearly by sun altitude between the altitudes where each is at full strength. Helsinki is dark by 16.00 in November and still light at 23.00 in June.
@@ -366,7 +371,7 @@ flowchart LR
   app -->|"map squares on screen"| maptiles["Map tiles: OpenFreeMap"]
 ```
 
-Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles: free, no key, no cookies. OpenFreeMap's public instance is provided as is, so the style URL is config (`MAP_STYLE_URL`), and the README documents the fallback: a second provider or self-hosted tiles, switched by changing that value and the one allowed host in `lib/requests.ts` (decision D6, closed). Markers, labels for the selected pharmacy and the you-are-here dot are HTML markers so they share the list's components and focus handling.
+Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles: free, no key, no cookies. OpenFreeMap's public instance is provided as is, so the address of the tiles is config (`NEXT_PUBLIC_MAP_TILES_URL`, a TileJSON address; the style is our own and stays), and the README documents the fallback: a second provider with the same schema or self-hosted tiles, switched by that one value. The allowed host in `lib/requests.ts`, and with it the Content-Security-Policy, follows from it (decision D6, closed). Markers, the name of the selected pharmacy, the edge chips and the you-are-here dot are our own HTML over the map's canvas, so they share the list's components and focus handling. They are placed by the same arithmetic with MapLibre or without it (`lib/map/camera.ts`): when the map can't be drawn they stay where they were, on the plain ground colour. MapLibre itself is fetched only once results are on screen.
 
 ### 7.1 Data flow
 
@@ -385,7 +390,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 8. **Place name:** no reverse geocoding. For a located user, the city from `addr:city` of the nearest five pharmacies, when they have one and agree; otherwise "Lähelläsi" / "Near you". OpenStreetMap writes the city in the local language ("Rīga"), so it goes through a small table of Finnish and English names for the larger cities of the covered countries (`lib/exonyms.ts`: "Riika" / "Riga", "Tukholma", "Kööpenhamina" / "Copenhagen"); everything else keeps the OpenStreetMap spelling. The table grows with the coverage list. A city written in another script (Greek) with no entry in the table is not shown: "Lähelläsi". For a searched place, the name from the search.
 9. **Country:** the "Resepti Suomesta?" banner and the counter card follow the country of the pharmacy in the card, which its tile row carries. No lookup, and at a border the guidance matches the pharmacy the user is sent to.
 10. **Ehditkö (client, pure):** arrival = now + walking minutes, compared as instants. If the pharmacy closes within 60 minutes, show the timeline; if arrival is at or after closing, show the warning and the next open; otherwise the status line only.
-11. **Afterwards:** status updates every 60 s and on `visibilitychange`, from the intervals already loaded. The dot follows `watchPosition` while the page is visible and stops when hidden. After moving more than about 300 m the client ranks again from the tiles it has, fetches a tile only if a new one has come within reach, and asks for walking times again. "Update location" reruns the flow and aborts anything in flight (`AbortController`).
+11. **Afterwards:** status updates every 60 s and on `visibilitychange`, from the intervals already loaded. The dot follows `watchPosition` while the page is visible and stops when hidden; the watch asks for high accuracy, and it runs only for a position that came from the device, never for a searched place. After moving more than about 300 m, and by more than the fix's own uncertainty, the client ranks again from the tiles it has, fetches a tile only if a new one has come within reach, and asks for walking times again (M5). The results change in place, without the searching view. "Update location" reruns the flow and aborts anything in flight (`AbortController`).
 
 ### 7.2 Data pipeline and tiles
 
@@ -434,7 +439,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 | Ready | First-visit window | Locate, or search a place |
 | Locating | "Finding your location…"; after 8 s without an answer to the prompt: "Waiting for location permission" | Search a place instead |
 | Searching | Status line + fixed-height placeholder list; the map shows only you-are-here | |
-| Results | Map and list (bottom sheet on phone) + footnote (distance type, data source and its date) | Update location; search elsewhere, from the place name in the bar (provisional, `DESIGN-LOG.md`) |
+| Results | Map and list (bottom sheet on phone) + footnote (distance type, data source and its date) | Update location; search elsewhere, from the place name in the bar |
 | Data out of date | Results in distance order, every status uncertain, the date of the data (section 5) | Call the pharmacy; try again later |
 | None found | "No pharmacies within 50 km in OpenStreetMap" (inside a covered country) | Search a place; link to add one on OSM |
 | Not covered (7.7) | "Auki doesn't cover this country yet", the countries it covers, 112 | Search pharmacies in a map app; search a place |
@@ -486,7 +491,7 @@ Every request the app makes:
 | `POST /api/walking` | Once the pharmacies are known; again for a route line | The exact position and up to 20 pharmacy positions | Our server, which asks openrouteservice. openrouteservice sees our server, not the user |
 | `GET /api/geocode?q=` | Submitting a place search | The text typed | Our server, which asks Nominatim |
 | Map tiles and glyphs | While the map is visible | Which map squares are on screen (1 to 2 km across at the closest zoom), IP address | The map tile host (OpenFreeMap), the only third party |
-| Links the user taps: Google Maps, Apple Maps, phone, a pharmacy's email or website, OpenStreetMap's note form, a country's duty-pharmacy lookup, Kanta | On tap | The pharmacy's position or nothing. Never the user's position. No referrer | Whoever the link names |
+| Links the user taps: Google Maps, Apple Maps, phone, a pharmacy's email or website, OpenStreetMap's note form, a country's duty-pharmacy lookup, Kanta, the map's credits | On tap | The pharmacy's position or nothing. Never the user's position. No referrer | Whoever the link names |
 
 Rules:
 
@@ -508,7 +513,7 @@ Checked, not promised:
 - **Headers**, set in `next.config.ts`:
   - `Content-Security-Policy`: `default-src 'self'`, and `connect-src 'self'` plus the map tile host. That line is what stops the page from calling anyone else, whatever the code tries. Also `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`, `object-src 'none'`.
   - `script-src` and `style-src` allow inline code. The pages are static, and Next.js can only give inline scripts a nonce on dynamically rendered pages, which would cost the CDN-cached shell. In M7, try Next's experimental hash-based integrity and tighten if the inline sky script and the framework's own inline scripts pass.
-  - The map adds what MapLibre needs and nothing wider. MapLibre 6 ships its worker as a separate file, which the build copies to our own origin (`scripts/copy-map-worker.mjs`), so no `blob:` worker is needed. Settle `img-src` in M4.
+  - The map adds what MapLibre needs and nothing wider: the map tile host in `connect-src`, and nothing else. MapLibre 6 ships its worker as a separate file, which the build copies to our own origin (`scripts/copy-map-worker.mjs`), so no `blob:` worker is needed. The label glyphs are our own files. `img-src` is `'self' data:`: the map draws on a canvas from vector data and loads no image (settled in M4, on a production build against the real tiles).
   - `Referrer-Policy: no-referrer`.
   - `Permissions-Policy`: `geolocation=(self)`, `screen-wake-lock=(self)`, everything else off (camera, microphone, payment, USB, sensors).
   - `X-Content-Type-Options: nosniff`.
@@ -662,7 +667,7 @@ app/
   [locale]/privacy/page.tsx   "what the app sends": every request, from lib/requests.ts (M6)
   [locale]/data/page.tsx      the pipeline's numbers per country, from index.json (M3)
   [locale]/dev/states/        every view and state from fixtures, in iframes; 404 in production
-  [locale]/dev/map/           the map spike: three variants on real tiles; 404 in production (S1)
+  [locale]/dev/map/           the results view on real map tiles, at three moments in both themes; 404 in production (M4)
   manifest.ts                 name from lib/brand.ts, icons (M6, with offline)
   api/walking/route.ts        POST: openrouteservice Matrix, and Directions for one pharmacy; no-store; the one request with the position
   api/geocode/route.ts        GET: Nominatim, submit only, cached, 1 req/s
@@ -673,8 +678,7 @@ components/
   DataPage.tsx  ResultsNotice.tsx   the data page; a notice above the results (M3)
   FirstVisit.tsx  PlaceSearch.tsx  DuskScene.tsx  Skyline.tsx  SkyScript.tsx
   ProgressView.tsx  ResultsView.tsx  ProblemView.tsx  ResultsShell.tsx
-  MapView.tsx                 MapLibre map, custom style, route line; loaded after first paint (M4)
-  StaticMap.tsx               M0 placeholder for MapView: land colour and markers from coordinates
+  MapView.tsx                 the map: MapLibre under our own markers, dot, edge chips, legend and controls; works without MapLibre too (M4)
   MapMarker.tsx               marker and you-are-here; the edge chip lives in the map component
   NearestOpenCard.tsx         "Lähin auki nyt" + ehditkö + next open
   PharmacyList.tsx  PharmacyRow.tsx   list, rows and the "Kiinni nyt" group
@@ -684,11 +688,12 @@ components/
   CountryBanner.tsx  CounterCard.tsx
   Button.tsx  Icon.tsx  AppMark.tsx  SiteFooter.tsx  LiveStatus.tsx  LanguageSwitch.tsx  Measure.tsx
   dev/Sheets.tsx              component sheets for /dev/states
+  dev/MapPreview.tsx          the results view on real map tiles, for /dev/map
 hooks/
   usePharmacySearch.ts        locate → tiles → walking; aborts; time budget
   useNow.ts                   minute tick + visibilitychange
   useWakeLock.ts
-  useLivePosition.ts          watchPosition while the page is visible; rank again after ~300 m
+  useLivePosition.ts          watchPosition while the page is visible; the search hook ranks again after ~300 m (M4)
 lib/
   state.ts                    state/action types + reducer (pure)
   geolocation.ts  geo.ts  format.ts  types.ts  maps.ts  scene.ts  metadata.ts
@@ -707,7 +712,8 @@ lib/
   brand.ts                    the product's name, in one place (decision D4)
   handoff.ts                  reads country and rx from the hand-off link's fragment (pure)
   requests.ts                 every request the app may make: builds the CSP, the privacy test and the privacy page
-  map/style.ts                MapLibre style built from the design tokens (light/dark)
+  map/style.ts                MapLibre style built from the design tokens: light, and dusk or night in the dark theme
+  map/camera.ts               where things are on the map in pixels: projection, framing, edge chips (pure; with MapLibre or without)
   fixtures/  dev/             M0 fixtures (Helsinki, Riga, stress data) and the /dev/states registry
   server/routing.ts  server/geocode.ts
 pipeline/
@@ -742,11 +748,11 @@ tests/
   data.yml                    nightly: pipeline, checks, publish the tiles
 lighthouserc.json             budgets: initial JavaScript, mobile LCP
 scripts/budget-summary.mjs    the measured numbers as a table, for the CI summary and pull requests
-design/                       canvas source files, board exports, skyline (reference, not built); map-spike/ screenshots
+design/                       canvas source files, board exports, skyline (reference, not built); map-spike/ and map-m4/ screenshots
 CLAUDE.md                     standing rules for Claude Code, including design latitude
 DESIGN-LOG.md                 design decisions made during the build
 README.md                     section 11, "README"
-.env.example                  ORS_API_KEY, CONTACT_EMAIL, MAP_STYLE_URL, TILES_ORIGIN
+.env.example                  ORS_API_KEY, CONTACT_EMAIL, NEXT_PUBLIC_MAP_TILES_URL, TILES_ORIGIN
 ```
 
 Dependencies this plan names (`CLAUDE.md`: ask before adding any other):
@@ -769,7 +775,7 @@ Each milestone is a branch (`m1`, `m2`, …) and a pull request. The description
 | S1 (spike, decided) | The map's look on `/dev/map`, on real OpenFreeMap tiles with our own style, not wired into the app. Variant A: flat and calm. B: A plus 3D buildings lit from the sun's real direction. C: B plus a pitched camera and the map's sky. Each in day, dusk and night, Helsinki and one city abroad. Numbers: `maplibre-gl` gzipped, style size, first map render on the throttled phone profile | Janne picked from the screenshots in `design/map-spike/`: top-down only, A's flat look at overview zooms, B's sun-lit buildings from about zoom 15, C dropped |
 | M2 (built) | The data pipeline (section 7.2) for the whole coverage list: Overpass per country, normalise, hours into 8 days of intervals with holidays, tiles and `index.json`, the checks, the nightly Action and the data host. The tile contract with it: `lib/tiles.ts`, `lib/hoursStatus.ts`, their property tests, the corpus test, `tests/vectors/` and `docs/tiles.md` | The Action has published tiles for all 21 countries with a generated-at time. `index.json` gives count, share with hours and parse rate per country. The corpus test passes on every real value. A country whose query fails keeps its previous tiles. Tile sizes are measured. The vectors exist, so the iOS track can start |
 | M3 (built) | The client on tiles: tile selection, real pharmacies in a straight-line list, status from the intervals, lit crosses + reveal, minute tick, the farther open pharmacy, out-of-date and not-covered handling, the data date in the footer and the data page. `lib/requests.ts`, the security headers and the privacy test. Time to first result measured | Real pharmacies near you, sorted, with a status that ticks every minute. With the clock moved 8 days ahead nothing reads open. The privacy test passes: no request carries the position. The data page shows the numbers of the last nightly run |
-| M4 | MapLibre map in the look chosen in S1 (top-down; flat at overview zooms, sun-lit 3D buildings from about zoom 15), with stronger markers and dusk and night clearly different; you-are-here with `watchPosition`, list ↔ map selection, edge chip, bottom sheet drag gesture | Map and list always agree; the dot follows a walk; list still works if the map fails; the map tile host is the one third party the privacy test sees |
+| M4 (built) | MapLibre map in the look chosen in S1 (top-down; flat at overview zooms, sun-lit 3D buildings from about zoom 15), with stronger markers and dusk and night clearly different; you-are-here with `watchPosition`, list ↔ map selection, edge chip, bottom sheet drag gesture | Map and list always agree; the dot follows a walk; list still works if the map fails; the map tile host is the one third party the privacy test sees |
 | M5 | Walking times and the route line through the one `/api/walking` endpoint (ORS Matrix and Directions) + budget + fallback; "Lähin auki nyt" card with the ehditkö rule; next open; pharmacy sheet with Google/Apple Maps hand-off, website, email and the OpenStreetMap note link | List renders once; ehditkö tested at its boundaries; `/api/walking` is the only request with the position; time to first result measured again; the note link opens the form at the pharmacy |
 | M6 | Abroad: banner with the field result, counter card, wake lock, the duty-pharmacy lookup with every source verified; the hand-off link (section 7.8); offline (service worker, section 7.6); place search polish; the "what the app sends" page; fi/en | Denied location still gets the user to a result; banner only outside Finland; the nothing-open state in Germany shows the duty lookup first and Finland's doesn't; the hand-off link presets the card; after one visit the app answers offline with the data date |
 | M7 | Accessibility pass, Playwright + axe, README (below), deploy. The name is decided before the recording and the domain (D4) | axe clean on every state; VoiceOver pass logged in README; the three README numbers measured on the live site |
@@ -828,6 +834,7 @@ Written for a reader at Treat with five minutes:
 
 - Each state with faked geolocation, fixture tiles and stubbed server routes; axe on each; the counter card's keyboard and focus behaviour.
 - The privacy test (section 7.6).
+- The map (`tests/e2e/map.spec.ts`): every pharmacy in the list has a marker named and lit the same way, a tick changes both, a marker and its row select each other, a map that can't start or has no tiles leaves the list and the markers working, a walk moves the dot and ranks again after 300 m with nothing sent, an edge chip brings its pharmacy into view, the sheet drags. The map tile host is answered by the tests: no test reaches it.
 - Offline: load results, go offline, reload, and get the same pharmacies with the date of the data. With the clock moved 8 days ahead nothing reads open.
 - Visual comparison: the `/dev/states` screenshots against committed baselines (`tests/e2e/__screenshots__/`), at 1× in the CI's Linux image, where the baselines are also made. Chromium at both sizes; WebKit, which stands in for Safari on an iPhone, at phone size. A commit marked `[baselines]`, or a manual run, makes new ones as an artifact; they are looked at and committed by hand, so the pull request shows old and new side by side. `npm run shots` keeps producing the 2× images for review by eye.
 
@@ -844,6 +851,7 @@ A new push to a branch cancels the run still going for it: the repository is pri
 5. Time to first result: a Playwright run in Chromium on the same throttled phone profile, location already allowed, cold cache, from navigation to the first rendered result (`tests/e2e/perf.spec.ts`; the app marks the moment with `performance.mark('first-result')`).
    - CI runs it with a fixture tile as heavy as the heaviest real one (1,272 pharmacies, delivered as 56 KB at the profile's speed), median of five, and fails above a limit set from the first measurement in M3. The walking response joins in M5.
    - The README number is the same script against the live site: median of five runs, with its date.
+6. The map's own budget, in the same file: the JavaScript fetched once the results are on screen, MapLibre and its worker, as it travels. At most 460 KB gzipped; 439 KB at M4 with `maplibre-gl` 6.19. The same test fails if the map's code is asked for before the first result.
 
 ---
 
@@ -854,7 +862,7 @@ A new push to a branch cancels the run still going for it: the repository is pri
 - **D3 Brand book: closed.** There is none. The app doesn't present itself as Treat's, so the palette sampled from treat.health and Treat's LinkedIn stays.
 - **D4 Name: open again.** Janne doesn't want "Auki" after all. It stays as the working name and must not block a milestone: the name lives in one constant (`lib/brand.ts`) that the copy, the metadata and the manifest read. Decide before the M7 recording and the domain. The repository keeps its name; a rename on GitHub later keeps the pull requests and redirects. Copy examples in this file use the working name.
 - **D5 iOS: decided, and earlier.** SwiftUI, on its own track from M2 on (section 11), because the assignment asks for an iOS app as well as the website. It reads the same static tiles and `index.json` (`docs/tiles.md`) and checks its time logic against the shared test vectors. Showcase: ehditkö as a Live Activity, with arrival, closing time and slack on the Lock Screen during the walk. Open inside it: MapKit or MapLibre Native, decided after the map spike.
-- **D6 Map tiles: closed, to be confirmed after the spike.** OpenFreeMap, with our own style. The style URL is config (`MAP_STYLE_URL`) and the README documents the fallback to a second provider or self-hosted tiles. The spike (S1) shows the look on real tiles before M4 builds on it.
+- **D6 Map tiles: closed, to be confirmed after the spike.** OpenFreeMap, with our own style. The address of the tiles is config (`NEXT_PUBLIC_MAP_TILES_URL`; M4 renamed it from `MAP_STYLE_URL`, because the style is ours and only the tiles can be swapped) and the README documents the fallback to a second provider or self-hosted tiles. The spike (S1) shows the look on real tiles before M4 builds on it.
 - **D7 Tile hosting: confirmed on 22 Nov 2026.** The Action deploys the tiles as a static project of their own, and the app serves them under its own origin through a cached rewrite (section 7.2). The data host may be public: it holds only OpenStreetMap data. Not taken: building the tiles into the app's own deployment, which would send every deploy through the Action. `CONTACT_EMAIL` is set as a GitHub secret. Still needed from Janne: `VERCEL_TOKEN` as a GitHub secret. Once Janne has logged in to Vercel and set it, Claude Code may create the data project, set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as GitHub secrets, and add `ORS_API_KEY` to the app's Vercel environment when that project exists. Other GitHub and Vercel settings stay with Janne.
 - **D8 Outside the covered countries: accepted.** Section 7.7: a "not covered" view with a map-app hand-off, no live fallback, a notice near the edge of the coverage, and more countries by adding them to a list. Coverage is now 21 countries.
 - **Already decided:** map in v1 (MapLibre); first visit is one window without questions; ehditkö only when informative; route hand-off to Google/Apple Maps; place search; nearest-open line; pharmacy data from a nightly pipeline as static tiles, not live Overpass; walking times and routes via openrouteservice with a free key (Janne creates it); styling with CSS Modules; build in Claude Code, web first, every milestone as a pull request. Claude Code makes smaller design decisions itself and proposes larger ones (`CLAUDE.md`).

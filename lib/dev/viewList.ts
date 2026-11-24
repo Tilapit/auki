@@ -176,16 +176,6 @@ const hoursCoverage: Proposal = {
 };
 
 /** Open proposals, each shown as current and proposed side by side. Decided ones move to DESIGN-LOG.md. */
-export const proposals: Proposal[] = [
-  {
-    id: 'place',
-    title: 'A way to search another place from the results',
-    reason:
-      'PLAN.md 7.3 promises "search elsewhere" from the results, and until now only the browser\'s back button did it. On the phone the place name in the bar becomes the button, marked with the search glyph; on desktop the same action is a line of text under the title. Provisional: built this way in M3, waiting for Janne.',
-    current: { id: 'place-current', title: 'Current: the place name is text' },
-    proposed: { id: 'place-proposed', title: 'Proposed: the place name opens the place search' },
-  },
-  hoursCoverage,
-];
+export const proposals: Proposal[] = [hoursCoverage];
 
 export const allViews: ViewInfo[] = [...groups.flatMap((group) => group.views), ...proposals.flatMap((p) => [p.current, p.proposed])];

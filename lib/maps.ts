@@ -22,3 +22,9 @@ export function appleSearchUrl(query: string): string {
 
 export const OSM_COPYRIGHT_URL = 'https://www.openstreetmap.org/copyright';
 export const OSM_ADD_PLACE_URL = 'https://www.openstreetmap.org/fixthemap';
+
+/** The credit OpenFreeMap asks for wherever its tiles are shown, next to OpenStreetMap's own. */
+export const MAP_CREDITS = [
+  { label: 'OpenFreeMap', url: 'https://openfreemap.org' },
+  { label: '© OpenMapTiles', url: 'https://www.openmaptiles.org/' },
+] as const;

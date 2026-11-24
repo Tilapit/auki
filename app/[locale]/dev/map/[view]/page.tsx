@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { MapSpike } from '@/components/dev/MapSpike';
+import { MapPreview } from '@/components/dev/MapPreview';
 import { devRoutesEnabled } from '@/lib/dev/enabled';
 import { mapViews } from '@/lib/dev/mapViews';
 
@@ -10,12 +10,21 @@ export function generateStaticParams() {
   return enabled ? mapViews.map((view) => ({ view: view.id })) : [];
 }
 
-/** One map, full screen. ?font=noto swaps our typeface for OpenFreeMap's, to compare. */
-export default async function MapSpikeView({ params, searchParams }: PageProps<'/[locale]/dev/map/[view]'>) {
+/**
+ * One results view on real map tiles, full screen. ?theme=light|dark overrides the device
+ * theme, ?z= sets the map's zoom and ?sheet=expanded opens the phone's sheet.
+ */
+export default async function MapPreviewPage({ params, searchParams }: PageProps<'/[locale]/dev/map/[view]'>) {
   if (!enabled) notFound();
   const { view: id } = await params;
-  const { font } = await searchParams;
+  const { theme, z, sheet } = await searchParams;
   const view = mapViews.find((candidate) => candidate.id === id);
   if (!view) notFound();
-  return <MapSpike view={view} font={font === 'noto' ? 'noto' : 'own'} />;
+  const forced = theme === 'light' || theme === 'dark' ? theme : undefined;
+  const zoom = typeof z === 'string' && Number.isFinite(Number(z)) ? Number(z) : undefined;
+  return (
+    <div data-theme={forced} style={{ minHeight: '100dvh' }}>
+      <MapPreview view={view} zoom={zoom} sheet={sheet === 'expanded' ? 'expanded' : 'peek'} />
+    </div>
+  );
 }

@@ -26,6 +26,8 @@ for (const view of allViews) {
         const page = await context.newPage();
         await page.goto(`/fi/dev/states/${view.id}?theme=${theme}`);
         if (view.ready) await page.locator(view.ready).first().waitFor({ state: 'visible' });
+        // A map places its markers once it has measured itself: wait until every one on the page has.
+        await page.waitForFunction(() => !document.querySelector('[data-map]:not([data-map="ready"])'));
         await page.evaluate(() => document.fonts.ready);
         await expect(page).toHaveScreenshot(`${name}.png`, { fullPage: view.fullPage });
         await context.close();

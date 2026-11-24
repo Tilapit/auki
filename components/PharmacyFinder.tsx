@@ -14,7 +14,7 @@ const MapStage = dynamic(loadMapStage, { ssr: false });
 /** Owns the state and picks the view (PLAN.md 7.3). One view per state. */
 export function PharmacyFinder() {
   const { locale } = useI18n();
-  const { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, back } = usePharmacySearch(locale);
+  const { state, locate, openSearch, search, searchFrom, retry, checkFarOpen, follow, back } = usePharmacySearch(locale);
 
   const start = () => {
     void loadMapStage();
@@ -42,6 +42,6 @@ export function PharmacyFinder() {
         />
       );
     default:
-      return <MapStage state={state} onRefresh={start} onSearch={openSearch} onSearchFor={searchFrom} onRetry={retry} onFarOpen={checkFarOpen} />;
+      return <MapStage state={state} onRefresh={start} onSearch={openSearch} onSearchFor={searchFrom} onRetry={retry} onFarOpen={checkFarOpen} onFix={follow} />;
   }
 }

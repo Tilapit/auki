@@ -3,9 +3,11 @@
  * and instant always give the same scene, so the views can be tested at fixed moments.
  */
 
+import { distanceMeters } from './geo.ts';
 import { hoursStatus, isOpenStatus, localMoment, openFor } from './hoursStatus.ts';
 import type { HoursStatus } from './hoursStatus.ts';
 import type { Position } from './state';
+import { earliestToOpen } from './results';
 import { isOpenNow } from './status';
 import type { Found, TilePharmacy } from './tiles.ts';
 import type { OpenStatus, Pharmacy, Scene } from './types';
@@ -23,6 +25,19 @@ export const OPEN_SEARCH_RADIUS = 30_000;
 export const STAYS_OPEN_SECONDS = 30 * 60;
 /** An interval that ends this far away is, for today's purposes, open around the clock. */
 const NO_CLOSING_IN_SIGHT_SECONDS = 24 * 60 * 60;
+
+/** After moving this far the list is ranked again around the new position (PLAN.md 7.1, step 11). */
+export const RERANK_AFTER_METERS = 300;
+
+/**
+ * Whether a new fix is a move worth ranking again for: farther than the limit from where the
+ * list was ranked, and by more than the fix's own uncertainty. A fix that only got vaguer
+ * is not a walk.
+ */
+export function movedEnough(from: { lat: number; lon: number }, fix: { lat: number; lon: number; accuracy: number }): boolean {
+  const meters = distanceMeters(from, fix);
+  return meters > RERANK_AFTER_METERS && fix.accuracy < meters;
+}
 
 /** What a search found. The candidates never change order afterwards (PLAN.md 7.1, step 5). */
 export interface SearchResult {
@@ -82,8 +97,13 @@ export function toPharmacy(found: Found, now: number, deviceZone: string): Pharm
 /** The zoom at which a distance spans a number of pixels at a latitude. */
 function zoomToFit(meters: number, lat: number, pixels: number): number {
   const zoom = Math.log2((156543.03392 * Math.cos((lat * Math.PI) / 180) * pixels) / Math.max(meters, 1));
-  return Math.min(16, Math.max(9, Math.floor(zoom * 2) / 2));
+  return Math.min(MAX_VIEW_ZOOM, Math.max(9, Math.floor(zoom * 2) / 2));
 }
+
+/** The closest the first view goes: a few streets around the position. */
+const MAX_VIEW_ZOOM = 16.5;
+/** The pharmacy the card names stands at least this far from the dot on screen, where the zoom allows. */
+const ANSWER_CLEAR_PX = 90;
 
 export interface SceneInput {
   position: Position;
@@ -117,6 +137,11 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
   // The map frames what the card talks about: the position and the nearest few, or the far open one.
   const reach = farOpen ? farOpen.straightMeters : (pharmacies[Math.min(pharmacies.length, 5) - 1]?.straightMeters ?? 500);
   const center: [number, number] = [position.lat, position.lon];
+  // When the card's pharmacy is only a block away, that overview would put its marker on top of
+  // the dot: the view then goes closer, until the two stand apart. The others get edge chips.
+  const answer = pharmacies.find((pharmacy) => isOpenNow(pharmacy.status)) ?? farOpen ?? earliestToOpen(pharmacies)?.pharmacy ?? pharmacies[0];
+  const clear = answer ? zoomToFit(answer.straightMeters, position.lat, ANSWER_CLEAR_PX) : 0;
+  const view = (pixels: number) => ({ center, zoom: Math.max(zoomToFit(reach, position.lat, pixels), clear) });
 
   return {
     id: 'live',
@@ -133,6 +158,6 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
     ...(dataFrom !== undefined ? { dataFrom } : {}),
     ...(result.missing.length > 0 ? { missing: result.missing } : {}),
     ...(result.hoursListed ? { hoursListed: result.hoursListed } : {}),
-    views: { phone: { center, zoom: zoomToFit(reach, position.lat, 150) }, desktop: { center, zoom: zoomToFit(reach, position.lat, 330) } },
+    views: { phone: view(150), desktop: view(330) },
   };
 }

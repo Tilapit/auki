@@ -294,6 +294,10 @@ const fi = {
     zoomIn: 'Lähennä',
     zoomOut: 'Loitonna',
     locate: 'Näytä sijaintini',
+    backToPlace: 'Palaa haettuun paikkaan',
+    /** The map's canvas, for a screen reader: it can be moved with the arrow keys. */
+    canvas: 'Kartta',
+    failed: 'Karttapohja ei latautunut. Lista ja merkit toimivat ilman sitä.',
     attribution: '© OpenStreetMapin tekijät',
     edge: (name: string, time: string, direction: string) =>
       `Seuraava auki: ${name}, ${time}, kartan ulkopuolella ${direction}`,

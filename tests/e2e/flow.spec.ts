@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { HERE, fakeLocation, fakePlaces, fakeTiles, locateButton, open, searchingStatus } from './helpers';
 
 /**

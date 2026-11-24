@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Behaviour that isn't a screenshot or a flow: language routing, the sky picked before first

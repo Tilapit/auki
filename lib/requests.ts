@@ -8,13 +8,20 @@
  * host.
  */
 
-/** The one third party: vector map tiles, fetched by the map as squares come on screen (M4). */
-export const MAP_TILE_HOST = 'https://tiles.openfreemap.org';
+/**
+ * The map's vector tiles, as a TileJSON address: OpenFreeMap unless NEXT_PUBLIC_MAP_TILES_URL
+ * names another host with the same schema (PLAN.md, decision D6). The style is our own
+ * (lib/map/style.ts), so this one value is all that changes with the host.
+ */
+export const MAP_TILES_URL = process.env.NEXT_PUBLIC_MAP_TILES_URL || 'https://tiles.openfreemap.org/planet';
+
+/** The one third party: the host of those tiles, fetched by the map as squares come on screen. */
+export const MAP_TILE_HOST = new URL(MAP_TILES_URL).origin;
 
 export interface AppRequest {
   id: 'page' | 'tiles' | 'geocode' | 'walking' | 'mapTiles';
   /** Our own origin, or the origin of the third party. */
-  origin: 'self' | typeof MAP_TILE_HOST;
+  origin: string;
   /** Paths the request can have, as prefixes. */
   paths: string[];
   /** What it carries about where the user is. */
@@ -74,8 +81,8 @@ export function contentSecurityPolicy({ development, devRoutes }: HeaderOptions)
     'default-src': ["'self'"],
     'script-src': ["'self'", "'unsafe-inline'", ...(development ? ["'unsafe-eval'"] : [])],
     'style-src': ["'self'", "'unsafe-inline'"],
-    // The map draws its sprites and tiles as images from data it has already fetched.
-    'img-src': ["'self'", 'data:', 'blob:'],
+    // Our own files and inline SVG. The map draws on a canvas from vector data and loads no image.
+    'img-src': ["'self'", 'data:'],
     'font-src': ["'self'"],
     'connect-src': ["'self'", ...THIRD_PARTY_ORIGINS, ...(development ? ['ws:', 'wss:'] : [])],
     // The map's worker is a file on our own origin (scripts/copy-map-worker.mjs): no blob: worker.

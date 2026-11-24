@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { coverageAt } from '@/lib/coverage';
 import { COUNTRY_CODES } from '@/lib/countries';
 import { makeI18n } from '@/lib/i18n';
-import { SHOWN, staysOpen, toOpenStatus, toScene } from '@/lib/live';
+import { RERANK_AFTER_METERS, SHOWN, movedEnough, staysOpen, toOpenStatus, toScene } from '@/lib/live';
 import type { SearchResult } from '@/lib/live';
 import { carriesPosition, contentSecurityPolicy, isAllowedUrl, securityHeaders } from '@/lib/requests';
 import { Tiles, findPharmacies } from '@/lib/search';
@@ -61,6 +61,26 @@ describe('from tiles to the results views', () => {
     expect(s.updated).toBe('12:00');
     expect(s.dataFrom).toBe(GENERATED);
     expect(s.stale).toBeUndefined();
+  });
+
+  it('frames the first view so that the pharmacy in the card stands clear of the dot', () => {
+    // How far a distance is on screen at a scene zoom (tiles of 256 px).
+    const pixels = (meters: number, zoom: number) => meters / ((156543.03392 * Math.cos((HERE.lat * Math.PI) / 180)) / 2 ** zoom);
+    const open = daily('08:00', '21:00');
+    const closed = daily('08:00', '10:00');
+    // The overview fits the fifth nearest, 900 m away. A pharmacy 60 m away would sit on top of the dot in it.
+    const block = scene({ candidates: found([pharmacy(60, open), pharmacy(300, closed), pharmacy(500, closed), pharmacy(700, closed), pharmacy(900, closed)]), missing: [] }, at(0, '12:00'));
+    expect(pixels(60, block.views.phone.zoom)).toBeGreaterThan(60);
+    expect(block.views.phone.zoom).toBe(16.5);
+    // The card's pharmacy is the first open one, not the nearest: that is the one kept clear.
+    const second = scene({ candidates: found([pharmacy(60, closed), pharmacy(180, open), pharmacy(500, closed), pharmacy(700, closed), pharmacy(900, closed)]), missing: [] }, at(0, '12:00'));
+    expect(pixels(180, second.views.phone.zoom)).toBeGreaterThan(60);
+    expect(second.views.phone.zoom).toBeLessThan(block.views.phone.zoom);
+    // Far enough already: the overview stands as it is, on the phone and wider on the desktop.
+    const spread = scene({ candidates: found([pharmacy(600, open), pharmacy(700, closed), pharmacy(800, closed), pharmacy(900, closed), pharmacy(1000, closed)]), missing: [] }, at(0, '12:00'));
+    expect(pixels(1000, spread.views.phone.zoom)).toBeLessThanOrEqual(150);
+    expect(pixels(1000, spread.views.desktop.zoom)).toBeLessThanOrEqual(330);
+    expect(spread.views.desktop.zoom).toBeGreaterThan(spread.views.phone.zoom);
   });
 
   it('the far open one leads only while nothing shown is open, and only while it stays open itself', () => {
@@ -235,6 +255,35 @@ describe('the states after the position is known', () => {
     const gone = reducer(withFar, { type: 'farOpen', position: where(results), farOpen: undefined });
     expect(gone.view === 'results' && gone.result.farOpen).toBeUndefined();
   });
+
+  it('after a walk the results move to the new position, and only the results that were ranked for the old one', () => {
+    const results = reducer(searching, { type: 'found', position: where(searching), result });
+    const there = { source: 'device' as const, lat: HERE.lat + 0.004, lon: HERE.lon, accuracy: 12, approximate: false };
+    const ranked: SearchResult = { candidates: found([pharmacy(40, daily('08:00', '21:00'))]), missing: [] };
+    const moved = reducer(results, { type: 'moved', from: where(results), position: there, at: '12:07', result: ranked });
+    expect(moved).toEqual({ view: 'results', position: there, at: '12:07', result: ranked });
+    // An answer that was ranked from somewhere else, or that arrives after the view has changed, is dropped.
+    expect(reducer(results, { type: 'moved', from: { ...where(results) }, position: there, at: '12:07', result: ranked })).toBe(results);
+    expect(reducer(searching, { type: 'moved', from: where(searching), position: there, at: '12:07', result: ranked })).toBe(searching);
+  });
+});
+
+describe('following a walk', () => {
+  const from = { lat: 60.1695, lon: 24.9354 };
+  const north = (meters: number, accuracy = 15) => ({ lat: from.lat + meters / 111_320, lon: from.lon, accuracy });
+
+  it('ranks again after about 300 metres, not before', () => {
+    expect(RERANK_AFTER_METERS).toBe(300);
+    expect(movedEnough(from, north(120))).toBe(false);
+    expect(movedEnough(from, north(299))).toBe(false);
+    expect(movedEnough(from, north(310))).toBe(true);
+  });
+
+  it('does not take a fix that only got vaguer for a walk', () => {
+    // 400 m away, but the device is sure of it only to within 900 m.
+    expect(movedEnough(from, north(400, 900))).toBe(false);
+    expect(movedEnough(from, north(400, 60))).toBe(true);
+  });
 });
 
 describe('the list of requests the app may make', () => {
@@ -248,6 +297,9 @@ describe('the list of requests the app may make', () => {
     const policy = contentSecurityPolicy({ development: false, devRoutes: false });
     expect(policy).toContain("default-src 'self'");
     expect(policy).toContain("connect-src 'self' https://tiles.openfreemap.org;");
+    // The map draws on a canvas from vector data: no image from anywhere else, and no blob: either.
+    expect(policy).toContain("img-src 'self' data:;");
+    expect(policy).toContain("worker-src 'self';");
     expect(policy).toContain("frame-ancestors 'none'");
     expect(policy).toContain("object-src 'none'");
     expect(policy).not.toContain('unsafe-eval');

@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "public/maplibre/**",
     // The pipeline's output and saved Overpass answers (npm run data):
     ".data/**",
+    // Worktrees of parallel Claude Code sessions: each is linted in its own checkout.
+    ".claude/**",
   ]),
 ]);
 
