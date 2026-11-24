@@ -2,7 +2,7 @@ import { validateStyleMin } from '@maplibre/maplibre-gl-style-spec';
 import { describe, expect, it } from 'vitest';
 import { MONDAY_EVENING, kamppi } from '@/lib/fixtures/tiles';
 import { areaLayer } from '@/lib/map/area';
-import { AREA_LAYER, AREA_SOURCE, buildStyle, DAY, DUSK, lightFor, NIGHT, nightShare, paletteFor, RISE_FROM, RISE_UNTIL, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
+import { AREA_LAYER, AREA_SOURCE, buildStyle, DAY, DUSK, lightFor, NIGHT, NO_ROUTE, nightShare, paletteFor, RISE_FROM, RISE_UNTIL, ROUTE_LAYER, ROUTE_SOURCE, ROUTE_UNDER_LAYER, routeData, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 
 const themes: MapTheme[] = ['light', 'dark'];
 const suns = { noon: { altitude: 10.4, azimuth: 178.65 }, dusk: { altitude: -3.5, azimuth: 236 }, night: { altitude: -35, azimuth: 295 } };
@@ -143,5 +143,48 @@ describe('styleChanges: a new sun without a new style', () => {
     const changes = styleChanges(buildStyle({ theme: 'light', locale: 'fi', sun: suns.noon }), buildStyle({ theme: 'light', locale: 'en', sun: suns.noon }));
     expect(changes!.length).toBeGreaterThan(0);
     expect(changes!.every((change) => change.kind === 'layout' && change.property === 'text-field')).toBe(true);
+  });
+});
+
+describe('the walking route', () => {
+  const line = { type: 'LineString' as const, coordinates: [[24.93545, 60.16952], [24.9361, 60.1701]] as [number, number][] };
+  const paint = (theme: MapTheme, id: string, sun = suns.noon) => buildStyle({ theme, locale: 'fi', sun }).layers.find((layer) => layer.id === id)?.paint as Record<string, unknown>;
+
+  it('is cobalt on a white casing by day', () => {
+    expect(paint('light', ROUTE_LAYER)).toEqual({ 'line-color': '#2f5ca6', 'line-width': 5.5 });
+    expect(paint('light', ROUTE_UNDER_LAYER)).toMatchObject({ 'line-color': '#ffffff', 'line-width': 10, 'line-blur': 0 });
+  });
+
+  it('is sky blue on its own blurred glow in the dark, at dusk and at night alike', () => {
+    for (const sun of [suns.dusk, suns.night]) {
+      expect(paint('dark', ROUTE_LAYER, sun)).toEqual({ 'line-color': '#8bbaec', 'line-width': 5 });
+      expect(paint('dark', ROUTE_UNDER_LAYER, sun)).toMatchObject({ 'line-color': '#8bbaec', 'line-width': 14 });
+      expect(Number(paint('dark', ROUTE_UNDER_LAYER, sun)['line-blur'])).toBeGreaterThan(0);
+    }
+  });
+
+  it('lies over the streets and the buildings, under every name and every pharmacy', () => {
+    const ids = buildStyle({ theme: 'light', locale: 'fi', sun: suns.noon }).layers.map((layer) => layer.id);
+    const at = (id: string) => ids.indexOf(id);
+    expect(at(ROUTE_UNDER_LAYER)).toBe(at(ROUTE_LAYER) - 1);
+    expect(at(ROUTE_UNDER_LAYER)).toBeGreaterThan(at('building-3d'));
+    for (const above of ['water-name', 'street-name', 'place-name', 'city-name', AREA_LAYER]) expect(at(ROUTE_LAYER)).toBeLessThan(at(above));
+  });
+
+  it('has a source of its own, empty until a line is given', () => {
+    const empty = buildStyle({ theme: 'light', locale: 'fi' });
+    expect(empty.sources[ROUTE_SOURCE]).toEqual({ type: 'geojson', data: NO_ROUTE });
+    const drawn = buildStyle({ theme: 'light', locale: 'fi', route: line });
+    expect(drawn.sources[ROUTE_SOURCE]).toEqual({ type: 'geojson', data: { type: 'Feature', properties: {}, geometry: line } });
+    expect(routeData(undefined)).toBe(NO_ROUTE);
+    expect(validateStyleMin(drawn).map((error) => error.message)).toEqual([]);
+  });
+
+  it('a new sun changes no layer of it: the same style with other colours', () => {
+    const dusk = buildStyle({ theme: 'dark', locale: 'fi', sun: suns.dusk });
+    const night = buildStyle({ theme: 'dark', locale: 'fi', sun: suns.night });
+    const changes = styleChanges(dusk, night);
+    expect(changes).toBeDefined();
+    expect(changes!.filter((change) => change.layer === ROUTE_LAYER || change.layer === ROUTE_UNDER_LAYER)).toEqual([]);
   });
 });

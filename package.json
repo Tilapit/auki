@@ -21,7 +21,8 @@
     "data": "TZ=UTC node --env-file-if-exists=.env.local pipeline/run.ts",
     "data:serve": "node pipeline/serve.ts",
     "data:corpus": "TZ=UTC node pipeline/corpus.ts",
-    "vectors": "TZ=UTC node tests/vectors/make.ts"
+    "vectors": "TZ=UTC node tests/vectors/make.ts",
+    "walking:check": "node --env-file-if-exists=.env.local scripts/walking-check.ts"
   },
   "dependencies": {
     "maplibre-gl": "^6.19.0",

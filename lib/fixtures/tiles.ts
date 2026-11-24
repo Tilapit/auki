@@ -4,6 +4,8 @@ import type { Position } from '../state';
 import { TILE_ZOOM, tileKey, tileOf } from '../tiles';
 import { distanceMeters } from '../geo';
 import type { CountryStats, Hours, IndexJson, TilePharmacy } from '../tiles';
+import { WALK_METERS_PER_SECOND, byWalking } from '../walking';
+import type { Walk, Walks } from '../walking';
 
 /**
  * Tile data at a fixed moment, for /dev/states and the browser tests: pharmacies around
@@ -49,7 +51,7 @@ function pharmacy(id: string, name: string | null, north: number, east: number, 
 
 /** Around Kamppi, by distance: one closing at 21, one open late, one closed, one without hours, one unreadable. */
 export const kamppi: TilePharmacy[] = [
-  pharmacy('n101', 'Kampin apteekki', 120, 60, daily('08:00', '21:00'), { street: 'Urho Kekkosen katu 1', phone: '+358 9 1234 501', wheelchair: 'yes' }),
+  pharmacy('n101', 'Kampin apteekki', 120, 60, daily('08:00', '21:00'), { street: 'Urho Kekkosen katu 1', phone: '+358 9 1234 501', wheelchair: 'yes', email: 'kamppi@apteekki.example', website: 'https://www.kampinapteekki.example/' }),
   pharmacy('n102', 'Yliopiston apteekki', -260, 180, daily('07:00', '24:00'), { street: 'Mannerheimintie 5', phone: '+358 9 1234 502' }),
   pharmacy('n103', 'Hietalahden apteekki', -420, -380, daily('09:00', '18:00'), { street: 'Bulevardi 30' }),
   pharmacy('n104', null, 610, -240, { kind: 'missing' }, { street: 'Runeberginkatu 6' }),
@@ -87,6 +89,27 @@ export const kamppiClosed: TilePharmacy[] = kamppi.map((p) => (p.hours.kind === 
 export function resultOf(pharmacies: TilePharmacy[], more: Partial<SearchResult> = {}): SearchResult {
   const candidates = pharmacies.map((p) => ({ pharmacy: p, meters: distanceMeters(KAMPPI, p) })).sort((a, b) => a.meters - b.meters);
   return { candidates, missing: [], ...more };
+}
+
+/**
+ * Walking times as a street grid gives them: three tenths longer than the straight line, at
+ * 5 km/h. `own` gives a pharmacy its own walk by id, or null for no walking route to it.
+ */
+export function walksOf(pharmacies: TilePharmacy[], own: Record<string, Walk | null> = {}): Walks {
+  const walks = new Map<string, Walk>();
+  for (const pharmacy of pharmacies) {
+    const meters = Math.round(distanceMeters(KAMPPI, pharmacy) * 1.3);
+    const walk = pharmacy.id in own ? own[pharmacy.id] : { meters, seconds: Math.round(meters / WALK_METERS_PER_SECOND) };
+    if (walk) walks.set(pharmacy.id, walk);
+  }
+  return walks;
+}
+
+/** A search result with walking times, in the order they give, as the live search builds it. */
+export function walkedResultOf(pharmacies: TilePharmacy[], more: Partial<SearchResult> = {}, own: Record<string, Walk | null> = {}): SearchResult {
+  const straight = resultOf(pharmacies, more);
+  const walks = walksOf(pharmacies, own);
+  return { ...straight, candidates: byWalking(straight.candidates, walks), walks };
 }
 
 const stats = (pharmacies: number, withHours: number, parsed: number, more: Partial<CountryStats> = {}): CountryStats => ({

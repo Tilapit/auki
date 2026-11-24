@@ -301,7 +301,16 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       // Too late to make it: the row has to say so. The timeline, arrival against closing, is in
       // the card: "Perillä 20.44, sulkeutuu 21.00" after the distance is wider than the row.
       status={ehditko.kind === 'tooLate' ? <span className={styles.late}>{t.card.tooLate}</span> : undefined}
-      action={routeButton(nearestOpen, displayName(i18n, nearestOpen))}
+      action={
+        // Too late for it on foot: as in the card, what is left is the call, which can ask them to wait.
+        ehditko.kind === 'tooLate' && nearestOpen.phone ? (
+          <Button variant="primary" className={styles.rowAction} href={`tel:${nearestOpen.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(displayName(i18n, nearestOpen))}>
+            {t.card.call}
+          </Button>
+        ) : (
+          routeButton(nearestOpen, displayName(i18n, nearestOpen))
+        )
+      }
     />
   ) : firstToOpen ? (
     // Nothing open: no route to a closed door. The number that always works is the row's one action.

@@ -633,3 +633,54 @@ Entry format:
 - Change: While the sheet is dragged its text can't be selected, and any selection is dropped when the drag begins. Where a press can move the sheet, the browser may not pick up a link or selected text and carry it off instead.
 - Why: CI's Linux browsers found it, in both engines: dragging the sheet by a pharmacy's name selected the text on the way, and the next press on it started the browser's own drag-and-drop, which cancels the sheet's. A link (the call) would be carried off the same way on any desktop browser. A finger never did this; a mouse in a narrow window did. The text stays selectable whenever the sheet isn't being dragged.
 - Status: done
+
+## 2026-11-24: The list is in walking order, by time (M5)
+- Where: `byWalking`, `walkMinutes` and `atLeastStraight` in `lib/walking.ts`; list rows, the card, markers, edge chips
+- Change: With walking times the list is the first ten of the twenty candidates by walking time, among equals by walking distance. PLAN.md said "by walking distance"; section 7.1 now says time.
+  - Minutes are whole and rounded up, never less than one: 158 seconds is "3 min".
+  - A walk is never taken to be shorter than the straight line at 5 km/h.
+  - A pharmacy with no walking route comes after all that have one and keeps its straight-line distance, labelled "linnuntietä", in a list that is otherwise on foot.
+  - When walking times don't come within a second and a half the list is by straight line, the list's heading says "Linnuntietä" and the footer "Etäisyydet ovat linnuntietä.", as the M0 fallback view had it.
+- Why: The rows lead with the minutes, so the number the eye runs down is the one that is in order (openrouteservice walks at one speed, so the two orders differ only on a hiking trail). Rounded up, because the same number says whether one gets there before closing: "3 min" must not mean three and a half. The lower bound, because the service measures between the nearest points of the street network: from a park to a pharmacy inside a block it can come out shorter than the straight line, and ehditkö would then promise too much.
+- Status: done
+
+## 2026-11-24: Ehditkö counts from the minute on the clock, and "too late" does not wait for the last hour (M5)
+- Where: `lib/ehditko.ts`, `ehditkoFor` in `lib/live.ts`, the card
+- Change: The walk is counted from the start of the minute the clock shows, so the three numbers always add up: at 20.41.40 with three minutes to walk the card says "Perillä 20.44", "Sulkeutuu 21.00", "16 min pelivaraa". The timeline starts at 60 minutes before closing by that same minute. "Et ehdi ennen sulkemista" is said whenever the walk would end at closing time or after it, also when closing is more than an hour away (a long walk); PLAN.md 7.1 read as if the hour came first. Both times are on the pharmacy's clock, and a closing at midnight reads 24.00.
+- Why: Counted from the second, the card showed "20.44 … 21.00 … 15 min" for forty seconds of every minute. The walking time is already rounded up, so starting from the whole minute is inside its margin. A pharmacy one can't reach in time is the case ehditkö exists for, whatever the hour.
+- Status: done
+
+## 2026-11-24: The next open pharmacy is one a walk still reaches (M5)
+- Where: `worthTheWalk` and `noneShownOpen` in `lib/live.ts`, `arrange` in `lib/results.ts`, `findFarOpen` in `lib/search.ts`
+- Change: A pharmacy that is open now but closes before a walk there would end carries `tooLate`. It is not offered as "Seuraava auki", neither in the card nor in a sheet's "Ei varastossa?" line. When the only open pharmacies of the list are like that, the wider search runs as if nothing nearby were open, never returns one of the list's own, and its pharmacy is the next open one in the too-late card: with its straight-line distance, and "Reitti" without the walking figure beyond 3 km.
+- Why: With real walking times the card could say "Et ehdi" about one pharmacy and put forward another that closes at the same minute. And with one open pharmacy nearby that can't be reached, the card ended in a warning and a call button while a 24-hour pharmacy stood a taxi ride away.
+- Status: done. Not changed: the heading and the bar still count the closing one as open, because it is.
+
+## 2026-11-24: The route line (M5)
+- Where: `lib/map/style.ts` (two line layers on one source), `MapView`, `hooks/useRouteLine.ts`, `ResultsView` (`routeTo`); `/dev/map` shows an invented one
+- Change: The walking route is drawn from the dot to the marker of the selected pharmacy: `#2F5CA6` 5.5 px on a white 10 px casing in the light theme, `#8BBAEC` 5 px on a 14 px blurred glow of the same colour in the dark one, at dusk and at night alike. It lies over the streets and roofs and under the labels, the signs and our own markers. The line is openrouteservice's, joined at both ends to the dot and to the marker by a straight piece.
+  - Unasked it leads to the card's pharmacy, as on the Helsinki board, but only while that pharmacy is open and a walk reaches it in time. Selecting any of the list's ten draws its line, closed or not.
+  - No line for the far open pharmacy, for one beyond 3 km, for a pharmacy picked from the map's signs, or when the list is by straight line.
+  - It is asked for only once MapLibre is drawing, a quarter of a second after the selection settles, and once per pharmacy and position.
+- Why: The board shows the line to the card's pharmacy in the first view. It is the card's "Reitti" made visible, so it follows the card's rule: no route to a closed door. The limits keep it to walks and inside the day's 2,000 routes. A line the map can't draw is not worth a request, and `/dev/states`, which calls no service and has no MapLibre, shows none.
+- Status: done. For Janne's eye on `/dev/map` and on the phone: the glow's strength at night, and the straight pieces at the ends where the dot is far from a street.
+
+## 2026-11-24: "Reitti" still opens the pharmacy sheet (M5)
+- Where: the card, the phone's row
+- Change: None to the button: it opens the sheet with the Google Maps and Apple Maps links, as decided on 22 Nov and left "to be revisited in M5". What M5 adds is the line on the map, drawn for the same pharmacy while the sheet is open and, for the card's own pharmacy, before it is asked for.
+- Why: The line on our map shows where; turn-by-turn belongs to the map app, and there are still two of them.
+- Status: done
+
+## 2026-11-24: The pharmacy sheet's links (M5)
+- Where: `PharmacySheet`, `osmNoteUrl`, `websiteHost` and `emailAddress` in `lib/maps.ts`
+- Change: The facts list gets two rows when OpenStreetMap has them: "Sähköposti", a `mailto:` link showing the address, and "Verkkosivu", a link showing the host name without "www.". The footnote ends "Väärät tiedot? Korjaa OpenStreetMapissa.", a link to OpenStreetMap's note form with its marker on the pharmacy. Where the hours are missing, unreadable or uncertain the same link also stands under the status line.
+  - An email link carries one address and nothing else: the first of the tag's values, and only when it is an address. A website is linked only when it is an `http` or `https` address with a host.
+  - The links open in the same tab, like the route hand-off, and carry the pharmacy's position or nothing.
+- Why: PLAN.md section 5. The email tag is free text in OpenStreetMap ("a@x.fi; b@x.fi", or an address with a query after it), and a `mailto:` built from it unchecked could pick up a subject or a second recipient.
+- Status: done. Not built: the sheet's opening hours for the coming seven days (PLAN.md section 5). The live sheet shows the status line, and the raw value where the hours can't be read; the fixture views show hours lines of their own.
+
+## 2026-11-24: Too late to walk: the phone row's button is the call (provisional with the sheet)
+- Where: `ResultsView`, the sheet's row
+- Change: When the row says "Et ehdi ennen sulkemista", its button is "Soita" where the pharmacy has a number, and "Reitti" only where it has none.
+- Why: The card takes "Reitti" away from a pharmacy one can't reach in time and keeps the call, which can ask them to wait. The row had the route button next to the warning.
+- Status: provisional, as the row is

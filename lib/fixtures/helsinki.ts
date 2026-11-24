@@ -46,6 +46,8 @@ const pharmacies: Pharmacy[] = [
     walkMeters: 400,
     straightMeters: 355,
     phone: '+358 300 20200',
+    email: 'asiakaspalvelu@yliopistonapteekki.example',
+    website: 'https://www.yliopistonapteekki.example/',
     wheelchair: 'limited',
     wheelchairNote: 'Kysy tarvittaessa siirrettävää ramppia.',
     checkDate: '2023-09-13',

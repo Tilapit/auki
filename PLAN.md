@@ -117,13 +117,17 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 - **The first view:** the position in the middle of what the bar and the sheet leave free, wide enough for the nearest five, and closer when the pharmacy in the card is only a block away, so that its marker and the dot stand apart.
 - **You are here:** cobalt dot, white ring, and a halo as wide as the accuracy the device reports. It follows the user while the page is visible (section 7.1, step 11).
 - **When the map can't be drawn** (no WebGL, or the map tiles don't arrive): the markers, the dot and the edge chips stay, on the plain ground colour, and one line says the map didn't load. The list never depended on it.
-- **Route:** the walking route to the selected pharmacy, cobalt by day, glowing sky blue at night (M5).
+- **Route:** the walking route to the selected pharmacy, cobalt on a white casing by day, sky blue on its own glow in the dark. It is a layer of the map, over the streets and the roofs and under every name and marker, and it runs from the dot to the marker.
+  - Unasked, it leads to the card's pharmacy while that one is open and a walk reaches it in time: the line is the card's "Reitti" on the map. A pharmacy selected from the list or the map gets its own line, open or not.
+  - Only for the list's ten, within 3 km, and only when walking times came: without them the app says "linnuntietä" and draws no walk. Only where MapLibre is drawing.
+  - One request per pharmacy and position (section 7.1, step 7). A line that doesn't come is simply not there: the route hand-off in the sheet never depended on it.
 
 ### "Lähin auki nyt" card
 - Name, address, walking time (the largest number), distance.
 - "Ehditkö" only when it tells something:
   - closes within 60 minutes → a timeline: "Perillä 20.44", "Sulkeutuu 21.00", "16 min pelivaraa". The slack is green, and turns to the `soon` colour when it is under 5 minutes or under 20% of the walking time, whichever is larger;
-  - arrival would be at or after closing → "Et ehdi ennen sulkemista" and the next open pharmacy, which gets "Reitti" and "Soita" as the main actions. The closing one keeps "Soita": a call can ask them to wait;
+  - arrival would be at or after closing → "Et ehdi ennen sulkemista" and the next open pharmacy, which gets "Reitti" and "Soita" as the main actions. The closing one keeps "Soita": a call can ask them to wait. On the phone the sheet's row says the same and its button is "Soita";
+  - the next open pharmacy is one a walk still reaches before it closes. When the only open pharmacies nearby close before a walk there would end, the wider search of section 7.1 runs as if nothing were open, and the farther open one is the next: without a walking time, and beyond 3 km with a button that promises a route, not a walk;
   - otherwise (later closing, 24 h) → only the status line ("Auki klo 24 asti", "Auki ympäri vuorokauden").
   - No "you'll make it" badge: it's almost always true.
 - Actions: "Reitti", "Soita"; abroad also "Näytä apteekissa" (counter card).
@@ -146,7 +150,7 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
   - It changes the layout of the card, so it goes through `/dev/states` first.
 
 ### List
-Rows: glyph, name (plus the street when names repeat, e.g. three "Benu"), status line, walking time and distance. At night, when the nearest are all closed, they fold into one plain row, "Kiinni nyt", with the count and when the first one opens.
+Rows: glyph, name (plus the street when names repeat, e.g. three "Benu"), status line, walking time and distance. The order is by walking time, which is what the rows lead with; a pharmacy with no walking route comes last, with its straight-line distance. When walking times didn't come the order is by straight line, and the list's heading and the footer say so. At night, when the nearest are all closed, they fold into one plain row, "Kiinni nyt", with the count and when the first one opens.
 
 ### Pharmacy sheet (tap a marker or a row)
 Name, address, status, walking time and distance; hours for the coming seven days with equal days grouped ("Joka päivä 8.00–24.00", "ma–pe 8.00–21.00"), so a public holiday shows as the exception it is; accessibility from `wheelchair` and `wheelchair:description`; phone; the pharmacy's email (`email`, else `contact:email`) as a `mailto:` link, because emailing the prescription often works (section 2); the pharmacy's own website when OpenStreetMap has one (`website`, else `contact:website`), shown by its host name. Actions: "Reitti Google Mapsissa", "Reitti Apple Kartoissa", "Soita". Footnote: the route opens in the map app and the link carries only the pharmacy's position; data from OpenStreetMap, with `check_date` when present, and "Väärät tiedot? Korjaa OpenStreetMapissa": a link to OpenStreetMap's note form at the pharmacy's position. When the hours are missing or unclear, the same link sits next to the status line. A fix reaches the tiles the next night, with no backend of ours.
@@ -388,17 +392,31 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
    - Candidates: the nearest 20 pharmacies in a straight line within 10 km. If there are none, the nearest five within 50 km. If there are none there either: "None found".
    - The client keeps loading neighbouring tiles until no tile it hasn't loaded could hold a nearer pharmacy. `index.json` says which tiles exist, so empty squares cost nothing.
    - The map shows every pharmacy on the tiles loaded this way. When the user moves the map to an area whose squares aren't on the device, the client fetches those too: at most twelve squares a view, which squares follows from what the map shows, and nothing is fetched for a move the app made itself. A square that doesn't load is left empty on the map and changes no answer of the search.
-4. **`POST /api/walking`:** the client sends the exact position and the candidates' positions. The server calls the openrouteservice Matrix API (foot-walking, one request, key server-side). This is the only request that carries the position.
-   - Responses are `no-store` and nothing is logged.
-   - The input is validated: at most 20 destinations, all within 50 km.
-   - The free plan allows 500 matrix requests a day. Beyond that, and whenever the service is slow, the list falls back to straight-line distance.
-5. **Render once:** wait up to 1.5 s for walking data. Then show the nearest 10 by walking distance, or by straight line if walking data is slow or failed, labelled as such. Never reorder afterwards. Routing 20 to show 10 lets a pharmacy across a river or railway drop to where it belongs.
-6. **When none of them is open:** the client looks through the tiles within 30 km, nearest first, for a pharmacy that is open now and stays open for at least 30 more minutes. That one leads as "Lähin auki nyt" with its straight-line distance; if there is none, "Avautuu ensimmäisenä" leads alone (section 5). The hours are already on the device, so this finds any open pharmacy, not only those tagged 24/7. In a country where night duty rotates, the country's duty lookup goes above both, because tonight's duty pharmacy is not in OpenStreetMap's hours (section 5).
-7. **Route line:** for the selected pharmacy, the same `POST /api/walking` with `route` set calls openrouteservice Directions (foot-walking; free plan 2,000 a day) and returns the geometry. One endpoint, so the position has one way out.
+4. **`POST /api/walking`:** the client sends the position, rounded to five decimals (about a metre), and the candidates' positions: `{ from, to: [...] }`. The server calls the openrouteservice Matrix API (foot-walking, one request, key server-side) and answers with one walk per candidate, metres and seconds, or null where there is no walking route. This is the only request that carries the position.
+   - Responses are `no-store` and nothing is logged. The position is in the body, never in the address.
+   - The input is validated: at most 20 destinations, all within 50 km; a body over 4 KB or of another shape is refused without calling anyone.
+   - Only our own pages may ask: a request a browser marks as coming from another site (`Sec-Fetch-Site`) is refused, so nobody else's page can spend the budget through its visitors.
+   - **The budget.** The free plan allows Matrix 500 requests a day and 40 a minute, and Directions 2,000 a day and 40 a minute (checked on the account page on 24 Nov 2026). The server keeps its own count at nine tenths of each (36 a minute; 450 and 1,800 a day), per endpoint. The count lives in memory, per server instance, so it is a floor of the real use: the tenth is the room for a second instance or a restart, and openrouteservice's own 429 is what holds when that isn't enough.
+   - **Pauses.** After a 429 the endpoint is not asked for a minute, then for twice as long each time it repeats, up to an hour (longer if the answer names a `Retry-After`). After three failures in a row (no answer in 1.3 s, a network error, a 5xx) it is not asked for half a minute, then for twice as long each time the next try fails too, up to ten minutes. A refused key (401, 403) is not tried again for ten minutes. No request is ever repeated.
+   - **The fallback.** Whenever the server doesn't ask (no key, over budget, pausing) it answers 503 at once, and the list is shown by straight line without waiting. So a service that is down costs the first few users a second and a half each, and the rest nothing.
+   - The device does its part: one request per search, and after a walk not sooner than two minutes after the last one (step 11).
+5. **Render once:** wait up to 1.5 s for walking data. Then show the nearest 10 by walking time, or by straight line if walking data is slow or failed, labelled as such. Never reorder afterwards: an answer that comes later is dropped. Routing 20 to show 10 lets a pharmacy across a river or railway drop to where it belongs.
+   - Walking time is shown in whole minutes, rounded up: the number is used to say whether one gets there before closing.
+   - A walk is never taken to be shorter than the straight line at walking speed (5 km/h): the service measures between the nearest points of the street network, which for a position in a park or a pharmacy inside a block can come out shorter.
+   - A candidate with no walking route comes after all that have one, with its straight-line distance.
+   - Walking times are for the list's ten. The far open pharmacy of step 6 and the pharmacies picked from the map's own signs show a straight-line distance, labelled as such.
+6. **When none of them is open**, or the only open ones close before a walk there would end: the client looks through the tiles within 30 km, nearest first, for a pharmacy that is open now and stays open for at least 30 more minutes. That one leads as "Lähin auki nyt" with its straight-line distance; if there is none, "Avautuu ensimmäisenä" leads alone (section 5). The hours are already on the device, so this finds any open pharmacy, not only those tagged 24/7. In a country where night duty rotates, the country's duty lookup goes above both, because tonight's duty pharmacy is not in OpenStreetMap's hours (section 5).
+7. **Route line:** for the selected pharmacy, the same `POST /api/walking` with `route` set and one destination calls openrouteservice Directions (foot-walking) and returns the line. One endpoint, so the position has one way out.
+   - Asked for only once the map is drawing, only when walking times came, for one of the list's ten within 3 km (section 5, "Route"), and a quarter of a second after the selection settles.
+   - Once per pharmacy and position: the device keeps the lines it has, so selecting the same pharmacy again costs nothing. A line that didn't come is asked for once more at the next selection, then no more.
+   - A search is then one Matrix request and one Directions request, which is the plan's own ratio of the two with room for three more selections.
+   - The server takes a route to one place within 10 km; a very long line is thinned to 1,500 points.
 8. **Place name:** no reverse geocoding. For a located user, the city from `addr:city` of the nearest five pharmacies, when they have one and agree; otherwise "Lähelläsi" / "Near you". OpenStreetMap writes the city in the local language ("Rīga"), so it goes through a small table of Finnish and English names for the larger cities of the covered countries (`lib/exonyms.ts`: "Riika" / "Riga", "Tukholma", "Kööpenhamina" / "Copenhagen"); everything else keeps the OpenStreetMap spelling. The table grows with the coverage list. A city written in another script (Greek) with no entry in the table is not shown: "Lähelläsi". For a searched place, the name from the search.
 9. **Country:** the "Resepti Suomesta?" banner and the counter card follow the country of the pharmacy in the card, which its tile row carries. No lookup, and at a border the guidance matches the pharmacy the user is sent to.
-10. **Ehditkö (client, pure):** arrival = now + walking minutes, compared as instants. If the pharmacy closes within 60 minutes, show the timeline; if arrival is at or after closing, show the warning and the next open; otherwise the status line only.
-11. **Afterwards:** status updates every 60 s and on `visibilitychange`, from the intervals already loaded. The dot follows `watchPosition` while the page is visible and stops when hidden; the watch asks for high accuracy, and it runs only for a position that came from the device, never for a searched place. After moving more than about 300 m, and by more than the fix's own uncertainty, the client ranks again from the tiles it has, fetches a tile only if a new one has come within reach, and asks for walking times again (M5). The results change in place, without the searching view. "Update location" reruns the flow and aborts anything in flight (`AbortController`).
+10. **Ehditkö (client, pure):** arrival = now + walking minutes, compared as instants. If arrival is at or after closing, show the warning and the next open, however far off closing is; otherwise, if the pharmacy closes within 60 minutes, show the timeline; otherwise the status line only.
+    - The walk is counted from the start of the minute the clock shows, so the three numbers on screen add up: 20.41 plus 3 min is 20.44, and 16 min are left to 21.00.
+    - The cases and their answers are in `tests/vectors/ehditko.json` for the iOS app.
+11. **Afterwards:** status updates every 60 s and on `visibilitychange`, from the intervals already loaded. The dot follows `watchPosition` while the page is visible and stops when hidden; the watch asks for high accuracy, and it runs only for a position that came from the device, never for a searched place. After moving more than about 300 m, and by more than the fix's own uncertainty, the client ranks again from the tiles it has, fetches a tile only if a new one has come within reach, and asks for walking times again, with the same wait of 1.5 s. Not sooner than two minutes after the list was last ranked: on foot 300 m take three and a half minutes, so a walk never waits for this, and a tram ride costs one request in two minutes instead of one at every stop. The results change in place, without the searching view. "Update location" reruns the flow and aborts anything in flight (`AbortController`).
 
 ### 7.2 Data pipeline and tiles
 
@@ -496,7 +514,7 @@ Every request the app makes:
 |---|---|---|---|
 | The page, its scripts, styles and font | Opening the app | IP address and browser headers. No cookies | Our host |
 | `/tiles/v1/index.json` and `/tiles/v1/10/{x}/{y}.json` | Every search; and when the user moves the map to an area whose squares aren't on the device yet | Which squares of 20 to 30 km are needed: around the search, or under the part of the map the user moved to | Our host |
-| `POST /api/walking` | Once the pharmacies are known; again for a route line | The exact position and up to 20 pharmacy positions | Our server, which asks openrouteservice. openrouteservice sees our server, not the user |
+| `POST /api/walking` | Once the pharmacies are known; again when the list is ranked after a walk of about 300 m, at most once in two minutes; again for the route line to a selected pharmacy | The position to about a metre (the device's, or the searched place's) and up to 20 pharmacy positions, in the request's body | Our server, which asks openrouteservice. openrouteservice sees our server, not the user |
 | `GET /api/geocode?q=` | Submitting a place search | The text typed | Our server, which asks Nominatim |
 | Map tiles and glyphs | While the map is visible | Which map squares are on screen (1 to 2 km across at the closest zoom), IP address | The map tile host (OpenFreeMap), the only third party |
 | Links the user taps: Google Maps, Apple Maps, phone, a pharmacy's email or website, OpenStreetMap's note form, a country's duty-pharmacy lookup, Kanta, the map's credits | On tap | The pharmacy's position or nothing. Never the user's position. No referrer | Whoever the link names |
@@ -506,7 +524,7 @@ Rules:
 - No accounts, cookies, analytics or local storage of location.
 - The locale lives in the URL.
 - Tile requests name squares, never coordinates.
-- Walking requests carry the exact position but go through our server: the user's IP isn't forwarded, the position is in the request body, and nothing is logged.
+- Walking requests carry the exact position but go through our server: the user's IP isn't forwarded, the position is in the request body, and nothing is logged. Nothing about the device is kept for the budget either: it is counted per endpoint, not per user. The route takes requests from our own pages only.
 - `watchPosition` updates stay on the device.
 - For offline use the device keeps the app's own files, `index.json` and the tiles of the area searched last, until the data expires. That shows which squares of 20 to 30 km were searched last, to someone holding the device. It never holds the position, and nothing of it is sent anywhere.
 - Route hand-off links to Google Maps / Apple Maps carry only the pharmacy's coordinates; the map app uses its own location.
@@ -517,7 +535,7 @@ Rules:
 Checked, not promised:
 
 - **One list.** `lib/requests.ts` names every request the app may make. The CSP, the privacy test and the page below are all built from it, so they can't drift apart.
-- **A test.** A Playwright test (Chromium and WebKit) runs the whole flow with a faked position (locate, results, select a pharmacy, route line, place search, counter card) and records every request. It fails if any request other than `POST /api/walking` contains the position at three decimals or more, in the URL, the headers or the body. It also fails if any request goes to a host that isn't ours or the map tile host. It runs in CI on every push (section 12).
+- **A test.** A Playwright test (Chromium and WebKit) runs the whole flow with a faked position (locate, results, select a pharmacy, route line, place search, counter card) and records every request. It fails if any request other than `POST /api/walking` contains the position at three decimals or more, in the URL, the headers or the body, and if the walking request itself has it anywhere but in its body. It also fails if any request goes to a host that isn't ours or the map tile host. It runs in CI on every push (section 12).
 - **Headers**, set in `next.config.ts`:
   - `Content-Security-Policy`: `default-src 'self'`, and `connect-src 'self'` plus the map tile host. That line is what stops the page from calling anyone else, whatever the code tries. Also `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`, `object-src 'none'`.
   - `script-src` and `style-src` allow inline code. The pages are static, and Next.js can only give inline scripts a nonce on dynamically rendered pages, which would cost the CDN-cached shell. In M7, try Next's experimental hash-based integrity and tighten if the inline sky script and the framework's own inline scripts pass.
@@ -679,7 +697,7 @@ app/
   [locale]/dev/states/        every view and state from fixtures, in iframes; 404 in production
   [locale]/dev/map/           the results view on real map tiles, at three moments in both themes; 404 in production (M4)
   manifest.ts                 name from lib/brand.ts, icons (M6, with offline)
-  api/walking/route.ts        POST: openrouteservice Matrix, and Directions for one pharmacy; no-store; the one request with the position
+  api/walking/route.ts        POST: openrouteservice Matrix, and Directions for one pharmacy; no-store; our own pages only; the one request with the position
   api/geocode/route.ts        GET: Nominatim, submit only, cached, 1 req/s
   globals.css                 tokens (light-dark), sky defaults, focus ring, visually-hidden, hyphenation
 components/
@@ -702,6 +720,7 @@ components/
   dev/MapPreview.tsx          the results view on real map tiles, for /dev/map
 hooks/
   usePharmacySearch.ts        locate → tiles → walking; aborts; time budget
+  useRouteLine.ts             the walking route to the selected pharmacy, once per pharmacy and position (M5)
   useNow.ts                   minute tick + visibilitychange
   useWakeLock.ts
   useLivePosition.ts          watchPosition while the page is visible; the search hook ranks again after ~300 m (M4)
@@ -720,6 +739,7 @@ lib/
   hoursStatus.ts              intervals + now → status (pure, client)
   zone.ts                     time-zone arithmetic with Intl alone (pure, shared with the pipeline)
   ehditko.ts                  status + walking minutes + now → timeline / too late / nothing (pure)
+  walking.ts                  the walking request and its answer, the order they give the list, minutes, the route line (pure, M5)
   brand.ts                    the product's name, in one place (decision D4)
   handoff.ts                  reads country and rx from the hand-off link's fragment (pure)
   requests.ts                 every request the app may make: builds the CSP, the privacy test and the privacy page
@@ -727,7 +747,8 @@ lib/
   map/camera.ts               where things are on the map in pixels: projection, framing, edge chips (pure; with MapLibre or without)
   map/area.ts                 every pharmacy the device holds, as the map's own layer: its data, and which squares a view of the map touches (pure)
   fixtures/  dev/             M0 fixtures (Helsinki, Riga, stress data) and the /dev/states registry
-  server/routing.ts  server/geocode.ts
+  server/routing.ts           openrouteservice Matrix and Directions; validation; the budget and the pauses (M5)
+  server/geocode.ts
 pipeline/
   countries.ts                coverage: ISO code, time zone, states with their own holidays; the countries of section 8
   fetch.ts                    one Overpass query per country; pause, one retry, one failover
@@ -760,6 +781,7 @@ tests/
   data.yml                    nightly: pipeline, checks, publish the tiles
 lighthouserc.json             budgets: initial JavaScript, mobile LCP
 scripts/budget-summary.mjs    the measured numbers as a table, for the CI summary and pull requests
+scripts/walking-check.ts      `npm run walking:check`: three real requests to openrouteservice through our own code, to see that the key works
 design/                       canvas source files, board exports, skyline (reference, not built); map-spike/ and map-m4/ screenshots
 CLAUDE.md                     standing rules for Claude Code, including design latitude
 DESIGN-LOG.md                 design decisions made during the build
@@ -788,7 +810,7 @@ Each milestone is a branch (`m1`, `m2`, …) and a pull request. The description
 | M2 (built) | The data pipeline (section 7.2) for the whole coverage list: Overpass per country, normalise, hours into 8 days of intervals with holidays, tiles and `index.json`, the checks, the nightly Action and the data host. The tile contract with it: `lib/tiles.ts`, `lib/hoursStatus.ts`, their property tests, the corpus test, `tests/vectors/` and `docs/tiles.md` | The Action has published tiles for all 21 countries with a generated-at time. `index.json` gives count, share with hours and parse rate per country. The corpus test passes on every real value. A country whose query fails keeps its previous tiles. Tile sizes are measured. The vectors exist, so the iOS track can start |
 | M3 (built) | The client on tiles: tile selection, real pharmacies in a straight-line list, status from the intervals, lit crosses + reveal, minute tick, the farther open pharmacy, out-of-date and not-covered handling, the data date in the footer and the data page. `lib/requests.ts`, the security headers and the privacy test. Time to first result measured | Real pharmacies near you, sorted, with a status that ticks every minute. With the clock moved 8 days ahead nothing reads open. The privacy test passes: no request carries the position. The data page shows the numbers of the last nightly run |
 | M4 (built) | MapLibre map in the look chosen in S1 (top-down; flat at overview zooms, sun-lit 3D buildings from about zoom 15), with stronger markers and dusk and night clearly different; you-are-here with `watchPosition`, list ↔ map selection, edge chip, bottom sheet drag gesture | Map and list always agree; the dot follows a walk; list still works if the map fails; the map tile host is the one third party the privacy test sees |
-| M5 | Walking times and the route line through the one `/api/walking` endpoint (ORS Matrix and Directions) + budget + fallback; "Lähin auki nyt" card with the ehditkö rule; next open; pharmacy sheet with Google/Apple Maps hand-off, website, email and the OpenStreetMap note link | List renders once; ehditkö tested at its boundaries; `/api/walking` is the only request with the position; time to first result measured again; the note link opens the form at the pharmacy |
+| M5 (built) | Walking times and the route line through the one `/api/walking` endpoint (ORS Matrix and Directions) + budget + fallback; "Lähin auki nyt" card with the ehditkö rule; next open; pharmacy sheet with Google/Apple Maps hand-off, website, email and the OpenStreetMap note link | List renders once; ehditkö tested at its boundaries; `/api/walking` is the only request with the position; time to first result measured again; the note link opens the form at the pharmacy |
 | M6 | Abroad: banner with the field result, counter card, wake lock, the duty-pharmacy lookup with every source verified; the hand-off link (section 7.8); offline (service worker, section 7.6); place search polish; the "what the app sends" page; fi/en | Denied location still gets the user to a result; banner only outside Finland; the nothing-open state in Germany shows the duty lookup first and Finland's doesn't; the hand-off link presets the card; after one visit the app answers offline with the data date |
 | M7 | Accessibility pass, Playwright + axe, README (below), deploy. The name is decided before the recording and the domain (D4) | axe clean on every state; VoiceOver pass logged in README; the three README numbers measured on the live site |
 
@@ -822,7 +844,7 @@ Written for a reader at Treat with five minutes:
 
 **Unit (Vitest)**
 
-- `hoursStatus` (24/7, closes soon, opens next week, unknown, out of date); `ehditko` (timeline only within 60 min, too-late warning, nothing for 24 h); `tiles` (addresses, ring search, decoding); the pipeline's `normalize`; the reducer; distance, formatting and exonyms.
+- `hoursStatus` (24/7, closes soon, opens next week, unknown, out of date); `ehditko` (timeline only within 60 min, too-late warning, nothing for 24 h); `walking` (the request, the answer, the order, minutes rounded up, never shorter than the straight line); the server's `routing` with a fake openrouteservice and a fake clock (what it sends, what it refuses, the minute and day limits, the pauses after a 429 and after failures); `tiles` (addresses, ring search, decoding); the pipeline's `normalize`; the reducer; distance, formatting and exonyms.
 - The name: with the constant in `lib/brand.ts` swapped for another word, the dictionaries, the metadata and the manifest all carry the new one.
 - **Data test:** every country has sources and a checked date, every card variant has P-lines, and every unreviewed phrase is flagged.
 
@@ -849,6 +871,7 @@ Written for a reader at Treat with five minutes:
 - The map (`tests/e2e/map.spec.ts`): every pharmacy in the list has a marker named and lit the same way, a tick changes both, a marker and its row select each other, a map that can't start or has no tiles leaves the list and the markers working, a walk moves the dot and ranks again after 300 m with nothing sent, an edge chip brings its pharmacy into view. The map tile host is answered by the tests: no test reaches it.
 - The phone's sheet (`tests/e2e/sheet.spec.ts`): its three places by dragging and by the handle, a short drag settles back, the row's content and button in each case, "Kaikki N apteekkia" opens the list, focus never lands off screen.
 - Touch (`tests/e2e/touch.spec.ts`): with real touch input, which only Chromium's DevTools can give: a drag that begins on a marker moves the map and a tap on it still opens the pharmacy; a pinch with one finger on a marker zooms the map and the page's scale stays 1; two taps and a two-finger tap; the work while panning, on a CPU four times slower, as a reported number. In both browsers: the touch-action of the map and of everything on it, in each of its three states.
+- Walking (`tests/e2e/walking.spec.ts`), with `/api/walking` answered by the test: the list in walking order from one request; a service that takes too long gives the straight-line list after 1.5 s and a late answer changes nothing; ehditkö at 61 and 60 minutes before closing, with a minute to spare and at closing time; the next open pharmacy when it is too late, the far one included; the sheet's hand-off, website, email and note link, none of which carries the position; the route line asked for once per pharmacy and never unasked to a closed door; a walk asks again from the new position, not sooner than two minutes. Every other spec gets the answer of a server without a key, so its lists are by straight line.
 - Every pharmacy on the map (`tests/e2e/area.spec.ts`): the ten as markers and the rest as signs, a press on a sign opens its pharmacy and marks it, and a map moved by hand asks for the new area's squares and for nothing that carries the position.
 - Offline: load results, go offline, reload, and get the same pharmacies with the date of the data. With the clock moved 8 days ahead nothing reads open.
 - Visual comparison: the `/dev/states` screenshots against committed baselines (`tests/e2e/__screenshots__/`), at 1× in the CI's Linux image, where the baselines are also made. Chromium at both sizes; WebKit, which stands in for Safari on an iPhone, at phone size. A commit marked `[baselines]`, or a manual run, makes new ones as an artifact; they are looked at and committed by hand, so the pull request shows old and new side by side. `npm run shots` keeps producing the 2× images for review by eye.
@@ -864,7 +887,7 @@ A new push to a branch cancels the run still going for it: the repository is pri
    - mobile LCP: at most 2.5 s on Lighthouse's phone profile (slow 4G, 4× CPU slowdown).
 4. A check that nothing under `/dev` exists in that build. Then a second build that keeps the `/dev` pages (`DEV_ROUTES=1`) and Playwright against it, with the visual comparison: a production server answers several times faster than the dev server. Failed comparisons are uploaded as images.
 5. Time to first result: a Playwright run in Chromium on the same throttled phone profile, location already allowed, cold cache, from navigation to the first rendered result (`tests/e2e/perf.spec.ts`; the app marks the moment with `performance.mark('first-result')`).
-   - CI runs it with a fixture tile as heavy as the heaviest real one (1,272 pharmacies, delivered as 56 KB at the profile's speed), median of five, and fails above a limit set from the first measurement in M3. The walking response joins in M5.
+   - CI runs it with a fixture tile as heavy as the heaviest real one (1,272 pharmacies, delivered as 56 KB at the profile's speed), median of five, and fails above a limit set from the first measurement in M3 (5 s). From M5 the walking response is part of it: answered by the test one round trip of the profile and an assumed 400 ms of service time after the request (to be replaced by a measured time once there is a key). A second number is reported next to it: the same with a walking service that never answers, which may cost the wait of 1.5 s and nothing on top.
    - The README number is the same script against the live site: median of five runs, with its date.
 6. The map's own budget, in the same file: the JavaScript fetched once the results are on screen, MapLibre and its worker, as it travels. At most 460 KB gzipped; 439 KB at M4 with `maplibre-gl` 6.19. The same test fails if the map's code is asked for before the first result.
 
@@ -900,7 +923,8 @@ A new push to a branch cancels the run still going for it: the repository is pri
 - Vercel, rewrites to another origin and their CDN caching: https://vercel.com/docs/routing/rewrites
 - Overpass API public instances and usage policy: https://wiki.openstreetmap.org/wiki/Overpass_API · operator on 429 handling: https://community.openstreetmap.org/t/blocked-ip-on-overpass-api/146883
 - Nominatim usage policy: https://operations.osmfoundation.org/policies/nominatim/
-- openrouteservice plans (Directions 2,000/day, Matrix 500/day on the free plan): https://openrouteservice.org/plans/
+- openrouteservice plans (free plan, as the account page stated it on 24 Nov 2026: Directions 2,000 a day and 40 a minute, Matrix 500 a day and 40 a minute): https://openrouteservice.org/plans/ · request and response fields, from its source: https://github.com/GIScience/openrouteservice (`ors-api`, `MatrixRequest`, `RouteRequest`) · limits of the hosted service: https://giscience.github.io/openrouteservice/hosted-api-restrictions · walking speed 5 km/h: https://giscience.github.io/openrouteservice/technical-details/travel-speeds/
+- OpenStreetMap's note form takes its marker's place from `lat` and `lon` in the link: https://github.com/openstreetmap/openstreetmap-website (`app/assets/javascripts/index_modules/new_note.js`)
 - OpenFreeMap (free vector tiles for MapLibre): https://openfreemap.org/quick_start/
 - Google Maps Platform EEA terms for Places content: https://developers.google.com/maps/comms/eea/places
 - FOSSGIS service terms: https://fossgis.de/arbeitsgruppen/osm-server/nutzungsbedingungen
