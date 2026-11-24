@@ -16,8 +16,8 @@ const pharmacies: Pharmacy[] = [
     lon: 24.43773,
     status: { kind: 'open', closes: '18:00' },
     hours: [
-      { days: 'mo-fr', from: '08:30', to: '18:00' },
-      { days: 'sa', from: '09:00', to: '15:00' },
+      { days: [0, 1, 2, 3, 4], hours: { kind: 'open', ranges: [{ from: '08:30', to: '18:00' }] } },
+      { days: [5], hours: { kind: 'open', ranges: [{ from: '09:00', to: '15:00' }] } },
     ],
     walkMin: 2,
     walkMeters: 150,

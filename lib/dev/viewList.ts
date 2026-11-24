@@ -126,7 +126,7 @@ export const groups: ViewGroup[] = [
       { id: 'walking-late-peek', title: 'Mon 20.57, too late for the nearest open one: the row says so', sizes: PHONE },
       { id: 'walking-late', title: 'Too late: the warning, the call, and the next open one with its route' },
       { id: 'walking-late-far', title: 'Too late, and nothing else open nearby: the farther open one is the next, and its button promises no walk' },
-      { id: 'walking-sheet', title: 'Pharmacy sheet from tiles: website, email, and the link to correct the data', ready: 'dialog[open]' },
+      { id: 'walking-sheet', title: 'Pharmacy sheet from tiles: the week\'s hours with equal days grouped, website, email, and the link to correct the data', ready: 'dialog[open]' },
       { id: 'walking-sheet-unknown', title: 'Pharmacy sheet, hours missing: the link to correct them under the status', ready: 'dialog[open]', sizes: PHONE },
     ],
   },

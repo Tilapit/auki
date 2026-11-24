@@ -5,7 +5,7 @@
 
 import { arrivesInTime, ehditko } from './ehditko.ts';
 import { distanceMeters } from './geo.ts';
-import { hoursStatus, isOpenStatus, localMoment, openFor } from './hoursStatus.ts';
+import { hoursStatus, isOpenStatus, isStale, localMoment, openFor } from './hoursStatus.ts';
 import type { HoursStatus } from './hoursStatus.ts';
 import type { Position } from './state';
 import { earliestToOpen } from './results';
@@ -13,6 +13,7 @@ import { isOpenNow } from './status';
 import type { Found, TilePharmacy } from './tiles.ts';
 import type { Ehditko, OpenStatus, Pharmacy, Scene } from './types';
 import { walkMinutes } from './walking.ts';
+import { weekHours } from './week.ts';
 import type { Walk, Walks } from './walking.ts';
 import { clockAt, offsetAt } from './zone.ts';
 
@@ -99,6 +100,8 @@ function worthTheWalk(pharmacy: TilePharmacy, walk: Walk | undefined, now: numbe
 export function toPharmacy(found: Found, now: number, deviceZone: string, walk?: Walk): Pharmacy {
   const { pharmacy, meters } = found;
   const open = isOpenStatus(hoursStatus(pharmacy, now));
+  // The week's hours for the sheet. Out-of-date data says nothing about the coming days either.
+  const week = isStale(pharmacy, now) ? [] : weekHours(pharmacy, now);
   return {
     id: pharmacy.id,
     name: pharmacy.name,
@@ -108,6 +111,7 @@ export function toPharmacy(found: Found, now: number, deviceZone: string, walk?:
     straightMeters: Math.round(meters),
     ...(walk ? { walkMin: walkMinutes(walk.seconds), walkMeters: walk.meters } : {}),
     ...(walk && open && !worthTheWalk(pharmacy, walk, now) ? { tooLate: true } : {}),
+    ...(week.length > 0 ? { hours: week } : {}),
     ...(pharmacy.street ? { street: pharmacy.street } : {}),
     ...(pharmacy.city ? { city: pharmacy.city } : {}),
     ...(pharmacy.phone ? { phone: pharmacy.phone } : {}),

@@ -183,6 +183,8 @@ test('the pharmacy sheet: the walk, the hand-off, the website, the email, and th
   await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
   await expect(sheet).toContainText('3 min');
   await expect(sheet).toContainText('170 m kävellen');
+  // The coming seven days from the tile's intervals, equal days as one line.
+  await expect(sheet).toContainText('Joka päivä 8.00–21.00');
   // The hand-off carries the pharmacy's position, and nothing of the user's.
   const google = sheet.getByRole('link', { name: 'Reitti Google Mapsissa' });
   await expect(google).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${kampin.lat},${kampin.lon}&travelmode=walking`);

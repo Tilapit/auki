@@ -30,6 +30,15 @@ export const HERE: Position = { source: 'device', ...KAMPPI, accuracy: 25, appro
 const at = (day: number, clock: string): number => WEEK_FROM + day * 86400 + Number(clock.slice(0, 2)) * 3600 + Number(clock.slice(3)) * 60;
 /** The same hours every day of the window. "26:00" is two at night. */
 export const daily = (open: string, close: string): Hours => ({ kind: 'parsed', open: [0, 1, 2, 3, 4, 5, 6, 7].map((day) => ({ from: at(day, open), to: at(day, close) })), unknown: [] });
+/** Weekdays, Saturday and Sunday each with their own hours, or none: the window starts on a Monday. */
+export const weekly = (weekdays: [string, string], saturday?: [string, string], sunday?: [string, string]): Hours => ({
+  kind: 'parsed',
+  open: [0, 1, 2, 3, 4, 5, 6, 7].flatMap((day) => {
+    const hours = day % 7 === 5 ? saturday : day % 7 === 6 ? sunday : weekdays;
+    return hours ? [{ from: at(day, hours[0]), to: at(day, hours[1]) }] : [];
+  }),
+  unknown: [],
+});
 export const ALWAYS: Hours = { kind: 'parsed', open: [{ from: WEEK_FROM, to: WEEK_UNTIL }], unknown: [] };
 
 function pharmacy(id: string, name: string | null, north: number, east: number, hours: Hours, more: Partial<TilePharmacy> = {}): TilePharmacy {

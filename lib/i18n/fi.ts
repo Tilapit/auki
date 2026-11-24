@@ -219,7 +219,11 @@ const fi = {
     email: 'Sähköposti',
     website: 'Verkkosivu',
     wheelchair: { yes: 'Esteetön', limited: 'Osittain', no: 'Ei esteetön' },
-    days: { daily: 'Joka päivä', 'mo-fr': 'Ma–pe', sa: 'La', su: 'Su', 'sa-su': 'La–su' },
+    /** The week's hours, equal days grouped: "Joka päivä 8.00–24.00", "Ma–pe 8.00–21.00", "Su suljettu". */
+    everyDay: 'Joka päivä',
+    closedDay: 'suljettu',
+    allDay: 'ympäri vuorokauden',
+    unknownDay: 'ei tiedossa',
     google: 'Reitti Google Mapsissa',
     apple: 'Reitti Apple Kartoissa',
     handOff: 'Reitti avautuu karttasovelluksessa, ja linkissä on vain apteekin sijainti.',

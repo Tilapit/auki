@@ -66,6 +66,11 @@
   text-underline-offset: 3px;
 }
 
+/* An address is copied letter by letter: where it has to break, it breaks without a hyphen that isn't in it. */
+.facts a {
+  hyphens: none;
+}
+
 .travel {
   flex: none;
   line-height: 1.1;

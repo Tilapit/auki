@@ -677,10 +677,20 @@ Entry format:
   - An email link carries one address and nothing else: the first of the tag's values, and only when it is an address. A website is linked only when it is an `http` or `https` address with a host.
   - The links open in the same tab, like the route hand-off, and carry the pharmacy's position or nothing.
 - Why: PLAN.md section 5. The email tag is free text in OpenStreetMap ("a@x.fi; b@x.fi", or an address with a query after it), and a `mailto:` built from it unchecked could pick up a subject or a second recipient.
-- Status: done. Not built: the sheet's opening hours for the coming seven days (PLAN.md section 5). The live sheet shows the status line, and the raw value where the hours can't be read; the fixture views show hours lines of their own.
+  - A long address or host name breaks where it must, without the hyphen the Finnish hyphenation would put into it: an address is copied letter by letter.
+- Status: done
 
 ## 2026-11-24: Too late to walk: the phone row's button is the call (provisional with the sheet)
 - Where: `ResultsView`, the sheet's row
 - Change: When the row says "Et ehdi ennen sulkemista", its button is "Soita" where the pharmacy has a number, and "Reitti" only where it has none.
 - Why: The card takes "Reitti" away from a pharmacy one can't reach in time and keeps the call, which can ask them to wait. The row had the route button next to the warning.
 - Status: provisional, as the row is
+
+## 2026-11-24: The sheet's week: equal days as one line (M5)
+- Where: `lib/week.ts`, `daysLabel` and `dayHoursText` in `lib/status.ts`, `PharmacySheet`
+- Change: "Aukioloajat" lists the coming seven days from the tile's intervals, on the pharmacy's clock, with equal days grouped and named as a door sign names them, Monday first whatever day it is today: "Joka päivä 8.00–24.00"; "Ma–pe 8.00–21.00", "La 10.00–18.00", "Su suljettu". A day that differs stands apart: in Christmas week "Ma–to 8.00–21.00", "Pe–su suljettu".
+  - An opening past midnight belongs to the day it begins on ("18.00–2.00") and is not said again the next morning. One that lasts for days is cut at midnight: "8.00–24.00", then "ympäri vuorokauden", then "0.00–8.00".
+  - A day with a stretch the data calls unknown reads "ei tiedossa", never "suljettu". A day beyond the data's window is left out, so data three days old lists five days.
+  - Nothing is listed for hours that are missing, unreadable or out of date: the status line already says which.
+- Why: PLAN.md section 5, and the canvas's sheet. Grouped in week order because that is how hours are read; listed from today in order of date, a week that starts on a Thursday would name the weekdays twice ("to–pe", then "ma–ke"). What it can't say: whether a day that differs is a holiday or the ordinary rule. It shows the coming week as it will be.
+- Status: done

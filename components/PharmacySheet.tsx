@@ -5,7 +5,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { appleDirectionsUrl, emailAddress, googleDirectionsUrl, osmNoteUrl, websiteHost } from '@/lib/maps';
 import { hoursUnknown } from '@/lib/results';
-import { displayName, glyphFor, statusText } from '@/lib/status';
+import { dayHoursText, daysLabel, displayName, glyphFor, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
 import type { CountryInfo, Pharmacy, Scene } from '@/lib/types';
 import { Button, IconButton } from './Button';
@@ -48,7 +48,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
   // Too far to walk: the links name no way of travel and the map app picks one.
   const walk = withinWalk(pharmacy);
   const hours =
-    pharmacy.hours?.map((line) => `${t.sheet.days[line.days]} ${f.clock(line.from)}–${f.clock(line.to)}`) ??
+    pharmacy.hours?.map((line) => `${daysLabel(i18n, line.days)} ${dayHoursText(i18n, line.hours)}`) ??
     (pharmacy.status.kind === 'unparseable' || pharmacy.status.kind === 'uncertain' ? [pharmacy.status.raw] : []);
   const access = pharmacy.wheelchair && [t.sheet.wheelchair[pharmacy.wheelchair], pharmacy.wheelchairNote].filter(Boolean).join('. ');
   const nextWay = nextOpen && travel(i18n, nextOpen, distance);
