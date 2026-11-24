@@ -1,8 +1,10 @@
 import type { BrowserContext, Page } from '@playwright/test';
 import { MONDAY_EVENING, KAMPPI, indexOf } from '@/lib/fixtures/tiles';
 import { MAP_TILE_HOST, MAP_TILES_URL } from '@/lib/requests';
+import { distanceMeters } from '@/lib/geo';
 import { INDEX_PATH, encodeTile, tileKey, tileOf, tilePath } from '@/lib/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
+import { WALKING_PATH, WALK_METERS_PER_SECOND, type Walk } from '@/lib/walking';
 
 /**
  * What the flow tests share: a scripted geolocation, so each case behaves the same in
@@ -97,6 +99,48 @@ export async function fakeTiles(page: Page, files: Record<string, unknown> | 'ho
     if (typeof files === 'number') await route.fulfill({ status: files, body: '' });
     else if (pathname in files) await route.fulfill({ json: files[pathname] });
     else await route.fulfill({ status: 404, body: '' });
+  });
+  return asked;
+}
+
+interface Place {
+  lat: number;
+  lon: number;
+}
+
+export interface WalkingAsked {
+  from: Place;
+  to: Place[];
+  route?: boolean;
+}
+
+/** A walk as a pedestrian would have it in a street grid: three tenths longer than the straight line, at 5 km/h. */
+export function gridWalk(from: Place, to: Place): Walk {
+  const meters = Math.round(distanceMeters(from, to) * 1.3);
+  return { meters, seconds: Math.round(meters / WALK_METERS_PER_SECOND) };
+}
+
+/**
+ * Answers POST /api/walking in place of our server and openrouteservice. By default every
+ * destination gets `gridWalk`; `walk` gives one its own answer, or null for no route.
+ * A request for a route gets a line of three points between the two places.
+ * 'hold': never answers, as a service that is too slow. A number: that status.
+ * Returns the requests it was asked, as the server would read them.
+ */
+export async function fakeWalking(page: Page, answer: 'grid' | 'hold' | number | ((from: Place, to: Place, index: number) => Walk | null | undefined) = 'grid'): Promise<WalkingAsked[]> {
+  const asked: WalkingAsked[] = [];
+  await page.route(`**${WALKING_PATH}`, async (route) => {
+    const body = route.request().postDataJSON() as WalkingAsked;
+    asked.push(body);
+    if (answer === 'hold') return;
+    if (typeof answer === 'number') return route.fulfill({ status: answer, json: { error: 'upstream' } });
+    const walks = body.to.map((to, index) => {
+      const own = typeof answer === 'function' ? answer(body.from, to, index) : undefined;
+      return own === undefined ? gridWalk(body.from, to) : own;
+    });
+    const [to] = body.to;
+    const line = body.route ? { type: 'LineString', coordinates: [[body.from.lon, body.from.lat], [to.lon, body.from.lat], [to.lon, to.lat]] } : undefined;
+    await route.fulfill({ json: { walks, ...(line ? { line } : {}) }, headers: { 'cache-control': 'no-store' } });
   });
   return asked;
 }

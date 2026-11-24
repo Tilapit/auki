@@ -189,10 +189,11 @@ export function NearestOpenCard({
                 </div>
               </div>
               <div className={styles.actions}>
+                {/* The next one may be the far one from the wider search: too far to promise a walk. */}
                 <Button
                   variant="primary"
-                  icon="walk"
-                  aria-label={t.card.routeLabel(fullName(i18n, nextOpen, !!nextOpenWithStreet))}
+                  icon={withinWalk(nextOpen) ? 'walk' : 'directions'}
+                  aria-label={(withinWalk(nextOpen) ? t.card.routeLabel : t.card.directionsLabel)(fullName(i18n, nextOpen, !!nextOpenWithStreet))}
                   onClick={() => onRoute?.(nextOpen)}
                 >
                   {t.card.route}

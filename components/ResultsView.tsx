@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { RouteFor } from '@/hooks/useRouteLine';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
@@ -59,6 +60,8 @@ export interface ResultsOptions {
   findInArea?: (id: string) => Pharmacy | undefined;
   /** The map was moved by hand to here. */
   onArea?: (bounds: Bounds) => void;
+  /** Where the walking route to a pharmacy comes from. Without it no route is drawn: /dev/states calls no service. */
+  routeFor?: RouteFor;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -86,6 +89,14 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const detail = listed ?? (detailId ? options.findInArea?.(detailId) : undefined);
   const selectedId = detailId ?? (unlisted?.lead ?? nearestOpen ?? firstToOpen)?.id;
   const select = (pharmacy: Pharmacy) => setDetailId(pharmacy.id);
+  // The walking route is drawn to the selected pharmacy when it is one of the list's and its walk
+  // is known and is a walk. Unasked, only to the card's own pharmacy while it is open and in
+  // reach: the line is the card's "Reitti" on the map, and no line leads to a closed door.
+  const routeTo = useMemo(() => {
+    const target = scene.distance === 'walking' ? scene.pharmacies.find((p) => p.id === selectedId) : undefined;
+    if (!target || target.walkMin === undefined || !withinWalk(target)) return undefined;
+    return detailId || (isOpenNow(target.status) && !target.tooLate) ? target : undefined;
+  }, [scene, selectedId, detailId]);
   const fullNameOf = (pharmacy: Pharmacy) => fullName(i18n, pharmacy, pharmacy.name === null);
   // One surface: abroad, the prescription banner is a section of the card.
   const banner = scene.country && <CountryBanner country={scene.country} />;
@@ -312,7 +323,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const hasCard = !!lead || !!nearestOpen || !!firstToOpen;
   const hasLists = others.length > 0 || closedGroup.length > 0;
 
-  const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status));
+  const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status) && !p.tooLate);
   const detailNext = detail && nextFor(detail);
 
   return (
@@ -416,6 +427,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           extra={listed ? undefined : detail}
           onPick={setDetailId}
           onView={options.onArea}
+          routeTo={routeTo}
+          routeFor={options.routeFor}
         />
       }
       detailOpen={!!detail}

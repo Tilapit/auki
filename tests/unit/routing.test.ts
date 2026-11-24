@@ -18,7 +18,7 @@ const routeAnswer = (coordinates: unknown[] = [[24.93545, 60.16952], [24.9361, 6
 function setup(answer: unknown = matrixAnswer([109.1, 240.6, 713.3], [151.4, 334.2, 990.7]), status = 200, headers: Record<string, string> = {}) {
   let time = Date.UTC(2026, 10, 24, 10, 0, 0);
   const reply = { answer, status, headers };
-  const fetch = vi.fn(async (..._args: unknown[]) => new Response(JSON.stringify(reply.answer), { status: reply.status, headers: reply.headers }));
+  const fetch = vi.fn<(...args: unknown[]) => Promise<Response>>(async () => new Response(JSON.stringify(reply.answer), { status: reply.status, headers: reply.headers }));
   const deps: Partial<Deps> = { fetch: fetch as unknown as typeof globalThis.fetch, now: () => time, key: KEY };
   return { deps, fetch, reply, advance: (ms: number) => (time += ms) };
 }

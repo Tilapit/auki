@@ -1,5 +1,6 @@
 import type { LayerSpecification, StyleSpecification } from 'maplibre-gl';
 import type { Locale } from '../i18n';
+import type { Line } from '../walking.ts';
 import { NO_AREA } from './area.ts';
 import type { AreaData } from './area.ts';
 
@@ -36,6 +37,9 @@ export interface MapPalette {
   label: string;
   placeLabel: string;
   waterLabel: string;
+  /** The walking route, and what lies under it: a white casing by day, the line's own glow in the dark. */
+  route: string;
+  routeUnder: string;
 }
 
 /** PLAN.md section 6, "Map style": the light column. */
@@ -55,6 +59,8 @@ export const DAY: MapPalette = {
   label: '#55657d',
   placeLabel: '#45556e',
   waterLabel: '#6c8db5',
+  route: '#2f5ca6',
+  routeUnder: '#ffffff',
 };
 
 /** PLAN.md section 6, "Map style": the dark column. */
@@ -72,6 +78,8 @@ export const NIGHT: MapPalette = {
   label: '#7b8fac',
   placeLabel: '#a9b8cc',
   waterLabel: '#3f5f8f',
+  route: '#8bbaec',
+  routeUnder: '#8bbaec',
 };
 
 /**
@@ -92,6 +100,8 @@ export const DUSK: MapPalette = {
   label: '#a9bad3',
   placeLabel: '#d3ddeb',
   waterLabel: '#6c8ec2',
+  route: '#8bbaec',
+  routeUnder: '#8bbaec',
 };
 
 function mix(a: string, b: string, t: number): string {
@@ -136,6 +146,8 @@ export interface StyleOptions {
   fonts?: { regular: string[]; strong: string[] };
   /** The pharmacies of the area layer. Left out, the layer starts empty and the map is given them afterwards. */
   area?: AreaData;
+  /** The walking route to the selected pharmacy. Left out, there is none, and the map is given one when it comes. */
+  route?: Line;
 }
 
 /** The pharmacies beyond the list (lib/map/area.ts): one source of points, one layer of small signs. */
@@ -143,6 +155,17 @@ export const AREA_SOURCE = 'area';
 export const AREA_LAYER = 'area-pharmacies';
 /** The name of a sign's picture. The map asks for it when it first needs it; MapView draws it in the theme's colours. */
 export const AREA_ICON = 'pharmacy-';
+
+/**
+ * The walking route to the selected pharmacy (PLAN.md section 5): one source with one line,
+ * drawn twice. By day cobalt on a white casing; in the dark sky blue on its own blurred glow.
+ */
+export const ROUTE_SOURCE = 'route';
+export const ROUTE_LAYER = 'route';
+export const ROUTE_UNDER_LAYER = 'route-under';
+/** No route: the source is there from the start, so a line can be given to it at any time. */
+export const NO_ROUTE = { type: 'FeatureCollection' as const, features: [] as never[] };
+export const routeData = (line: Line | undefined) => (line ? { type: 'Feature' as const, properties: {}, geometry: line } : NO_ROUTE);
 
 export const OPENFREEMAP_TILES = 'https://tiles.openfreemap.org/planet';
 /** Our own typeface on the map, served from our origin. */
@@ -269,6 +292,21 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
         'fill-extrusion-opacity': ['interpolate', ['linear'], ['zoom'], RISE_FROM, 0, RISE_FROM + 0.4, 1],
       },
     },
+    // The walking route: over the streets and the roofs it follows, under every name and every pharmacy.
+    {
+      id: ROUTE_UNDER_LAYER,
+      type: 'line',
+      source: ROUTE_SOURCE,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: light ? { 'line-color': c.routeUnder, 'line-width': 10, 'line-blur': 0, 'line-opacity': 1 } : { 'line-color': c.routeUnder, 'line-width': 14, 'line-blur': 9, 'line-opacity': 0.55 },
+    },
+    {
+      id: ROUTE_LAYER,
+      type: 'line',
+      source: ROUTE_SOURCE,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': c.route, 'line-width': light ? 5.5 : 5 },
+    },
     {
       id: 'water-name',
       type: 'symbol',
@@ -334,7 +372,11 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
   return {
     version: 8,
     name: `map-${theme}`,
-    sources: { tiles: { type: 'vector', url: options.tiles ?? OPENFREEMAP_TILES }, [AREA_SOURCE]: { type: 'geojson', data: options.area ?? NO_AREA } },
+    sources: {
+      tiles: { type: 'vector', url: options.tiles ?? OPENFREEMAP_TILES },
+      [AREA_SOURCE]: { type: 'geojson', data: options.area ?? NO_AREA },
+      [ROUTE_SOURCE]: { type: 'geojson', data: routeData(options.route) },
+    },
     glyphs: options.glyphs ?? OWN_GLYPHS,
     layers,
     light: lightFor(theme, sun),

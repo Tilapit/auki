@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { arrivesInTime, ehditko, isTightSlack } from '../../lib/ehditko.ts';
 import { distanceMeters } from '../../lib/geo.ts';
 import { hoursStatus, localMoment } from '../../lib/hoursStatus.ts';
 import type { HoursStatus } from '../../lib/hoursStatus.ts';
@@ -362,6 +363,59 @@ function tileFileVectors() {
 
 // ---------------------------------------------------------------------------
 
+function ehditkoVectors() {
+  const random = seeded(5);
+  // Closing times on the minute: ordinary evenings, a midnight, and closings just after each change of the clocks.
+  const closings = [utc('2026-11-19T19:00:00Z'), utc('2026-11-23T22:00:00Z'), utc('2027-06-11T17:30:00Z'), ...CHANGES.map((change) => change + 30 * 60)];
+  const cases: { status: HoursStatus; walkMin: number; now: number; answer: ReturnType<typeof ehditko>; inTime: boolean }[] = [];
+  const add = (status: HoursStatus, walkMin: number, now: number) => cases.push({ status, walkMin, now, answer: ehditko(status, walkMin, now), inTime: arrivesInTime(status, walkMin, now) });
+
+  for (const closes of closings) {
+    const open = (now: number): HoursStatus => ({ kind: closes - now < 30 * 60 ? 'soon' : 'open', closes });
+    // Around the start of the timeline: 61, 60 and 59 minutes before closing, at any second of the minute.
+    for (const minutes of [61, 60, 59]) {
+      for (const seconds of [0, 1, 59]) {
+        const now = closes - minutes * 60 + seconds;
+        add(open(now), 5, now);
+      }
+    }
+    // Around arriving exactly at closing.
+    for (const walkMin of [1, 3, 10, 45]) {
+      for (const early of [-1, 0, 1]) {
+        const now = closes - (walkMin + early) * 60 + Math.floor(random() * 60);
+        add(open(now), walkMin, now);
+      }
+    }
+    // A long walk to a door that closes more than an hour from now, and some ordinary moments.
+    add(open(closes - 80 * 60), 90, closes - 80 * 60);
+    add(open(closes - 80 * 60), 30, closes - 80 * 60);
+    for (let i = 0; i < 6; i++) {
+      const now = closes - Math.floor(random() * 3 * 3600);
+      add(open(now), 1 + Math.floor(random() * 40), now);
+    }
+  }
+  // Nothing to say for a pharmacy that never closes, or isn't open.
+  const now = closings[0] - 19 * 60;
+  for (const status of [{ kind: 'open24' }, { kind: 'closed', opens: now + 3600 }, { kind: 'closed' }, { kind: 'missing' }, { kind: 'unparseable', raw: 'by appointment' }, { kind: 'uncertain', raw: 'Mo-Fr 08:00-18:00; PH off' }, { kind: 'stale' }] as HoursStatus[]) {
+    add(status, 3, now);
+  }
+
+  const tight = [
+    [4, 3], [5, 3], [16, 3], [0, 1], [4, 25], [5, 25], [5, 26], [5, 30], [6, 30], [7, 40], [8, 40], [11, 60], [12, 60],
+  ].map(([slackMin, walkMin]) => ({ slackMin, walkMin, tight: isTightSlack(slackMin, walkMin) }));
+
+  return {
+    about:
+      'Ehditkö: will the walk end before closing. status is the answer of the status rules (status.json); closes, now and arrives are epoch seconds; walkMin is whole minutes, rounded up from the walking time. ' +
+      'The walk is counted from the start of the current minute. tooLate when it ends at closing time or after it; the timeline when closing is at most 60 minutes after the current minute; otherwise none. ' +
+      'inTime: open, and the walk ends before closing (always true around the clock). tight: the slack is under five minutes or under a fifth of the walk.',
+    cases,
+    tight,
+  };
+}
+
+// ---------------------------------------------------------------------------
+
 export function buildVectors(): Record<string, unknown> {
   return {
     'zone.json': zoneVectors(),
@@ -369,6 +423,7 @@ export function buildVectors(): Record<string, unknown> {
     'status.json': statusVectors(),
     'search.json': searchVectors(),
     'tile-file.json': tileFileVectors(),
+    'ehditko.json': ehditkoVectors(),
   };
 }
 

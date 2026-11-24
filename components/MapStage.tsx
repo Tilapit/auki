@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLivePosition, type Fix } from '@/hooks/useLivePosition';
 import { useNow } from '@/hooks/useNow';
+import { routesFrom } from '@/hooks/useRouteLine';
 import { distanceMeters } from '@/lib/geo';
 import { noneShownOpen, staysOpen, toPharmacy, toScene } from '@/lib/live';
 import { areaLayer, type Bounds } from '@/lib/map/area';
@@ -74,6 +75,10 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
     [area, position, now, deviceZone],
   );
 
+  // Routes from this position, each asked for once: selecting the same pharmacy again costs nothing.
+  // A new position, from a new search or after a walk, starts again.
+  const routeFor = useMemo(() => routesFrom(position), [position]);
+
   // The moment the first result is on screen, for the measurement of PLAN.md section 12.
   useEffect(() => {
     performance.mark('first-result');
@@ -97,6 +102,7 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
       area={layer}
       findInArea={findInArea}
       onArea={onArea}
+      routeFor={routeFor}
     />
   );
 }

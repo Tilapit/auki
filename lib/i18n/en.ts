@@ -188,6 +188,8 @@ const en: Dictionary = {
     hours: 'Opening hours',
     accessibility: 'Accessibility',
     phone: 'Phone',
+    email: 'Email',
+    website: 'Website',
     wheelchair: { yes: 'Step-free', limited: 'Partly', no: 'Not step-free' },
     days: { daily: 'Every day', 'mo-fr': 'Mon–Fri', sa: 'Sat', su: 'Sun', 'sa-su': 'Sat–Sun' },
     google: 'Route in Google Maps',
@@ -195,6 +197,9 @@ const en: Dictionary = {
     handOff: "The route opens in the map app, and the link carries only the pharmacy's position.",
     source: 'Data: OpenStreetMap.',
     sourceChecked: (date) => `Data: OpenStreetMap, opening hours checked ${date}.`,
+    wrong: 'Wrong details? {link}.',
+    fix: 'Fix them on OpenStreetMap',
+    fixLabel: (name) => `Fix on OpenStreetMap: ${name}`,
     backToList: 'Back to the list',
   },
   banner: {

@@ -216,6 +216,8 @@ const fi = {
     hours: 'Aukioloajat',
     accessibility: 'Esteettömyys',
     phone: 'Puhelin',
+    email: 'Sähköposti',
+    website: 'Verkkosivu',
     wheelchair: { yes: 'Esteetön', limited: 'Osittain', no: 'Ei esteetön' },
     days: { daily: 'Joka päivä', 'mo-fr': 'Ma–pe', sa: 'La', su: 'Su', 'sa-su': 'La–su' },
     google: 'Reitti Google Mapsissa',
@@ -223,6 +225,10 @@ const fi = {
     handOff: 'Reitti avautuu karttasovelluksessa, ja linkissä on vain apteekin sijainti.',
     source: 'Tiedot: OpenStreetMap.',
     sourceChecked: (date: string) => `Tiedot: OpenStreetMap, aukioloajat tarkistettu ${date}.`,
+    /** The way to correct the data: OpenStreetMap's note form at the pharmacy. "{link}" is the link. */
+    wrong: 'Väärät tiedot? {link}.',
+    fix: 'Korjaa OpenStreetMapissa',
+    fixLabel: (name: string) => `Korjaa OpenStreetMapissa: ${name}`,
     backToList: 'Takaisin listaan',
   },
   banner: {

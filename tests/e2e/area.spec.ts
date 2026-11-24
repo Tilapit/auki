@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import { KAMPPI, MONDAY_EVENING, beyond, farEast, kamppi } from '@/lib/fixtures/tiles';
 import { DAY, NIGHT, paletteFor } from '@/lib/map/style';
-import { carriesPosition } from '@/lib/requests';
+import { POSITION_REQUEST, carriesPosition } from '@/lib/requests';
 import { sunPosition } from '@/lib/sky';
 import { tileOf, tilePath } from '@/lib/tiles';
 import { expect, test } from './fixtures';
@@ -86,12 +86,19 @@ test('a sign opens its pharmacy like a row does, and it becomes the marked one',
   await expect(sheet).toBeHidden();
 });
 
-test('moved by hand to a new area, the map asks for that area’s squares, and for nothing that says where the user is', async ({ page }) => {
-  const seen: string[] = [];
-  page.context().on('request', (request) => seen.push([request.url(), JSON.stringify(request.headers()), request.postData() ?? ''].join('\n')));
+test('moved by hand to a new area, the map asks for that area’s squares, and for nothing that says where the user is', async ({ page, walkingAsked }) => {
+  const seen: { walking: boolean; text: string }[] = [];
+  page.context().on('request', (request) =>
+    seen.push({
+      walking: request.method() === POSITION_REQUEST.method && new URL(request.url()).pathname === POSITION_REQUEST.path,
+      text: [request.url(), JSON.stringify(request.headers()), request.postData() ?? ''].join('\n'),
+    }),
+  );
   const asked = await live(page);
   await expect.poll(() => signs(page)).toBe(4);
   const before = asked.length;
+  // The search asked for walking times once. Nothing the map does from here on asks again.
+  expect(walkingAsked).toHaveLength(1);
 
   // Out to the whole region, and then the map is dragged west: Sipoo comes into view.
   await zoomOut(page, 5);
@@ -109,7 +116,9 @@ test('moved by hand to a new area, the map asks for that area’s squares, and f
   // The list is still the search's ten: the map looking elsewhere changes no answer.
   await expect(markers(page)).toHaveCount(10);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('3 apteekkia auki juuri nyt');
-  for (const text of seen) expect(carriesPosition(text, KAMPPI), text.split('\n')[0]).toBe(false);
+  // The position was in the search's one walking request, and in nothing the moved map asked for.
+  for (const { text } of seen.filter((request) => !request.walking)) expect(carriesPosition(text, KAMPPI), text.split('\n')[0]).toBe(false);
+  expect(walkingAsked).toHaveLength(1);
 });
 
 /** The map's ground colour, as the map view hands it to its markers: it is the style's own. */

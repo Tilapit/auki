@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { KAMPPI, MONDAY_EVENING, kamppi } from '@/lib/fixtures/tiles';
-import { carriesPosition } from '@/lib/requests';
+import { POSITION_REQUEST, carriesPosition } from '@/lib/requests';
 import { expect, test } from './fixtures';
 import { fakeMapTiles, hasWebGL, settle, start, walkTo, world } from './helpers';
 
@@ -107,9 +107,14 @@ test('map tiles that never arrive: the map says so, and the rest is as it was', 
   await expect(markers(page)).toHaveCount(6);
 });
 
-test('the dot follows a walk, the list is ranked again after 300 metres, and none of it leaves the device', async ({ page }) => {
-  const seen: string[] = [];
-  page.context().on('request', (request) => seen.push([request.url(), JSON.stringify(request.headers()), request.postData() ?? ''].join('\n')));
+test('the dot follows a walk, the list is ranked again after 300 metres, and the position goes out in the walking request alone', async ({ page }) => {
+  const seen: { walking: boolean; text: string }[] = [];
+  page.context().on('request', (request) =>
+    seen.push({
+      walking: request.method() === POSITION_REQUEST.method && new URL(request.url()).pathname === POSITION_REQUEST.path,
+      text: [request.url(), JSON.stringify(request.headers()), request.postData() ?? ''].join('\n'),
+    }),
+  );
   const asked = await start(page, world(kamppi));
   await expect(card(page).getByRole('heading', { level: 3 })).toHaveText('Kampin apteekki');
   const transform = () => dot(page).evaluate((element) => (element as HTMLElement).style.transform);
@@ -123,8 +128,10 @@ test('the dot follows a walk, the list is ranked again after 300 metres, and non
   await expect(card(page).getByRole('heading', { level: 3 })).toHaveText('Kampin apteekki');
   await expect(card(page)).toContainText('130 m');
 
-  // To the door of the pharmacy on Mannerheimintie, 320 metres from where the list was ranked.
+  // To the door of the pharmacy on Mannerheimintie, 320 metres from where the list was ranked,
+  // more than two minutes after it was: the list is not ranked again sooner than that.
   const far = place(-262, 182);
+  await page.clock.runFor(121_000);
   await walkTo(page, far);
   await expect(card(page).getByRole('heading', { level: 3 })).toHaveText('Yliopiston apteekki');
   await expect(page.locator('ol > li h3').first()).toHaveText('Kampin apteekki');
@@ -143,12 +150,21 @@ test('the dot follows a walk, the list is ranked again after 300 metres, and non
   await visibility('visible');
   expect(await walkTo(page, far)).toBe(1);
 
-  // Not the first position and not a later one: no request carried any of them.
+  // Not the first position and not a later one: no request carried any of them, but the one for
+  // walking times. That one went out twice: for the search, and when the list was ranked again.
   await settle(page);
   expect(seen.length).toBeGreaterThan(5);
-  for (const text of seen) {
+  for (const { text } of seen.filter((request) => !request.walking)) {
     for (const position of [KAMPPI, near, far]) expect(carriesPosition(text, position), text.split('\n')[0]).toBe(false);
   }
+  const walking = seen.filter((request) => request.walking);
+  expect(walking).toHaveLength(2);
+  expect(carriesPosition(walking[0].text, KAMPPI)).toBe(true);
+  expect(carriesPosition(walking[1].text, far)).toBe(true);
+  // From where the list was ranked, each time: a fix that ranked nothing went nowhere.
+  const from = walking.map(({ text }) => (JSON.parse(text.split('\n').pop() ?? '{}') as { from: { lat: number; lon: number } }).from);
+  const rounded = (value: number) => Math.round(value * 1e5) / 1e5;
+  expect(from).toEqual([KAMPPI, { lat: rounded(far.lat), lon: rounded(far.lon) }]);
 });
 
 test('a searched place is not followed: no watch on the device', async ({ page }) => {
