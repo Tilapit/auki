@@ -1,0 +1,2568 @@
+{
+ "about": "Ehditkö: will the walk end before closing. status is the answer of the status rules (status.json); closes, now and arrives are epoch seconds; walkMin is whole minutes, rounded up from the walking time. The walk is counted from the start of the current minute. tooLate when it ends at closing time or after it; the timeline when closing is at most 60 minutes after the current minute; otherwise none. inTime: open, and the walk ends before closing (always true around the clock). tight: the slack is under five minutes or under a fifth of the walk.",
+ "cases": [
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111140,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111141,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111199,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111200,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795111500,
+    "closes": 1795114800,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111201,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795111500,
+    "closes": 1795114800,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111259,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795111500,
+    "closes": 1795114800,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111260,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795111560,
+    "closes": 1795114800,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111261,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795111560,
+    "closes": 1795114800,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 5,
+   "now": 1795111319,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795111560,
+    "closes": 1795114800,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 1,
+   "now": 1795114841,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114860,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 1,
+   "now": 1795114786,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114800,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 1,
+   "now": 1795114693,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795114740,
+    "closes": 1795114800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 3,
+   "now": 1795114717,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114860,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 3,
+   "now": 1795114625,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114800,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 3,
+   "now": 1795114595,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795114740,
+    "closes": 1795114800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 10,
+   "now": 1795114303,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114860,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 10,
+   "now": 1795114227,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114800,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795114800
+   },
+   "walkMin": 10,
+   "now": 1795114194,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795114740,
+    "closes": 1795114800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 45,
+   "now": 1795112173,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114860,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 45,
+   "now": 1795112146,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795114800,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 45,
+   "now": 1795112084,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795114740,
+    "closes": 1795114800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 90,
+   "now": 1795110000,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795115400,
+    "closes": 1795114800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 30,
+   "now": 1795110000,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 1,
+   "now": 1795107666,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 13,
+   "now": 1795109774,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 12,
+   "now": 1795105118,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 29,
+   "now": 1795106643,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 1,
+   "now": 1795112062,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795112100,
+    "closes": 1795114800,
+    "slackMin": 45
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795114800
+   },
+   "walkMin": 9,
+   "now": 1795106231,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467540,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467541,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467599,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467600,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795467900,
+    "closes": 1795471200,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467601,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795467900,
+    "closes": 1795471200,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467659,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795467900,
+    "closes": 1795471200,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467660,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795467960,
+    "closes": 1795471200,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467661,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795467960,
+    "closes": 1795471200,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 5,
+   "now": 1795467719,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795467960,
+    "closes": 1795471200,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 1,
+   "now": 1795471216,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471260,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 1,
+   "now": 1795471147,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471200,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 1,
+   "now": 1795471108,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795471140,
+    "closes": 1795471200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 3,
+   "now": 1795471139,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471260,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 3,
+   "now": 1795471034,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471200,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 3,
+   "now": 1795470964,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795471140,
+    "closes": 1795471200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 10,
+   "now": 1795470710,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471260,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 10,
+   "now": 1795470619,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471200,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1795471200
+   },
+   "walkMin": 10,
+   "now": 1795470564,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795471140,
+    "closes": 1795471200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 45,
+   "now": 1795468619,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471260,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 45,
+   "now": 1795468516,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471200,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 45,
+   "now": 1795468463,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795471140,
+    "closes": 1795471200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 90,
+   "now": 1795466400,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1795471800,
+    "closes": 1795471200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 30,
+   "now": 1795466400,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 35,
+   "now": 1795468854,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795470900,
+    "closes": 1795471200,
+    "slackMin": 5
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 36,
+   "now": 1795463399,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 33,
+   "now": 1795465676,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 6,
+   "now": 1795464190,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 24,
+   "now": 1795464331,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1795471200
+   },
+   "walkMin": 32,
+   "now": 1795467797,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1795469700,
+    "closes": 1795471200,
+    "slackMin": 25
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731340,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731341,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731399,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731400,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812731700,
+    "closes": 1812735000,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731401,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812731700,
+    "closes": 1812735000,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731459,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812731700,
+    "closes": 1812735000,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731460,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812731760,
+    "closes": 1812735000,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731461,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812731760,
+    "closes": 1812735000,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 5,
+   "now": 1812731519,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812731760,
+    "closes": 1812735000,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 1,
+   "now": 1812735036,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735060,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 1,
+   "now": 1812734940,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735000,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 1,
+   "now": 1812734935,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812734940,
+    "closes": 1812735000,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 3,
+   "now": 1812734900,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735060,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 3,
+   "now": 1812734841,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735000,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 3,
+   "now": 1812734812,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812734940,
+    "closes": 1812735000,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 10,
+   "now": 1812734474,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735060,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 10,
+   "now": 1812734410,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735000,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 10,
+   "now": 1812734390,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812734940,
+    "closes": 1812735000,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 45,
+   "now": 1812732376,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735060,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 45,
+   "now": 1812732359,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735000,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 45,
+   "now": 1812732240,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812734940,
+    "closes": 1812735000,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 90,
+   "now": 1812730200,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812735600,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 30,
+   "now": 1812730200,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 31,
+   "now": 1812731209,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 27,
+   "now": 1812731607,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812733200,
+    "closes": 1812735000,
+    "slackMin": 30
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 4,
+   "now": 1812734171,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812734400,
+    "closes": 1812735000,
+    "slackMin": 10
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 21,
+   "now": 1812727063,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1812735000
+   },
+   "walkMin": 38,
+   "now": 1812732263,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1812734520,
+    "closes": 1812735000,
+    "slackMin": 8
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1812735000
+   },
+   "walkMin": 30,
+   "now": 1812734466,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1812736260,
+    "closes": 1812735000
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888140,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888141,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888199,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888200,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792888500,
+    "closes": 1792891800,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888201,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792888500,
+    "closes": 1792891800,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888259,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792888500,
+    "closes": 1792891800,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888260,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792888560,
+    "closes": 1792891800,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888261,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792888560,
+    "closes": 1792891800,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 5,
+   "now": 1792888319,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792888560,
+    "closes": 1792891800,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 1,
+   "now": 1792891857,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891860,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 1,
+   "now": 1792891757,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891800,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 1,
+   "now": 1792891711,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792891740,
+    "closes": 1792891800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 3,
+   "now": 1792891731,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891860,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 3,
+   "now": 1792891670,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891800,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 3,
+   "now": 1792891594,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792891740,
+    "closes": 1792891800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 10,
+   "now": 1792891317,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891860,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 10,
+   "now": 1792891242,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891800,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 10,
+   "now": 1792891172,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792891740,
+    "closes": 1792891800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 45,
+   "now": 1792889166,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891860,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 45,
+   "now": 1792889117,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792891800,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 45,
+   "now": 1792889071,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792891740,
+    "closes": 1792891800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 90,
+   "now": 1792887000,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1792892400,
+    "closes": 1792891800
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 30,
+   "now": 1792887000,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 11,
+   "now": 1792890126,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792890780,
+    "closes": 1792891800,
+    "slackMin": 17
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 6,
+   "now": 1792883518,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1792891800
+   },
+   "walkMin": 14,
+   "now": 1792890936,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792891740,
+    "closes": 1792891800,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 26,
+   "now": 1792883100,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 4,
+   "now": 1792887345,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1792891800
+   },
+   "walkMin": 39,
+   "now": 1792888663,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1792890960,
+    "closes": 1792891800,
+    "slackMin": 14
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193740,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193741,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193799,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193800,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806194100,
+    "closes": 1806197400,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193801,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806194100,
+    "closes": 1806197400,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193859,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806194100,
+    "closes": 1806197400,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193860,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806194160,
+    "closes": 1806197400,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193861,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806194160,
+    "closes": 1806197400,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806193919,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806194160,
+    "closes": 1806197400,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 1,
+   "now": 1806197419,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197460,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 1,
+   "now": 1806197382,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197400,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 1,
+   "now": 1806197324,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806197340,
+    "closes": 1806197400,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 3,
+   "now": 1806197286,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197460,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 3,
+   "now": 1806197267,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197400,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 3,
+   "now": 1806197215,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806197340,
+    "closes": 1806197400,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 10,
+   "now": 1806196896,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197460,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 10,
+   "now": 1806196806,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197400,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 10,
+   "now": 1806196761,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806197340,
+    "closes": 1806197400,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 45,
+   "now": 1806194784,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197460,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 45,
+   "now": 1806194703,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806197400,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 45,
+   "now": 1806194665,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806197340,
+    "closes": 1806197400,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 90,
+   "now": 1806192600,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1806198000,
+    "closes": 1806197400
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 30,
+   "now": 1806192600,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 13,
+   "now": 1806187488,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 3,
+   "now": 1806189119,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 5,
+   "now": 1806188583,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 34,
+   "now": 1806191872,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1806197400
+   },
+   "walkMin": 24,
+   "now": 1806195135,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806196560,
+    "closes": 1806197400,
+    "slackMin": 14
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1806197400
+   },
+   "walkMin": 15,
+   "now": 1806196311,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1806197160,
+    "closes": 1806197400,
+    "slackMin": 4
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942540,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942541,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942599,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942600,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824942900,
+    "closes": 1824946200,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942601,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824942900,
+    "closes": 1824946200,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942659,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824942900,
+    "closes": 1824946200,
+    "slackMin": 55
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942660,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824942960,
+    "closes": 1824946200,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942661,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824942960,
+    "closes": 1824946200,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 5,
+   "now": 1824942719,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824942960,
+    "closes": 1824946200,
+    "slackMin": 54
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 1,
+   "now": 1824946239,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946260,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 1,
+   "now": 1824946155,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946200,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 1,
+   "now": 1824946120,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824946140,
+    "closes": 1824946200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 3,
+   "now": 1824946094,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946260,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 3,
+   "now": 1824946035,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946200,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 3,
+   "now": 1824946019,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824946140,
+    "closes": 1824946200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 10,
+   "now": 1824945698,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946260,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 10,
+   "now": 1824945627,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946200,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 10,
+   "now": 1824945584,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824946140,
+    "closes": 1824946200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 45,
+   "now": 1824943562,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946260,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 45,
+   "now": 1824943537,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946200,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 45,
+   "now": 1824943479,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824946140,
+    "closes": 1824946200,
+    "slackMin": 1
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 90,
+   "now": 1824941400,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946800,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 30,
+   "now": 1824941400,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 6,
+   "now": 1824945992,
+   "answer": {
+    "kind": "tooLate",
+    "arrives": 1824946320,
+    "closes": 1824946200
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 14,
+   "now": 1824942597,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 38,
+   "now": 1824939263,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 35,
+   "now": 1824939791,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open",
+    "closes": 1824946200
+   },
+   "walkMin": 12,
+   "now": 1824937848,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "soon",
+    "closes": 1824946200
+   },
+   "walkMin": 7,
+   "now": 1824945512,
+   "answer": {
+    "kind": "timeline",
+    "arrives": 1824945900,
+    "closes": 1824946200,
+    "slackMin": 5
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "open24"
+   },
+   "walkMin": 3,
+   "now": 1795113660,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": true
+  },
+  {
+   "status": {
+    "kind": "closed",
+    "opens": 1795117260
+   },
+   "walkMin": 3,
+   "now": 1795113660,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "closed"
+   },
+   "walkMin": 3,
+   "now": 1795113660,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "missing"
+   },
+   "walkMin": 3,
+   "now": 1795113660,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "unparseable",
+    "raw": "by appointment"
+   },
+   "walkMin": 3,
+   "now": 1795113660,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "uncertain",
+    "raw": "Mo-Fr 08:00-18:00; PH off"
+   },
+   "walkMin": 3,
+   "now": 1795113660,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": false
+  },
+  {
+   "status": {
+    "kind": "stale"
+   },
+   "walkMin": 3,
+   "now": 1795113660,
+   "answer": {
+    "kind": "none"
+   },
+   "inTime": false
+  }
+ ],
+ "tight": [
+  {
+   "slackMin": 4,
+   "walkMin": 3,
+   "tight": true
+  },
+  {
+   "slackMin": 5,
+   "walkMin": 3,
+   "tight": false
+  },
+  {
+   "slackMin": 16,
+   "walkMin": 3,
+   "tight": false
+  },
+  {
+   "slackMin": 0,
+   "walkMin": 1,
+   "tight": true
+  },
+  {
+   "slackMin": 4,
+   "walkMin": 25,
+   "tight": true
+  },
+  {
+   "slackMin": 5,
+   "walkMin": 25,
+   "tight": false
+  },
+  {
+   "slackMin": 5,
+   "walkMin": 26,
+   "tight": true
+  },
+  {
+   "slackMin": 5,
+   "walkMin": 30,
+   "tight": true
+  },
+  {
+   "slackMin": 6,
+   "walkMin": 30,
+   "tight": false
+  },
+  {
+   "slackMin": 7,
+   "walkMin": 40,
+   "tight": true
+  },
+  {
+   "slackMin": 8,
+   "walkMin": 40,
+   "tight": false
+  },
+  {
+   "slackMin": 11,
+   "walkMin": 60,
+   "tight": true
+  },
+  {
+   "slackMin": 12,
+   "walkMin": 60,
+   "tight": false
+  }
+ ]
+}

@@ -3,19 +3,23 @@
  * and instant always give the same scene, so the views can be tested at fixed moments.
  */
 
+import { arrivesInTime, ehditko } from './ehditko.ts';
 import { distanceMeters } from './geo.ts';
-import { hoursStatus, isOpenStatus, localMoment, openFor } from './hoursStatus.ts';
+import { hoursStatus, isOpenStatus, isStale, localMoment, openFor } from './hoursStatus.ts';
 import type { HoursStatus } from './hoursStatus.ts';
 import type { Position } from './state';
 import { earliestToOpen } from './results';
 import { isOpenNow } from './status';
 import type { Found, TilePharmacy } from './tiles.ts';
-import type { OpenStatus, Pharmacy, Scene } from './types';
+import type { Ehditko, OpenStatus, Pharmacy, Scene } from './types';
+import { walkMinutes } from './walking.ts';
+import { weekHours } from './week.ts';
+import type { Walk, Walks } from './walking.ts';
 import { clockAt, offsetAt } from './zone.ts';
 
 /** The list shows the nearest ten. */
 export const SHOWN = 10;
-/** Candidates: the nearest 20 within 10 km. Walking times will reorder them (M5). */
+/** Candidates: the nearest 20 within 10 km. Walking times reorder them, and the list shows the first ten (PLAN.md 7.1, step 5). */
 export const NEAR = { count: 20, radius: 10_000 };
 /** If there are none: the nearest five within 50 km. */
 export const WIDE = { count: 5, radius: 50_000 };
@@ -28,6 +32,12 @@ const NO_CLOSING_IN_SIGHT_SECONDS = 24 * 60 * 60;
 
 /** After moving this far the list is ranked again around the new position (PLAN.md 7.1, step 11). */
 export const RERANK_AFTER_METERS = 300;
+/**
+ * And not sooner than this after the last time. Ranking again asks for walking times again,
+ * and the day's budget for them is small: on foot 300 m take three and a half minutes, so
+ * a walk never waits for this, and a tram ride asks once in two minutes instead of every stop.
+ */
+export const RERANK_GAP_SECONDS = 120;
 
 /**
  * Whether a new fix is a move worth ranking again for: farther than the limit from where the
@@ -41,8 +51,13 @@ export function movedEnough(from: { lat: number; lon: number }, fix: { lat: numb
 
 /** What a search found. The candidates never change order afterwards (PLAN.md 7.1, step 5). */
 export interface SearchResult {
-  /** Nearest first, by straight line. */
+  /** In the order they are shown: by walking time where `walks` is there, otherwise nearest first by straight line. */
   candidates: Found[];
+  /**
+   * Walking times by pharmacy id, when they arrived in time. Without them the distances are
+   * straight lines and the results say so. A candidate with no walking route is not in it.
+   */
+  walks?: Walks;
   /** The nearest pharmacy within 30 km that is open and stays open, when no candidate shown is open. */
   farOpen?: Found;
   /** Countries next to the position that the tiles don't cover, as ISO codes. */
@@ -75,8 +90,18 @@ export function toOpenStatus(pharmacy: TilePharmacy, now: number, deviceZone: st
   }
 }
 
-export function toPharmacy(found: Found, now: number, deviceZone: string): Pharmacy {
+/** True for a pharmacy that is open at `now` and still open when a walk there ends. Without a walking time, being open is all we know. */
+function worthTheWalk(pharmacy: TilePharmacy, walk: Walk | undefined, now: number): boolean {
+  const status = hoursStatus(pharmacy, now);
+  return isOpenStatus(status) && (!walk || arrivesInTime(status, walkMinutes(walk.seconds), now));
+}
+
+/** `walk`: the walking time to it, for the pharmacies of the list. The far open one and those picked on the map have none. */
+export function toPharmacy(found: Found, now: number, deviceZone: string, walk?: Walk): Pharmacy {
   const { pharmacy, meters } = found;
+  const open = isOpenStatus(hoursStatus(pharmacy, now));
+  // The week's hours for the sheet. Out-of-date data says nothing about the coming days either.
+  const week = isStale(pharmacy, now) ? [] : weekHours(pharmacy, now);
   return {
     id: pharmacy.id,
     name: pharmacy.name,
@@ -84,9 +109,14 @@ export function toPharmacy(found: Found, now: number, deviceZone: string): Pharm
     lon: pharmacy.lon,
     status: toOpenStatus(pharmacy, now, deviceZone),
     straightMeters: Math.round(meters),
+    ...(walk ? { walkMin: walkMinutes(walk.seconds), walkMeters: walk.meters } : {}),
+    ...(walk && open && !worthTheWalk(pharmacy, walk, now) ? { tooLate: true } : {}),
+    ...(week.length > 0 ? { hours: week } : {}),
     ...(pharmacy.street ? { street: pharmacy.street } : {}),
     ...(pharmacy.city ? { city: pharmacy.city } : {}),
     ...(pharmacy.phone ? { phone: pharmacy.phone } : {}),
+    ...(pharmacy.email ? { email: pharmacy.email } : {}),
+    ...(pharmacy.website ? { website: pharmacy.website } : {}),
     ...(pharmacy.wheelchair ? { wheelchair: pharmacy.wheelchair } : {}),
     ...(pharmacy.wheelchairNote ? { wheelchairNote: pharmacy.wheelchairNote } : {}),
     ...(pharmacy.dispensing === false ? { dispensing: false } : {}),
@@ -114,16 +144,31 @@ export interface SceneInput {
   deviceZone: string;
 }
 
-/** Whether the far open one is needed at `now`: none of the pharmacies shown is open. */
+/**
+ * Whether the far open one is needed at `now`: none of the pharmacies shown is open, or the
+ * only ones that are close before a walk there would end.
+ */
 export function noneShownOpen(result: SearchResult, now: number): boolean {
-  return !result.candidates.slice(0, SHOWN).some(({ pharmacy }) => isOpenStatus(hoursStatus(pharmacy, now)));
+  return !result.candidates.slice(0, SHOWN).some(({ pharmacy }) => worthTheWalk(pharmacy, result.walks?.get(pharmacy.id), now));
+}
+
+/** Ehditkö for the pharmacy that leads the card: the first open one of the list, when its walking time is known. */
+function ehditkoFor(shown: Found[], walks: Walks | undefined, now: number): Ehditko {
+  const first = shown.find(({ pharmacy }) => isOpenStatus(hoursStatus(pharmacy, now)));
+  const walk = first && walks?.get(first.pharmacy.id);
+  if (!first || !walk) return { kind: 'none' };
+  const answer = ehditko(hoursStatus(first.pharmacy, now), walkMinutes(walk.seconds), now);
+  if (answer.kind === 'none') return answer;
+  // Both times on the pharmacy's own clock, like its status line. A closing at midnight reads 24:00.
+  const times = { arrive: clockAt(answer.arrives, first.pharmacy.zone), closes: localMoment(now, answer.closes, first.pharmacy.zone, true).time };
+  return answer.kind === 'timeline' ? { kind: 'timeline', ...times, slackMin: answer.slackMin } : { kind: 'tooLate', ...times };
 }
 
 export function toScene({ position, result, now, deviceZone }: SceneInput): Scene {
   const shown = result.candidates.slice(0, SHOWN);
-  const pharmacies = shown.map((found) => toPharmacy(found, now, deviceZone));
-  const noneOpen = !pharmacies.some((pharmacy) => isOpenNow(pharmacy.status));
-  // The far one leads only while nothing nearer is open, and only while it is itself still open.
+  const pharmacies = shown.map((found) => toPharmacy(found, now, deviceZone, result.walks?.get(found.pharmacy.id)));
+  const noneOpen = !pharmacies.some((pharmacy) => isOpenNow(pharmacy.status) && !pharmacy.tooLate);
+  // The far one is shown only while nothing nearer is open and in reach, and only while it is itself still open.
   const farOpen = noneOpen && result.farOpen && staysOpen(result.farOpen.pharmacy, now) && !shown.some((found) => found.pharmacy.id === result.farOpen?.pharmacy.id) ? toPharmacy(result.farOpen, now, deviceZone) : undefined;
 
   const stale = pharmacies.length > 0 && pharmacies.every((pharmacy) => pharmacy.status.kind === 'stale');
@@ -135,7 +180,8 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
   const closedOpens = tomorrow.length >= 2 && tomorrow.length * 2 > closed && tomorrow[0] !== tomorrow[tomorrow.length - 1] ? { from: tomorrow[0], to: tomorrow[tomorrow.length - 1] } : undefined;
 
   // The map frames what the card talks about: the position and the nearest few, or the far open one.
-  const reach = farOpen ? farOpen.straightMeters : (pharmacies[Math.min(pharmacies.length, 5) - 1]?.straightMeters ?? 500);
+  // The nearest few by the list's own order: on foot the fifth is not always the fifth by straight line.
+  const reach = farOpen ? farOpen.straightMeters : pharmacies.length > 0 ? Math.max(...pharmacies.slice(0, 5).map((pharmacy) => pharmacy.straightMeters)) : 500;
   const center: [number, number] = [position.lat, position.lon];
   // When the card's pharmacy is only a block away, that overview would put its marker on top of
   // the dot: the view then goes closer, until the two stand apart. The others get edge chips.
@@ -148,11 +194,11 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
     searched: position.source === 'search' ? position.label : undefined,
     updated: clockAt(now, deviceZone),
     user: { lat: position.lat, lon: position.lon, approximate: position.source === 'device' && position.approximate },
-    // No walking times before M5: straight-line distances, labelled as such.
-    distance: 'straight',
+    // Without walking times: straight-line distances, labelled as such.
+    distance: result.walks ? 'walking' : 'straight',
     pharmacies,
     ...(farOpen ? { farOpen } : {}),
-    ehditko: { kind: 'none' },
+    ehditko: ehditkoFor(shown, result.walks, now),
     ...(closedOpens ? { closedOpens } : {}),
     ...(stale ? { stale } : {}),
     ...(dataFrom !== undefined ? { dataFrom } : {}),

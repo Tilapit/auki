@@ -37,3 +37,7 @@ Sample data: OpenStreetMap, fetched 19 Nov 2026. Times are simulated (Helsinki o
 ## The phone, 24 Nov 2026 (`phone/`)
 
 Screenshots for the pull request "The map and the sheet on the phone": the sheet's three places against the old collapsed sheet (`sheet.jpg`, `sheet-cases.jpg`, from `/dev/states`), and the real app in Helsinki with every pharmacy on the map (`map.jpg`, `desktop.jpg`: real map tiles, OpenStreetMap's pharmacies of 23 Nov, the clock set to Tuesday at 14.00 and at 20.41).
+
+## M5, 24 Nov 2026 (`m5/`)
+
+Screenshots for the pull request "M5: walking times, ehditkö and the route line". From `/dev/states`, built from tile data with walking times through the live code: the row, the card with the timeline, the list in walking order, too late with the next open one (`walking.jpg`), the same in dark and the pharmacy sheet with its links (`dark-and-sheet.jpg`), and two desktop cases (`desktop.jpg`). From `/dev/map`, on real map tiles: the route line by day, at dusk and at night (`route-desktop.jpg`, `route-phone.jpg`). The route in these is invented, two corners between the dot and the marker: there was no openrouteservice key on the day.

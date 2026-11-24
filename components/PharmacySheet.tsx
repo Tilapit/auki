@@ -3,8 +3,9 @@
 import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
-import { appleDirectionsUrl, googleDirectionsUrl } from '@/lib/maps';
-import { displayName, glyphFor, statusText } from '@/lib/status';
+import { appleDirectionsUrl, emailAddress, googleDirectionsUrl, osmNoteUrl, websiteHost } from '@/lib/maps';
+import { hoursUnknown } from '@/lib/results';
+import { dayHoursText, daysLabel, displayName, glyphFor, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
 import type { CountryInfo, Pharmacy, Scene } from '@/lib/types';
 import { Button, IconButton } from './Button';
@@ -34,7 +35,9 @@ interface Props {
 
 /**
  * Details of one pharmacy and the hand-off to a map app. The route links are real links
- * that carry only the pharmacy's position (PLAN.md 7.6).
+ * that carry only the pharmacy's position (PLAN.md 7.6), and so does the link to correct the
+ * data in OpenStreetMap. The pharmacy's own email and website are shown when OpenStreetMap
+ * has them: emailing a prescription ahead often works (PLAN.md section 2).
  */
 export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onClose, onSelect }: Props) {
   const i18n = useI18n();
@@ -45,10 +48,17 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
   // Too far to walk: the links name no way of travel and the map app picks one.
   const walk = withinWalk(pharmacy);
   const hours =
-    pharmacy.hours?.map((line) => `${t.sheet.days[line.days]} ${f.clock(line.from)}–${f.clock(line.to)}`) ??
+    pharmacy.hours?.map((line) => `${daysLabel(i18n, line.days)} ${dayHoursText(i18n, line.hours)}`) ??
     (pharmacy.status.kind === 'unparseable' || pharmacy.status.kind === 'uncertain' ? [pharmacy.status.raw] : []);
   const access = pharmacy.wheelchair && [t.sheet.wheelchair[pharmacy.wheelchair], pharmacy.wheelchairNote].filter(Boolean).join('. ');
   const nextWay = nextOpen && travel(i18n, nextOpen, distance);
+  const email = pharmacy.email && emailAddress(pharmacy.email);
+  const website = pharmacy.website && websiteHost(pharmacy.website);
+  const fix = (
+    <a href={osmNoteUrl(pharmacy.lat, pharmacy.lon)} aria-label={t.sheet.fixLabel(name)}>
+      {t.sheet.fix}
+    </a>
+  );
 
   return (
     <div className={styles.sheet}>
@@ -73,6 +83,8 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
       <div className={styles.summary}>
         <div>
           <OpenStatus status={pharmacy.status} strong />
+          {/* Hours that are missing or can't be read are the first thing worth correcting. */}
+          {hoursUnknown(pharmacy.status) && <p className={styles.fix}>{fix}</p>}
           {pharmacy.dispensing === false && <p className={styles.note}>{t.status.noPrescriptions}</p>}
         </div>
         <p className={styles.travel}>
@@ -85,7 +97,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
         </p>
       </div>
 
-      {(hours.length > 0 || access || pharmacy.phone) && (
+      {(hours.length > 0 || access || pharmacy.phone || email || website) && (
         <dl className={styles.facts}>
           {hours.length > 0 && (
             <>
@@ -109,6 +121,22 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
             <>
               <dt>{t.sheet.phone}</dt>
               <dd className="tnum">{pharmacy.phone}</dd>
+            </>
+          )}
+          {email && (
+            <>
+              <dt>{t.sheet.email}</dt>
+              <dd>
+                <a href={`mailto:${email}`}>{email}</a>
+              </dd>
+            </>
+          )}
+          {website && pharmacy.website && (
+            <>
+              <dt>{t.sheet.website}</dt>
+              <dd>
+                <a href={pharmacy.website}>{website}</a>
+              </dd>
             </>
           )}
         </dl>
@@ -162,7 +190,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
       )}
 
       <p className={styles.footnote}>
-        {t.sheet.handOff} {pharmacy.checkDate ? t.sheet.sourceChecked(f.date(pharmacy.checkDate)) : t.sheet.source}
+        {t.sheet.handOff} {pharmacy.checkDate ? t.sheet.sourceChecked(f.date(pharmacy.checkDate)) : t.sheet.source} {rich(t.sheet.wrong, { link: fix })}
       </p>
     </div>
   );

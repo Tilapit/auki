@@ -232,6 +232,7 @@ The app looks for the nearest 20 within 10 km; if there are none, the nearest fi
 | `status.json` | The status rules above, with the printed day and time |
 | `search.json` | The nearest pharmacies through tiles, and how many tiles that took |
 | `tile-file.json` | A tile as stored, and as read |
+| `ehditko.json` | Ehditkö from a status, a walking time and an instant: the timeline from 60 minutes before closing, too late at closing time, and when the slack is tight (PLAN.md 7.1, step 10) |
 
 Compare distances to within 0.5 %; everything else exactly.
 

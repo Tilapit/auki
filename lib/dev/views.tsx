@@ -11,7 +11,7 @@ import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/hel
 import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
-import { HERE, MONDAY_EVENING, NINE_DAYS_LATER, farOpen, indexOf, kamppi, kamppiClosed, resultOf } from '@/lib/fixtures/tiles';
+import { HERE, MONDAY_EVENING, NINE_DAYS_LATER, daily, farOpen, indexOf, kamppi, kamppiClosed, resultOf, walkedResultOf, weekly } from '@/lib/fixtures/tiles';
 import { toScene } from '@/lib/live';
 import type { SearchResult } from '@/lib/live';
 import { distanceMeters } from '@/lib/geo';
@@ -25,6 +25,14 @@ const TWILIGHT = at('2026-11-19T14:10:00Z');
 /** A scene as the live app builds it, from tile data at a fixed instant. */
 const fromTiles = (result: SearchResult, now = MONDAY_EVENING) => toScene({ position: HERE, result, now, deviceZone: 'Europe/Helsinki' });
 const far = { pharmacy: farOpen, meters: distanceMeters(HERE, farOpen) };
+/** Monday 20.57: the nearest open pharmacy closes at 21, three minutes' walk away. */
+const TOO_LATE = MONDAY_EVENING + 16 * 60;
+/** The nearest by straight line is across the tracks: sixteen minutes on foot. */
+const ACROSS = { n101: { meters: 1300, seconds: 936 } };
+/** Around Kamppi with one pharmacy open, until 21. */
+/** The same, with a week that has three kinds of day: the sheet lists them as a door sign would. */
+const withWeek = kamppi.map((pharmacy, index) => (index === 0 ? { ...pharmacy, hours: weekly(['08:00', '21:00'], ['10:00', '18:00']) } : pharmacy));
+const oneOpen = kamppi.map((pharmacy, index) => (index > 0 && pharmacy.hours.kind === 'parsed' ? { ...pharmacy, hours: daily('09:00', '18:00') } : pharmacy));
 
 /** id from viewList.ts to what it renders. Fixtures only: no network, no clock. */
 export const renderers: Record<string, () => ReactNode> = {
@@ -88,6 +96,17 @@ export const renderers: Record<string, () => ReactNode> = {
   'tiles-far': () => <ResultsView scene={fromTiles(resultOf(kamppiClosed, { farOpen: far }))} sheet="expanded" />,
   'tiles-edge': () => <ResultsView scene={fromTiles(resultOf(kamppi, { missing: ['RU'] }))} sheet="expanded" />,
   stale: () => <ResultsView scene={fromTiles(resultOf(kamppi), NINE_DAYS_LATER)} sheet="expanded" />,
+
+  'walking-peek': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi))} sheet="peek" />,
+  'walking-half': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi))} sheet="half" />,
+  walking: () => <ResultsView scene={fromTiles(walkedResultOf(kamppi))} sheet="expanded" />,
+  'walking-order': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi, {}, ACROSS))} sheet="expanded" />,
+  'walking-no-route': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi, {}, { n103: null }))} sheet="expanded" />,
+  'walking-late-peek': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi), TOO_LATE)} sheet="peek" />,
+  'walking-late': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi), TOO_LATE)} sheet="expanded" />,
+  'walking-late-far': () => <ResultsView scene={fromTiles(walkedResultOf(oneOpen, { farOpen: far }), TOO_LATE)} sheet="expanded" />,
+  'walking-sheet': () => <ResultsView scene={fromTiles(walkedResultOf(withWeek))} sheet="peek" detailId="n101" />,
+  'walking-sheet-unknown': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi))} sheet="peek" detailId="n104" />,
 
   'not-covered': () => <ProblemView kind="notCovered" scene={sceneAt({ source: 'search', lat: 48.8566, lon: 2.3522, label: 'Pariisi' }, '20:41')} country="FR" />,
   'not-covered-unknown': () => <ProblemView kind="notCovered" scene={sceneAt(HERE, '20:41')} />,

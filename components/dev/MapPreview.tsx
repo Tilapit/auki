@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { inventedArea, MAP_MOMENTS, type MapPreviewView } from '@/lib/dev/mapViews';
+import { inventedArea, inventedRoute, MAP_MOMENTS, type MapPreviewView } from '@/lib/dev/mapViews';
 import { helsinki } from '@/lib/fixtures/helsinki';
 import { distanceMeters } from '@/lib/geo';
 import { riga } from '@/lib/fixtures/riga';
@@ -19,6 +19,9 @@ const SCENES: Record<MapPreviewView['city'], Scene> = { helsinki, riga };
  * Around them, 160 invented pharmacies as the map's own signs, the way the live app draws
  * every pharmacy beyond the list's ten. A press on one opens a sheet with as little as a
  * pharmacy without a name or hours has.
+ *
+ * The route line to the selected pharmacy is invented too: two corners between the dot and
+ * the marker, to judge the line's colour and weight in each light. It follows no street.
  */
 export function MapPreview({ view, zoom, sheet = 'peek' }: { view: MapPreviewView; zoom?: number; sheet?: 'peek' | 'expanded' }) {
   const at = MAP_MOMENTS.find((moment) => moment.id === view.moment)!.at;
@@ -37,5 +40,6 @@ export function MapPreview({ view, zoom, sheet = 'peek' }: { view: MapPreviewVie
     const status: Pharmacy['status'] = glyph === 'open' ? { kind: 'open', closes: '22:00' } : glyph === 'soon' ? { kind: 'soon', closes: '21:00' } : glyph === 'closed' ? { kind: 'closed', opens: { day: 'tomorrow', time: '09:00' } } : { kind: 'missing' };
     return { id, name: null, lat, lon, status, straightMeters: Math.round(distanceMeters(scene.user, { lat, lon })) };
   };
-  return <ResultsView scene={scene} sheet={sheet} basemap now={Math.floor(Date.parse(at) / 1000)} reveal area={area} findInArea={findInArea} />;
+  const routeFor = useMemo(() => async (pharmacy: Pharmacy) => inventedRoute(scene.user, pharmacy), [scene.user]);
+  return <ResultsView scene={scene} sheet={sheet} basemap now={Math.floor(Date.parse(at) / 1000)} reveal area={area} findInArea={findInArea} routeFor={routeFor} />;
 }

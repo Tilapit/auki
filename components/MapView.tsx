@@ -2,11 +2,12 @@
 
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useRouteLine, type RouteFor } from '@/hooks/useRouteLine';
 import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { NO_AREA, type AreaLayer, type Bounds } from '@/lib/map/area';
 import { boxOf, cameraOf, edgeChip, fit, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type Insets, type Project } from '@/lib/map/camera';
-import { AREA_ICON, AREA_LAYER, AREA_SOURCE, buildStyle, paletteFor, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
+import { AREA_ICON, AREA_LAYER, AREA_SOURCE, ROUTE_SOURCE, buildStyle, paletteFor, routeData, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 import { MAP_CREDITS, OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { MAP_TILES_URL } from '@/lib/requests';
 import { sunPosition } from '@/lib/sky';
@@ -53,6 +54,12 @@ interface Props {
   onPick?: (id: string) => void;
   /** The map was moved by hand: what it shows now, for loading the squares that came into view. */
   onView?: (bounds: Bounds) => void;
+  /**
+   * The pharmacy the walking route is drawn to, and where the line comes from (PLAN.md 7.1,
+   * step 7). The map asks for it only once it is drawing: a line it can't draw is not asked for.
+   */
+  routeTo?: Pharmacy;
+  routeFor?: RouteFor;
 }
 
 interface Frame {
@@ -117,7 +124,7 @@ const sameOverlay = (a: Overlay, b: Overlay): boolean =>
  * the page), and once MapLibre is drawing, the markers live inside the element it listens
  * on. A drag or a pinch that begins on a marker then moves the map like any other.
  */
-export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, onPick, onView }: Props) {
+export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, onPick, onView, routeTo, routeFor }: Props) {
   const i18n = useI18n();
   const { t, locale } = i18n;
 
@@ -162,8 +169,11 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const sun = useMemo(() => (now === undefined ? undefined : sunPosition(now * 1000, scene.user.lat, scene.user.lon)), [now, scene.user.lat, scene.user.lon]);
   const key = styleKey({ theme, locale, sun });
 
+  // The walking route to the selected pharmacy, once MapLibre is there to draw it.
+  const route = useRouteLine(routeFor, mode === 'live' && !userOnly ? routeTo : undefined);
+
   // What the handlers below read: always the latest, without being set up again.
-  const current = { all, lit, here, frame, camera, framing, selectedId, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, onPick, onView };
+  const current = { all, lit, here, frame, camera, framing, selectedId, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, route, onPick, onView };
   const latest = useRef(current);
   useLayoutEffect(() => {
     latest.current = current;
@@ -433,7 +443,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       }
       if (style.light) live.setLight(style.light);
     } else {
-      live.setStyle({ ...style, sources: { ...style.sources, [AREA_SOURCE]: { type: 'geojson', data: area?.data ?? NO_AREA } } });
+      live.setStyle({ ...style, sources: { ...style.sources, [AREA_SOURCE]: { type: 'geojson', data: area?.data ?? NO_AREA }, [ROUTE_SOURCE]: { type: 'geojson', data: routeData(latest.current.route) } } });
     }
     // The signs follow the theme, not the sun.
     if (from.theme !== look.theme) {
@@ -463,6 +473,21 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     };
     give();
   }, [areaKey, mode]);
+
+  // The route line: given to the map when it comes, taken away when another pharmacy is selected.
+  const routeId = route ? routeTo?.id : undefined;
+  useEffect(() => {
+    const live = map.current;
+    if (mode !== 'live' || !live) return;
+    const give = () => {
+      if (map.current !== live) return;
+      const source = live.getSource(ROUTE_SOURCE) as GeoJSONSource | undefined;
+      if (!source) return void live.once('style.load', give);
+      source.setData(routeData(latest.current.route) as never).catch(() => undefined);
+      if (root.current) root.current.dataset.route = latest.current.route ? (routeId ?? '') : '';
+    };
+    give();
+  }, [route, routeId, mode]);
 
   // The sheet opened or closed, or the layout changed: keep the camera's centre in the part of the map that shows.
   const pad = frame?.pad;

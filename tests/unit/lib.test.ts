@@ -6,7 +6,7 @@ import { cityName } from '@/lib/exonyms';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
 import { pickLocale } from '@/lib/i18n';
-import { appleDirectionsUrl, googleDirectionsUrl } from '@/lib/maps';
+import { appleDirectionsUrl, emailAddress, googleDirectionsUrl, osmNoteUrl, websiteHost } from '@/lib/maps';
 import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
 import { DETOUR_METERS, arrange, cityIfElsewhere, hoursUnknown, placeLabel } from '@/lib/results';
 import type { OpenStatus, Pharmacy } from '@/lib/types';
@@ -297,5 +297,32 @@ describe('devRoutesEnabled', () => {
     expect(devRoutesEnabled({ NODE_ENV: 'production' })).toBe(false);
     expect(devRoutesEnabled({ NODE_ENV: 'production', DEV_ROUTES: '0' })).toBe(false);
     expect(devRoutesEnabled({ NODE_ENV: 'production', DEV_ROUTES: '1' })).toBe(true);
+  });
+});
+
+describe('the links of the pharmacy sheet', () => {
+  it('the note link opens OpenStreetMap\'s form with its marker on the pharmacy', () => {
+    expect(osmNoteUrl(60.1706, 24.93653)).toBe('https://www.openstreetmap.org/note/new?lat=60.1706&lon=24.93653#map=19/60.1706/24.93653');
+  });
+
+  it('a website is named by its host, without www', () => {
+    expect(websiteHost('https://www.yliopistonapteekki.fi/apteekit/keskusta?utm=1')).toBe('yliopistonapteekki.fi');
+    expect(websiteHost('http://apteekki.example')).toBe('apteekki.example');
+  });
+
+  it('what is not a web address is not shown as one', () => {
+    for (const value of ['', 'apteekki.example', 'javascript:alert(1)', 'mailto:a@b.example', 'ftp://apteekki.example/', 'https://localhost/', 'not a url']) {
+      expect(websiteHost(value), value).toBeUndefined();
+    }
+  });
+
+  it('an email link carries one address and nothing more', () => {
+    expect(emailAddress('info@apteekki.example')).toBe('info@apteekki.example');
+    // OpenStreetMap's value is free text: several addresses, or a stray space.
+    expect(emailAddress('info@apteekki.example; toinen@apteekki.example')).toBe('info@apteekki.example');
+    expect(emailAddress(' info@apteekki.example ')).toBe('info@apteekki.example');
+    for (const value of ['', 'info', 'info@apteekki', 'info@apteekki.example?subject=x', 'info@apteekki.example&cc=y@z.example', 'a b@c.example', '<info@apteekki.example>', 'info@apteekki.example.']) {
+      expect(emailAddress(value), value).toBeUndefined();
+    }
   });
 });

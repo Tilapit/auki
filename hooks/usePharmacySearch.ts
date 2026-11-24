@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { canLocate, locateOnce, locationPermission, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import type { Locale } from '@/lib/i18n';
-import { movedEnough } from '@/lib/live';
+import { RERANK_GAP_SECONDS, movedEnough } from '@/lib/live';
 import type { Bounds } from '@/lib/map/area';
-import { Tiles, findFarOpen, findPharmacies } from '@/lib/search';
+import { Tiles, findFarOpen, findPharmacies, shownIds, type AskWalks } from '@/lib/search';
 import { APPROXIMATE_OVER_METERS, initialState, isMapView, reducer, type DevicePosition, type Position, type State } from '@/lib/state';
 import type { TilePharmacy } from '@/lib/tiles';
+import { WALKING_PATH, WALKING_WAIT_MS, readWalks, walkingBody } from '@/lib/walking';
 
 /** A tile that takes longer than this counts as not loaded. */
 const TILE_TIMEOUT_MS = 10_000;
@@ -23,6 +24,38 @@ function loader(signal: AbortSignal) {
       const response = await fetch(path, { signal: controller.signal });
       if (!response.ok) throw new Error(String(response.status));
       return await response.json();
+    } finally {
+      window.clearTimeout(timer);
+      signal.removeEventListener('abort', abort);
+    }
+  };
+}
+
+/**
+ * Walking times to the candidates: the one request that carries the position (PLAN.md 7.6).
+ * It has a second and a half. If they haven't come by then, or the service says it can't
+ * give them, the answer is undefined, the list is shown by straight line and says so, and
+ * an answer that comes later is dropped: the list is never reordered (PLAN.md 7.1, step 5).
+ */
+function walksFrom(position: { lat: number; lon: number }, signal: AbortSignal): AskWalks {
+  return async (candidates) => {
+    // Without a connection there is nothing to wait for.
+    if (navigator.onLine === false) return undefined;
+    const controller = new AbortController();
+    const abort = () => controller.abort();
+    signal.addEventListener('abort', abort);
+    const timer = window.setTimeout(abort, WALKING_WAIT_MS);
+    try {
+      const response = await fetch(WALKING_PATH, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: walkingBody(position, candidates.map((found) => found.pharmacy)),
+        signal: controller.signal,
+      });
+      if (!response.ok) return undefined;
+      return readWalks(await response.json(), candidates);
+    } catch {
+      return undefined;
     } finally {
       window.clearTimeout(timer);
       signal.removeEventListener('abort', abort);
@@ -61,8 +94,8 @@ export interface PharmacySearch {
 }
 
 /**
- * Owns the reducer, the two ways to a position (the device's location and a place name) and
- * the search through the tiles. From M5 on it also asks for the walking times.
+ * Owns the reducer, the two ways to a position (the device's location and a place name), the
+ * search through the tiles, and the request for walking times that ends it.
  */
 export function usePharmacySearch(locale: Locale): PharmacySearch {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -123,7 +156,7 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
   );
 
   // The search through the tiles: once for each position, and again for the same one on a retry.
-  const tiles = useRef<{ position: Position; store: Tiles; controller: AbortController; ranking?: boolean; tried?: { lat: number; lon: number } } | null>(null);
+  const tiles = useRef<{ position: Position; store: Tiles; controller: AbortController; ranking?: boolean; tried?: { lat: number; lon: number }; rankedAt: number } | null>(null);
   useEffect(() => {
     if (!isMapView(state)) {
       tiles.current?.controller.abort();
@@ -135,8 +168,8 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     const { position } = state;
     const controller = new AbortController();
     const store = new Tiles(loader(controller.signal));
-    tiles.current = { position, store, controller };
-    void findPharmacies(store, position, nowSeconds()).then((outcome) => {
+    tiles.current = { position, store, controller, rankedAt: Date.now() };
+    void findPharmacies(store, position, nowSeconds(), walksFrom(position, controller.signal)).then((outcome) => {
       if (controller.signal.aborted) return;
       if (outcome.kind === 'results') setArea(store.all());
       if (outcome.kind === 'results') dispatch({ type: 'found', position, result: outcome.result });
@@ -158,10 +191,17 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     return () => window.removeEventListener('online', retry);
   }, [waitingForConnection, retry]);
 
+  // What is on screen, for the callbacks below.
+  const shown = useRef(state);
+  useEffect(() => {
+    shown.current = state;
+  }, [state]);
+
   const checkFarOpen = useCallback((now: number) => {
     const current = tiles.current;
     if (!current) return;
-    void findFarOpen(current.store, current.position, now)
+    const listed = shown.current.view === 'results' && shown.current.position === current.position ? shownIds(shown.current.result) : undefined;
+    void findFarOpen(current.store, current.position, now, listed)
       .catch(() => undefined)
       .then((farOpen) => {
         if (current.controller.signal.aborted) return;
@@ -172,11 +212,8 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
   }, []);
 
   // Following a walk: the same tiles, ranked again around the new position. A tile is fetched
-  // only if a new one has come within reach. The fix itself goes nowhere.
-  const shown = useRef(state);
-  useEffect(() => {
-    shown.current = state;
-  }, [state]);
+  // only if a new one has come within reach. The new position goes where the first one went:
+  // into one request for walking times, and nowhere else.
   const follow = useCallback((fix: { lat: number; lon: number; accuracy: number }) => {
     const current = tiles.current;
     const from = current?.position;
@@ -184,11 +221,14 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     if (shown.current.view !== 'results' || shown.current.position !== from) return;
     // From the last place tried, not only the last place ranked: a tile that fails is not asked for at every fix.
     if (!movedEnough(current.tried ?? from, fix) || !movedEnough(from, fix)) return;
+    // And not more often than the budget for walking times bears.
+    if (Date.now() - current.rankedAt < RERANK_GAP_SECONDS * 1000) return;
     current.ranking = true;
+    current.rankedAt = Date.now();
     current.tried = { lat: fix.lat, lon: fix.lon };
     current.store.failed.clear();
     const position: DevicePosition = { source: 'device', lat: fix.lat, lon: fix.lon, accuracy: fix.accuracy, approximate: fix.accuracy > APPROXIMATE_OVER_METERS };
-    void findPharmacies(current.store, position, nowSeconds())
+    void findPharmacies(current.store, position, nowSeconds(), walksFrom(position, current.controller.signal))
       .catch(() => undefined)
       .then((outcome) => {
         current.ranking = false;

@@ -54,6 +54,23 @@
   font-size: var(--t-s);
 }
 
+/* The way to correct hours that are missing or unreadable, right under the line that says so. */
+.fix {
+  margin-top: 2px;
+  font-size: var(--t-s);
+}
+
+.fix a,
+.facts a,
+.footnote a {
+  text-underline-offset: 3px;
+}
+
+/* An address is copied letter by letter: where it has to break, it breaks without a hyphen that isn't in it. */
+.facts a {
+  hyphens: none;
+}
+
 .travel {
   flex: none;
   line-height: 1.1;

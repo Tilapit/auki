@@ -103,7 +103,7 @@ export const groups: ViewGroup[] = [
   {
     id: 'tiles',
     title: 'Results from tiles (M3)',
-    note: 'Built from tile data at a fixed moment, Monday 23 Nov 2026 at 20.41, through the same code as the live app. Straight-line distances: walking times arrive in M5.',
+    note: 'Built from tile data at a fixed moment, Monday 23 Nov 2026 at 20.41, through the same code as the live app. Straight-line distances: what the app shows when walking times did not come within a second and a half.',
     views: [
       { id: 'tiles-peek', title: 'From tiles: sheet at its lowest, the place name is the way to another place' },
       { id: 'tiles-half', title: 'From tiles: sheet at the card', sizes: PHONE },
@@ -111,6 +111,23 @@ export const groups: ViewGroup[] = [
       { id: 'tiles-far', title: 'From tiles: nothing nearby open, one 14 km away is' },
       { id: 'tiles-edge', title: 'From tiles: near the edge of the coverage, the note names what is missing' },
       { id: 'stale', title: 'Data older than seven days: a notice in place of the card, nothing reads open' },
+    ],
+  },
+  {
+    id: 'walking',
+    title: 'Walking times and ehditkö from tiles (M5)',
+    note: 'The same tile data with walking times, through the same code as the live app: each walk three tenths longer than the straight line, at 5 km/h. The route line is a layer of the real map and shows on /dev/map.',
+    views: [
+      { id: 'walking-peek', title: 'On foot: sheet at its lowest, the row leads with the minutes' },
+      { id: 'walking-half', title: 'On foot: sheet at the card, with the timeline', sizes: PHONE },
+      { id: 'walking', title: 'On foot, Mon 20.41: three minutes away and closing at 21, the timeline; the list by walking time' },
+      { id: 'walking-order', title: 'The nearest by straight line is sixteen minutes on foot: it drops down the list, and the card leads with another' },
+      { id: 'walking-no-route', title: 'One pharmacy has no walking route: last in the list, with its straight line', sizes: PHONE },
+      { id: 'walking-late-peek', title: 'Mon 20.57, too late for the nearest open one: the row says so', sizes: PHONE },
+      { id: 'walking-late', title: 'Too late: the warning, the call, and the next open one with its route' },
+      { id: 'walking-late-far', title: 'Too late, and nothing else open nearby: the farther open one is the next, and its button promises no walk' },
+      { id: 'walking-sheet', title: 'Pharmacy sheet from tiles: the week\'s hours with equal days grouped, website, email, and the link to correct the data', ready: 'dialog[open]' },
+      { id: 'walking-sheet-unknown', title: 'Pharmacy sheet, hours missing: the link to correct them under the status', ready: 'dialog[open]', sizes: PHONE },
     ],
   },
   {

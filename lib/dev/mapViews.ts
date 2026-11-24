@@ -6,6 +6,7 @@
  */
 import type { AreaFeature, AreaLayer } from '../map/area';
 import type { GlyphState } from '../types';
+import type { Line } from '../walking';
 
 export type MapCity = 'helsinki' | 'riga';
 export type MapMoment = 'noon' | 'dusk' | 'night';
@@ -58,6 +59,16 @@ export function inventedArea(center: { lat: number; lon: number }, moment: MapMo
     });
   }
   return { key: `invented/${moment}`, data: { type: 'FeatureCollection', features } };
+}
+
+/**
+ * An invented route between two places, for judging the route line on real tiles: two
+ * corners, as a walk through a street grid has. It follows no street. The live app draws
+ * the line openrouteservice gives.
+ */
+export function inventedRoute(from: { lat: number; lon: number }, to: { lat: number; lon: number }): Line {
+  const corner = from.lon + (to.lon - from.lon) * 0.4;
+  return { type: 'LineString', coordinates: [[from.lon, from.lat], [corner, from.lat], [corner, to.lat], [to.lon, to.lat]] };
 }
 
 export const mapViews: MapPreviewView[] = MAP_CITIES.flatMap((city) => MAP_MOMENTS.map((moment) => ({ id: `${city.id}-${moment.id}`, city: city.id, moment: moment.id })));

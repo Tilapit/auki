@@ -12,6 +12,8 @@ import { NEAR, OPEN_SEARCH_RADIUS, SHOWN, WIDE, noneShownOpen, staysOpen } from 
 import type { SearchResult } from './live';
 import { INDEX_PATH, decodeTile, hasTile, searchStep, tileKey, tileOf, tilePath } from './tiles.ts';
 import type { BorderGrid, Found, IndexJson, LatLon, TileJson, TilePharmacy, TileRef } from './tiles.ts';
+import { byWalking } from './walking.ts';
+import type { Walks } from './walking.ts';
 
 export type Outcome =
   | { kind: 'results'; result: SearchResult }
@@ -19,6 +21,13 @@ export type Outcome =
   | { kind: 'notCovered'; country?: string }
   /** The index or a tile the answer needs didn't load. */
   | { kind: 'failed' };
+
+/**
+ * Asks for the walking times to the candidates (PLAN.md 7.1, step 4). Undefined when they
+ * didn't come in time or at all: the search goes on with straight lines. The one request
+ * that carries the position is made behind this, by the hook.
+ */
+export type AskWalks = (candidates: Found[]) => Promise<Walks | undefined>;
 
 /** Loads a JSON file of our own origin by its path. Rejects when it can't. */
 export type Load = (path: string) => Promise<unknown>;
@@ -102,13 +111,20 @@ export class Tiles {
   }
 }
 
-/** The nearest open pharmacy within 30 km that stays open, or none. Tiles that fail here are just not looked in. */
-export async function findFarOpen(tiles: Tiles, position: LatLon, now: number): Promise<Found | undefined> {
-  const [nearest] = await tiles.nearest(position, 1, OPEN_SEARCH_RADIUS, (pharmacy) => staysOpen(pharmacy, now));
+/**
+ * The nearest open pharmacy within 30 km that stays open, or none. Tiles that fail here are
+ * just not looked in. `except`: the pharmacies the list already shows. One of them may be
+ * open and still not worth the walk, and then the answer is the next one out.
+ */
+export async function findFarOpen(tiles: Tiles, position: LatLon, now: number, except?: ReadonlySet<string>): Promise<Found | undefined> {
+  const [nearest] = await tiles.nearest(position, 1, OPEN_SEARCH_RADIUS, (pharmacy) => !except?.has(pharmacy.id) && staysOpen(pharmacy, now));
   return nearest;
 }
 
-export async function findPharmacies(tiles: Tiles, position: LatLon, now: number): Promise<Outcome> {
+/** The ids of the pharmacies a result shows in the list. */
+export const shownIds = (result: SearchResult): Set<string> => new Set(result.candidates.slice(0, SHOWN).map((found) => found.pharmacy.id));
+
+export async function findPharmacies(tiles: Tiles, position: LatLon, now: number, askWalks?: AskWalks): Promise<Outcome> {
   let index: IndexJson;
   try {
     index = await tiles.loadIndex();
@@ -129,15 +145,18 @@ export async function findPharmacies(tiles: Tiles, position: LatLon, now: number
   if (coverage.kind === 'outside') return { kind: 'notCovered', country: coverage.country };
   if (candidates.length === 0) return { kind: 'none' };
 
-  const result: SearchResult = { candidates, missing: coverage.missing };
+  // Walking times for all twenty, then the order they give: the list shows the first ten of it,
+  // once, and is never reordered afterwards (PLAN.md 7.1, step 5).
+  const walks = askWalks ? await askWalks(candidates).catch(() => undefined) : undefined;
+  const result: SearchResult = { candidates: byWalking(candidates, walks), missing: coverage.missing, ...(walks ? { walks } : {}) };
   // How well the country's hours are covered: the results say it where most hours are missing.
   const country = candidates[0].pharmacy.country;
   const stats = index.countries[country];
   if (stats && stats.pharmacies > 0) result.hoursListed = { country, share: stats.shareWithHours };
   if (noneShownOpen(result, now)) {
-    const farOpen = await findFarOpen(tiles, position, now);
     // Only one that isn't in the list already: a candidate beyond the ten shown still counts.
-    if (farOpen && !candidates.slice(0, SHOWN).some((found) => found.pharmacy.id === farOpen.pharmacy.id)) result.farOpen = farOpen;
+    const farOpen = await findFarOpen(tiles, position, now, shownIds(result));
+    if (farOpen) result.farOpen = farOpen;
   }
   return { kind: 'results', result };
 }

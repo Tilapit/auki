@@ -1,4 +1,5 @@
 import type { Locale } from './i18n';
+import type { WeekLine } from './week.ts';
 
 /** The four shapes of the status glyph (PLAN.md section 6). */
 export type GlyphState = 'open' | 'soon' | 'closed' | 'unknown';
@@ -21,12 +22,6 @@ export type OpenStatus =
   /** The data is more than seven days old: nothing is read from it (PLAN.md 7.4). */
   | { kind: 'stale' };
 
-export interface HoursLine {
-  days: 'daily' | 'mo-fr' | 'sa' | 'su' | 'sa-su';
-  from: string;
-  to: string;
-}
-
 export interface Pharmacy {
   id: string;
   /** null when OpenStreetMap has no name, brand or operator: the UI shows "Apteekki" / "Pharmacy". */
@@ -37,11 +32,18 @@ export interface Pharmacy {
   lat: number;
   lon: number;
   status: OpenStatus;
-  hours?: HoursLine[];
+  /** The coming seven days, equal days grouped (lib/week.ts). Left out where the hours aren't known as times. */
+  hours?: WeekLine[];
+  /** Whole minutes on foot, rounded up, and the length of that walk. Left out where no walking time is known. */
   walkMin?: number;
   walkMeters?: number;
   straightMeters: number;
+  /** Open now, but a walk from here would end at closing time or after it. */
+  tooLate?: boolean;
   phone?: string;
+  /** As OpenStreetMap has them: `email` or `contact:email`, `website` or `contact:website`. */
+  email?: string;
+  website?: string;
   wheelchair?: 'yes' | 'limited' | 'no';
   /** Free text from OpenStreetMap, in whatever language the mapper wrote it. */
   wheelchairNote?: string;

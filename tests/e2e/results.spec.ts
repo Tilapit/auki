@@ -4,7 +4,7 @@ import { carriesPosition, isAllowedUrl, MAP_TILE_HOST, POSITION_REQUEST } from '
 import { INDEX_PATH } from '@/lib/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
 import { expect, test } from './fixtures';
-import { HERE, fakeLocation, fakePlaces, fakeTiles, hasWebGL, locateButton, open, settle, start, world } from './helpers';
+import { HERE, fakeLocation, fakePlaces, fakeTiles, fakeWalking, hasWebGL, locateButton, open, settle, start, world } from './helpers';
 
 /**
  * M3: what the tiles say about a position (PLAN.md 7.1, 7.3, 7.4, 7.7). The tiles are
@@ -165,15 +165,17 @@ test('the place name leads to another place', async ({ page }) => {
 
 /**
  * The privacy claim of PLAN.md 7.6, checked: the position leaves the device in no request
- * but POST /api/walking (which arrives in M5), and the page talks to no host but ours and
- * the map tile host. The whole flow: locate, results, a pharmacy's details, place search.
+ * but POST /api/walking, and the page talks to no host but ours and the map tile host. The
+ * whole flow: locate, results with walking times, a pharmacy's details and its route line,
+ * place search.
  */
-test('privacy: no request carries the position, and none leaves the allowed hosts', async ({ page, baseURL }) => {
+test('privacy: the position is in the walking request and in no other, and no request leaves the allowed hosts', async ({ page, baseURL }) => {
   const seen: { method: string; url: string; text: string }[] = [];
   // On the context, so that what the map's worker asks for is seen too.
   page.context().on('request', (request) => {
     seen.push({ method: request.method(), url: request.url(), text: [request.url(), JSON.stringify(request.headers()), request.postData() ?? ''].join('\n') });
   });
+  const walking = await fakeWalking(page);
   await start(page, world([...kamppi, farOpen]));
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
   // The map draws itself once the results are there. (A browser that can't draw it never asks its host for anything.)
@@ -184,6 +186,9 @@ test('privacy: no request carries the position, and none leaves the allowed host
   }
   await page.getByRole('button', { name: 'Yliopiston apteekki', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
+  // Its route line is asked for, where there is a map to draw it on.
+  await settle(page);
+  if (draws) await expect(page.locator('[data-map]')).toHaveAttribute('data-route', 'n102');
   await page.keyboard.press('Escape');
   await fakePlaces(page, { place: { lat: 60.1689, lon: 24.9325, label: 'Kamppi, Helsinki' } });
   await page.getByRole('button', { name: /Hae toinen paikka/ }).first().click();
@@ -193,10 +198,22 @@ test('privacy: no request carries the position, and none leaves the allowed host
 
   expect(seen.length).toBeGreaterThan(5);
   const origin = new URL(baseURL!).origin;
+  const carriers: string[] = [];
   for (const request of seen) {
     expect(isAllowedUrl(request.url, origin), request.url).toBe(true);
     const mayCarryIt = request.method === POSITION_REQUEST.method && new URL(request.url).pathname === POSITION_REQUEST.path;
     if (!mayCarryIt) expect(carriesPosition(request.text, HERE), `${request.method} ${request.url}`).toBe(false);
+    else if (carriesPosition(request.text, HERE)) carriers.push(request.text);
+  }
+  // The one request that does carry it was really made: for the walking times, and for the route
+  // line. It has the position in its body, and neither in its address nor in a header.
+  expect(carriers.length).toBe(draws ? 3 : 1);
+  expect(walking.filter((request) => !request.route)).toHaveLength(2);
+  for (const text of carriers) {
+    const [url, headers, body] = text.split('\n');
+    expect(new URL(url).search).toBe('');
+    expect(carriesPosition(url + headers, HERE)).toBe(false);
+    expect(carriesPosition(body, HERE)).toBe(true);
   }
   // The tile requests name squares, and nothing but squares.
   const tiles = seen.filter((request) => new URL(request.url).origin === origin && new URL(request.url).pathname.startsWith('/tiles/'));

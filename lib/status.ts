@@ -1,5 +1,7 @@
 import type { I18n } from './i18n';
 import type { GlyphState, OpenStatus, Pharmacy } from './types';
+import { dayRuns } from './week.ts';
+import type { DayHours } from './week.ts';
 
 type Opening = NonNullable<Extract<OpenStatus, { kind: 'closed' }>['opens']>;
 
@@ -57,6 +59,32 @@ export function statusText(i18n: I18n, status: OpenStatus): string {
       return t.status.uncertain(status.raw);
     case 'stale':
       return t.status.stale;
+  }
+}
+
+const WEEK = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'] as const;
+
+/** Weekdays as a door sign names them: "Joka päivä", "Ma–pe", "La", "Ma–ke, pe". 0 is Monday. */
+export function daysLabel({ t }: I18n, days: number[]): string {
+  if (days.length === WEEK.length) return t.sheet.everyDay;
+  const name = (day: number) => t.status.weekdays[WEEK[day]];
+  const text = dayRuns(days)
+    .map(([first, last]) => (first === last ? name(first) : `${name(first)}–${name(last)}`))
+    .join(', ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** The hours of a day or a group of days: "8.00–21.00", "8.00–12.00, 13.00–17.00", "suljettu". */
+export function dayHoursText({ t, f }: I18n, hours: DayHours): string {
+  switch (hours.kind) {
+    case 'open':
+      return hours.ranges.map((range) => `${f.clock(range.from)}–${f.clock(range.to)}`).join(', ');
+    case 'closed':
+      return t.sheet.closedDay;
+    case 'allDay':
+      return t.sheet.allDay;
+    case 'unknown':
+      return t.sheet.unknownDay;
   }
 }
 

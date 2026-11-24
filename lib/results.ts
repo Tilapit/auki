@@ -19,7 +19,7 @@ export interface Arranged {
   closedGroup: Pharmacy[];
   /** How many closed pharmacies are nearer than the nearest open one. */
   closerClosed: number;
-  /** The next open pharmacy after the nearest one: in the list, or the far 24-hour one. */
+  /** The next open pharmacy after the nearest one that a walk still reaches in time: in the list, or the far 24-hour one. */
   nextOpen?: Pharmacy;
   /** Ids whose name is shared with another result, so the street is shown next to it. */
   needsStreet: Set<string>;
@@ -81,7 +81,10 @@ export function arrange(scene: Pick<Scene, 'pharmacies' | 'farOpen'>, options: A
   const allUnknown = options.coverage === false ? [] : pharmacies.filter((p) => hoursUnknown(p.status));
   const unknown = allUnknown.filter((p) => nearer.includes(p));
   const closerUnknown = unknown.length;
-  const detour = nearestOpen === undefined || nearestOpen.straightMeters - (unknown[0]?.straightMeters ?? 0) > DETOUR_METERS;
+  // On foot where both walks are known, by straight line otherwise.
+  const walked = nearestOpen?.walkMeters !== undefined && unknown[0]?.walkMeters !== undefined;
+  const meters = (pharmacy: Pharmacy | undefined) => (walked ? pharmacy?.walkMeters : pharmacy?.straightMeters) ?? 0;
+  const detour = nearestOpen === undefined || meters(nearestOpen) - meters(unknown[0]) > DETOUR_METERS;
   const unlisted = closerUnknown > 0 && closerUnknown * 2 > nearer.length && detour ? { lead: unknown[0], count: allUnknown.length } : undefined;
 
   // The first to open is named only where we can say that nothing is open; with unknown hours in the lead we can't.
@@ -94,7 +97,8 @@ export function arrange(scene: Pick<Scene, 'pharmacies' | 'farOpen'>, options: A
 
   const closedGroup = collapse ? rest.filter((p) => p.status.kind === 'closed') : [];
   const others = collapse ? rest.filter((p) => p.status.kind !== 'closed') : rest;
-  const nextOpen = rest.find((p) => isOpenNow(p.status)) ?? (farOpen !== nearestOpen ? farOpen : undefined);
+  // One that would close before a walk there ends is not a way forward.
+  const nextOpen = rest.find((p) => isOpenNow(p.status) && !p.tooLate) ?? (farOpen !== nearestOpen ? farOpen : undefined);
 
   const counts = new Map<string, number>();
   const all = farOpen ? [...pharmacies, farOpen] : pharmacies;
