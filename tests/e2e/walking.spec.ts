@@ -3,7 +3,7 @@ import { KAMPPI, MONDAY_EVENING, beyond, farOpen, kamppi } from '@/lib/fixtures/
 import { carriesPosition } from '@/lib/requests';
 import type { TilePharmacy } from '@/lib/tiles';
 import { expect, test } from './fixtures';
-import { HERE, fakeLocation, fakeTiles, fakeWalking, hasWebGL, locateButton, open, searchingStatus, settle, start, walkTo, world } from './helpers';
+import { HERE, fakeLocation, fakePlaces, fakeTiles, fakeWalking, gridWalk, hasWebGL, locateButton, open, searchingStatus, settle, start, walkTo, world, type WalkingAsked } from './helpers';
 
 /**
  * M5: walking times, ehditkö and the route line (PLAN.md 7.1, steps 4, 5, 7 and 10). The
@@ -277,6 +277,66 @@ test('following a walk asks for walking times again from the new position, and n
   expect(times()[1].from).toEqual({ lat: Math.round(far.lat * 1e5) / 1e5, lon: Math.round(far.lon * 1e5) / 1e5 });
   await expect(card(page).getByRole('heading', { level: 3 })).toHaveText('Yliopiston apteekki');
   await expect(card(page)).toContainText('1 min');
+});
+
+test('a walk during which the walking service goes down: the list is ranked again by straight line, and says so', async ({ page }) => {
+  let down = false;
+  await page.route('**/api/walking', async (route) => {
+    const asked = route.request().postDataJSON() as WalkingAsked;
+    if (down) await route.fulfill({ status: 503, json: { error: 'paused' } });
+    else await route.fulfill({ json: { walks: asked.to.map((to) => gridWalk(asked.from, to)) } });
+  });
+  await start(page, world(kamppi));
+  await expect(page.getByText('Etäisyydet ovat kävelyreittejä.')).toBeVisible();
+  down = true;
+  await page.clock.runFor(121_000);
+  await walkTo(page, { lat: KAMPPI.lat - 262 / 111_320, lon: KAMPPI.lon + 182 / 55_400 });
+  await settle(page);
+  await expect(card(page).getByRole('heading', { level: 3 })).toHaveText('Yliopiston apteekki');
+  await expect(page.getByText('Etäisyydet ovat linnuntietä.')).toBeVisible();
+  await expect(card(page)).toContainText('linnuntietä');
+});
+
+test('a searched place: walking times from the place, and nothing follows the device', async ({ page }) => {
+  const asked = await fakeWalking(page);
+  await page.clock.install({ time: new Date((MONDAY_EVENING - 60) * 1000) });
+  await fakeLocation(page, 'ignore');
+  await fakeTiles(page, world(kamppi));
+  // A place a little off the fixture's own position, so the two can be told apart.
+  const place = { lat: 60.1689, lon: 24.9325 };
+  await fakePlaces(page, { place: { ...place, label: 'Kamppi, Helsinki' } });
+  await open(page, '/fi');
+  await page.clock.pauseAt(new Date(MONDAY_EVENING * 1000));
+  await page.getByRole('button', { name: 'Hae paikan nimellä' }).click();
+  await page.getByRole('searchbox', { name: 'Paikka' }).fill('Kamppi');
+  await page.getByRole('button', { name: 'Hae', exact: true }).click();
+  await settle(page);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
+  await expect(page.getByText('Etäisyydet ovat kävelyreittejä.')).toBeVisible();
+  const times = asked.filter((request) => !request.route);
+  expect(times).toHaveLength(1);
+  expect(times[0].from).toEqual(place);
+  // No watch on the device for a searched place: a fix can't rank anything again.
+  await page.clock.runFor(121_000);
+  expect(await walkTo(page, { lat: 60.2, lon: 25 })).toBe(0);
+  expect(asked.filter((request) => !request.route)).toHaveLength(1);
+});
+
+test('pharmacies too far to walk to: minutes in the list, no route line, and a button that promises no walk', async ({ page }) => {
+  const asked = await fakeWalking(page);
+  // Everything near Kamppi moved five kilometres north.
+  const far = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, lat: Math.round((pharmacy.lat + 0.045) * 1e5) / 1e5 }));
+  await start(page, world(far));
+  // The one that was to the south is now the nearest, an hour and a quarter away.
+  await expect(card(page).getByRole('heading', { level: 3 })).toHaveText('Yliopiston apteekki');
+  await expect(card(page)).toContainText('km kävellen');
+  await expect(card(page).getByRole('button', { name: 'Reitti: Yliopiston apteekki' })).toBeVisible();
+  if (await hasWebGL(page)) {
+    await expect(page.locator('[data-map]')).toHaveAttribute('data-basemap', 'live');
+    await settle(page);
+    await settle(page);
+  }
+  expect(asked.filter((request) => request.route)).toHaveLength(0);
 });
 
 test('our own walking route refuses what it should not pass on, and a page of another site', async ({ request }) => {
