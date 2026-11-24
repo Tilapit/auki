@@ -107,6 +107,7 @@ export function toPharmacy(found: Found, now: number, deviceZone: string, walk?:
     name: pharmacy.name,
     lat: pharmacy.lat,
     lon: pharmacy.lon,
+    country: pharmacy.country,
     status: toOpenStatus(pharmacy, now, deviceZone),
     straightMeters: Math.round(meters),
     ...(walk ? { walkMin: walkMinutes(walk.seconds), walkMeters: walk.meters } : {}),

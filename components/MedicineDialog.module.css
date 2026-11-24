@@ -1,0 +1,146 @@
+/* The entry line: a question and the one thing to do about it, as quiet as the line above it. */
+.line {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/*
+ * Phone: the whole screen, like the counter card. The field is at the top, so the keyboard
+ * that comes up from below never covers it or the link under it.
+ */
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--sheet);
+  color: var(--ink);
+  overflow: auto;
+}
+
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog::backdrop {
+  background: rgb(7 20 39 / 0.45);
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(10px + env(safe-area-inset-top)) 12px 10px 20px;
+  border-bottom: 1px solid var(--hair-2);
+}
+
+.title {
+  font-size: var(--t-body);
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+/* Focus lands on the title when the dialog opens; it is a reading position, not a control. */
+.title:focus {
+  outline: none;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px calc(20px + env(safe-area-inset-bottom));
+}
+
+.intro {
+  font-size: var(--t-b);
+  line-height: 1.45;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  font-weight: 650;
+}
+
+/* 17 px: under 16 px Safari on an iPhone zooms the page when the field takes focus. */
+.input {
+  width: 100%;
+  height: 52px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-button);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--outline);
+  font: inherit;
+  font-size: var(--t-body);
+}
+
+.hint {
+  color: var(--meta);
+  font-size: var(--t-s);
+  line-height: 1.45;
+}
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--meta);
+  font-size: var(--t-s);
+  line-height: 1.45;
+}
+
+/* A host name is read letter by letter: it never breaks, and Finnish hyphenation stays out of it. */
+.site {
+  hyphens: none;
+  white-space: nowrap;
+}
+
+@media (min-width: 900px) {
+  .dialog {
+    width: min(520px, 100% - 48px);
+    height: fit-content;
+    max-height: calc(100dvh - 48px);
+    margin: auto;
+    border-radius: var(--r-sheet);
+    box-shadow: 0 24px 64px rgb(7 20 39 / 0.35);
+  }
+
+  .bar {
+    padding: 12px 14px 12px 28px;
+  }
+
+  .body {
+    gap: 18px;
+    padding: 22px 28px 26px;
+  }
+}

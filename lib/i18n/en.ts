@@ -219,6 +219,35 @@ const en: Dictionary = {
     unreviewed: 'Unreviewed translation',
     awake: 'The screen stays on.',
   },
+  medicine: {
+    ask: 'Looking for a specific medicine?',
+    check: 'Check availability',
+    title: "Check a medicine's availability",
+    label: 'Name of the medicine',
+    sent: "The name goes from your device straight to {site} when you open the link. It is not sent to this app's server and is not saved.",
+    nothingSent: "The link opens {site}. Type the medicine's name into its own search: this app neither asks for it nor sees it.",
+    confirm: "The stock information is the service's own, and this app does not see it. Check with the pharmacy before you go.",
+    coverage: {
+      most: 'Most pharmacies take part, not all.',
+      some: 'Only some pharmacies take part.',
+      chain: "Only the chain's own pharmacies take part.",
+    },
+    inApp: "The stock shows in the service's app.",
+    services: {
+      apteekkiFi: {
+        site: 'apteekki.fi',
+        intro: 'In Finland, Lääkehaku shows pharmacy by pharmacy whether a medicine is in stock. It is run by the Association of Finnish Pharmacies.',
+        hint: 'Lääkehaku searches by product name or Vnr number.',
+        open: 'Open apteekki.fi',
+      },
+    },
+    stock: {
+      example: 'Example data',
+      exampleNote: 'This is how stock would look if the service gave it to the app. The figures are invented.',
+      levels: { inStock: 'In stock', low: 'Few left', out: 'Not in stock', unknown: 'Not known' },
+      source: 'Source: {site}, {time}',
+    },
+  },
   problem: {
     retry: 'Try again',
     mapApps: 'You can also look for pharmacies in {google} or {apple}.',

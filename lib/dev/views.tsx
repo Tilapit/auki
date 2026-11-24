@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
 import { CardCases, ComponentSheet } from '@/components/dev/Sheets';
+import { StockExample } from '@/components/dev/StockExample';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
 import { ProblemView } from '@/components/ProblemView';
@@ -10,6 +11,7 @@ import { SearchingView } from '@/components/SearchingView';
 import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/helsinki';
 import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
+import { EXAMPLE_MEDICINE } from '@/lib/fixtures/stock';
 import { stress } from '@/lib/fixtures/stress';
 import { HERE, MONDAY_EVENING, NINE_DAYS_LATER, daily, farOpen, indexOf, kamppi, kamppiClosed, resultOf, walkedResultOf, weekly } from '@/lib/fixtures/tiles';
 import { toScene } from '@/lib/live';
@@ -119,6 +121,21 @@ export const renderers: Record<string, () => ReactNode> = {
 
   components: () => <ComponentSheet />,
   'card-cases': () => <CardCases />,
+
+  // Medicine availability (provisional): the dialog per country, and the seam on example data.
+  'medicine-fi': () => <ResultsView scene={helsinki} sheet="peek" medicine="FI" />,
+  'medicine-fi-typed': () => <ResultsView scene={helsinki} sheet="peek" medicine="FI" medicineValue={EXAMPLE_MEDICINE} />,
+  'medicine-stock': () => (
+    <ResultsView
+      scene={helsinki}
+      sheet="peek"
+      medicine="FI"
+      medicineValue={EXAMPLE_MEDICINE}
+      medicineExample={<StockExample medicine={EXAMPLE_MEDICINE} pharmacies={helsinki.pharmacies} zone="Europe/Helsinki" />}
+    />
+  ),
+  'medicine-current': () => <ResultsView scene={helsinki} sheet="expanded" medicine={false} />,
+  'medicine-proposed': () => <ResultsView scene={helsinki} sheet="expanded" />,
 
   // The phone's sheet (provisional): as it was, and at its lowest as proposed.
   'sheet-current': () => <ResultsView scene={helsinki} sheet="peek" sheetStyle="classic" />,

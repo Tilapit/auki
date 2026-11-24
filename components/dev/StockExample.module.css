@@ -1,0 +1,97 @@
+/* /dev/states only: live stock as a provider would give it, on example data. */
+.example {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 16px;
+  border: 1px dashed var(--outline);
+  border-radius: 16px;
+}
+
+.badge {
+  align-self: flex-start;
+  min-height: 24px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--soon-tint);
+  color: var(--soon);
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+
+.product {
+  font-size: var(--t-body);
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.source,
+.note {
+  color: var(--meta);
+  font-size: var(--t-s);
+  line-height: 1.45;
+}
+
+.site {
+  hyphens: none;
+  white-space: nowrap;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--hair-2);
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hair-2);
+  font-size: var(--t-m);
+}
+
+.name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.level {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-2);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* Never by colour alone: full, half, ring and dashed ring, next to the word. */
+.mark {
+  width: 11px;
+  height: 11px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.inStock {
+  color: var(--open);
+}
+
+.inStock .mark {
+  background: currentColor;
+}
+
+.low {
+  color: var(--soon);
+}
+
+.low .mark {
+  background: linear-gradient(to top, currentColor 50%, transparent 50%);
+}
+
+.unknown .mark {
+  border-style: dashed;
+}

@@ -131,6 +131,7 @@ const pharmacies: Pharmacy[] = [
     wheelchair: 'no',
   },
 ];
+for (const pharmacy of pharmacies) pharmacy.country = 'FI';
 
 export const stress: Scene = {
   id: 'stress',

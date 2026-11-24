@@ -249,6 +249,46 @@ const fi = {
     unreviewed: 'Käännös tarkistamatta',
     awake: 'Näyttö pysyy päällä.',
   },
+  /**
+   * Medicine availability (PLAN.md 7.9). The app never says a pharmacy has a medicine: it says
+   * where to check. No medicine is named anywhere in these texts, not even as an example.
+   */
+  medicine: {
+    /** The entry line, under the card and in a pharmacy's details: a question, then the button. */
+    ask: 'Etsitkö tiettyä lääkettä?',
+    check: 'Tarkista saatavuus',
+    title: 'Tarkista lääkkeen saatavuus',
+    label: 'Lääkkeen nimi',
+    /** Under the link, when its address carries the name. "{site}" is the host, as the address bar will show it. */
+    sent: 'Nimi siirtyy laitteeltasi suoraan sivustolle {site}, kun avaat linkin. Sitä ei lähetetä tämän sovelluksen palvelimelle eikä tallenneta.',
+    /** The same place, for a service whose address takes no name: there is no field then. */
+    nothingSent: 'Linkki avaa sivuston {site}. Kirjoita lääkkeen nimi sen omaan hakuun: tämä sovellus ei kysy eikä näe sitä.',
+    confirm: 'Varastotieto on palvelun oma, eikä tämä sovellus näe sitä. Varmista apteekista ennen kuin lähdet.',
+    /** After a service's own sentence, when not every pharmacy of the country reports to it. */
+    coverage: {
+      most: 'Mukana ovat useimmat apteekit, eivät kaikki.',
+      some: 'Mukana on vain osa apteekeista.',
+      chain: 'Mukana ovat vain ketjun omat apteekit.',
+    },
+    inApp: 'Varastotilanne näkyy palvelun sovelluksessa.',
+    /** One entry per provider of lib/stock/providers.ts, by its id. Names of services are not translated. */
+    services: {
+      apteekkiFi: {
+        site: 'apteekki.fi',
+        intro: 'Suomessa lääkkeen saatavuuden apteekeittain näyttää Lääkehaku, jota ylläpitää Suomen Apteekkariliitto.',
+        hint: 'Lääkehaku hakee valmisteen nimellä tai Vnr-numerolla.',
+        open: 'Avaa apteekki.fi',
+      },
+    },
+    /** Live stock through a provider: the seam of PLAN.md 7.9. Shown in /dev/states only, with invented figures. */
+    stock: {
+      example: 'Esimerkkiaineistoa',
+      exampleNote: 'Tältä varastotieto näyttäisi, jos palvelu antaisi sen sovellukselle. Luvut on keksitty.',
+      levels: { inStock: 'Varastossa', low: 'Vähän jäljellä', out: 'Ei varastossa', unknown: 'Ei tietoa' },
+      /** Whose claim it is, and from when. */
+      source: 'Tieto: {site}, klo\u00A0{time}',
+    },
+  },
   problem: {
     retry: 'Yritä uudelleen',
     mapApps: 'Apteekkeja voi hakea myös {google} tai {apple}.',
