@@ -46,8 +46,8 @@ Place search calls Nominatim through the server and needs a contact address to i
 
 ## Known limitations so far
 
-- Opening hours are only as good as OpenStreetMap's. In Southern Europe most pharmacies have none there yet (see the numbers above).
-- The public Overpass servers are shared and sometimes busy. The pipeline asks once per country, waits and retries once, tries one other server, and otherwise keeps the country's data of the night before. A commercial service should build from a planet extract or its own Overpass instance.
+- Opening hours are only as good as OpenStreetMap's. In Southern Europe most pharmacies have none there yet (see the numbers above). Where most of the nearest ones have none, the card leads with the nearest pharmacy, says what isn't known and puts the call first, instead of sending people to a far one whose hours happen to be listed (provisional, `DESIGN-LOG.md`).
+- The public Overpass servers are shared and sometimes busy. The pipeline asks once per country, waits and retries once, tries one other server, and otherwise keeps the country's data of the night before. A second attempt two and a half hours later asks again for the countries that failed, and only for those. When three countries in a row get no answer the run stops asking and leaves the rest to that second attempt. The data page shows when each country was last fetched. A commercial service should build from a planet extract or its own Overpass instance: the main public instance says of itself that it is meant for browser-based and human-operated tools.
 - Public holidays are known per country, and per state or canton in Germany, Spain and Switzerland. A town's own holidays (common in Spain and Italy) are not.
 - Hours written as sunrise or sunset are shown as uncertain.
 - In a public repository GitHub switches scheduled workflows off after 60 days without a commit. The data would then age, and after seven days the app shows no pharmacy as open. "Enable workflow" on the Data workflow's page switches it back on.

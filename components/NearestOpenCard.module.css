@@ -264,6 +264,25 @@
   margin-top: 12px;
 }
 
+/* Hours coverage: how many of the country's pharmacies have hours at all, and the way to the numbers. */
+.coverage {
+  padding-top: 14px;
+  border-top: 1px solid var(--hair-2);
+  color: var(--meta);
+  font-size: var(--t-s);
+  line-height: 1.45;
+}
+
+.next + .coverage {
+  margin-top: -6px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.coverage a {
+  color: var(--link);
+}
+
 /* Prominent where nothing is open: the one number that always works. */
 .emergency {
   padding-top: 14px;

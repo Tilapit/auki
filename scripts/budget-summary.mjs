@@ -5,6 +5,10 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const dir = '.lighthouseci/reports';
+// The budgets themselves live in one place: lighthouserc.json, which is what fails the build.
+const assertions = JSON.parse(readFileSync('lighthouserc.json', 'utf8')).ci.assert.assertions;
+const jsBudget = assertions['resource-summary:script:size'][1].maxNumericValue;
+const lcpBudget = assertions['largest-contentful-paint'][1].maxNumericValue;
 const runs = readdirSync(dir)
   .filter((name) => name.endsWith('.report.json'))
   .map((name) => JSON.parse(readFileSync(join(dir, name), 'utf8')));
@@ -23,6 +27,6 @@ const ok = (pass) => (pass ? 'within' : 'over');
 
 console.log(`| Measure (${runs[0].finalDisplayedUrl ?? runs[0].finalUrl}, median of ${runs.length}) | Value | Budget | |`);
 console.log('|---|---|---|---|');
-console.log(`| Initial JavaScript, gzipped | ${(js / 1024).toFixed(1)} KB | 200 KB | ${ok(js <= 204800)} |`);
-console.log(`| Mobile LCP (slow 4G, 4× CPU slowdown) | ${(lcp / 1000).toFixed(2)} s | 2.50 s | ${ok(lcp <= 2500)} |`);
+console.log(`| Initial JavaScript, gzipped | ${(js / 1024).toFixed(1)} KB | ${Math.round(jsBudget / 1024)} KB | ${ok(js <= jsBudget)} |`);
+console.log(`| Mobile LCP (slow 4G, 4× CPU slowdown) | ${(lcp / 1000).toFixed(2)} s | ${(lcpBudget / 1000).toFixed(2)} s | ${ok(lcp <= lcpBudget)} |`);
 console.log(`| Total blocking time, same profile | ${Math.round(tbt)} ms | none yet | |`);

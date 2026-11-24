@@ -129,6 +129,27 @@ const fi = {
     hide: 'Piilota',
     closerClosed: (count: number) => `Lähemmät ${count} apteekkia ovat kiinni.`,
     mostOpenTomorrow: (range: string) => `Useimmat avautuvat huomenna klo\u00A0${range}.`,
+    /**
+     * Hours coverage (provisional, DESIGN-LOG.md): most of the nearest pharmacies have hours we
+     * can't read. The nearest of them leads the card, and nothing is said about what is open.
+     */
+    nearestUnlisted: 'Lähin apteekki',
+    unlistedTitle: 'Lähimpien apteekkien aukioloaikoja ei tiedetä',
+    unlistedShort: 'Aukioloaikoja ei tiedetä',
+    /** How many nearby pharmacies it is true of, the one in the card included. */
+    unlistedNearby: (count: number) =>
+      count === 1 ? 'Apteekki voi silti olla auki.' : `Lähistöllä on ${count} apteekkia, joiden aukioloaikoja ei tiedetä. Osa niistä voi olla auki.`,
+    unlistedCall: 'Soita ennen kuin lähdet.',
+    unlistedNoPhone: 'Lähimmän puhelinnumeroa ei ole merkitty, joten sen aukiolo selviää vain paikan päällä.',
+    /** The nearest pharmacy whose hours say it is open, as a line under the card. */
+    knownOpen: 'Lähin, jonka tiedetään olevan auki: {name}, {details}.',
+    /** The same in the collapsed sheet. */
+    knownOpenShort: (name: string) => `Tiedetään olevan auki: ${name}`,
+    /** The country's share of pharmacies with opening hours in OpenStreetMap, before the link to the data page. */
+    hoursListed: (country: string, share: string) => `${country}: aukioloajat on merkitty ${share}:lle apteekeista.`,
+    /** Under an open pharmacy, when nearer ones have hours we can't read: it is the nearest we know of. */
+    closerUnknown: (count: number) =>
+      count === 1 ? 'Lähempänä on yksi apteekki, jonka aukioloaikoja ei tiedetä.' : `Lähempänä on ${count} apteekkia, joiden aukioloaikoja ei tiedetä.`,
     approximate: 'Sijaintisi on likimääräinen',
     approximateBody: 'Etäisyydet voivat heittää.',
     searching: 'Katsotaan, mitkä apteekit ovat auki juuri nyt…',
@@ -136,6 +157,8 @@ const fi = {
     found: (count: number, name: string, distance: string, status: string) =>
       `Löytyi ${count} apteekkia. Lähin auki: ${name}, ${distance}, ${status}.`,
     foundNoneOpen: (count: number) => `Löytyi ${count} apteekkia. Yksikään ei ole auki juuri nyt.`,
+    foundUnlisted: (count: number, unknown: number) =>
+      unknown === 1 ? `Löytyi ${count} apteekkia. Lähimmän aukioloaikoja ei tiedetä.` : `Löytyi ${count} apteekkia. Lähistöllä on ${unknown} apteekkia, joiden aukioloaikoja ei tiedetä.`,
     /** Data older than seven days: nothing is shown as open (PLAN.md 7.4). */
     staleTitle: 'Aukiolotiedot ovat vanhentuneet',
     staleBody: (date: string) => `Tiedot haettiin ${date} eikä niistä voi enää päätellä, mikä on auki juuri nyt. Soita apteekkiin ennen kuin lähdet.`,
@@ -244,12 +267,18 @@ const fi = {
     title: 'Mistä apteekkitiedot tulevat',
     intro: 'Apteekit ja niiden aukioloajat tulevat OpenStreetMapista. Tiedot haetaan joka yö, ja aukioloajat lasketaan valmiiksi kahdeksalle päivälle. Alla on viimeisimmän haun tulos maittain.',
     caption: 'Apteekkitiedot maittain',
-    columns: { country: 'Maa', pharmacies: 'Apteekkeja', withHours: 'Aukioloajat merkitty', parsed: 'Ajat luettu', fetched: 'Haettu' },
+    // \u00AD is a soft hyphen: the headings break there on a narrow screen, with or without a hyphenation dictionary in the browser.
+    columns: { country: 'Maa', pharmacies: 'Apteek\u00ADkeja', withHours: 'Aukiolo\u00ADajat merkitty', parsed: 'Ajat luettu', fetched: 'Haettu viimeksi' },
+    /** Under the country heading on a narrow screen, where the time sits under each country's name. */
+    fetchedShort: 'haettu viimeksi',
     all: 'Kaikki',
     kept: 'aiempi haku',
-    keptNote: 'Aiempi haku: viimeisin haku ei onnistunut tälle maalle, joten sen tiedot ovat edelliseltä kerralta.',
+    /** When the pipeline last ran. A Finnish date and time need no full stop after them here. */
+    lastRun: 'Viimeisin haku: {time}',
+    keptNote: (countries: string) => `Ei päivittynyt viimeisimmässä haussa: ${countries}. Tiedot ovat silloin edelliseltä onnistuneelta haulta, ja rivillä näkyy sen aika.`,
     explain: [
       'Aukioloajat merkitty: kuinka monella apteekilla on aukioloajat OpenStreetMapissa.',
+      'Missä osuus on pieni, useimmat apteekit näkyvät tuloksissa merkinnällä ”Aukioloaikoja ei ole merkitty”. Aukioloaikoja ei arvata: soita silloin apteekkiin ennen kuin lähdet.',
       'Ajat luettu: kuinka moni merkityistä aukioloajoista on kirjoitettu niin, että ohjelma osaa lukea ne. Loput näytetään sellaisinaan.',
       'Yli seitsemän päivää vanhojen tietojen perusteella yhtään apteekkia ei näytetä avoimena.',
     ],

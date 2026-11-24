@@ -90,9 +90,9 @@ export function dayAndTime(locale: Locale, epochSeconds: number, timeZone?: stri
   return locale === 'fi' ? `${dayOf(locale, epochSeconds, timeZone)} klo${NBSP}${time}` : `${dayOf(locale, epochSeconds, timeZone)}, ${time}`;
 }
 
-/** A share as a percentage: "79,3 %" / "79.3%". */
-export function percent(locale: Locale, share: number): string {
-  return new Intl.NumberFormat(INTL[locale], { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(share);
+/** A share as a percentage: "79,3 %" / "79.3%". In a sentence, without the decimal: "18 %" / "18%". */
+export function percent(locale: Locale, share: number, decimals = 1): string {
+  return new Intl.NumberFormat(INTL[locale], { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(share);
 }
 
 /** A count with the language's grouping: "13 489" / "13,489". */
@@ -126,8 +126,9 @@ export interface Formatters {
   minutes: (value: number, long?: boolean) => string;
   date: (iso: string) => string;
   dayOf: (epochSeconds: number) => string;
-  dayAndTime: (epochSeconds: number) => string;
-  percent: (share: number) => string;
+  /** On the device's clock, unless a zone is given. */
+  dayAndTime: (epochSeconds: number, timeZone?: string) => string;
+  percent: (share: number, decimals?: number) => string;
   count: (value: number) => string;
   list: (items: string[]) => string;
   countryName: (code: string) => string;
@@ -142,8 +143,8 @@ export function formatters(locale: Locale): Formatters {
     minutes: (value, long) => minutes(locale, value, long),
     date: (iso) => date(locale, iso),
     dayOf: (epochSeconds) => dayOf(locale, epochSeconds),
-    dayAndTime: (epochSeconds) => dayAndTime(locale, epochSeconds),
-    percent: (share) => percent(locale, share),
+    dayAndTime: (epochSeconds, timeZone) => dayAndTime(locale, epochSeconds, timeZone),
+    percent: (share, decimals) => percent(locale, share, decimals),
     count: (value) => count(locale, value),
     list: (items) => list(locale, items),
     countryName: (code) => countryName(locale, code),
