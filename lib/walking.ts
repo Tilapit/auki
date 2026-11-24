@@ -46,6 +46,7 @@ export function walkingBody(from: LatLon, to: LatLon[], route = false): string {
 }
 
 const isMeasure = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0;
+const isCoordinate = (value: unknown, limit: number): value is number => typeof value === 'number' && Number.isFinite(value) && Math.abs(value) <= limit;
 
 /**
  * A walk is never shorter than the straight line. The route is measured between the nearest
@@ -107,7 +108,7 @@ export function readLine(answer: unknown): Line | undefined {
   if (!line || line.type !== 'LineString' || !Array.isArray(line.coordinates) || line.coordinates.length < 2) return undefined;
   const coordinates: [number, number][] = [];
   for (const pair of line.coordinates) {
-    if (!Array.isArray(pair) || !isMeasure(Math.abs(pair[0])) || !isMeasure(Math.abs(pair[1])) || Math.abs(pair[0]) > 180 || Math.abs(pair[1]) > 90) return undefined;
+    if (!Array.isArray(pair) || !isCoordinate(pair[0], 180) || !isCoordinate(pair[1], 90)) return undefined;
     coordinates.push([pair[0], pair[1]]);
   }
   return { type: 'LineString', coordinates };

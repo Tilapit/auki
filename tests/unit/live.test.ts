@@ -2,15 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { coverageAt } from '@/lib/coverage';
 import { COUNTRY_CODES } from '@/lib/countries';
 import { makeI18n } from '@/lib/i18n';
-import { RERANK_AFTER_METERS, SHOWN, movedEnough, staysOpen, toOpenStatus, toScene } from '@/lib/live';
+import { RERANK_AFTER_METERS, RERANK_GAP_SECONDS, SHOWN, movedEnough, noneShownOpen, staysOpen, toOpenStatus, toPharmacy, toScene } from '@/lib/live';
 import type { SearchResult } from '@/lib/live';
 import { carriesPosition, contentSecurityPolicy, isAllowedUrl, securityHeaders } from '@/lib/requests';
 import { Tiles, findPharmacies } from '@/lib/search';
 import { initialState, reducer } from '@/lib/state';
+import { arrange } from '@/lib/results';
 import type { Position, State } from '@/lib/state';
 import { statusText } from '@/lib/status';
 import { INDEX_PATH, TILE_ZOOM, encodeTile, tileKey, tileOf, tilePath } from '@/lib/tiles';
 import type { BorderGrid, GridJson, Hours, IndexJson, TilePharmacy, TileRef } from '@/lib/tiles';
+import type { Walks } from '@/lib/walking';
 import { COUNTRY_CODES as PIPELINE_CODES } from '@/pipeline/countries';
 
 const utc = (iso: string): number => Date.parse(iso) / 1000;
@@ -317,5 +319,164 @@ describe('the list of requests the app may make', () => {
 
   it('the countries named in the app are the ones the pipeline covers', () => {
     expect([...COUNTRY_CODES].sort()).toEqual([...PIPELINE_CODES].sort());
+  });
+});
+
+describe('walking times in the results', () => {
+  const EVENING = at(0, '20:41');
+  const walks = (entries: [TilePharmacy, meters: number, seconds: number][]): Walks => new Map(entries.map(([p, meters, seconds]) => [p.id, { meters, seconds }]));
+
+  it('the scene says walking, and each pharmacy of the list has its minutes, rounded up, and its metres', () => {
+    const near = pharmacy(190, daily('08:00', '24:00'));
+    const next = pharmacy(355, daily('08:00', '24:00'));
+    const s = scene({ candidates: found([near, next]), missing: [], walks: walks([[near, 220, 158], [next, 400, 288]]) }, EVENING);
+    expect(s.distance).toBe('walking');
+    expect(s.pharmacies.map((p) => [p.walkMin, p.walkMeters, p.straightMeters])).toEqual([[3, 220, 190], [5, 400, 355]]);
+  });
+
+  it('without walking times the scene says straight, and nobody has minutes', () => {
+    const s = scene({ candidates: found([pharmacy(190, daily('08:00', '24:00'))]), missing: [] }, EVENING);
+    expect(s.distance).toBe('straight');
+    expect(s.pharmacies[0].walkMin).toBeUndefined();
+    expect(s.ehditko).toEqual({ kind: 'none' });
+  });
+
+  it('a pharmacy with no walking route keeps its straight line, in a list that is otherwise on foot', () => {
+    const routed = pharmacy(355, daily('08:00', '24:00'));
+    const island = pharmacy(190, daily('08:00', '24:00'));
+    const s = scene({ candidates: found([routed, island]), missing: [], walks: walks([[routed, 400, 288]]) }, EVENING);
+    expect(s.distance).toBe('walking');
+    expect(s.pharmacies.map((p) => p.walkMin)).toEqual([5, undefined]);
+  });
+
+  it('ehditkö: the canvas case, on the pharmacy clock', () => {
+    const closing = pharmacy(190, daily('08:00', '21:00'));
+    const s = scene({ candidates: found([closing]), missing: [], walks: walks([[closing, 220, 158]]) }, EVENING);
+    expect(s.ehditko).toEqual({ kind: 'timeline', arrive: '20:44', closes: '21:00', slackMin: 16 });
+  });
+
+  it('ehditkö is about the first open pharmacy of the list, not a closed one before it', () => {
+    const closed = pharmacy(100, daily('08:00', '18:00'));
+    const closing = pharmacy(400, daily('08:00', '21:00'));
+    const s = scene({ candidates: found([closed, closing]), missing: [], walks: walks([[closed, 120, 86], [closing, 480, 346]]) }, EVENING);
+    expect(s.ehditko).toEqual({ kind: 'timeline', arrive: '20:47', closes: '21:00', slackMin: 13 });
+  });
+
+  it('ehditkö says nothing when closing is more than an hour away, and a midnight closing reads 24:00', () => {
+    const late = pharmacy(190, daily('08:00', '24:00'));
+    const result = { candidates: found([late]), missing: [], walks: walks([[late, 220, 158]]) };
+    expect(scene(result, EVENING).ehditko).toEqual({ kind: 'none' });
+    expect(scene(result, at(0, '23:10')).ehditko).toEqual({ kind: 'timeline', arrive: '23:13', closes: '24:00', slackMin: 47 });
+  });
+
+  it('too late: the pharmacy is marked, and the next open one is one a walk still reaches', () => {
+    const closing = pharmacy(900, daily('08:00', '21:00'));
+    const alsoClosing = pharmacy(1500, daily('08:00', '21:00'));
+    const open = pharmacy(1800, daily('08:00', '24:00'));
+    // 20.41: twenty minutes to the first is 21.01.
+    const s = scene({ candidates: found([closing, alsoClosing, open]), missing: [], walks: walks([[closing, 1100, 1190], [alsoClosing, 1700, 1500], [open, 2100, 1700]]) }, EVENING);
+    expect(s.ehditko).toEqual({ kind: 'tooLate', arrive: '21:01', closes: '21:00' });
+    expect(s.pharmacies.map((p) => p.tooLate)).toEqual([true, true, undefined]);
+    const arranged = arrange(s);
+    expect(arranged.nearestOpen?.id).toBe(closing.id);
+    expect(arranged.nextOpen?.id).toBe(open.id);
+  });
+
+  it('when the only open ones nearby close before a walk ends, the far open one is looked for and offered as the next', () => {
+    const closing = pharmacy(900, daily('08:00', '21:00'));
+    const far = pharmacy(14_000, { kind: 'parsed', open: [{ from: FROM, to: UNTIL }], unknown: [] });
+    const result: SearchResult = { candidates: found([closing]), missing: [], walks: walks([[closing, 1100, 1190]]) };
+    expect(noneShownOpen(result, EVENING)).toBe(true);
+    // In time, it counts as open.
+    expect(noneShownOpen(result, at(0, '20:30'))).toBe(false);
+    // And without walking times, being open is all there is to know.
+    expect(noneShownOpen({ candidates: found([closing]), missing: [] }, EVENING)).toBe(false);
+
+    const s = scene({ ...result, farOpen: found([far])[0] }, EVENING);
+    expect(s.farOpen?.id).toBe(far.id);
+    expect(s.farOpen?.walkMin).toBeUndefined();
+    const arranged = arrange(s);
+    expect(arranged.nearestOpen?.id).toBe(closing.id);
+    expect(arranged.far).toBe(false);
+    expect(arranged.nextOpen?.id).toBe(far.id);
+  });
+
+  it('a pharmacy picked on the map has no walking time, whatever the list has', () => {
+    const picked = toPharmacy(found([pharmacy(700, daily('08:00', '24:00'))])[0], EVENING, 'Europe/Helsinki');
+    expect(picked.walkMin).toBeUndefined();
+    expect(picked.straightMeters).toBe(700);
+  });
+
+  it('carries the pharmacy\'s email and website to the sheet', () => {
+    const p = toPharmacy(found([pharmacy(100, daily('08:00', '21:00'), { email: 'apteekki@example.org', website: 'https://apteekki.example/' })])[0], EVENING, 'Europe/Helsinki');
+    expect(p.email).toBe('apteekki@example.org');
+    expect(p.website).toBe('https://apteekki.example/');
+  });
+
+  it('frames the first view around the farthest of the list\'s first five, whatever their order', () => {
+    const sceneOf = (meters: number[]) => {
+      const list = meters.map((north) => pharmacy(north, daily('08:00', '24:00')));
+      return scene({ candidates: found(list), missing: [], walks: walks(list.map((p, index) => [p, 1000 + index, 700 + index])) }, EVENING);
+    };
+    // On foot the fifth of the list is not the fifth by straight line: here it is 400 m away, and the third is two kilometres.
+    expect(sceneOf([300, 100, 2000, 200, 400, 2500]).views).toEqual(sceneOf([300, 100, 400, 200, 2000, 2500]).views);
+    expect(sceneOf([300, 100, 2000, 200, 400, 2500]).views).not.toEqual(sceneOf([300, 100, 250, 200, 400, 2500]).views);
+  });
+});
+
+describe('the search asks for walking times once, and orders the list by them', () => {
+  const NOON = at(0, '12:00');
+
+  it('orders the twenty candidates by walking time, and keeps the walks with the result', async () => {
+    const list = [100, 200, 300].map((meters) => pharmacy(meters, daily('08:00', '21:00')));
+    const { load } = world([{ tile: home, pharmacies: list }]);
+    const asked: string[][] = [];
+    const outcome = await findPharmacies(new Tiles(load), HERE, NOON, async (candidates) => {
+      asked.push(candidates.map((entry) => entry.pharmacy.id));
+      // The nearest by straight line is across the tracks.
+      return new Map([[list[0].id, { meters: 1500, seconds: 1080 }], [list[1].id, { meters: 260, seconds: 187 }], [list[2].id, { meters: 340, seconds: 245 }]]);
+    });
+    if (outcome.kind !== 'results') throw new Error(outcome.kind);
+    expect(asked).toEqual([[list[0].id, list[1].id, list[2].id]]);
+    expect(outcome.result.candidates.map((entry) => entry.pharmacy.id)).toEqual([list[1].id, list[2].id, list[0].id]);
+    expect(outcome.result.walks?.size).toBe(3);
+  });
+
+  it('goes on by straight line when the walking times do not come, or the request throws', async () => {
+    const list = [300, 100].map((meters) => pharmacy(meters, daily('08:00', '21:00')));
+    for (const ask of [async () => undefined, async () => Promise.reject(new Error('offline'))]) {
+      const outcome = await findPharmacies(new Tiles(world([{ tile: home, pharmacies: list }]).load), HERE, NOON, ask);
+      if (outcome.kind !== 'results') throw new Error(outcome.kind);
+      expect(outcome.result.candidates.map((entry) => Math.round(entry.meters))).toEqual([100, 300]);
+      expect(outcome.result.walks).toBeUndefined();
+    }
+  });
+
+  it('asks for no walking times when there is nothing to show', async () => {
+    let asked = 0;
+    const ask = async () => {
+      asked++;
+      return undefined;
+    };
+    expect(await findPharmacies(new Tiles(world([]).load), HERE, NOON, ask)).toEqual({ kind: 'none' });
+    expect(await findPharmacies(new Tiles(world([], { [tileKey(home)]: '.' }).load), HERE, NOON, ask)).toEqual({ kind: 'notCovered' });
+    expect(asked).toBe(0);
+  });
+
+  it('looks farther when the one open pharmacy nearby closes before a walk there ends, and never offers that same one', async () => {
+    const north = { x: home.x, y: home.y - 1 };
+    const closing = pharmacy(900, daily('08:00', '21:00'));
+    const always = pharmacy(22_000, daily('00:00', '24:00'));
+    const files = world([{ tile: home, pharmacies: [closing] }, { tile: north, pharmacies: [always] }]);
+    // 20.20: it stays open forty minutes more, and the walk takes forty-five.
+    const outcome = await findPharmacies(new Tiles(files.load), HERE, at(0, '20:20'), async () => new Map([[closing.id, { meters: 3600, seconds: 2700 }]]));
+    if (outcome.kind !== 'results') throw new Error(outcome.kind);
+    expect(outcome.result.farOpen?.pharmacy.id).toBe(always.id);
+  });
+
+  it('ranks again no sooner than two minutes after the last time', () => {
+    expect(RERANK_GAP_SECONDS).toBe(120);
+    // On foot, 300 m take longer than that: a walk never waits for it.
+    expect(RERANK_AFTER_METERS / (5000 / 3600)).toBeGreaterThan(RERANK_GAP_SECONDS);
   });
 });

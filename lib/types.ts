@@ -38,10 +38,16 @@ export interface Pharmacy {
   lon: number;
   status: OpenStatus;
   hours?: HoursLine[];
+  /** Whole minutes on foot, rounded up, and the length of that walk. Left out where no walking time is known. */
   walkMin?: number;
   walkMeters?: number;
   straightMeters: number;
+  /** Open now, but a walk from here would end at closing time or after it. */
+  tooLate?: boolean;
   phone?: string;
+  /** As OpenStreetMap has them: `email` or `contact:email`, `website` or `contact:website`. */
+  email?: string;
+  website?: string;
   wheelchair?: 'yes' | 'limited' | 'no';
   /** Free text from OpenStreetMap, in whatever language the mapper wrote it. */
   wheelchairNote?: string;
