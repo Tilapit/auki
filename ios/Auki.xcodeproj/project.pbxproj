@@ -14,6 +14,7 @@
 		A0000000000000000000B005 /* tile-file.json in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F005 /* tile-file.json */; };
 		A0000000000000000000B006 /* ehditko.json in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F006 /* ehditko.json */; };
 		A0000000000000000000B007 /* brand.ts in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F007 /* brand.ts */; };
+		A0000000000000000000B008 /* week.json in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F00B /* week.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +35,7 @@
 		A0000000000000000000F005 /* tile-file.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = "tile-file.json"; path = "../tests/vectors/tile-file.json"; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F006 /* ehditko.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ehditko.json; path = ../tests/vectors/ehditko.json; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F007 /* brand.ts */ = {isa = PBXFileReference; lastKnownFileType = text; name = brand.ts; path = ../lib/brand.ts; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000F00B /* week.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = week.json; path = ../tests/vectors/week.json; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F008 /* Brand.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Brand.xcconfig; sourceTree = "<group>"; };
 		A0000000000000000000F009 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		A0000000000000000000F00A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				A0000000000000000000F004 /* search.json */,
 				A0000000000000000000F005 /* tile-file.json */,
 				A0000000000000000000F006 /* ehditko.json */,
+				A0000000000000000000F00B /* week.json */,
 				A0000000000000000000F007 /* brand.ts */,
 			);
 			name = "Shared with the web";
@@ -214,6 +217,7 @@
 				A0000000000000000000B004 /* search.json in Resources */,
 				A0000000000000000000B005 /* tile-file.json in Resources */,
 				A0000000000000000000B006 /* ehditko.json in Resources */,
+				A0000000000000000000B008 /* week.json in Resources */,
 				A0000000000000000000B007 /* brand.ts in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
