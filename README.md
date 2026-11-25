@@ -91,8 +91,8 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 Checked on every push, on every view of `/dev/states`:
 
 - **axe**, in both themes, at both sizes, in Chromium and WebKit: WCAG 2.0, 2.1 and 2.2 at A and AA, and axe's best practices. No rule is off and no view is left out.
-- **The keyboard alone**, in both browsers: the first window, the position, the results, the phone sheet's three places, a pharmacy's details and back, another place by its name, the counter card. Wherever it stops, and on every view: Tab reaches every control that shows, and whatever has the focus can be seen.
-- **Reflow:** at 320 px wide and at 200 % zoom nothing scrolls sideways and no text or control is cut off.
+- **The keyboard alone**, in both browsers: the first window, the position, the results, the phone sheet's three places, a pharmacy's details and back, another place by its name, the counter card. Wherever it stops, and in Chromium on every view: Tab reaches every control that shows, and whatever has the focus can be seen.
+- **Reflow:** at 320 px wide (both browsers) and at 200 % zoom (Chromium) nothing scrolls sideways and no text or control is cut off.
 
 What the first run of these found, and what was changed, is in `DESIGN-LOG.md` under 25 Nov 2026: 506 controls whose name did not contain the text they show, markers the keyboard reached under the phone's open list, a map that Chromium scrolled out of place, a line that was cut off at 320 px.
 

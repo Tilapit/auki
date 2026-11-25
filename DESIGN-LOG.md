@@ -746,7 +746,7 @@ Entry format:
   - A button that shows "Reitti": "Reitti kävellen: Kampin apteekki" (was "Kävelyreitti: Kampin apteekki"); English "Route on foot to …" and "Route to …" (were "Walking directions to …", "Directions to …").
   - "Näytä apteekissa": "Näytä apteekissa: apteekkikortti latviaksi" (was "Näytä apteekkikortti latviaksi").
   - The round language link that shows "EN": "EN: In English" (was "Vaihda kieli: English", Finnish words in a link marked as English). On the English page "FI: Suomeksi".
-  - The wordmark on the data page, which is a link: "Auki: takaisin apteekkihakuun".
+  - The wordmark on the data page, which is a link: the app's name as it shows, then ": takaisin apteekkihakuun".
 - Why: Someone who uses the phone by voice says what they see on a control to press it, and the name is what the system listens for. A name that starts with the visible word also reads in the order the eye takes it.
   - The full words stay where text is read and is not a control's name: the rows of the list, the card and the announcement of the results still say "3 minuuttia kävellen". `travel()` gives both forms (`long` for a name, `spoken` for reading).
   - PLAN.md section 9 had "Walking directions to …" as its example of a specific name: updated.
