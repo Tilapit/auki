@@ -874,7 +874,7 @@ Written for a reader at Treat with five minutes:
 - Staleness: no input gives "open" from data older than 7 days.
 - Tiles: for random positions and random pharmacies, the nearest N found through tiles equal the nearest N by brute force, tile corners included. Writing a tile and reading it back gives the same intervals.
 - Cases with their answers are also saved as JSON (`tests/vectors/`, written from a fixed seed by `npm run vectors`), so the Swift implementation can be checked against the same answers. A unit test fails when the files and the code disagree.
-- **iOS** (`ios/AukiTests/`, `xcodebuild test`, run locally: section 11): the six vector files, copied into the test bundle as they are; the texts and the formats in both languages, the distances against what `lib/format.ts` prints for the same metres; what leads the list at a given moment; the store against a data host the test answers, where the position is in no address; and `Brand.xcconfig` against `lib/brand.ts`.
+- **iOS** (`ios/AukiTests/`, `xcodebuild test`, run locally: section 11): the six vector files, copied into the test bundle as they are; the texts and the formats in both languages, the distances against what `lib/format.ts` prints for the same metres; what leads the list at a given moment; the store against a data host the test answers, where the position is in no address; a tile file that is wrong, which is refused and can't crash the app; and `Brand.xcconfig` against `lib/brand.ts`.
 
 **Playwright (Chromium and WebKit)**
 

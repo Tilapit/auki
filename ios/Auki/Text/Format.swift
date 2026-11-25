@@ -38,6 +38,7 @@ struct Format: Sendable {
 
     /// 0 to 994 m to the nearest 10 m, from there on kilometres with one decimal: "220 m", "1,1 km" / "1.1 km".
     func distance(_ meters: Double) -> String {
+        guard meters.isFinite, meters >= 0, meters < 1e9 else { return "" }
         let rounded = Int((meters / 10).rounded()) * 10
         if rounded < 1000 { return "\(rounded)\(Self.nbsp)m" }
         let tenths = Int((Double(rounded) / 100).rounded())

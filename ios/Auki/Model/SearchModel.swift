@@ -32,6 +32,8 @@ final class SearchModel {
 
     private(set) var phase: Phase = .first
     private(set) var position: LatLon?
+    /// True when the user allows only an approximate position: the distances may then be off by kilometres.
+    private(set) var positionIsApproximate = false
     private(set) var found: [Found] = []
     /// When nothing nearby was open at the time of the search: the nearest open one within 30 km.
     private(set) var farOpen: Found?
@@ -61,9 +63,10 @@ final class SearchModel {
         defer { isRefreshing = false }
 
         do {
-            let position = try await locator.current()
+            let fix = try await locator.current()
             if !hadResults { phase = .searching }
-            try await find(from: position)
+            try await find(from: fix.position)
+            positionIsApproximate = fix.approximate
         } catch let failure as Locator.Failure {
             switch failure {
             case .denied: phase = .problem(.denied)

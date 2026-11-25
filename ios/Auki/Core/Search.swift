@@ -50,7 +50,7 @@ enum Search {
         let nearest = Array(matches.prefix(count))
 
         // Nothing farther than the last of a full list can change it.
-        let reach = nearest.count == count ? nearest[count - 1].meters : radius
+        let reach = count > 0 && nearest.count == count ? nearest[count - 1].meters : radius
         let need = Tiles.tiles(within: reach, of: position)
             .map(\.tile)
             .filter { grid.hasTile($0) && loaded[$0] == nil && !failed.contains($0) }

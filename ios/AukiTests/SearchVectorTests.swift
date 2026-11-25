@@ -64,6 +64,12 @@ struct SearchVectorTests {
         }
     }
 
+    @Test func aSearchForNoneIsEmptyAndNoCrash() {
+        let world = file.worlds[0]
+        let step = Search.step(from: world.searches[0].position.value, count: 0, radius: 10_000, grid: world.grid, loaded: [:])
+        #expect(step.nearest.isEmpty)
+    }
+
     @Test func theAnswerEqualsASearchThroughEveryPharmacy() {
         for world in file.worlds {
             let everyone = world.tiles.values.flatMap { $0.map(pharmacy) }

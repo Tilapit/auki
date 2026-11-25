@@ -55,6 +55,18 @@ struct TileVectorTests {
         }
     }
 
+    @Test func aPositionThatIsNoneGetsASquareAndNoCrash() {
+        #expect(Tiles.tile(of: LatLon(lat: .nan, lon: .nan)) == TileRef(x: 0, y: 0))
+        // What Core Location calls an invalid coordinate, and the two poles, where the projection has no value.
+        for position in [LatLon(lat: -180, lon: -180), LatLon(lat: 90, lon: 180), LatLon(lat: -90, lon: -180)] {
+            let tile = Tiles.tile(of: position)
+            #expect((0..<Tiles.squares).contains(tile.x) && (0..<Tiles.squares).contains(tile.y), "\(position)")
+        }
+        #expect(Tiles.tile(of: LatLon(lat: 90, lon: 180)) == TileRef(x: 1023, y: 0))
+        #expect(Format(language: .fi).distance(.nan) == "")
+        #expect(Format(language: .fi).distance(.infinity) == "")
+    }
+
     @Test func theOutlineOfASquare() {
         #expect(file.bounds.count == 12)
         for entry in file.bounds {

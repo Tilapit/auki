@@ -16,7 +16,9 @@ enum Tiles {
     /// The square a position is in.
     static func tile(of position: LatLon) -> TileRef {
         let (x, y) = Geo.tileCoordinates(position, zoom: zoom)
-        func clamp(_ value: Double) -> Int { min(squares - 1, max(0, Int(value.rounded(.down)))) }
+        // Clamped while still a floating-point number, so the poles' infinities stay inside the grid.
+        // A position that is no position (not a number) gets the first square, not a crash.
+        func clamp(_ value: Double) -> Int { value.isNaN ? 0 : Int(min(Double(squares - 1), max(0, value.rounded(.down)))) }
         return TileRef(x: clamp(x), y: clamp(y))
     }
 

@@ -721,5 +721,6 @@ Entry format:
   - Location denied: "Sijainti on estetty tältä sovellukselta" with "Voit sallia sen Asetuksista." and the button "Avaa Asetukset".
   - Offline: "Yritä uudelleen, kun yhteys palaa." in place of the web's "Haku jatkuu itsestään", because I1 does not retry by itself.
   - The first window keeps the web's "Sijaintiasi ei tallenneta."
+  - With an approximate position (the user's own choice in the system's question) the sheet starts with the web's notice, "Sijaintisi on likimääräinen. Etäisyydet voivat heittää.", without the web's link to place search, which I1 doesn't have.
 - Why: One voice on both platforms. The location question says what the app does and not more: it does not say the position never leaves the phone, because Apple's map is told which part of the map is on screen, as the map tile host is on the web.
 - Status: provisional, waiting for Janne: the wording of the location question, which is a privacy statement

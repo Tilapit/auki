@@ -48,6 +48,9 @@ struct Texts: Sendable {
     var map: String { pick("Kartta", "Map") }
     var showOnMap: String { pick("Näytä kartalla", "Show on the map") }
 
+    var approximateTitle: String { pick("Sijaintisi on likimääräinen", "Your location is approximate") }
+    var approximateBody: String { pick("Etäisyydet voivat heittää.", "Distances may be off.") }
+
     var staleTitle: String { pick("Aukiolotiedot ovat vanhentuneet", "The opening hours are out of date") }
     func staleBody(fetched instant: Int) -> String {
         pick(

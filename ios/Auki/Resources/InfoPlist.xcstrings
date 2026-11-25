@@ -13,7 +13,7 @@
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Lähimpien apteekkien näyttämiseen. Sovellus ei lähetä sijaintiasi palvelimelleen eikä tallenna sitä."
           }
         }

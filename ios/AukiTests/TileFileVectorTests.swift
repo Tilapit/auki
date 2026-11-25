@@ -40,6 +40,29 @@ struct TileFileVectorTests {
         #expect(throws: TileFile.Failure.rowWithoutHours) { try TileFile.decode(noHours) }
     }
 
+    @Test func aFileThatIsWrongIsRefusedAndNeverACrash() throws {
+        let source = #"{"country":"FI","zone":"Europe/Helsinki","generated":10,"from":0,"until":691200}"#
+        func file(hours: String = "[]", row: String) -> Data {
+            Data(#"{"v":1,"z":10,"x":1,"y":1,"sources":[\#(source)],"cities":[],"hours":\#(hours),"rows":[\#(row)]}"#.utf8)
+        }
+        // An index that is not a whole number, or beyond any number a list can have.
+        #expect(throws: TileFile.Failure.rowWithoutHours) { try TileFile.decode(file(hours: "[[[480,1260]]]", row: #"["n1",60.1,24.9,null,null,null,0,0.5]"#)) }
+        #expect(throws: TileFile.Failure.rowWithoutHours) { try TileFile.decode(file(hours: "[[[480,1260]]]", row: #"["n1",60.1,24.9,null,null,null,0,1e300]"#)) }
+        #expect(throws: TileFile.Failure.rowWithoutSource) { try TileFile.decode(file(row: #"["n1",60.1,24.9,null,null,null,1e300]"#)) }
+        // Minutes that no window of eight days can hold.
+        #expect(throws: TileFile.Failure.rowWithoutHours) { try TileFile.decode(file(hours: "[[[480,9000000000000000000]]]", row: #"["n1",60.1,24.9,null,null,null,0,0]"#)) }
+        // A position that is not one.
+        #expect(throws: TileFile.Failure.rowWithoutPosition) { try TileFile.decode(file(row: #"["n1","60.1",24.9,null,null,null,0]"#)) }
+        #expect(throws: TileFile.Failure.rowWithoutPosition) { try TileFile.decode(file(row: #"["n1",160.1,24.9,null,null,null,0]"#)) }
+        // A hours cell of an unknown letter.
+        #expect(throws: TileFile.Failure.rowWithoutHours) { try TileFile.decode(file(row: #"["n1",60.1,24.9,null,null,null,0,"z"]"#)) }
+        // And a city index that points nowhere is only a missing city.
+        let tile = try TileFile.decode(file(row: #"["n1",60.1,24.9,null,null,7,0]"#))
+        #expect(tile.pharmacies.first?.city == nil)
+        // Not JSON at all.
+        #expect(throws: (any Error).self) { try TileFile.decode(Data("<html>".utf8)) }
+    }
+
     @Test func columnsBeyondTheKnownOnesAreIgnored() throws {
         let source = #"{"country":"FI","zone":"Europe/Helsinki","generated":10,"from":0,"until":691200}"#
         let row = #"["n1",60.1,24.9,"Apteekki",null,null,0,null,null,null,null,null,null,null,null,null,"a column of a later version",7]"#

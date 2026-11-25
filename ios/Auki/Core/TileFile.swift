@@ -8,6 +8,7 @@ enum TileFile {
         case version
         case rowWithoutSource
         case rowWithoutHours
+        case rowWithoutPosition
     }
 
     /// Reads a tile file. Throws on a file it doesn't understand: the caller treats that as a failed load.
@@ -25,12 +26,13 @@ enum TileFile {
                 return nil
             }
             func index(_ column: Column) -> Int? {
-                if case .number(let value) = cell(column) { return Int(value) }
+                // A whole number only: anything else points nowhere.
+                if case .number(let value) = cell(column) { return Int(exactly: value) }
                 return nil
             }
-            func number(_ column: Column) -> Double {
-                if case .number(let value) = cell(column) { return value }
-                return .nan
+            func degrees(_ column: Column, within limit: Double) throws -> Double {
+                guard case .number(let value) = cell(column), abs(value) <= limit else { throw Failure.rowWithoutPosition }
+                return value
             }
 
             guard let sourceIndex = index(.source), file.sources.indices.contains(sourceIndex) else { throw Failure.rowWithoutSource }
@@ -45,10 +47,10 @@ enum TileFile {
                 hours = .unparseable(raw: raw ?? "")
             case .text("u"):
                 hours = .uncertain(raw: raw ?? "")
-            case .number(let value):
-                guard file.hours.indices.contains(Int(value)), let open = file.hours[Int(value)].first else { throw Failure.rowWithoutHours }
-                let set = file.hours[Int(value)]
-                hours = .parsed(open: intervals(open, from: source.from), unknown: intervals(set.count > 1 ? set[1] : [], from: source.from), raw: raw)
+            case .number:
+                guard let at = index(.hours), file.hours.indices.contains(at), let open = file.hours[at].first else { throw Failure.rowWithoutHours }
+                let set = file.hours[at]
+                hours = .parsed(open: try intervals(open, from: source.from), unknown: try intervals(set.count > 1 ? set[1] : [], from: source.from), raw: raw)
             default:
                 throw Failure.rowWithoutHours
             }
@@ -58,8 +60,8 @@ enum TileFile {
 
             return TilePharmacy(
                 id: text(.id) ?? "",
-                lat: number(.lat),
-                lon: number(.lon),
+                lat: try degrees(.lat, within: 90),
+                lon: try degrees(.lon, within: 180),
                 name: text(.name),
                 street: text(.street),
                 city: index(.city).flatMap { file.cities.indices.contains($0) ? file.cities[$0] : nil },
@@ -83,8 +85,10 @@ enum TileFile {
     }
 
     /// A flat list of start and end pairs, in minutes from the start of the source's window.
-    private static func intervals(_ pairs: [Int], from: Int) -> [Interval] {
-        stride(from: 0, to: pairs.count - 1, by: 2).map { Interval(from: from + pairs[$0] * 60, to: from + pairs[$0 + 1] * 60) }
+    private static func intervals(_ pairs: [Int], from: Int) throws -> [Interval] {
+        // The window is eight days. A number of minutes beyond any window is not an opening time, and is not multiplied.
+        guard pairs.allSatisfy({ abs($0) <= 1_000_000 }), abs(from) <= 1_000_000_000_000 else { throw Failure.rowWithoutHours }
+        return stride(from: 0, to: pairs.count - 1, by: 2).map { Interval(from: from + pairs[$0] * 60, to: from + pairs[$0 + 1] * 60) }
     }
 
     // MARK: The file as stored

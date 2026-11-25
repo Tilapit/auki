@@ -21,8 +21,14 @@ struct ResultsSheet: View {
                         .padding(.top, 22)
                         .padding(.bottom, 14)
 
+                    if model.positionIsApproximate {
+                        Notice(title: texts.approximateTitle, body: texts.approximateBody)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 14)
+                    }
+
                     if listing.isStale {
-                        StaleNotice(fetched: listing.fetched)
+                        Notice(title: texts.staleTitle, body: listing.fetched.map { texts.staleBody(fetched: $0) })
                             .padding(.horizontal, 20)
                             .padding(.bottom, 8)
                     } else {
@@ -285,18 +291,23 @@ private struct PharmacyRow: View {
     }
 }
 
-/// Data older than seven days: nothing is shown as open, and the view says why (PLAN.md 7.4).
-private struct StaleNotice: View {
-    let fetched: Int?
+/// Something the user should know before reading the list: the data is more than seven days old and
+/// nothing is shown as open (PLAN.md 7.4), or the position is only approximate.
+private struct Notice: View {
+    let title: String
+    let text: String?
 
-    @Environment(\.texts) private var texts
+    init(title: String, body: String?) {
+        self.title = title
+        self.text = body
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(texts.staleTitle)
+            Text(title)
                 .font(.headline)
-            if let fetched {
-                Text(texts.staleBody(fetched: fetched))
+            if let text {
+                Text(text)
                     .font(.subheadline)
             }
         }

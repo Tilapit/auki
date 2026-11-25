@@ -119,7 +119,7 @@ struct StatusTextTests {
     @Test func noLineBreaksTheCopyRules() {
         // No exclamation marks and no em dashes, in either language, in any text a view can show.
         for texts in [fi, en] {
-            var lines = [texts.headline, texts.locate, texts.locating, texts.searching, texts.resultsTitle, texts.refresh, texts.nearestOpen, texts.opensFirst, texts.others, texts.nearest, texts.byStraight, texts.noPrescriptions, texts.showOnMap, texts.staleTitle, texts.staleBody(fetched: midnight), texts.retry, texts.openSettings, texts.emergency, texts.distancesStraight, texts.fetched(midnight), texts.osm, texts.privacy, texts.project]
+            var lines = [texts.approximateTitle, texts.approximateBody, texts.headline, texts.locate, texts.locating, texts.searching, texts.resultsTitle, texts.refresh, texts.nearestOpen, texts.opensFirst, texts.others, texts.nearest, texts.byStraight, texts.noPrescriptions, texts.showOnMap, texts.staleTitle, texts.staleBody(fetched: midnight), texts.retry, texts.openSettings, texts.emergency, texts.distancesStraight, texts.fetched(midnight), texts.osm, texts.privacy, texts.project]
             for problem in [Problem.denied, .unavailable, .timeout, .offline, .failed, .none, .notCovered] {
                 lines.append(texts.title(of: problem))
                 if let body = texts.body(of: problem) { lines.append(body) }

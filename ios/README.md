@@ -42,13 +42,14 @@ xcodebuild test -project ios/Auki.xcodeproj -scheme Auki -destination 'platform=
 
 If no simulator runtime is installed (`xcrun simctl list runtimes` prints none): `xcodebuild -runFirstLaunch`, then `xcodebuild -downloadPlatform iOS`.
 
-42 tests, in Swift Testing:
+45 tests, in Swift Testing:
 
 - **The shared vectors.** The project copies `tests/vectors/*.json` into the test bundle as they are, so both apps are checked against the same bytes: `zone.json`, `tiles.json`, `status.json`, `search.json`, `tile-file.json`, `ehditko.json`. Distances to within 0.5 %, everything else exactly. After `npm run vectors` this command is the other half of the check.
 - **The texts and the formats**, in both languages: "klo 21", "klo 20.45", "1,1 km", the non-breaking spaces, "midnight". The distances are compared with what the web's `lib/format.ts` prints for the same metres.
 - **What leads the list** at a given moment: the nearest open one, the farther open one only while it is open, the one that opens first, nothing from data that is too old.
 - **The store**, against a data host the test answers: a search asks for `index.json` and for squares, and the position is in no address.
 - **The name**: `Brand.xcconfig` and `lib/brand.ts` name the product the same.
+- **A tile that is wrong**: an index that points nowhere, minutes no window can hold, a position that is not one. Each is refused as a failed load, and none can crash the app.
 
 They run locally, not in CI: see "Why there is no CI job".
 
@@ -89,7 +90,8 @@ xcrun simctl io "iPhone 17" screenshot shot.png
 - `-now <epoch seconds>`: the app's clock starts from that moment. The tiles hold eight days of hours, so an evening or a night of the same week can be looked at in the afternoon.
 - `-detent peek|medium|large`: where the sheet starts. `-select <n>`: the nth pharmacy is picked.
 - `-problem denied|unavailable|timeout|offline|failed|none|notCovered`: that view.
-- `-AppleLanguages "(en)"`: English.
+- `-AppleLanguages "(en)"`: English, for the app's own texts. The system's location question follows the simulator's language, not this argument.
+- `xcrun simctl privacy "iPhone 17" reset location io.github.tilapit.auki` brings the location question back. It stays on screen until it is answered by hand or the simulator is restarted.
 
 Don't open Apple's own Maps app in the same simulator: its permission questions then stand on top of every screenshot until the simulator is erased.
 
@@ -109,7 +111,7 @@ By the brief: walking times and ehditkö on screen, the route, medicine availabi
 
 macOS minutes count ten times on a private repository, and every job is rounded up to a whole minute, so the smallest possible run costs ten minutes of the month's 2,000.
 
-- Here, on this Mac, a clean build and the 42 tests take about ten seconds with the simulator already running.
+- Here, on this Mac, a clean build and the 45 tests take about ten seconds with the simulator already running.
 - On a hosted macOS runner the same job has to check out, pick an Xcode, start a simulator and build from nothing. I estimate four to six minutes; it is not measured. That is 40 to 60 of the 2,000 minutes for every push.
 - Run only on pushes that touch `ios/`, `tests/vectors/` or `lib/brand.ts`, an iOS piece with ten pushes would take 400 to 600 minutes: a fifth to a third of the month.
 
