@@ -150,8 +150,12 @@ const SIDES: Compass[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
  * With `always`, also for a place just inside the box: the map has taken its marker off
  * because the bar, the sheet or the edge hid too much of it (lib/map/declutter.ts), and the
  * chip stands on the same line, at the edge.
+ *
+ * No chip where the box can't hold one whole: with the phone's list fully open the map is a
+ * strip under the bar, and half a chip there says nothing.
  */
 export function edgeChip(point: Point, box: Box, half: Size = { width: 44, height: 22 }, always = false): EdgeChip | undefined {
+  if (box.right - box.left < 2 * half.width || box.bottom - box.top < 2 * half.height) return undefined;
   if (!always && isInside(point, box)) return undefined;
   const middle = centreOf(box);
   const dx = point.x - middle.x;

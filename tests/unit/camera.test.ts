@@ -126,6 +126,12 @@ describe('edge chips', () => {
     expect(edgeChip({ x: (box.left + box.right) / 2, y: (box.top + box.bottom) / 2 }, box, undefined, true)).toBeUndefined();
   });
 
+  it('gives no chip where the box cannot hold one whole: the strip of map above a fully open list', () => {
+    const strip = { left: 12, top: 76, right: 378, bottom: 76 + 43 };
+    expect(edgeChip({ x: 200, y: 900 }, strip)).toBeUndefined();
+    expect(edgeChip({ x: 200, y: 900 }, { ...strip, bottom: 76 + 44 })).toBeDefined();
+  });
+
   it('moves chips apart when two places lie in the same direction', () => {
     const first = edgeChip({ x: 2400, y: 460 }, box)!;
     const second = edgeChip({ x: 3000, y: 470 }, box)!;
