@@ -358,7 +358,7 @@ test.describe('a pharmacy’s details in the sheet', () => {
   test.use({ hasTouch: true });
 
   const details = (page: Page) => page.getByRole('dialog');
-  const route = (page: Page) => row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+  const route = (page: Page) => row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
   const scrolled = (page: Page) => handle(page).evaluate((element) => element.nextElementSibling!.scrollTop);
 
   test('they open at a middle height: the map and the pharmacy’s marker stay in view above them, and the map still moves', async ({ page }) => {
@@ -545,7 +545,7 @@ test.describe('with a finger', () => {
       await page.clock.runFor(30);
       await touch('touchEnd');
     };
-    const route = row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+    const route = row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
     for (const by of [-9, 10]) {
       await roll(await rest(route), by);
       await expect(page.getByRole('dialog').getByRole('heading', { level: 2 }), `rolled ${by}`).toHaveText('Kampin apteekki');
