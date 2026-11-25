@@ -216,7 +216,8 @@
  * above the list: the upper edge of a chip there is half a control that takes no press.
  */
 :global([inert]) .edge {
-  visibility: hidden;
+  /* Not `visibility`: the script sets that on the chip itself once it has placed it. */
+  opacity: 0;
 }
 
 /* The visible chip is 34 px tall inside a 44 px target. */
