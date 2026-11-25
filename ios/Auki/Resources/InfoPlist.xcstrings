@@ -1,0 +1,24 @@
+{
+  "sourceLanguage" : "fi",
+  "strings" : {
+    "NSLocationWhenInUseUsageDescription" : {
+      "comment" : "Why the app asks for the position. Shown by iOS in its permission question.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To show the pharmacies nearest to you. The app does not send your location to its server and does not save it."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lähimpien apteekkien näyttämiseen. Sovellus ei lähetä sijaintiasi palvelimelleen eikä tallenna sitä."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

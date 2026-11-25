@@ -36,3 +36,10 @@ certificates
 
 # worktrees of parallel Claude Code sessions
 /.claude/worktrees/
+
+# Xcode's per-user state and build output (ios/)
+xcuserdata/
+/ios/build/
+/ios/DerivedData/
+# your own signing team, for running the iOS app on your own phone
+/ios/Local.xcconfig
