@@ -13,6 +13,7 @@ import { CrossGlyph } from './CrossGlyph';
 import { cx } from './cx';
 import { Icon } from './Icon';
 import { Measure } from './Measure';
+import { MedicineLine } from './MedicineDialog';
 import { OpenStatus } from './OpenStatus';
 import styles from './PharmacySheet.module.css';
 
@@ -29,6 +30,8 @@ interface Props {
   /** Abroad: the counter card is offered here too, not only for the nearest pharmacy. */
   country?: CountryInfo;
   onShowCard?: () => void;
+  /** Opens the medicine dialog for this pharmacy's country. Left out where the country has no stock search of its own. */
+  onMedicine?: () => void;
   onClose?: () => void;
   onSelect?: (pharmacy: Pharmacy) => void;
 }
@@ -39,7 +42,7 @@ interface Props {
  * data in OpenStreetMap. The pharmacy's own email and website are shown when OpenStreetMap
  * has them: emailing a prescription ahead often works (PLAN.md section 2).
  */
-export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onClose, onSelect }: Props) {
+export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onMedicine, onClose, onSelect }: Props) {
   const i18n = useI18n();
   const { t, f } = i18n;
   const name = displayName(i18n, pharmacy);
@@ -188,6 +191,8 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
           })}
         </p>
       )}
+
+      {onMedicine && <MedicineLine className={styles.medicine} onOpen={onMedicine} />}
 
       <p className={styles.footnote}>
         {t.sheet.handOff} {pharmacy.checkDate ? t.sheet.sourceChecked(f.date(pharmacy.checkDate)) : t.sheet.source} {rich(t.sheet.wrong, { link: fix })}

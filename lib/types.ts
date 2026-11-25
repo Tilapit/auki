@@ -31,6 +31,8 @@ export interface Pharmacy {
   city?: string;
   lat: number;
   lon: number;
+  /** ISO code of the country the pharmacy is in, from its tile. It decides which country's own services the sheet offers. */
+  country?: string;
   status: OpenStatus;
   /** The coming seven days, equal days grouped (lib/week.ts). Left out where the hours aren't known as times. */
   hours?: WeekLine[];

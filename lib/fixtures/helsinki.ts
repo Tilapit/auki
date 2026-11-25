@@ -104,6 +104,8 @@ const pharmacies: Pharmacy[] = [
     straightMeters: 990,
   },
 ];
+// Every example here is in Finland: the views offer that country's own services.
+for (const pharmacy of pharmacies) pharmacy.country = 'FI';
 
 export const helsinki: Scene = {
   id: 'helsinki',

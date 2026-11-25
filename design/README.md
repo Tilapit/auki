@@ -42,7 +42,10 @@ Screenshots for the pull request "The map and the sheet on the phone": the sheet
 
 Screenshots for the pull request "M5: walking times, ehditkö and the route line". From `/dev/states`, built from tile data with walking times through the live code: the row, the card with the timeline, the list in walking order, too late with the next open one (`walking.jpg`), the same in dark and the pharmacy sheet with its links (`dark-and-sheet.jpg`), and two desktop cases (`desktop.jpg`). From `/dev/map`, on real map tiles: the route line by day, at dusk and at night (`route-desktop.jpg`, `route-phone.jpg`). The route in these is invented, two corners between the dot and the marker: there was no openrouteservice key on the day.
 
+## Medicine availability, 25 Nov 2026 (`medicine/`)
+
+Screenshots for the pull request "Medicine availability: a hand-off to each country's own stock search". All from `/dev/states`: the card without and with the line, the pharmacy sheet with it, and the line under the out-of-date notice (`line.jpg`); Finland's dialog empty, with an invented name typed, and in dark, with the card in dark (`dialog.jpg`); Germany, Austria, Norway and Sweden, the last of which is not in the live app (`countries.jpg`); the dialog on the desktop in both themes (`desktop.jpg`); and the seam for live stock on example data, labelled as such (`stock.jpg`). No medicine is named: "Esimerkkivalmiste" is an invented name.
+
 ## The iOS app, I1, 25 Nov 2026 (`ios-i1/`)
 
 Screenshots for the pull request "I1: the iOS app". From the iOS Simulator (iPhone 17, iOS 27.2), with a position set in Kamppi, Helsinki, and the real pharmacies of the data host as fetched from OpenStreetMap on 24 Nov. The app's clock was set with its debug launch argument: Wednesday 25 Nov at 20.41, and the night after at 2.30. The first window, the results, a pharmacy picked with the sheet at its lowest place, and the list (`light.jpg`); the same in the dark, with the night when nothing nearby is open (`dark.jpg`); that night by day, English, location denied, and the largest text size (`states.jpg`); and the system's location question with the app's sentence in it (`question.jpg`). The map under the markers is Apple's.
-

@@ -131,6 +131,8 @@ export const riga: Scene = {
   },
 };
 
+for (const pharmacy of [...pharmacies, farOpen]) pharmacy.country = 'LV';
+
 const closedOnly = pharmacies.filter((p) => p.status.kind === 'closed');
 
 /** An example 24-hour pharmacy in the next town, 6.3 km away in a straight line. Too far to be given a walking time. */
@@ -141,6 +143,7 @@ const farAway: Pharmacy = {
   city: 'Mārupe',
   lat: 56.904,
   lon: 24.042,
+  country: 'LV',
   status: { kind: 'open24' },
   straightMeters: 6310,
   phone: '+371 6000 0001',
