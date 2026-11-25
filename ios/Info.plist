@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The two languages of the app's own texts (Auki/Text/Texts.swift), so iOS offers both
+	     and picks by the user's order of preference. Everything else in the app's
+	     Info.plist is generated from the build settings. -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>fi</string>
+		<string>en</string>
+	</array>
+</dict>
+</plist>

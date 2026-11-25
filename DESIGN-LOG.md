@@ -695,3 +695,31 @@ Entry format:
   - Nothing is listed for hours that are missing, unreadable or out of date: the status line already says which.
 - Why: PLAN.md section 5, and the canvas's sheet. Grouped in week order because that is how hours are read; listed from today in order of date, a week that starts on a Thursday would name the weekdays twice ("to–pe", then "ma–ke"). What it can't say: whether a day that differs is a holiday or the ordinary rule. It shows the coming week as it will be.
 - Status: done
+
+## 2026-11-25: iOS (I1): the map with a sheet over it, in three places (provisional)
+- Where: `ios/Auki/Views/ResultsView.swift`, `ResultsSheet.swift`
+- Change: New: the canvas has no iOS board. The map fills the screen and a system sheet lies over its lower part, with the three places the web's phone sheet has: a row (the heading and the pharmacy that leads), half the screen (the card and the start of the list), the whole screen (the list). It can't be dismissed. The map stays usable behind it up to the half place, and what the sheet covers counts as off the map: framing, Apple's attribution and the map's own button stay above it.
+  - The sheet's background is the palette's sheet colour, white by day and navy in the dark, not the system's glass.
+  - The card has one button, "Näytä kartalla", because I1 has no route and no call: pressing it, or a row, frames the position and that pharmacy on the map and marks both.
+  - A pharmacy picked on the map scrolls the list to its row. One picked in the list stays where it is.
+- Why: The web's phone layout, in the system's own parts, so it feels native and reads the same. A list under a half-height map was the other option: simpler, and the map would have been a strip.
+- Status: provisional, waiting for Janne: the layout of a main view on a new platform
+
+## 2026-11-25: iOS (I1): the lit cross, the palette and the system typeface
+- Where: `ios/Auki/Views/CrossGlyph.swift`, `ios/Auki/App/Palette.swift`
+- Change: The status glyph is the web's path with the web's four shapes and stroke weights: filled and lit, amber with an outline, an unlit outline, a dashed outline; in the dark the open one glows. The colours are the tokens of `app/globals.css`, light and dark. The typeface is the system's (San Francisco), not the web's.
+  - On the map a pharmacy is a disc with the glyph: green and filled when open, amber when it closes soon, a pale disc with the outline otherwise. No minutes in it: I1 has no walking times.
+  - Apple's own points of interest are switched off on the map. Otherwise Apple's pharmacy signs would stand next to ours, with no status and from other data.
+  - The glyph grows with the text size, and at the accessibility sizes the distance moves under the name so that neither is squeezed.
+- Why: The lit cross is the one bold signal and has to be the same on both platforms. The system typeface is what makes an iOS app read as native, it follows the user's text size without work, and a second font file would have been the app's only asset to license. Propose-first by CLAUDE.md, since it is a typeface: this is the proposal.
+- Status: provisional, waiting for Janne: the system typeface on iOS
+
+## 2026-11-25: iOS (I1): the texts are the web's, and three are its own
+- Where: `ios/Auki/Text/Texts.swift`, `ios/Auki.xcodeproj` (the location question)
+- Change: Every line the web also has is worded as in `lib/i18n/`, Finnish first, then English. Three texts exist only here:
+  - The system's location question: "Lähimpien apteekkien näyttämiseen. Sovellus ei lähetä sijaintiasi palvelimelleen eikä tallenna sitä." / "To show the pharmacies nearest to you. The app does not send your location to its server and does not save it."
+  - Location denied: "Sijainti on estetty tältä sovellukselta" with "Voit sallia sen Asetuksista." and the button "Avaa Asetukset".
+  - Offline: "Yritä uudelleen, kun yhteys palaa." in place of the web's "Haku jatkuu itsestään", because I1 does not retry by itself.
+  - The first window keeps the web's "Sijaintiasi ei tallenneta."
+- Why: One voice on both platforms. The location question says what the app does and not more: it does not say the position never leaves the phone, because Apple's map is told which part of the map is on screen, as the map tile host is on the web.
+- Status: provisional, waiting for Janne: the wording of the location question, which is a privacy statement

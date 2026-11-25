@@ -6,3 +6,7 @@ BRAND_NAME = Auki
 // The app's identifier. To run on your own iPhone with a free Apple ID it has to be one
 // nobody else has registered: change the first part if Xcode says it is taken (ios/README.md).
 APP_BUNDLE_ID = io.github.tilapit.auki
+
+// Settings of your own that don't belong in git, such as the signing team for running on
+// your own iPhone (ios/README.md): DEVELOPMENT_TEAM = ABCDE12345. The file is optional.
+#include? "Local.xcconfig"

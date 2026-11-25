@@ -41,3 +41,5 @@ certificates
 xcuserdata/
 /ios/build/
 /ios/DerivedData/
+# your own signing team, for running the iOS app on your own phone
+/ios/Local.xcconfig

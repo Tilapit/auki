@@ -116,6 +116,11 @@ struct TileStoreTests {
 
 /// The name, in one place (PLAN.md, decision D4).
 struct BrandTests {
+    @Test func theAppOffersFinnishAndEnglish() {
+        #expect(Set(Bundle.main.localizations).isSuperset(of: ["fi", "en"]))
+        #expect(Bundle.main.developmentLocalization == "fi")
+    }
+
     @Test func theNameIsTheWebsNameAndNothingInTheCodeSpellsItOut() throws {
         // lib/brand.ts, copied into the test bundle as it is.
         let source = String(decoding: try Vectors.data("brand", "ts"), as: UTF8.self)

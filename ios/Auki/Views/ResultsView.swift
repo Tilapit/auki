@@ -7,6 +7,7 @@ struct ResultsView: View {
     @Environment(SearchModel.self) private var model
     @Environment(\.texts) private var texts
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var now = AppClock.now()
     @State private var camera: MapCameraPosition = .automatic
@@ -39,6 +40,8 @@ struct ResultsView: View {
         .onAppear { frame(listing) }
         .onChange(of: model.searchedAt) { frame(model.listing(at: now)) }
         .onChange(of: model.selectedID) { show(model.selectedID) }
+        // Back from the background: what was on screen may be hours old. Read the clock at once.
+        .onChange(of: scenePhase) { if scenePhase == .active { now = AppClock.now() } }
         .task {
             // The statuses turn with the clock: once at every full minute, without a new search.
             while !Task.isCancelled {

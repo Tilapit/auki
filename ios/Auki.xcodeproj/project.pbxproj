@@ -36,6 +36,7 @@
 		A0000000000000000000F007 /* brand.ts */ = {isa = PBXFileReference; lastKnownFileType = text; name = brand.ts; path = ../lib/brand.ts; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F008 /* Brand.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Brand.xcconfig; sourceTree = "<group>"; };
 		A0000000000000000000F009 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		A0000000000000000000F00A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A0000000000000000000F101 /* Auki.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auki.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0000000000000000000F102 /* AukiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AukiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -76,6 +77,7 @@
 			children = (
 				A0000000000000000000F009 /* README.md */,
 				A0000000000000000000F008 /* Brand.xcconfig */,
+				A0000000000000000000F00A /* Info.plist */,
 				A00000000000000000005001 /* Auki */,
 				A00000000000000000005002 /* AukiTests */,
 				A00000000000000000004003 /* Shared with the web */,
@@ -296,6 +298,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "$(BRAND_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lähimpien apteekkien näyttämiseen. Sovellus ei lähetä sijaintiasi palvelimelleen eikä tallenna sitä.";
@@ -326,6 +329,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "$(BRAND_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lähimpien apteekkien näyttämiseen. Sovellus ei lähetä sijaintiasi palvelimelleen eikä tallenna sitä.";

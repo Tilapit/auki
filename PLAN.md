@@ -766,7 +766,15 @@ public/
   sw.js                       hand-written service worker: app files, index.json, the last area's tiles (M6)
   glyphs/                     map label glyphs in our own typeface, with its licence
   maplibre/                   MapLibre's worker, copied from node_modules at build time (not committed)
-ios/                          the iOS app, on its own track (section 11)
+ios/                          the iOS app, on its own track (section 11); `ios/README.md` says how to run and test it
+  Auki.xcodeproj              one app target, one test target; both folders below are kept in step with the disk
+  Brand.xcconfig              the product's name on iOS, in one place (decision D4); a test compares it with lib/brand.ts
+  Auki/Core/                  the tile contract and the time logic in Swift (pure): Tiles, TileFile, Search, HoursStatus, Zone, Geo, Ehditko
+  Auki/Data/                  TileStore (index.json and the squares, from the data host), Locator (the position, once)
+  Auki/Model/                 SearchModel (the one flow), Listing (what leads at a given moment; pure)
+  Auki/Text/                  Texts (every string, Finnish and English side by side), Format (the copy rules of lib/format.ts)
+  Auki/Views/                 the first window, the results (MapKit map and sheet), the problem view
+  AukiTests/                  tests/vectors/*.json copied in as they are, and the app's own tests (xcodebuild test)
 data/
   countries/*.ts              section 8
   corpus/                     pinned snapshot of the distinct opening_hours values per country, for CI
@@ -819,10 +827,12 @@ The iOS track runs alongside from M2 on, in its own session and its own pull req
 
 | # | Build | Done when |
 |---|---|---|
-| I1 | SwiftUI list and map on the same tiles and `index.json`; status from the intervals | The time logic passes the shared vectors with `xcodebuild test` |
+| I1 (built, 25 Nov) | SwiftUI list and map on the same tiles and `index.json`; status from the intervals | The time logic passes the shared vectors with `xcodebuild test` |
 | I2 | Ehditkö as a Live Activity | Arrival, closing time and slack stay on the Lock Screen during the walk |
 
-- The map on iOS is MapKit (native look, little styling) or MapLibre Native (the web style on both platforms): decided after S1.
+- The map on iOS is MapKit (Janne, 24 Nov 2026): the native look, no third-party package. Apple's own points of interest are switched off, so the only pharmacy signs on the map are ours.
+- I1 is a list and a map and nothing more: no walking times, no route, no medicine search, no pharmacy sheet. It has no server of ours: it asks the data host for `index.json` and for squares, and the position is only compared, on the phone, with what has been loaded. MapKit is its one third party, as the map tile host is the web's (`ios/README.md`, "What the phone sends").
+- `Core/Ehditko.swift` passes `tests/vectors/ehditko.json` and is not on screen yet: it is there for I2.
 - macOS runners use up Actions minutes many times faster than Linux on a private repository, so the iOS tests run locally until the repository is public. Each iOS pull request says so and includes the test output.
 
 Geolocation needs HTTPS: test on a phone with `next dev --experimental-https` or a Vercel preview.
@@ -864,6 +874,7 @@ Written for a reader at Treat with five minutes:
 - Staleness: no input gives "open" from data older than 7 days.
 - Tiles: for random positions and random pharmacies, the nearest N found through tiles equal the nearest N by brute force, tile corners included. Writing a tile and reading it back gives the same intervals.
 - Cases with their answers are also saved as JSON (`tests/vectors/`, written from a fixed seed by `npm run vectors`), so the Swift implementation can be checked against the same answers. A unit test fails when the files and the code disagree.
+- **iOS** (`ios/AukiTests/`, `xcodebuild test`, run locally: section 11): the six vector files, copied into the test bundle as they are; the texts and the formats in both languages, the distances against what `lib/format.ts` prints for the same metres; what leads the list at a given moment; the store against a data host the test answers, where the position is in no address; and `Brand.xcconfig` against `lib/brand.ts`.
 
 **Playwright (Chromium and WebKit)**
 
@@ -900,7 +911,7 @@ A new push to a branch cancels the run still going for it: the repository is pri
 - **D2 Prescription helper in v1:** decided: banner + counter card in v1, full guide pages later.
 - **D3 Brand book: closed.** There is none. The app doesn't present itself as Treat's, so the palette sampled from treat.health and Treat's LinkedIn stays.
 - **D4 Name: open again.** Janne doesn't want "Auki" after all. It stays as the working name and must not block a milestone: the name lives in one constant (`lib/brand.ts`) that the copy, the metadata and the manifest read. Decide before the M7 recording and the domain. The repository keeps its name; a rename on GitHub later keeps the pull requests and redirects. Copy examples in this file use the working name.
-- **D5 iOS: decided, and earlier.** SwiftUI, on its own track from M2 on (section 11), because the assignment asks for an iOS app as well as the website. It reads the same static tiles and `index.json` (`docs/tiles.md`) and checks its time logic against the shared test vectors. Showcase: ehditkö as a Live Activity, with arrival, closing time and slack on the Lock Screen during the walk. Open inside it: MapKit or MapLibre Native, decided after the map spike.
+- **D5 iOS: decided, and earlier.** SwiftUI, on its own track from M2 on (section 11), because the assignment asks for an iOS app as well as the website. It reads the same static tiles and `index.json` (`docs/tiles.md`) and checks its time logic against the shared test vectors. Showcase: ehditkö as a Live Activity, with arrival, closing time and slack on the Lock Screen during the walk. The map is MapKit (Janne, 24 Nov 2026; section 11). I1 is built (25 Nov 2026): `ios/`, with its tests run locally.
 - **D6 Map tiles: closed, to be confirmed after the spike.** OpenFreeMap, with our own style. The address of the tiles is config (`NEXT_PUBLIC_MAP_TILES_URL`; M4 renamed it from `MAP_STYLE_URL`, because the style is ours and only the tiles can be swapped) and the README documents the fallback to a second provider or self-hosted tiles. The spike (S1) shows the look on real tiles before M4 builds on it.
 - **D7 Tile hosting: confirmed on 22 Nov 2026.** The Action deploys the tiles as a static project of their own, and the app serves them under its own origin through a cached rewrite (section 7.2). The data host may be public: it holds only OpenStreetMap data. Not taken: building the tiles into the app's own deployment, which would send every deploy through the Action. `CONTACT_EMAIL` is set as a GitHub secret. Still needed from Janne: `VERCEL_TOKEN` as a GitHub secret. Once Janne has logged in to Vercel and set it, Claude Code may create the data project, set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as GitHub secrets, and add `ORS_API_KEY` to the app's Vercel environment when that project exists. Other GitHub and Vercel settings stay with Janne.
 - **D8 Outside the covered countries: accepted.** Section 7.7: a "not covered" view with a map-app hand-off, no live fallback, a notice near the edge of the coverage, and more countries by adding them to a list. Coverage is now 21 countries.
