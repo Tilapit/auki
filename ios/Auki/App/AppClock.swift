@@ -18,7 +18,8 @@ enum AppClock {
 /// - `-now <epoch seconds>`: the app's clock starts from that moment, and runs on from it.
 /// - `-autostart`: the search starts as if the button had been pressed.
 /// - `-detent peek|medium|large`: where the results sheet starts.
-/// - `-select <n>`: with `-autostart`, the nth pharmacy of the results is picked, counting from 0.
+/// - `-select <n>`: with `-autostart`, the nth pharmacy of the results is picked, counting from 0: its sheet opens.
+/// - `-detail large`: that sheet starts fully up, not at half the screen.
 /// - `-problem denied|unavailable|timeout|offline|failed|none|notCovered`: that view.
 enum DebugOptions {
     static func value(_ name: String) -> String? {
