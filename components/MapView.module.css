@@ -43,6 +43,24 @@
 }
 
 /*
+ * Phone: the map reaches the screen's upper edge, and the strip behind the status bar is
+ * Safari's to colour. It takes the colour of what lies fixed at that edge, from 6 px up
+ * (measured in the iOS 27.2 Simulator), so the map's own ground colour lies there, 8 px of it:
+ * the strip and the map then read as one. The lower strip follows the body's background,
+ * which is the sheet's colour while a map view is on screen (ResultsShell.module.css).
+ */
+.edge8 {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  height: 8px;
+  background: var(--map-land);
+  pointer-events: none;
+}
+
+/*
  * MapLibre's canvas. Its own stylesheet is mostly for controls, popups and markers that the
  * app doesn't use, so the few rules the canvas needs are here instead.
  */
@@ -237,6 +255,10 @@
 }
 
 @media (min-width: 900px) {
+  .edge8 {
+    display: none;
+  }
+
   /* On a desktop screen a layer of its own would cost the markers' text its sharpest rendering, and a mouse doesn't need it. */
   .pin {
     will-change: auto;

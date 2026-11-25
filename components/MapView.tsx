@@ -614,6 +614,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       <span ref={padProbe} aria-hidden="true" className={styles.padProbe} />
       <span ref={themeProbe} aria-hidden="true" className={styles.themeProbe} />
       <span ref={colourProbe} aria-hidden="true" className={styles.colourProbe} />
+      {/* Phone: the map's ground colour at the screen's upper edge, for the strip behind the status bar (see DuskScene). */}
+      <span aria-hidden="true" className={styles.edge8} />
       {basemap && <div ref={base} className={styles.base} />}
 
       <div

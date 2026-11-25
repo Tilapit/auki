@@ -19,6 +19,21 @@
   --map-pad: var(--peek-visible);
 }
 
+/*
+ * Phone: behind a map view the page is the sheet's colour. Nothing of it shows on the page,
+ * which the map and the sheet fill; it is what Safari colours the strip behind its own bar
+ * from, under the sheet. And the page is not pulled past its ends: it has nothing to scroll.
+ */
+@media (max-width: 899.98px) {
+  :global(html):has(.shell) {
+    overscroll-behavior: none;
+  }
+
+  :global(html):has(.shell) :global(body) {
+    background: var(--sheet);
+  }
+}
+
 /* The open list covers the map: the camera stays where the card left it. */
 .shell[data-sheet='half'],
 .shell[data-sheet='expanded'] {
