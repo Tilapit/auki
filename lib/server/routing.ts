@@ -46,8 +46,15 @@ export const MAX_BODY_BYTES = 4096;
 /** More points than this in a line are thinned out: a walk of a few kilometres has a few hundred. */
 const MAX_LINE_POINTS = 1500;
 
-const MATRIX_URL = 'https://api.openrouteservice.org/v2/matrix/foot-walking';
-const ROUTE_URL = 'https://api.openrouteservice.org/v2/directions/foot-walking/geojson';
+/**
+ * openrouteservice at HeiGIT's shared address. The old one, api.openrouteservice.org, answers
+ * 410 Gone since 24 Nov 2026; the same key works here (HeiGIT's notice of 28 Apr 2026,
+ * ask.openrouteservice.org/t/7912). Read on 25 Nov 2026, when every walking time in production
+ * had silently become a straight line.
+ */
+export const ORS_URL = 'https://api.heigit.org/openrouteservice/v2';
+export const MATRIX_URL = `${ORS_URL}/matrix/foot-walking`;
+const ROUTE_URL = `${ORS_URL}/directions/foot-walking/geojson`;
 
 /**
  * The list waits 1.5 s for walking times and then goes on without them (PLAN.md 7.1, step 5).
