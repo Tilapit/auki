@@ -320,7 +320,8 @@ private struct FactRow: View {
             .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
+        // Read as one: "Aukioloajat, Ma–pe 8.00–21.00, …". A fact that is a link stays a link of its own.
+        .accessibilityElement(children: fact.link == nil ? .combine : .contain)
     }
 
     /// An address too long for its line breaks after its at sign or before a dot, and nowhere
