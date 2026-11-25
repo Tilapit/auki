@@ -36,3 +36,8 @@ certificates
 
 # worktrees of parallel Claude Code sessions
 /.claude/worktrees/
+
+# Xcode's per-user state and build output (ios/)
+xcuserdata/
+/ios/build/
+/ios/DerivedData/

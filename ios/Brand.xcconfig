@@ -1,0 +1,8 @@
+// The product's name on iOS, in one place. "Auki" is the working name: the final one is
+// undecided (PLAN.md, decision D4). The home screen, the app's own texts and the location
+// question all read it from here, and a unit test fails when it differs from lib/brand.ts.
+BRAND_NAME = Auki
+
+// The app's identifier. To run on your own iPhone with a free Apple ID it has to be one
+// nobody else has registered: change the first part if Xcode says it is taken (ios/README.md).
+APP_BUNDLE_ID = io.github.tilapit.auki
