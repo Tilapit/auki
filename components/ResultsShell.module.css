@@ -147,6 +147,27 @@
   stroke-width: 2.1;
 }
 
+/*
+ * A screen 320 px wide, or a wider one zoomed far in: the bar's two lines wrap instead of
+ * ending in an ellipsis, and the bar grows by a line when it must. Nothing is cut off there
+ * that the usual width shows in full (WCAG 1.4.10).
+ */
+@media (max-width: 359.98px) {
+  .barMain {
+    height: auto;
+    min-height: 52px;
+    padding-block: 6px;
+  }
+
+  .barPlace,
+  .barUpdated {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
 /* Desktop says the same in words under the title. On the phone the bar does it. */
 .elsewhere {
   display: none;
