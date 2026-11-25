@@ -202,6 +202,8 @@ private struct LeadCard: View {
                 }
                 .buttonStyle(SecondaryButtonStyle())
                 .accessibilityAddTraits(selected ? .isSelected : [])
+                // Room above it, so the sheet's lowest place ends under the status line and not on the button's edge.
+                .padding(.top, 8)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

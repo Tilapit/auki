@@ -221,6 +221,27 @@ as a margin for measuring on a sphere.
 The app looks for the nearest 20 within 10 km; if there are none, the nearest five within
 50 km (PLAN.md 7.1). Distances are great-circle distances on a sphere of radius 6,371,008.8 m.
 
+## What the apps do on top of the format
+
+Written down when the iOS app was built (I1, 25 Nov 2026). The tiles gave it everything it
+needed: nothing was added to the format or the pipeline. Four rules are not part of the
+format and not in the vectors, and both apps follow them. The web's code is the reference.
+
+- **A closing more than a day away reads as open around the clock.** A status that is open
+  with `closes − now ≥ 24 hours` is worded like "open around the clock"
+  (`NO_CLOSING_IN_SIGHT_SECONDS` in `lib/live.ts`). The status itself stays "open".
+- **When none of the nearest is open, look farther for one that is.** The nearest pharmacy
+  within 30 km that is open and stays open for at least 30 minutes, through the same search
+  with a filter (`OPEN_SEARCH_RADIUS` and `STAYS_OPEN_SECONDS` in `lib/live.ts`).
+  `search.json` has searches of one within 30 km, without the filter.
+- **A pharmacy on another clock says so.** When the zone of the pharmacy and the zone of the
+  device differ in their offset at `now`, the status line ends in "local time".
+- **An empty text is no text.** `decodeTile` reads `""` in a text column as a missing value.
+  The pipeline doesn't write one, and `tile-file.json` has none.
+
+If a later version of the vectors takes these in, the first two are the ones worth it: they
+decide what a user sees at night.
+
 ## Test vectors
 
 `tests/vectors/`, written by `npm run vectors` from a fixed seed:

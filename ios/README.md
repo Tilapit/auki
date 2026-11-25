@@ -101,7 +101,7 @@ Don't open Apple's own Maps app in the same simulator: its permission questions 
 
 ## What I1 leaves out
 
-By the brief: walking times and ehditkö on screen, the route, medicine availability. Also not here yet: the pharmacy sheet with its details and hand-offs, place search, the prescription banner and the counter card abroad, the notice near the edge of the coverage, offline use, and a refresh that follows a walk (the blue dot follows it; the list is refreshed with the button).
+By the brief: walking times and ehditkö on screen, the route, medicine availability. iPhone only, upright only: an iPad runs it as an iPhone app. Also not here yet: the pharmacy sheet with its details and hand-offs, place search, the prescription banner and the counter card abroad, the notice near the edge of the coverage, offline use, and a refresh that follows a walk (the blue dot follows it; the list is refreshed with the button).
 
 `Core/Ehditko.swift` is in and tested against its vectors, and nothing on screen uses it: it is there for I2.
 
