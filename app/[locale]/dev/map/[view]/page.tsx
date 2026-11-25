@@ -12,19 +12,22 @@ export function generateStaticParams() {
 
 /**
  * One results view on real map tiles, full screen. ?theme=light|dark overrides the device
- * theme, ?z= sets the map's zoom and ?sheet=expanded opens the phone's sheet.
+ * theme, ?z= sets the map's zoom and ?sheet=expanded opens the phone's sheet. ?px=3 lets the
+ * map draw every device pixel of a phone's screen, as it did before it was limited to two per
+ * CSS pixel: to compare the two on a real phone.
  */
 export default async function MapPreviewPage({ params, searchParams }: PageProps<'/[locale]/dev/map/[view]'>) {
   if (!enabled) notFound();
   const { view: id } = await params;
-  const { theme, z, sheet } = await searchParams;
+  const { theme, z, sheet, px } = await searchParams;
   const view = mapViews.find((candidate) => candidate.id === id);
   if (!view) notFound();
   const forced = theme === 'light' || theme === 'dark' ? theme : undefined;
   const zoom = typeof z === 'string' && Number.isFinite(Number(z)) ? Number(z) : undefined;
+  const pixels = typeof px === 'string' && Number(px) >= 1 && Number(px) <= 4 ? Number(px) : undefined;
   return (
     <div data-theme={forced} style={{ minHeight: '100dvh' }}>
-      <MapPreview view={view} zoom={zoom} sheet={sheet === 'expanded' ? 'expanded' : 'peek'} />
+      <MapPreview view={view} zoom={zoom} sheet={sheet === 'expanded' ? 'expanded' : 'peek'} pixels={pixels} />
     </div>
   );
 }

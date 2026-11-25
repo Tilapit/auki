@@ -6,7 +6,7 @@ import { useRouteLine, type RouteFor } from '@/hooks/useRouteLine';
 import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { NO_AREA, type AreaLayer, type Bounds } from '@/lib/map/area';
-import { boxOf, cameraOf, edgeChip, fit, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type Insets, type Project } from '@/lib/map/camera';
+import { boxOf, cameraOf, edgeChip, fit, MAP_PIXEL_RATIO, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type Insets, type Project } from '@/lib/map/camera';
 import { declutter, signScale } from '@/lib/map/declutter';
 import { AREA_ICON, AREA_LAYER, AREA_SOURCE, ROUTE_SOURCE, buildStyle, paletteFor, routeData, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 import { MAP_CREDITS, OSM_COPYRIGHT_URL } from '@/lib/maps';
@@ -66,6 +66,8 @@ interface Props {
    */
   routeTo?: Pharmacy;
   routeFor?: RouteFor;
+  /** /dev/map only: another limit for the map's device pixels per CSS pixel, to compare on a phone. */
+  pixels?: number;
 }
 
 interface Frame {
@@ -137,7 +139,7 @@ const sameOverlay = (a: Overlay, b: Overlay): boolean =>
  * element it listens on: the markers, the edge chips and the credit. A drag or a pinch that
  * begins on any of them then moves the map like any other, and a press is still a press.
  */
-export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, keepSelected, onPick, onView, routeTo, routeFor }: Props) {
+export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, keepSelected, onPick, onView, routeTo, routeFor, pixels = MAP_PIXEL_RATIO }: Props) {
   const i18n = useI18n();
   const { t, locale } = i18n;
 
@@ -379,6 +381,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           zoom: camera.zoom,
           minZoom: MIN_ZOOM,
           maxZoom: MAX_ZOOM,
+          pixelRatio: Math.min(window.devicePixelRatio || 1, pixels),
           // Top-down, north up: no tilting and no turning (decided in the spike, S1).
           maxPitch: 0,
           dragRotate: false,

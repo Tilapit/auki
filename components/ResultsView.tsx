@@ -75,6 +75,8 @@ export interface ResultsOptions {
   medicineExample?: ReactNode;
   /** /dev/states only: the dialog may also be that of a provider that waits for its operator's agreement. */
   medicineReview?: boolean;
+  /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
+  mapPixels?: number;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -528,6 +530,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           onView={options.onArea}
           routeTo={routeTo}
           routeFor={options.routeFor}
+          pixels={options.mapPixels}
         />
       }
       detailOpen={!!detail}

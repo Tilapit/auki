@@ -236,6 +236,18 @@ test('with a mouse: a drag that begins on a marker moves the map and opens nothi
   await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
 });
 
+test.describe('on a screen with three device pixels to one', () => {
+  test.use({ deviceScaleFactor: 3 });
+
+  // Janne's iPhone, 25 Nov 2026: the map changed on 40 to 50 of 60 frames a second. What a pan
+  // costs is drawing, and drawing is per pixel: the map's canvas is limited to two to one.
+  test('the map draws two: the canvas is 780 px wide for 390, and the markers stay as sharp as the screen', async ({ page }) => {
+    await live(page);
+    const canvas = root(page).locator('canvas');
+    expect(await canvas.evaluate((element) => [(element as HTMLCanvasElement).width, element.clientWidth, window.devicePixelRatio])).toEqual([780, 390, 3]);
+  });
+});
+
 test.describe('the map never hands a touch to the page', () => {
   /** What the browser may do with a touch that begins on an element: its own rule and those of everything above it. */
   const allowed = (target: Locator) =>
