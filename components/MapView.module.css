@@ -130,8 +130,11 @@
   z-index: 3;
 }
 
-/* Where markers lie on one another, the one the keyboard is on is in front: what has the focus can be seen. */
-.pin:has(:focus-visible) {
+/*
+ * Where markers lie on one another, the one the keyboard is on is in front: what has the
+ * focus can be seen. Under `.pins`, so that it holds over any rule that orders the markers.
+ */
+.pins .pin:has(:focus-visible) {
   z-index: 4;
 }
 
