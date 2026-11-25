@@ -73,7 +73,7 @@ The data workflow (`.github/workflows/data.yml`) runs the pipeline every night a
 CI (`.github/workflows/ci.yml`) runs on every push: type check, lint, unit tests, production build, Lighthouse budgets, a check that `/dev` is a 404 in that build, then Playwright with the visual comparison against a second build made with `DEV_ROUTES=1`. A newer push to the same branch cancels the running one.
 
 Visual baselines live in `tests/e2e/__screenshots__/`, at 1×, and are made in the CI's Linux image, never on macOS (text renders differently). When a view changes on purpose:
-1. Push a commit whose message contains `[baselines]` (or run the workflow by hand with "baselines" ticked). That run makes new baselines instead of comparing.
+1. Push a commit whose message contains `[baselines]` (or run the workflow by hand with "baselines" ticked). That run makes new baselines instead of comparing: every image again, from a screenshot that has stood still (`--update-snapshots=all`), and only the files whose bytes differ come out changed.
 2. `gh run download <run id> -n baselines -D <an empty folder>`, then copy it over `tests/e2e/__screenshots__/` (`rsync -a`): `gh` won't write over the images that are there.
 3. Look at the changed images, commit them, push. That run compares, and the pull request shows old and new side by side.
 - On a phone in the same network: the dev server listens on every interface, so open `http://<this machine's LAN address>:<port>/fi` (`ipconfig getifaddr en0`). `next.config.ts` allows the machine's LAN addresses as dev origins at start-up; restart the dev server after changing networks. Geolocation needs HTTPS: `npm run dev:https`.
