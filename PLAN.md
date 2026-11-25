@@ -893,10 +893,12 @@ The iOS track runs alongside from M2 on, in its own session and its own pull req
 | # | Build | Done when |
 |---|---|---|
 | I1 (built, 25 Nov) | SwiftUI list and map on the same tiles and `index.json`; status from the intervals | The time logic passes the shared vectors with `xcodebuild test` |
+| I1's basics (built, 25 Nov) | A pharmacy's sheet over the results, as a place card in Apple's Maps: the week's opening hours, the call, the route in Apple Maps | The week passes `tests/vectors/week.json`; a row opens the sheet at half the screen with the marker above it and a pull down closes it, tried with real touches in the Simulator |
 | I2 | Ehditkö as a Live Activity | Arrival, closing time and slack stay on the Lock Screen during the walk |
 
 - The map on iOS is MapKit (Janne, 24 Nov 2026): the native look, no third-party package. Apple's own points of interest are switched off, so the only pharmacy signs on the map are ours.
-- I1 is a list and a map and nothing more: no walking times, no route, no medicine search, no pharmacy sheet. It has no server of ours: it asks the data host for `index.json` and for squares, and the position is only compared, on the phone, with what has been loaded. MapKit is its one third party, as the map tile host is the web's (`ios/README.md`, "What the phone sends").
+- I1 was a list and a map and nothing more. Its basics add a pharmacy's sheet (Janne, 25 Nov 2026): the status, the week's hours as the web groups them (`lib/week.ts`, in Swift as `Core/Week.swift`), what OpenStreetMap knows of the pharmacy, "Soita", and "Reitti Apple Kartoissa", which opens the web's own link with the pharmacy's position and nothing else (section 7.6). Still not there: walking times, a route line on the app's own map, the medicine search.
+- The app has no server of ours: it asks the data host for `index.json` and for squares, and the position is only compared, on the phone, with what has been loaded. MapKit is its one third party, as the map tile host is the web's (`ios/README.md`, "What the phone sends"). The route, the call and the pharmacy's own links leave the app only when their button is pressed.
 - `Core/Ehditko.swift` passes `tests/vectors/ehditko.json` and is not on screen yet: it is there for I2.
 - macOS runners use up Actions minutes many times faster than Linux on a private repository, so the iOS tests run locally until the repository is public. Each iOS pull request says so and includes the test output.
 
@@ -940,7 +942,7 @@ Written for a reader at Treat with five minutes:
 - Staleness: no input gives "open" from data older than 7 days.
 - Tiles: for random positions and random pharmacies, the nearest N found through tiles equal the nearest N by brute force, tile corners included. Writing a tile and reading it back gives the same intervals.
 - Cases with their answers are also saved as JSON (`tests/vectors/`, written from a fixed seed by `npm run vectors`), so the Swift implementation can be checked against the same answers. A unit test fails when the files and the code disagree.
-- **iOS** (`ios/AukiTests/`, `xcodebuild test`, run locally: section 11): the six vector files, copied into the test bundle as they are; the texts and the formats in both languages, the distances against what `lib/format.ts` prints for the same metres; what leads the list at a given moment; the store against a data host the test answers, where the position is in no address; a tile file that is wrong, which is refused and can't crash the app; and `Brand.xcconfig` against `lib/brand.ts`.
+- **iOS** (`ios/AukiTests/`, `xcodebuild test`, run locally: section 11): the seven vector files, copied into the test bundle as they are; the texts and the formats in both languages, the distances against what `lib/format.ts` prints for the same metres, the week's lines against what the web's own test expects; the links of a pharmacy's sheet with the cases of `lib/maps.ts`; what leads the list at a given moment; the store against a data host the test answers, where the position is in no address; a tile file that is wrong, which is refused and can't crash the app; and `Brand.xcconfig` against `lib/brand.ts`. On demand, in a scheme of its own (`ios/AukiUITests/`): a pharmacy's sheet under a finger in the Simulator, against the real tiles.
 
 **Playwright (Chromium and WebKit)**
 
