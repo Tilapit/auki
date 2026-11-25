@@ -7,6 +7,7 @@ import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { NO_AREA, type AreaLayer, type Bounds } from '@/lib/map/area';
 import { boxOf, cameraOf, edgeChip, fit, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type Insets, type Project } from '@/lib/map/camera';
+import { declutter, signScale } from '@/lib/map/declutter';
 import { AREA_ICON, AREA_LAYER, AREA_SOURCE, ROUTE_SOURCE, buildStyle, paletteFor, routeData, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 import { MAP_CREDITS, OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { MAP_TILES_URL } from '@/lib/requests';
@@ -94,6 +95,8 @@ const YOU = 'you-are-here';
 const TILES = 'tiles';
 const ORDER: GlyphState[] = ['closed', 'unknown', 'soon', 'open'];
 const NO_OVERLAY: Overlay = { chips: [], nameAbove: false };
+/** A marker's room before it has been measured: about a capsule with a time. */
+const UNMEASURED = { width: 78, height: 30 };
 /** At most this many chips: the nearest open ones that are off the map. */
 const CHIPS = 3;
 /** A press this near a sign of the area layer counts as a press on it: the signs are 20 px, a fingertip is 44. */
@@ -148,6 +151,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   /** Where the press on a marker, a chip or the credit began, and when it ended if it had become a drag of the map: the events' own clock. */
   const pressed = useRef<{ x: number; y: number } | null>(null);
   const dragEnded = useRef<number | null>(null);
+  /** How much room each marker takes when drawn in full, measured after every render, and which are signs right now. */
+  const sizes = useRef(new Map<string, { width: number; height: number }>());
+  const signs = useRef(new Set<string>());
 
   const [frame, setFrame] = useState<Frame>();
   const [theme, setTheme] = useState<MapTheme>('light');
@@ -183,7 +189,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const route = useRouteLine(routeFor, mode === 'live' && !userOnly ? routeTo : undefined);
 
   // What the handlers below read: always the latest, without being set up again.
-  const current = { all, lit, here, frame, camera, framing, selectedId, keepSelected, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, route, onPick, onView };
+  const current = { all, lit, here, frame, camera, framing, selectedId, nearestOpenId, keepSelected, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, route, onPick, onView };
   const latest = useRef(current);
   useLayoutEffect(() => {
     latest.current = current;
@@ -191,7 +197,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
 
   /** Puts every marker, the dot and the chips where the current camera says they are. */
   const place = useCallback(() => {
-    const { all, lit, here, frame, camera, selectedId, accuracy, approximate } = latest.current;
+    const { all, lit, here, frame, camera, selectedId, nearestOpenId, accuracy, approximate } = latest.current;
     if (!frame) return;
     const live = map.current;
     const project: Project = live
@@ -199,22 +205,50 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       : projector(camera, frame, cameraPadding(frame));
     const zoom = live ? live.getZoom() : camera.zoom;
 
-    const places = new Map<string, { lat: number; lon: number }>(all.map((pharmacy) => [pharmacy.id, pharmacy]));
-    places.set(YOU, here);
+    // Whole pixels: a marker's text is then drawn the same way every time, and stays sharp.
+    const whole = (lat: number, lon: number) => {
+      const point = project(lat, lon);
+      return { x: Math.round(point.x), y: Math.round(point.y) };
+    };
+    const dot = whole(here.lat, here.lon);
+    const points = new Map(all.map((pharmacy) => [pharmacy.id, whole(pharmacy.lat, pharmacy.lon)]));
+    // Where markers would lie on top of each other or on the dot, the one that matters most is
+    // drawn in full and the others as signs: the selected pharmacy, then the nearest open one,
+    // the other open ones from the nearest, then the rest.
+    const rank = (id: string, index: number) => (id === selectedId ? -3 : id === nearestOpenId ? -2 : lit.some((pharmacy) => pharmacy.id === id) ? -1 : 0) * all.length + index;
+    const order = all
+      .map((pharmacy, index) => ({ id: pharmacy.id, rank: rank(pharmacy.id, index), ...points.get(pharmacy.id)!, ...(sizes.current.get(pharmacy.id) ?? UNMEASURED), small: signs.current.has(pharmacy.id) }))
+      .sort((a, b) => a.rank - b.rank);
+    const { small, shift } = declutter(order, dot, zoom);
+    signs.current = small;
+    // A marker that is a sign is the size of the map's own signs at this zoom.
+    const scale = signScale(zoom).toFixed(2);
+    if (root.current && root.current.dataset.signScale !== scale) {
+      root.current.dataset.signScale = scale;
+      root.current.style.setProperty('--sign-scale', scale);
+    }
+
     for (const element of root.current?.querySelectorAll<HTMLElement>('[data-pin]') ?? []) {
-      const at = places.get(element.dataset.pin ?? '');
-      if (!at) continue;
-      // Whole pixels: a marker's text is then drawn the same way every time, and stays sharp.
-      const point = project(at.lat, at.lon);
-      element.style.transform = `translate(${Math.round(point.x)}px, ${Math.round(point.y)}px)`;
-      // The halo is the accuracy the device reports, in the map's own scale, and never smaller than the canvas's 64 px.
-      if (element.dataset.pin === YOU) {
+      const id = element.dataset.pin ?? '';
+      if (id === YOU) {
+        element.style.transform = `translate(${dot.x}px, ${dot.y}px)`;
+        // The halo is the accuracy the device reports, in the map's own scale, and never smaller than the canvas's 64 px.
         const radius = accuracy !== undefined ? accuracy / metersPerPixel(here.lat, zoom) : approximate ? 95 : 32;
         const halo = `${Math.round(Math.min(Math.max(radius, 32), 600) * 2)}px`;
         if (element.dataset.halo !== halo) {
           element.dataset.halo = halo;
           element.style.setProperty('--halo', halo);
         }
+        continue;
+      }
+      const at = points.get(id);
+      if (!at) continue;
+      // The first in that order stands just clear of the dot when it would have covered it.
+      const moved = shift && id === order[0].id ? shift : undefined;
+      element.style.transform = `translate(${at.x + (moved?.x ?? 0)}px, ${at.y + (moved?.y ?? 0)}px)`;
+      if (small.has(id) !== (element.dataset.small !== undefined)) {
+        if (small.has(id)) element.dataset.small = '';
+        else delete element.dataset.small;
       }
     }
 
@@ -286,8 +320,17 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     return () => query.removeEventListener('change', read);
   }, []);
 
-  // After every render the markers are where they belong, before the browser paints.
-  useLayoutEffect(place);
+  // After every render the markers are where they belong, before the browser paints. Their
+  // sizes are read here and only here: a pan or a pinch then reads nothing from the page.
+  useLayoutEffect(() => {
+    const measured = new Map<string, { width: number; height: number }>();
+    for (const element of root.current?.querySelectorAll<HTMLElement>('[data-pin]') ?? []) {
+      const full = element.querySelector<HTMLElement>('[data-full]');
+      if (full && full.offsetWidth > 0) measured.set(element.dataset.pin ?? '', { width: full.offsetWidth, height: full.offsetHeight });
+    }
+    sizes.current = measured;
+    place();
+  });
 
   // A new framing from the scene moves the real map too.
   const framed = useRef(framing);

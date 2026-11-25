@@ -143,6 +143,11 @@
   display: none;
 }
 
+/* The dot is never under a marker: a marker that would cover it is a sign, or stands clear of it (lib/map/declutter.ts). */
+.pin[data-small] {
+  z-index: 0;
+}
+
 .edge {
   position: absolute;
   top: 0;
@@ -262,6 +267,11 @@
     bottom: calc(100% - 1px);
     left: auto;
     transform: none;
+  }
+
+  /* From afar the selected pharmacy is a sign like the rest, and a name beside it would be the only text on the region. */
+  [data-small] .name {
+    display: none;
   }
 
   .edge {
