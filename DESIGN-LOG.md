@@ -776,7 +776,7 @@ Entry format:
 - Change: None. In these eight views axe reports `target-size` (WCAG 2.5.8) for 20 map markers: each lies partly under another control, the bar's buttons, the sheet's handle, an edge chip or the credit, so that less than 24 by 24 px of it can be pressed.
 - Why: A marker stands where its pharmacy is, and the bar and the sheet lie over the map's edges: some marker is always half under one of them, on any map. The criterion excepts this twice: a target whose position is essential (its own example is pins on a map), and one whose function another control on the page offers at full size (every marker's pharmacy is a row of the list, which map.spec.ts holds). axe can know neither. Making a half-covered marker impossible to press would lose touches, which is what the phone test of 25 Nov was about.
   - By the night-run rule the test is not changed to pass: no rule is off and no view is left out, so these eight tests fail in CI.
-- Status: waiting for Janne. Proposed: record the exception in the test itself, for markers and chips only, with a check that the same pharmacy is in the list; everything else stays as strict as it is.
+- Status: superseded on 26 Nov 2026 ("A marker is a button only where a finger has room for it", at the end). No exception is recorded: the finding was right, and the markers changed.
 
 ## 2026-11-25: iOS (I1): the map with a sheet over it, in three places (provisional)
 - Where: `ios/Auki/Views/ResultsView.swift`, `ResultsSheet.swift`
@@ -862,3 +862,18 @@ Entry format:
   - Neither is pulled past its ends (`overscroll-behavior`): above the sky there is no more sky.
 - Why: One picture from edge to edge, at every sky. Before: `#071427` above a sky of `#143266` and under a street of `#0b1b31`. After: the strip and the page's first row are the same colour at night, at golden hour and by day, and so are the last row and the lower strip.
 - Status: done. The 8 px strips can't be seen on the page; if a later Safari reads the edges some other way, they are the thing to revisit.
+
+## 2026-11-26: A marker is a button only where a finger has room for it
+- Where: `lib/map/declutter.ts` (`declutter`'s `away`, `crowded`, `hasRoom`), `place()` in `components/MapView.tsx`, `spread` in `lib/map/camera.ts`; the phone views `riga-peek`, `riga-half`, `helsinki-half`, `far-open-peek`, `far-open-half`, `nothing-open-half`, `stress-half`, `hours-half`, `sheet-far`, `sheet-sparse`, `walking-sheet-unknown`
+- Change: axe's `target-size` (WCAG 2.5.8) failed on map markers in eight phone views on 25 Nov, and in twelve views once the small signs of the iPhone findings were in: a strip of 44 by 1 px of a marker above the sheet, half a marker under the bar with its own chip lying on it, a disc cut by the screen's edge, signs four pixels apart. A marker still stands where its pharmacy is. What changed is which markers are offered to press, worked out by the same pure code that decides full or sign, on every frame:
+  - The bar, the sheet, the credit or the map's edge leaves less than 24 by 24 px of its button, or its middle is beyond what shows: it is not drawn. Its pharmacy is in the list. An open one gets its edge chip, and a chip comes only then: a pharmacy is on the map as its marker or as its chip, never as both. Before, the chip came 40 px before the sheet reached the marker, and lay on it.
+  - An edge chip, a zoom button or the markers that matter more leave it no room: it is drawn where it is and is no button (`inert`: no press, no focus, passed by a screen reader), like the signs the map itself draws for the pharmacies beyond the list. Capsules and discs come before signs, each kind in the order that decides full or sign, and one is a button only if that takes the room of none before it. A press on a pile goes to the sign on top.
+  - A chip that would take the room of the answer's marker moves on along its edge.
+  - The marker the keyboard is on stays as it is until the keyboard has left it.
+  - The map asks for 25 px where the criterion asks for 24. It counts in whole pixels and a browser lays out in fractions; the first failures showed only in CI's Linux, by a few pixels.
+- Why: The finding was right: half a marker under the sheet is nothing a finger can aim at, and a sliver that opens a pharmacy is how the wrong one gets opened. The exception WCAG allows for pins on a map would have recorded the problem, not removed it. Nothing is lost that could be used: every pharmacy is a row of the list, an open one off the map has its chip, and a sign in a pile becomes a button as soon as a pinch gives it room.
+  - Considered and dropped: hiding the signs of a pile that have no room. Nine pharmacies in seventy pixels would have shown as three, and the map's own layer of signs beyond the list would have gone on showing all of its own.
+  - Considered and dropped: moving chips off every marker. A chip would walk the edge away from the line to its pharmacy; only the answer's marker is worth that.
+  - Seen, not changed: a marker that stands whole above the sheet can lie partly under the credit line (`helsinki-half`). It has its room above it.
+  - Seen, not changed: the phone's bar is counted as the strip down to 64 px, as the camera's framing counts it. A phone that lays the bar lower (a safe area at the top) would need that number measured.
+- Status: done. It changes the look of the phone views named above, where a half-covered marker is gone or a chip is gone from a marker that shows; the baselines are new.

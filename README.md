@@ -12,7 +12,7 @@ The spec is [`PLAN.md`](PLAN.md), the working rules are in [`CLAUDE.md`](CLAUDE.
 
 | | Number | Measured |
 |---|---|---|
-| Time to first result on a throttled phone | **2.5 s** | 25 Nov 2026, on the live site. Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from navigation to the first rendered result, from an invented position at Kamppi in Helsinki. Median of five runs (2.5 to 3.4 s): `node scripts/first-result-live.ts`. The list was by straight line: that day the live site's walking service answered with an error after half a second (see "Open pull requests"). With walking times the list waits for them, for a second and a half at the most. |
+| Time to first result on a throttled phone | **2.8 s** | 26 Nov 2026, on the live site. Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from navigation to the first rendered result, from an invented position at Kamppi in Helsinki. Median of five runs (2.7 to 3.6 s): `node scripts/first-result-live.ts`. The list was by walking time in every run: the first result waits for the walking times, for a second and a half at the most. A day earlier, when the walking service's address had changed and the list was by straight line, the same measurement gave 2.5 s. |
 | Opening hours read | **99.9 %** | 25 Nov 2026, from the live data host's [`index.json`](https://auki-data.vercel.app/tiles/v1/index.json), as the night's pipeline run wrote it: of the 38,089 pharmacies that have opening hours in OpenStreetMap, 38,067 were read into open intervals. The same numbers per country are on the app's [data page](https://auki.vercel.app/fi/data). |
 | Initial JavaScript | **174 KB** | 25 Nov 2026, on the live site: the scripts of `/fi` as they travel, compressed by the host, in Lighthouse, median of three runs. The same runs give a mobile LCP of 0.91 s on Lighthouse's phone profile. Nearly all of it is React and the Next.js runtime. |
 
@@ -94,9 +94,9 @@ Checked on every push, on every view of `/dev/states`:
 - **The keyboard alone**, in both browsers: the first window, the position, the results, the phone sheet's three places, a pharmacy's details and back, another place by its name, the counter card. Wherever it stops, and in Chromium on every view: Tab reaches every control that shows, and whatever has the focus can be seen.
 - **Reflow:** at 320 px wide (both browsers) and at 200 % zoom (Chromium) nothing scrolls sideways and no text or control is cut off.
 
-What the first run of these found, and what was changed, is in `DESIGN-LOG.md` under 25 Nov 2026: 506 controls whose name did not contain the text they show, markers the keyboard reached under the phone's open list, a map that Chromium scrolled out of place, a line that was cut off at 320 px.
+What the first run of these found, and what was changed, is in `DESIGN-LOG.md` under 25 and 26 Nov 2026: 506 controls whose name did not contain the text they show, markers the keyboard reached under the phone's open list, a map that Chromium scrolled out of place, a line that was cut off at 320 px.
 
-One finding is left standing on purpose. In eight phone views axe reports a map marker that lies partly under the bar or the sheet's handle as too small a target. A marker stands where its pharmacy is, and the list has the same pharmacy at full size: the criterion (WCAG 2.5.8) excepts both. Those tests fail until it is decided how to record that.
+The last finding was the map's markers. A marker stands where its pharmacy is, so some marker always lies half under the bar, the sheet or another marker, with a sliver left to press. WCAG excepts pins on a map from its target size, and the app does not use the exception: a marker is offered as a button only where 24 by 24 px of it are free. One that the bar, the sheet or the map's edge covers is taken off the map, and an open pharmacy then has a chip on the map's edge, with its walking time and an arrow. One in a pile of signs stays drawn and is no button until a pinch gives it room. Every pharmacy is a row of the list either way.
 
 Status is never told by colour alone: the cross has four shapes. The list is the map's equivalent, and comes first in the tab order.
 
@@ -136,11 +136,10 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 ## Open pull requests
 
-This file describes what is in `main`. Open on 25 Nov 2026, and not described above:
+This file describes what is in `main`. Open on 26 Nov 2026, and not described above:
 
 - [#13](https://github.com/Tilapit/auki/pull/13), the iOS app's basics: a pharmacy's sheet with its hours, the call and the route.
-- [#14](https://github.com/Tilapit/auki/pull/14), walking times work again: openrouteservice's address changed on 24 Nov. Until it is merged and deployed, the live site's distances are straight lines.
-- [#15](https://github.com/Tilapit/auki/pull/15), the iPhone findings of 25 Nov: the pharmacy's details as a place card, markers that don't pile up, lost touches, the screen's edges.
+- [#17](https://github.com/Tilapit/auki/pull/17), milestone M6 cut down: the abroad banner with the field result, and the counter card, in the live app.
 
 ## Run it
 
