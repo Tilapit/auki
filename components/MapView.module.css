@@ -2,6 +2,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* Not a scroll container: a marker beyond the map's edge that takes the keyboard's focus must not shift the whole map. */
+  overflow: clip;
   background: var(--map-land);
   /*
    * Every touch on the map is the map's own, whatever is drawing it: the plain ground before
@@ -50,6 +52,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* As above: once MapLibre has taken the markers in, this is the box a browser would scroll to a focused one. */
+  overflow: clip;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -124,6 +128,11 @@
 
 .front {
   z-index: 3;
+}
+
+/* Where markers lie on one another, the one the keyboard is on is in front: what has the focus can be seen. */
+.pin:has(:focus-visible) {
+  z-index: 4;
 }
 
 .haloPin {
@@ -217,6 +226,9 @@
   color: var(--meta);
   text-decoration: none;
   white-space: nowrap;
+  /* A target 24 px tall (WCAG 2.5.8) in a line that stays 18: the margin takes back what the padding adds. */
+  padding-block: 3px;
+  margin-block: -3px;
 }
 
 .attribution a:hover {

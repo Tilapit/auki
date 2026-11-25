@@ -527,6 +527,25 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     else setMoved({ framing, camera: { lat: here.lat, lon: here.lon, zoom } });
   };
 
+  // The keyboard reaches every marker, wherever the map has been moved to. One that takes its
+  // focus where it can't be seen, under the bar, the sheet, a chip or a control, or beyond the
+  // map's edge, is brought to the middle of what shows: nothing focused is out of sight
+  // (PLAN.md section 9). Only the keyboard's focus does this, and only then is anything
+  // measured: a press selects the marker, and a selected one is framed already.
+  const focusIntoView = (focused: Element) => {
+    const id = focused.closest<HTMLElement>('[data-pin]')?.dataset.pin;
+    if (id === undefined || !focused.matches(':focus-visible')) return;
+    const { all, frame, camera, framing } = latest.current;
+    const target = all.find((pharmacy) => pharmacy.id === id);
+    if (!target || !frame) return;
+    const at = focused.getBoundingClientRect();
+    const hit = document.elementFromPoint(at.left + at.width / 2, at.top + at.height / 2);
+    if (hit && focused.contains(hit)) return;
+    const live = map.current;
+    if (live) live.easeTo({ center: [target.lon, target.lat], padding: cameraPadding(frame), duration: 300 });
+    else setMoved({ framing, camera: { lat: target.lat, lon: target.lon, zoom: camera.zoom } });
+  };
+
   const markerLabel = (pharmacy: Pharmacy) => {
     const way = travel(i18n, pharmacy, scene.distance);
     return [fullName(i18n, pharmacy, needsStreet.has(pharmacy.id)), lowerFirst(statusText(i18n, pharmacy.status)), isOpenNow(pharmacy.status) && way.primary.long]
@@ -538,7 +557,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const ground = live ? ({ '--map-land': paletteFor(theme, sun?.altitude).land } as CSSProperties) : undefined;
 
   return (
-    <div ref={root} className={styles.map} data-map="pending" data-basemap={mode} data-reveal={reveal || undefined} style={ground}>
+    <div ref={root} className={styles.map} data-map="pending" data-basemap={mode} data-reveal={reveal || undefined} style={ground} onFocus={(event) => focusIntoView(event.target)}>
       <span ref={padProbe} aria-hidden="true" className={styles.padProbe} />
       <span ref={themeProbe} aria-hidden="true" className={styles.themeProbe} />
       <span ref={colourProbe} aria-hidden="true" className={styles.colourProbe} />

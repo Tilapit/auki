@@ -111,6 +111,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
   const shellRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLElement>(null);
   const peekProbe = useRef<HTMLSpanElement>(null);
   const halfProbe = useRef<HTMLSpanElement>(null);
   const drag = useRef<Drag | null>(null);
@@ -305,6 +306,21 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     event.stopPropagation();
   };
 
+  // Phone, list open: the sheet covers the map but for a strip under the bar. What can't be
+  // seen can't be focused or pressed either: without this the keyboard went on from the list
+  // to markers that lie under it. The classic sheet leaves half the map in view, so it stays.
+  useEffect(() => {
+    const element = mapRef.current;
+    if (!element) return;
+    const query = window.matchMedia(DESKTOP);
+    const apply = () => {
+      element.inert = at === 'expanded' && !classic && !query.matches;
+    };
+    apply();
+    query.addEventListener('change', apply);
+    return () => query.removeEventListener('change', apply);
+  }, [at, classic]);
+
   // At the card, a card taller than the sheet may show has controls below the screen's edge.
   // When one of them takes focus the sheet opens, so that nothing focused is out of sight.
   // (The list itself is out of reach until it is opened: see the stylesheet.)
@@ -420,7 +436,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
         </div>
       </div>
 
-      <section className={styles.map} aria-label={mapLabel}>
+      <section ref={mapRef} className={styles.map} aria-label={mapLabel}>
         {map}
       </section>
 
