@@ -282,8 +282,9 @@ test('a control under the edge of the screen opens the sheet when it takes focus
   const first = page.locator('ol > li h3 button').first();
   await expect(first).toBeFocused();
   await expect(first).toBeInViewport();
-  // In the open list the button can't be reached at all: Tab from the card's last link goes to the list.
-  await next.focus();
+  // In the open list the button can't be reached at all: Tab from the card's last control goes to the list.
+  // That control is the way to a medicine's stock search, since the card got it (PLAN.md section 5).
+  await card(page).getByRole('button', { name: 'Tarkista saatavuus' }).focus();
   // Safari's Tab stops at text fields only, unless Option is held: that is its default, and WebKit's here.
   await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
   await expect(first).toBeFocused();

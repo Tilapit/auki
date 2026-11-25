@@ -143,6 +143,20 @@ export const groups: ViewGroup[] = [
     ],
   },
   {
+    id: 'medicine',
+    title: 'Medicine availability (provisional): where to check, never whether',
+    note: 'The app hands the question to the country\'s own stock search. The line that opens the dialog is in the card and in every pharmacy sheet of a country that has such a service (see "Proposals" and the sheet views below); Riga has none, so its views are as they were. The dialogs of the other countries are shown over the Helsinki results: only the dialog differs. The last view is the seam for live stock, on invented figures: nothing of it is in the live app.',
+    views: [
+      { id: 'medicine-fi', title: 'Finland: the field, the link to apteekki.fi, what is sent and what is not', ready: 'dialog[open]' },
+      { id: 'medicine-fi-typed', title: 'Finland, a name typed: the link now carries it', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-de', title: 'Germany: no national stock search; a reservation service that under half of the pharmacies have joined, and the dialog says so', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-at', title: 'Austria: the lookup is in an app, so there is no field: the link leads to the Chamber\'s page about the app', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-no', title: 'Norway: no national stock search; the pharmacy association\'s page on how to check each chain', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'medicine-se', title: 'Sweden, not in the live app: ready, and waiting for Lif\'s free linking agreement (Fass terms 4.5)', ready: 'dialog[open]', sizes: PHONE, themes: ['light'] },
+      { id: 'medicine-stock', title: 'The seam: live stock from a provider, on example data, labelled as such', ready: '[data-stock-example]' },
+    ],
+  },
+  {
     id: 'details',
     title: 'Pharmacy sheet and counter card',
     views: [
@@ -210,7 +224,17 @@ const compactSheet: Proposal = {
   proposed: { id: 'sheet-proposed', title: 'Proposed: one row; the card and the list are one and two pulls up', sizes: PHONE },
 };
 
+/** Medicine availability, Janne's note for the night of 24 Nov 2026: built provisionally, waiting for a look. */
+const medicineLine: Proposal = {
+  id: 'medicine',
+  title: 'A way to check a medicine\'s stock: one line under the card and in the pharmacy sheet',
+  reason:
+    'Janne approved the scope change on 24 Nov 2026: where a country has its own stock search, the app hands over to it. Proposed: one quiet line, "Etsitkö tiettyä lääkettä? Tarkista saatavuus", as the card\'s last section and under "Ei varastossa?" in every pharmacy sheet. It opens a dialog that names the service, takes the medicine\'s name where the service\'s address can carry one, and says what is sent and to whom. Nothing is asked before the line is pressed. Provisional: the placement, the wording, and the link opening in a tab of its own.',
+  current: { id: 'medicine-current', title: 'Current: the card ends with "Ei varastossa? Seuraava auki"' },
+  proposed: { id: 'medicine-proposed', title: 'Proposed: the line is the card\'s last section' },
+};
+
 /** Open proposals, each shown as current and proposed side by side. Decided ones move to DESIGN-LOG.md. */
-export const proposals: Proposal[] = [compactSheet, hoursCoverage];
+export const proposals: Proposal[] = [medicineLine, compactSheet, hoursCoverage];
 
 export const allViews: ViewInfo[] = [...groups.flatMap((group) => group.views), ...proposals.flatMap((p) => [p.current, p.proposed])];

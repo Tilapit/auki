@@ -6,6 +6,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
 import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
+import { providerFor, providerForReview } from '@/lib/stock/providers';
 import { travel, withinWalk } from '@/lib/travel';
 import type { AreaLayer, Bounds } from '@/lib/map/area';
 import type { Pharmacy, Scene } from '@/lib/types';
@@ -18,12 +19,14 @@ import { cx } from './cx';
 import { LiveStatus } from './LiveStatus';
 import { Measure } from './Measure';
 import { HoursUnknownCard, NearestOpenCard, NothingOpenCard } from './NearestOpenCard';
+import cardStyles from './NearestOpenCard.module.css';
 import { OpenStatus } from './OpenStatus';
 import { ClosedGroup, PharmacyList } from './PharmacyList';
 import { PharmacySheet } from './PharmacySheet';
 import { ResultsNotice } from './ResultsNotice';
 import { ResultsShell, type SheetState } from './ResultsShell';
 import { MapView } from './MapView';
+import { MedicineDialog, MedicineLine } from './MedicineDialog';
 import styles from './ResultsView.module.css';
 
 export interface ResultsOptions {
@@ -62,6 +65,16 @@ export interface ResultsOptions {
   onArea?: (bounds: Bounds) => void;
   /** Where the walking route to a pharmacy comes from. Without it no route is drawn: /dev/states calls no service. */
   routeFor?: RouteFor;
+  /**
+   * Medicine availability (provisional, DESIGN-LOG.md 25 Nov 2026). false leaves it out, for the
+   * comparison in /dev/states. A country code starts with that country's dialog open.
+   */
+  medicine?: false | string;
+  /** /dev/states only: a name in the dialog's field, and what stands under its link. */
+  medicineValue?: string;
+  medicineExample?: ReactNode;
+  /** /dev/states only: the dialog may also be that of a provider that waits for its operator's agreement. */
+  medicineReview?: boolean;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -82,6 +95,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
   const [detailId, setDetailId] = useState(options.detailId);
   const [counterOpen, setCounterOpen] = useState(options.counter !== undefined);
+  // Which country's stock search the medicine dialog is open for: that of the pharmacy it was opened from.
+  const [medicineFor, setMedicineFor] = useState(typeof options.medicine === 'string' ? options.medicine : undefined);
   const detailRef = useRef<HTMLDialogElement>(null);
 
   const everyone = useMemo(() => [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])], [scene]);
@@ -100,6 +115,13 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const fullNameOf = (pharmacy: Pharmacy) => fullName(i18n, pharmacy, pharmacy.name === null);
   // One surface: abroad, the prescription banner is a section of the card.
   const banner = scene.country && <CountryBanner country={scene.country} />;
+  // Where to check a medicine's stock: the service of the country the card's pharmacy is in
+  // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
+  const offered = options.medicine !== false;
+  const cardProvider = offered ? providerFor((unlisted?.lead ?? nearestOpen ?? firstToOpen ?? scene.pharmacies[0])?.country) : undefined;
+  const openMedicine = cardProvider && (() => setMedicineFor(cardProvider.country));
+  // In the card it is styled by the card: next to "Ei varastossa?" where that line is, else a section of its own.
+  const medicineLine = openMedicine && <MedicineLine className={cardStyles.medicine} onOpen={openMedicine} />;
 
   // Phone: a modal bottom sheet. Desktop: the details take the list's place in the panel.
   useEffect(() => {
@@ -330,6 +352,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
   const hasNotices = !!scene.user.approximate || (stale && scene.dataFrom !== undefined) || missing.length > 0;
   const hasCard = !!lead || !!nearestOpen || !!firstToOpen;
+  // Without a card (out-of-date data has a notice in its place) the line stands by itself, under the notices.
+  const lineAlone = !!medicineLine && !hasCard;
   const hasLists = others.length > 0 || closedGroup.length > 0;
 
   const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status) && !p.tooLate);
@@ -359,7 +383,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       // The card is the sheet's middle place. Under it, the way to the list, when there is more to see.
       listLabel={!stale && hasCard && hasLists ? t.results.allPharmacies(arranged.total) : undefined}
       lead={
-        hasNotices || hasCard ? (
+        hasNotices || hasCard || lineAlone ? (
           <div className={styles.content} data-reveal={options.reveal || undefined}>
             {scene.user.approximate && <ApproximateNotice onSearch={options.onSearch} />}
 
@@ -382,6 +406,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 onShowCard={() => setCounterOpen(true)}
               >
                 {banner}
+                {medicineLine}
               </HoursUnknownCard>
             )}
 
@@ -403,14 +428,18 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 onShowCard={() => setCounterOpen(true)}
               >
                 {banner}
+                {medicineLine}
               </NearestOpenCard>
             )}
 
             {!lead && !nearestOpen && firstToOpen && (
               <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select}>
                 {banner}
+                {medicineLine}
               </NothingOpenCard>
             )}
+
+            {lineAlone && openMedicine && <MedicineLine onOpen={openMedicine} />}
           </div>
         ) : undefined
       }
@@ -465,6 +494,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               nextOpenWithStreet={detailNext && needsStreet.has(detailNext.id)}
               country={scene.country}
               onShowCard={() => setCounterOpen(true)}
+              onMedicine={offered && providerFor(detail.country) ? () => setMedicineFor(detail.country) : undefined}
               onClose={() => setDetailId(undefined)}
               onSelect={select}
             />
@@ -472,14 +502,14 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
         </dialog>
       }
       overlays={
-        scene.card && (
-          <CounterCard
-            card={scene.card}
-            open={counterOpen}
-            onClose={() => setCounterOpen(false)}
-            initialVariant={options.counter}
-          />
-        )
+        <>
+          {scene.card && <CounterCard card={scene.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} />}
+          {offered && (
+            <MedicineDialog provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
+              {options.medicineExample}
+            </MedicineDialog>
+          )}
+        </>
       }
     >
       {hasLists && (

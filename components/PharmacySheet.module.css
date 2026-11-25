@@ -139,6 +139,11 @@
   text-underline-offset: 3px;
 }
 
+/* Under "Ei varastossa?" the way to a medicine's stock search is the second line of the same thought. */
+.next + .medicine {
+  margin-top: -8px;
+}
+
 .footnote {
   color: var(--meta);
   font-size: var(--t-xs);

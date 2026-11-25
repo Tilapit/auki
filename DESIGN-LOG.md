@@ -695,3 +695,46 @@ Entry format:
   - Nothing is listed for hours that are missing, unreadable or out of date: the status line already says which.
 - Why: PLAN.md section 5, and the canvas's sheet. Grouped in week order because that is how hours are read; listed from today in order of date, a week that starts on a Thursday would name the weekdays twice ("to–pe", then "ma–ke"). What it can't say: whether a day that differs is a holiday or the ordinary rule. It shows the coming week as it will be.
 - Status: done
+
+## 2026-11-25: Medicine availability: one line, where the card already talks about stock (provisional)
+- Where: the "Lähin auki nyt" card in all its forms, `PharmacySheet`, `MedicineLine` in `components/MedicineDialog.tsx`; `/dev/states`, "Proposals", current and proposed side by side
+- Change: New, by Janne's scope change of 24 Nov 2026. "Etsitkö tiettyä lääkettä? Tarkista saatavuus" stands right under "Ei varastossa? Seuraava auki: …", in the card and in every pharmacy sheet: the second line of the same thought, starting where that text starts, with no rule between them. In a card without that line (nothing else open, or the prescription banner above it) it is the card's last section, under a hairline of its own. The words after the question are a text button in the link colour; pressed, it opens the medicine dialog (next entry).
+  - Only where the pharmacy's country has a stock search of its own that the app may link to (PLAN.md 7.9). Elsewhere there is no line: Riga's views are as they were.
+  - With out-of-date data, where a notice has the card's place, the line stands under the notice.
+  - Nothing is asked before the line is pressed, and the first window is untouched.
+- Why: The card and the sheet are where the app already says "Ei varastossa?". The question belongs next to that line, and "Reitti" opens the sheet, so everyone on their way to a pharmacy passes it. Next to that line it makes the card 28 px taller (measured at 390 and 1440 px). As a section of its own under a second hairline, which was the first try, it cost 53 px and read as a new subject; a field or a button would have cost three times that.
+  - Seen, not changed: in the Helsinki fixture at the card's place on the phone, those 28 px put the nearest pharmacy's marker under the sheet's edge, so it gets its edge chip, which overlaps what is left of the marker. The fixture's map view is fixed; the live app frames the map for the sheet at its lowest. The overlap of a chip and its own half-hidden marker is older than this change.
+  - Considered and not taken: a search field on the first window (questions on the first visit are on the rejected list); a fourth block button in the sheet (three are already there, and this is not what most people came for); the line at the end of the list (out of sight on the phone until the list is open and scrolled).
+- Status: provisional, waiting for Janne: the placement, and the wording of both halves of the line
+
+## 2026-11-25: The medicine dialog: where to check, never whether (provisional)
+- Where: `MedicineDialog`, `lib/stock/providers.ts`, `medicine` in `lib/i18n/`; `/dev/states`, "Medicine availability"
+- Change: A dialog of its own, "Tarkista lääkkeen saatavuus". Phone: the whole screen, like the counter card. Desktop: a card 520 px wide in the middle. From the top: one or two sentences naming the country's service and who runs it, and under them, smaller and quieter, what limits it (not every pharmacy takes part; the app is not in the Finnish App Store, with the date that was checked); the field "Lääkkeen nimi"; the service's own hint on what it searches by; the link as a primary block button named after where it leads ("Avaa apteekki.fi") with the leaving-the-app mark; two small lines, what is sent and to whom, and that the stock information is the service's own and worth confirming with the pharmacy.
+  - The field is there only when the service's address can carry a name. For a service that takes none there is no field, and the small line says to type the name into the service's own search. The app does not ask for what it can't pass on.
+  - The link opens in a tab of its own. Every other link in the app opens in the same tab (entry of 24 Nov, "The pharmacy sheet's links").
+  - The keyboard's "go" follows the link.
+  - No medicine is named in any text of the app, and the field has no placeholder.
+  - Germany and Norway have no stock search across all pharmacies. Their dialogs say that first, then what the link leads to instead: a reservation service that under half of Germany's pharmacies have joined, and the Norwegian pharmacy association's page on how to check each chain.
+  - Finland's hint says to type the name alone: Lääkehaku finds nothing for a name followed by a strength, or for the substance's name.
+- Why: The app knows nothing about stock, so the dialog's job is to say who does, and to be exact about what happens to the name on the way. A dialog and not a section of the sheet: the sheet is already a screen tall, and the explanation needs five lines.
+  - The whole screen on the phone because the keyboard comes up from below: a sheet anchored to the bottom would have its field and its link under it.
+  - A tab of its own because this hand-off is a search the user comes back from: they look up which pharmacy has it, then return for the route and the hours, and the results should be as they left them. A route hand-off ends the visit; this one doesn't.
+  - No example in the field: any product named there would read as a suggestion (CLAUDE.md, "No medical advice").
+  - The button is named after the host, because that is what the address bar will show next, and it is the user's choice of who gets the name.
+- Status: provisional, waiting for Janne: the tab of its own, the texts, and whether the dialog should name the pharmacy it was opened from
+
+## 2026-11-25: A medicine's name stays on the device until the link is opened
+- Where: the field in `MedicineDialog`, `medicineText` in `lib/stock/provider.ts`, PLAN.md 7.6, `tests/e2e/medicine.spec.ts`
+- Change: The field is not in a form and has no `name`; its value lives in the open dialog's memory and is cleared when the dialog closes; `autocomplete`, `autocorrect`, `autocapitalize` and `spellcheck` are off. The name goes into the link's address as typed: trimmed, inner spaces single, control characters dropped, at most 80 characters. It is never lower-cased, corrected or looked up. The link has `rel="noopener noreferrer"`.
+- Why: Janne's rule 4 of 24 Nov: a medicine's name is health information and never goes to our server. Each choice closes one way it could leak:
+  - A form without an action submits to the page's own address, so a press of Enter before the scripts have loaded would have put the name into our server's log. Without a form there is nothing to submit.
+  - With `autocomplete` on, the browser keeps the name and offers it to the next person who uses the device.
+  - Chrome's and Edge's enhanced spell-check send what is typed to their makers, and a medicine's name is exactly the kind of word a spell-checker stops at.
+  - Without `noopener` the service's tab could reach back into ours.
+- Status: done. Not in our hands: the phone's own keyboard may learn the word, and the service sees the user's IP address with the name, as it would had they typed it there.
+
+## 2026-11-25: Live stock: the seam, and what it would look like (example data, /dev/states only)
+- Where: `StockProvider.stock` in `lib/stock/provider.ts`, `lib/fixtures/stock.ts`, `components/dev/StockExample.tsx`; `/dev/states/medicine-stock`
+- Change: Not in the live app. In `/dev/states` the medicine dialog shows, under its link, what a provider with an agreed API could answer: the product as the service names it, "Tieto: apteekki.fi, klo 20.30", and one row per pharmacy on screen with the service's word for it: "Varastossa", "Vähän jäljellä", "Ei varastossa", "Ei tietoa", each with a mark of its own shape (full, half, ring, dashed ring). A dashed frame and the badge "Esimerkkiaineistoa" stand around it, and the last line says the figures are invented.
+- Why: Janne's item 3: a clear seam, shown, never live. Even here the claim is the service's: its name and the time are part of every answer, and "Ei tietoa" is a level of its own, because a pharmacy the service has no line to is not a pharmacy that is out of stock. The marks differ in shape because status is never told by colour alone (PLAN.md section 9).
+- Status: example only. To decide when a service agrees to an API: where the answer shows (in the dialog as here, or on the list's rows), and how the service's pharmacies are matched to OpenStreetMap's.
