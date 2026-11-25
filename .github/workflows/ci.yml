@@ -28,7 +28,8 @@ jobs:
   ci:
     name: Checks
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # A run takes about 20 minutes since M7 (axe, the keyboard and reflow on every view); it took 12 before.
+    timeout-minutes: 40
     # The browsers and their system libraries come with the image, pinned to the Playwright
     # version in package.json. The visual baselines are made in this same image.
     container:

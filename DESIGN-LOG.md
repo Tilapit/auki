@@ -739,6 +739,45 @@ Entry format:
 - Why: Janne's item 3: a clear seam, shown, never live. Even here the claim is the service's: its name and the time are part of every answer, and "Ei tietoa" is a level of its own, because a pharmacy the service has no line to is not a pharmacy that is out of stock. The marks differ in shape because status is never told by colour alone (PLAN.md section 9).
 - Status: example only. To decide when a service agrees to an API: where the answer shows (in the dialog as here, or on the list's rows), and how the service's pharmacies are matched to OpenStreetMap's.
 
+## 2026-11-25: Accessibility pass (M7): a control's name contains what it shows
+- Where: `lib/travel.ts`, `components/Measure.tsx`, `lib/i18n/` (`card.routeLabel`, `card.directionsLabel`, `card.showAtCounterLabel`, `app.otherLanguageLabel`, `data.home`), `components/DataPage.tsx`
+- Change: Found by axe (rule `label-content-name-mismatch`, WCAG 2.5.3 Label in Name, level A): 506 controls whose name did not contain the text on them. Their names now do:
+  - A marker or an edge chip that shows "3 min" or "130 m" is named "…, 3 min kävellen" and "…, 130 m linnuntietä". Until now "…, 3 minuuttia kävellen".
+  - A button that shows "Reitti": "Reitti kävellen: Kampin apteekki" (was "Kävelyreitti: Kampin apteekki"); English "Route on foot to …" and "Route to …" (were "Walking directions to …", "Directions to …").
+  - "Näytä apteekissa": "Näytä apteekissa: apteekkikortti latviaksi" (was "Näytä apteekkikortti latviaksi").
+  - The round language link that shows "EN": "EN: In English" (was "Vaihda kieli: English", Finnish words in a link marked as English). On the English page "FI: Suomeksi".
+  - The wordmark on the data page, which is a link: "Auki: takaisin apteekkihakuun".
+- Why: Someone who uses the phone by voice says what they see on a control to press it, and the name is what the system listens for. A name that starts with the visible word also reads in the order the eye takes it.
+  - The full words stay where text is read and is not a control's name: the rows of the list, the card and the announcement of the results still say "3 minuuttia kävellen". `travel()` gives both forms (`long` for a name, `spoken` for reading).
+  - PLAN.md section 9 had "Walking directions to …" as its example of a specific name: updated.
+- Status: done. For the VoiceOver pass: listen to a marker's name and hear how "3 min" and "130 m" are read in Finnish and in English.
+
+## 2026-11-25: Accessibility pass (M7): the keyboard on the map
+- Where: `components/MapView.tsx` (`focusIntoView`), `components/MapView.module.css`, `components/ResultsShell.tsx`
+- Change: Found by the keyboard run (`tests/e2e/keyboard.spec.ts`), which asks that whatever has the focus can be seen:
+  - With the phone's list open, the map under it is inert. Until now Tab went on from the list's last row to ten markers under the sheet.
+  - A marker that takes the keyboard's focus where it can't be seen (under the bar or the sheet, under a chip or a control, beyond the map's edge) comes to the middle of the part of the map that shows. Only the keyboard's focus does this: a press selects the marker, and a selected one is framed already.
+  - Where markers lie on one another, the one with the keyboard's focus is drawn in front.
+  - The map is no longer something a browser can scroll (`overflow: clip`). Chromium scrolled the map's own box to a focused marker beyond its edge, and the zoom buttons and every marker went with it: the map stood 800 px to the left until the page was loaded again.
+- Why: PLAN.md section 9, "nothing focused is ever off screen", held for the sheet and not for the map. The fixes are the smallest that make it hold: nothing is taken out of the tab order that can be seen, and nothing moves for a mouse or a finger.
+- Status: done
+
+## 2026-11-25: Accessibility pass (M7): 320 px, credit links, review sheets
+- Where: `components/ResultsShell.module.css` (the phone's bar), `components/MapView.module.css` (`.attribution a`), `components/dev/Sheets.tsx`, `lib/dev/viewList.ts`
+- Change:
+  - At 320 px wide the two lines of the phone's bar wrap, and the bar grows by a line when it must. Found by the reflow run (`tests/e2e/reflow.spec.ts`): "Aukioloaikoja ei tiedetä", "Ei yhtään auki klo 23.40" and "Aukiolotiedot vanhentuneet" ended in an ellipsis there. From 360 px up nothing changes.
+  - The map's credit links are 24 px tall to press and still 18 px tall to look at (WCAG 2.5.8).
+  - The two review sheets of `/dev/states` have an `h1`. "Lähin auki nyt: the ehditkö cases" is now eight views of one card each: the card is a landmark with a name, and one page with eight of them had eight landmarks by one name (axe, `landmark-unique`). No page of the app has two.
+- Why: 320 px is a small iPhone with Display Zoom on, and a desktop window at 400 %. An ellipsis there hid the one line that says whether anything is open.
+- Status: done. Seen, not changed: a place name too long for the bar ends in an ellipsis at every width from 360 px up, as designed in M1 ("the name from the search, however long").
+
+## 2026-11-25: Accessibility pass (M7): what axe still reports, and why it is left failing
+- Where: `tests/e2e/axe.spec.ts`; the phone views `helsinki-half`, `riga-peek`, `riga-half`, `far-open-peek`, `far-open-half`, `nothing-open-half`, `stress-half`, `hours-half`
+- Change: None. In these eight views axe reports `target-size` (WCAG 2.5.8) for 20 map markers: each lies partly under another control, the bar's buttons, the sheet's handle, an edge chip or the credit, so that less than 24 by 24 px of it can be pressed.
+- Why: A marker stands where its pharmacy is, and the bar and the sheet lie over the map's edges: some marker is always half under one of them, on any map. The criterion excepts this twice: a target whose position is essential (its own example is pins on a map), and one whose function another control on the page offers at full size (every marker's pharmacy is a row of the list, which map.spec.ts holds). axe can know neither. Making a half-covered marker impossible to press would lose touches, which is what the phone test of 25 Nov was about.
+  - By the night-run rule the test is not changed to pass: no rule is off and no view is left out, so these eight tests fail in CI.
+- Status: waiting for Janne. Proposed: record the exception in the test itself, for markers and chips only, with a check that the same pharmacy is in the list; everything else stays as strict as it is.
+
 ## 2026-11-25: iOS (I1): the map with a sheet over it, in three places (provisional)
 - Where: `ios/Auki/Views/ResultsView.swift`, `ResultsSheet.swift`
 - Change: New: the canvas has no iOS board. The map fills the screen and a system sheet lies over its lower part, with the three places the web's phone sheet has: a row (the heading and the pharmacy that leads), half the screen (the card and the start of the list), the whole screen (the list). It can't be dismissed. The map stays usable behind it up to the half place, and what the sheet covers counts as off the map: framing, Apple's attribution and the map's own button stay above it.
