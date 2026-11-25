@@ -73,7 +73,7 @@ CI (`.github/workflows/ci.yml`) runs on every push: type check, lint, unit tests
 
 Visual baselines live in `tests/e2e/__screenshots__/`, at 1×, and are made in the CI's Linux image, never on macOS (text renders differently). When a view changes on purpose:
 1. Push a commit whose message contains `[baselines]` (or run the workflow by hand with "baselines" ticked). That run makes new baselines instead of comparing.
-2. `gh run download <run id> -n baselines -D tests/e2e/__screenshots__`
+2. `gh run download <run id> -n baselines -D <an empty folder>`, then copy it over `tests/e2e/__screenshots__/` (`rsync -a`): `gh` won't write over the images that are there.
 3. Look at the changed images, commit them, push. That run compares, and the pull request shows old and new side by side.
 - On a phone in the same network: the dev server listens on every interface, so open `http://<this machine's LAN address>:<port>/fi` (`ipconfig getifaddr en0`). `next.config.ts` allows the machine's LAN addresses as dev origins at start-up; restart the dev server after changing networks. Geolocation needs HTTPS: `npm run dev:https`.
 - `/dev/map` (redirects to `/fi/dev/map`): the results view on real OpenFreeMap tiles, at noon, dusk and night in both themes (`?theme=`, `?z=` for the zoom, `?sheet=expanded`). It calls the map tile host, which is why it is not in `/dev/states`. `DEV_ROUTES=1 npm run build` and `DEV_ROUTES=1 npm run start` keep it in a production build, to measure it there.
