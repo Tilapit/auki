@@ -126,6 +126,12 @@
 }
 
 @media (min-width: 900px) {
+  /* A desktop browser has no strips of the page's colour around the page. */
+  .edgeTop,
+  .edgeBottom {
+    display: none;
+  }
+
   .top {
     padding: 22px max(5vw, 20px);
   }

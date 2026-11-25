@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { declutter, DOT_PX, FULL_FROM_ZOOM, signScale, type Sized } from '@/lib/map/declutter';
+import { declutter, DOT_PX, FIRST_FROM_ZOOM, FULL_FROM_ZOOM, signScale, type Sized } from '@/lib/map/declutter';
 import { buildStyle } from '@/lib/map/style';
 
 /**
@@ -74,10 +74,21 @@ describe('the you-are-here dot', () => {
 });
 
 describe('from afar', () => {
-  it('draws every marker as a sign below the zoom where streets show, the first one too', () => {
-    const markers = [capsule('nearest', 100, 100), capsule('second', 400, 400), disc('closed', 600, 100)];
-    expect([...declutter(markers, far, FULL_FROM_ZOOM - 0.1).small]).toEqual(['nearest', 'second', 'closed']);
+  const markers = [capsule('nearest', 100, 100), capsule('second', 400, 400), disc('closed', 600, 100)];
+
+  it('draws every marker but the first as a sign below the zoom where streets show, however far apart they stand', () => {
+    expect([...declutter(markers, far, FULL_FROM_ZOOM - 0.1).small]).toEqual(['second', 'closed']);
     expect(declutter(markers, far, FULL_FROM_ZOOM).small.size).toBe(0);
+  });
+
+  it('keeps the first in full as far out as the app itself frames the map, and clear of the dot there too', () => {
+    const framed = declutter([capsule('answer', 205, 290), capsule('second', 400, 400)], { x: 200, y: 300 }, FIRST_FROM_ZOOM);
+    expect([...framed.small]).toEqual(['second']);
+    expect(framed.shift).toEqual({ x: 0, y: -20 });
+  });
+
+  it('draws the first as a sign too where the map shows a country: no time sits over half of Finland', () => {
+    expect([...declutter(markers, far, FIRST_FROM_ZOOM - 0.1).small]).toEqual(['nearest', 'second', 'closed']);
   });
 
   it('moves nothing there: a sign may lie under the dot, which is drawn over it', () => {

@@ -12,9 +12,17 @@ import type { Point } from './camera.ts';
 
 /**
  * Below this zoom the map shows a region and not its streets: a walking time on a marker
- * says nothing about where, and a capsule covers a whole town. Every marker is a sign.
+ * says nothing about where, and a capsule covers a whole town. Every marker but the first is
+ * a sign.
  */
 export const FULL_FROM_ZOOM = 11;
+/**
+ * The first marker, the answer, stays in full further out: the app itself frames the map as
+ * far out as this when the nearest open pharmacy is tens of kilometres away, and the answer
+ * is what that view is for. Below it the map shows a country, which only a pinch reaches:
+ * there the first one is a sign too.
+ */
+export const FIRST_FROM_ZOOM = 8;
 /** The small sign with the ring it stands on. */
 export const SIGN_PX = 24;
 /**
@@ -85,17 +93,19 @@ const overlap = (a: Rect, b: Rect): boolean => a.left < b.right && a.right > b.l
  * other open ones from the nearest, then the rest. `dot` is where the user is, when the
  * map shows it.
  *
- * - The first marker is always drawn in full while the zoom shows streets. If it would lie
- *   on the dot it is moved just clear of it, the shorter way: the dot is never covered.
- * - Every other marker is drawn in full only where that covers neither the dot nor
- *   anything already placed, sign or capsule. Otherwise it is a sign.
+ * - The first marker is always drawn in full down to the zoom where the map shows a country.
+ *   If it would lie on the dot it is moved just clear of it, the shorter way: the dot is
+ *   never covered.
+ * - Every other marker is drawn in full only where the zoom shows streets and that covers
+ *   neither the dot nor anything already placed, sign or capsule. Otherwise it is a sign.
  */
 export function declutter(markers: readonly Sized[], dot: Point | undefined, zoom: number): Decluttered {
   const small = new Set<string>();
-  if (zoom < FULL_FROM_ZOOM) {
+  if (zoom < FIRST_FROM_ZOOM) {
     for (const marker of markers) small.add(marker.id);
     return { small };
   }
+  const streets = zoom >= FULL_FROM_ZOOM;
   const placed: Rect[] = [];
   const dotRect = dot && rect(dot, DOT_PX, DOT_PX);
   let shift: Point | undefined;
@@ -113,7 +123,7 @@ export function declutter(markers: readonly Sized[], dot: Point | undefined, zoo
       placed.push(full);
       return;
     }
-    if ((dotRect && overlap(full, dotRect)) || placed.some((other) => overlap(full, other))) {
+    if (!streets || (dotRect && overlap(full, dotRect)) || placed.some((other) => overlap(full, other))) {
       small.add(marker.id);
       placed.push(rect(marker, SIGN_PX, SIGN_PX));
     } else {
