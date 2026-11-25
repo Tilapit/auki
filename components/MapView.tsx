@@ -6,8 +6,8 @@ import { useRouteLine, type RouteFor } from '@/hooks/useRouteLine';
 import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { NO_AREA, type AreaLayer, type Bounds } from '@/lib/map/area';
-import { boxOf, cameraOf, edgeChip, fit, MAP_PIXEL_RATIO, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type Insets, type Project } from '@/lib/map/camera';
-import { declutter, signScale } from '@/lib/map/declutter';
+import { boxOf, cameraOf, edgeChip, fit, MAP_PIXEL_RATIO, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Box, type Camera, type Insets, type Project } from '@/lib/map/camera';
+import { crowded, declutter, hasRoom, signScale, targetOf } from '@/lib/map/declutter';
 import { AREA_ICON, AREA_LAYER, AREA_SOURCE, ROUTE_SOURCE, buildStyle, paletteFor, routeData, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 import { MAP_CREDITS, OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { MAP_TILES_URL } from '@/lib/requests';
@@ -101,6 +101,8 @@ const NO_OVERLAY: Overlay = { chips: [], nameAbove: false };
 const UNMEASURED = { width: 78, height: 30 };
 /** At most this many chips: the nearest open ones that are off the map. */
 const CHIPS = 3;
+/** A chip's room before it has been measured: the arrow, the cross and a time. */
+const CHIP_UNMEASURED = { width: 112, height: 44 };
 /** A press this near a sign of the area layer counts as a press on it: the signs are 20 px, a fingertip is 44. */
 const PICK_WITHIN_PX = 18;
 /**
@@ -156,6 +158,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   /** How much room each marker takes when drawn in full, measured after every render, and which are signs right now. */
   const sizes = useRef(new Map<string, { width: number; height: number }>());
   const signs = useRef(new Set<string>());
+  /** What else lies on the map, in its own pixels, measured with the markers: the credit, the zoom buttons, and each chip's size. */
+  const lying = useRef<{ credit: Box[]; controls: Box[]; chips: Map<string, { width: number; height: number }> }>({ credit: [], controls: [], chips: new Map() });
 
   const [frame, setFrame] = useState<Frame>();
   const [theme, setTheme] = useState<MapTheme>('light');
@@ -221,14 +225,46 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     const order = all
       .map((pharmacy, index) => ({ id: pharmacy.id, rank: rank(pharmacy.id, index), ...points.get(pharmacy.id)!, ...(sizes.current.get(pharmacy.id) ?? UNMEASURED), small: signs.current.has(pharmacy.id) }))
       .sort((a, b) => a.rank - b.rank);
-    const { small, shift } = declutter(order, dot, zoom);
+    // A marker that the bar, the sheet, the credit or the map's edge leaves no room to press is
+    // not drawn (lib/map/declutter.ts). The one the keyboard is on stays as it is until the
+    // keyboard has left it: focus is never taken from under it.
+    const { small, shift, away } = declutter(order, dot, zoom, { clear: boxOf(frame, cameraPadding(frame)), fixed: lying.current.credit });
     signs.current = small;
+    const focused = pins.current?.contains(document.activeElement) ? document.activeElement?.closest<HTMLElement>('[data-pin]')?.dataset.pin : undefined;
     // A marker that is a sign is the size of the map's own signs at this zoom.
     const scale = signScale(zoom).toFixed(2);
     if (root.current && root.current.dataset.signScale !== scale) {
       root.current.dataset.signScale = scale;
       root.current.style.setProperty('--sign-scale', scale);
     }
+
+    // An open pharmacy the map does not show gets a chip on the edge, on the line towards it: the
+    // nearest ones. A chip keeps off the first marker, the answer; any other marker it lies on
+    // is no button while it does.
+    const box = boxOf(frame, chipInsets(frame));
+    const first = order[0];
+    const nudge = (id: string) => (shift && id === first?.id ? shift : undefined);
+    const centre = (id: string) => {
+      const at = points.get(id)!;
+      return { x: at.x + (nudge(id)?.x ?? 0), y: at.y + (nudge(id)?.y ?? 0) };
+    };
+    const shown = order.filter((marker) => !away.has(marker.id) || marker.id === focused);
+    const targets = shown.map((marker) => ({ id: marker.id, small: small.has(marker.id), ...targetOf(centre(marker.id), marker, small.has(marker.id)) }));
+    const off = lit.flatMap((pharmacy) => {
+      const chip = away.has(pharmacy.id) && pharmacy.id !== focused ? edgeChip(project(pharmacy.lat, pharmacy.lon), box) : undefined;
+      return chip ? [{ ...chip, id: pharmacy.id }] : [];
+    }).slice(0, CHIPS);
+    const boxesOf = (placed: typeof off) =>
+      placed.map((chip) => {
+        const { width, height } = lying.current.chips.get(chip.id) ?? CHIP_UNMEASURED;
+        return { left: chip.x - width / 2, top: chip.y - height / 2, right: chip.x + width / 2, bottom: chip.y + height / 2 };
+      });
+    let chips = spread(off, box);
+    // Only when a chip would take the answer's room does it move further along its edge.
+    const answer = first && targets[0]?.id === first.id ? targets[0] : undefined;
+    if (answer && !hasRoom(answer, [...lying.current.controls, ...boxesOf(chips)])) chips = spread(off, box, undefined, [answer]);
+    const chipBoxes = boxesOf(chips);
+    const still = crowded(targets, [...lying.current.controls, ...chipBoxes]);
 
     for (const element of root.current?.querySelectorAll<HTMLElement>('[data-pin]') ?? []) {
       const id = element.dataset.pin ?? '';
@@ -246,22 +282,21 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       const at = points.get(id);
       if (!at) continue;
       // The first in that order stands just clear of the dot when it would have covered it.
-      const moved = shift && id === order[0].id ? shift : undefined;
-      element.style.transform = `translate(${at.x + (moved?.x ?? 0)}px, ${at.y + (moved?.y ?? 0)}px)`;
+      const to = centre(id);
+      element.style.transform = `translate(${to.x}px, ${to.y}px)`;
       if (small.has(id) !== (element.dataset.small !== undefined)) {
         if (small.has(id)) element.dataset.small = '';
         else delete element.dataset.small;
       }
+      if (id === focused) continue;
+      if (away.has(id) !== (element.dataset.away !== undefined)) {
+        if (away.has(id)) element.dataset.away = '';
+        else delete element.dataset.away;
+      }
+      // Drawn, and no button: it takes no press and no focus, and a screen reader passes it by.
+      if (still.has(id) !== element.inert) element.inert = still.has(id);
     }
 
-    const box = boxOf(frame, chipInsets(frame));
-    const chips = spread(
-      lit.flatMap((pharmacy) => {
-        const chip = edgeChip(project(pharmacy.lat, pharmacy.lon), box);
-        return chip ? [{ ...chip, id: pharmacy.id }] : [];
-      }).slice(0, CHIPS),
-      box,
-    );
     // A chip that is already there moves with the map; one that has just come in is placed after it is rendered.
     for (const chip of chips) {
       const element = root.current?.querySelector<HTMLElement>(`[data-chip="${CSS.escape(chip.id)}"]`);
@@ -331,6 +366,18 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       if (full && full.offsetWidth > 0) measured.set(element.dataset.pin ?? '', { width: full.offsetWidth, height: full.offsetHeight });
     }
     sizes.current = measured;
+    // What else lies on the map: where the credit and the zoom buttons are, and how large each chip is.
+    const frameBox = root.current?.getBoundingClientRect();
+    const boxesOf = (selector: string): Box[] =>
+      [...(root.current?.querySelectorAll<HTMLElement>(selector) ?? [])].flatMap((element) => {
+        const box = element.getBoundingClientRect();
+        return frameBox && box.width > 0 ? [{ left: box.left - frameBox.left, top: box.top - frameBox.top, right: box.right - frameBox.left, bottom: box.bottom - frameBox.top }] : [];
+      });
+    lying.current = {
+      credit: boxesOf('[data-credit]'),
+      controls: boxesOf('[data-controls] button'),
+      chips: new Map([...(root.current?.querySelectorAll<HTMLElement>('[data-chip]') ?? [])].map((chip) => [chip.dataset.chip ?? '', { width: chip.offsetWidth, height: chip.offsetHeight }])),
+    };
     place();
   });
 
@@ -688,7 +735,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           <YouDot />
         </span>
 
-        {/* An open pharmacy outside the view gets a chip on the edge, on the line towards it. */}
+        {/* An open pharmacy the map does not show gets a chip on the edge, on the line towards it. */}
         {overlay.chips.map((chip) => {
           const pharmacy = all.find((candidate) => candidate.id === chip.id);
           if (!pharmacy) return null;
@@ -712,7 +759,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         })}
 
         {/* The credit lies on the map like a marker: a finger that lands on it can still move the map. */}
-        <p className={styles.attribution}>
+        <p data-credit className={styles.attribution}>
           {live && MAP_CREDITS.map((credit) => (
             <a key={credit.url} href={credit.url} draggable={false}>
               {credit.label}
@@ -739,7 +786,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         </ul>
       )}
 
-      <div className={styles.controls}>
+      <div data-controls className={styles.controls}>
         <div className={styles.zoom}>
           <button type="button" aria-label={t.map.zoomIn} className={styles.control} onClick={() => zoomBy(1)}>
             <Icon name="plus" />

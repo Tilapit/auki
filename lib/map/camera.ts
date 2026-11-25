@@ -167,13 +167,16 @@ export function edgeChip(point: Point, box: Box, half: Size = { width: 44, heigh
 
 /**
  * Chips that would lie on top of each other are moved apart along the edge they are on.
- * The first ones keep their place, so the caller puts the most important first.
+ * The first ones keep their place, so the caller puts the most important first. A chip also
+ * moves off anything in `keep`: the marker of the pharmacy the map is showing as its answer.
  */
-export function spread<T extends EdgeChip>(chips: T[], box: Box, size: Size = { width: 92, height: 40 }): T[] {
+export function spread<T extends EdgeChip>(chips: T[], box: Box, size: Size = { width: 92, height: 40 }, keep: readonly Box[] = []): T[] {
   const placed: T[] = [];
   for (const chip of chips) {
     let { x, y } = chip;
-    const overlaps = () => placed.some((other) => Math.abs(other.x - x) < size.width && Math.abs(other.y - y) < size.height);
+    const overlaps = () =>
+      placed.some((other) => Math.abs(other.x - x) < size.width && Math.abs(other.y - y) < size.height) ||
+      keep.some((kept) => x - size.width / 2 < kept.right && x + size.width / 2 > kept.left && y - size.height / 2 < kept.bottom && y + size.height / 2 > kept.top);
     const middle = centreOf(box);
     // On a side edge the chip slides down or up; on the top or bottom edge it slides sideways.
     const vertical = Math.abs(x - middle.x) / Math.max(box.right - box.left, 1) > Math.abs(y - middle.y) / Math.max(box.bottom - box.top, 1);

@@ -138,6 +138,15 @@
   visibility: hidden;
 }
 
+/*
+ * A marker that the bar, the sheet, the credit or the map's edge leaves no room to press
+ * (lib/map/declutter.ts): not drawn, so nothing half hidden asks to be pressed. Its pharmacy is
+ * in the list, and an open one has its chip on the edge.
+ */
+.pin[data-away] {
+  visibility: hidden;
+}
+
 .body {
   position: absolute;
   top: 0;

@@ -123,4 +123,15 @@ describe('edge chips', () => {
     expect(Math.abs(b.y - a.y)).toBeGreaterThanOrEqual(40);
     expect(b.x).toBe(second.x);
   });
+
+  it('moves a chip off what it is told to keep clear of: the answer\'s marker, along the edge it is on', () => {
+    const chip = edgeChip({ x: 2400, y: 460 }, box)!;
+    // A marker's button right where the chip would lie.
+    const marker = { left: chip.x - 60, top: chip.y - 22, right: chip.x + 32, bottom: chip.y + 22 };
+    const [moved] = spread([chip], box, undefined, [marker]);
+    expect(moved.x).toBe(chip.x);
+    expect(Math.abs(moved.y - chip.y)).toBeGreaterThanOrEqual(40);
+    // Nothing to keep clear of: it stays.
+    expect(spread([chip], box, undefined, [{ ...marker, top: chip.y + 200, bottom: chip.y + 244 }])).toEqual([chip]);
+  });
 });
