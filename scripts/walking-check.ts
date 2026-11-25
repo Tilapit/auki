@@ -9,7 +9,7 @@
  * Three requests of the day's 500 and 2,000.
  */
 
-import { walking } from '../lib/server/routing.ts';
+import { MATRIX_URL, walking } from '../lib/server/routing.ts';
 
 const KAMPPI = { lat: 60.16952, lon: 24.93545 };
 /** Metres north and east of it. The last one is across the bay: a long way round on foot. */
@@ -30,7 +30,7 @@ if (!key) {
 }
 
 const started = Date.now();
-const raw = await fetch('https://api.openrouteservice.org/v2/matrix/foot-walking', {
+const raw = await fetch(MATRIX_URL, {
   method: 'POST',
   headers: { Authorization: key, 'Content-Type': 'application/json; charset=utf-8' },
   body: JSON.stringify({ locations: [[KAMPPI.lon, KAMPPI.lat], ...to.map((place) => [place.lon, place.lat])], sources: [0], destinations: to.map((_, index) => index + 1), metrics: ['distance', 'duration'], units: 'm' }),
