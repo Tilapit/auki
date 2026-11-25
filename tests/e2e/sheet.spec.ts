@@ -340,6 +340,59 @@ test.describe('with a finger', () => {
     await expectAt(page, 'half');
   });
 
+  test('a tap on the row, beside its button, raises the sheet to the card', async ({ page }) => {
+    await start(page, world(kamppi));
+    await expectAt(page, 'peek');
+    const name = await rest(row(page).getByRole('heading', { level: 3 }));
+    await page.touchscreen.tap(name.x, name.y);
+    await expectAt(page, 'half');
+    await expect(page.getByRole('dialog')).toBeHidden();
+    // At the card a tap on its text does nothing: only the lowest sheet is one big handle.
+    const title = await rest(card(page).getByRole('heading', { level: 3 }));
+    await page.touchscreen.tap(title.x, title.y);
+    await expectAt(page, 'half');
+  });
+
+  // Janne's iPhone, 25 Nov 2026: "sometimes a touch doesn't register". Below the open list the
+  // whole sheet is its handle, so every button on it is pressed through the sheet's own drag.
+  test('a tap by a thumb that rolls a few pixels still presses the button under it, and the sheet stays', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Playwright moves a finger across the screen only through Chromium DevTools.');
+    await start(page, world(kamppi));
+    await expectAt(page, 'peek');
+    const devtools = await page.context().newCDPSession(page);
+    const roll = async (from: { x: number; y: number }, by: number) => {
+      const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', y?: number) =>
+        devtools.send('Input.dispatchTouchEvent', { type, touchPoints: y === undefined ? [] : [{ x: Math.round(from.x), y: Math.round(y) }] });
+      await touch('touchStart', from.y);
+      for (let step = 1; step <= 4; step++) {
+        await page.clock.runFor(16);
+        await touch('touchMove', from.y + (by * step) / 4);
+      }
+      await page.clock.runFor(30);
+      await touch('touchEnd');
+    };
+    const route = row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+    for (const by of [-9, 10]) {
+      await roll(await rest(route), by);
+      await expect(page.getByRole('dialog').getByRole('heading', { level: 2 }), `rolled ${by}`).toHaveText('Kampin apteekki');
+      await expectAt(page, 'peek');
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toBeHidden();
+    }
+    // Thrown upwards from the same button, however short the way: that is the sheet's, and no press.
+    const from = await rest(route);
+    const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', y?: number) =>
+      devtools.send('Input.dispatchTouchEvent', { type, touchPoints: y === undefined ? [] : [{ x: Math.round(from.x), y: Math.round(y) }] });
+    await touch('touchStart', from.y);
+    await page.clock.runFor(8);
+    await touch('touchMove', from.y - 6);
+    await page.clock.runFor(8);
+    await touch('touchMove', from.y - 12);
+    await touch('touchEnd');
+    await expectAt(page, 'half');
+    await expect(page.getByRole('dialog')).toBeHidden();
+  });
+
   test('a finger drags the sheet from the row to the card and on to the list', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'Playwright moves a finger across the screen only through Chromium DevTools. In WebKit it can tap, which the test above does.');
     await start(page, world(kamppi));

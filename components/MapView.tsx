@@ -93,8 +93,12 @@ const NO_OVERLAY: Overlay = { chips: [], nameAbove: false };
 const CHIPS = 3;
 /** A press this near a sign of the area layer counts as a press on it: the signs are 20 px, a fingertip is 44. */
 const PICK_WITHIN_PX = 18;
-/** A press that travelled farther than this was a drag of the map, not a press on the marker it began on. */
-const DRAG_FROM_PX = 6;
+/**
+ * A press that travelled farther than this was a drag of the map, not a press on what it began
+ * on. A mouse is exact. A thumb rolls: browsers themselves still call a touch that has moved
+ * this far a tap, and a tap the browser has made a click of is not ours to throw away.
+ */
+const DRAG_FROM_PX = { mouse: 6, finger: 12 };
 /** The click a mouse makes when it lets go after such a drag comes within this time of letting go. */
 const CLICK_AFTER_DRAG_MS = 400;
 /** Rough sizes, for deciding whether a name fits beside its marker: half a marker's width, a letter, the plate's padding. */
@@ -121,8 +125,9 @@ const sameOverlay = (a: Overlay, b: Overlay): boolean =>
  * markers, the edge chips and the list go on working, and the map says what is missing.
  *
  * Touch: the whole map is the map's to handle (touch-action: none, so a pinch never zooms
- * the page), and once MapLibre is drawing, the markers live inside the element it listens
- * on. A drag or a pinch that begins on a marker then moves the map like any other.
+ * the page), and once MapLibre is drawing, everything that lies on the map lives inside the
+ * element it listens on: the markers, the edge chips and the credit. A drag or a pinch that
+ * begins on any of them then moves the map like any other, and a press is still a press.
  */
 export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, onPick, onView, routeTo, routeFor }: Props) {
   const i18n = useI18n();
@@ -135,7 +140,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const padProbe = useRef<HTMLSpanElement>(null);
   const themeProbe = useRef<HTMLSpanElement>(null);
   const map = useRef<MapLibreMap | null>(null);
-  /** Where the press on a marker began, and when it ended if it had become a drag of the map: the events' own clock. */
+  /** Where the press on a marker, a chip or the credit began, and when it ended if it had become a drag of the map: the events' own clock. */
   const pressed = useRef<{ x: number; y: number } | null>(null);
   const dragEnded = useRef<number | null>(null);
 
@@ -365,8 +370,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           return nearest?.id;
         };
         live.on('click', (event) => {
-          // A press on one of the app's own markers is that marker's: it has its own handler.
-          if ((event.originalEvent.target as Element | null)?.closest?.('[data-pin]')) return;
+          // A press on one of the app's own markers, chips or links is its own: each has its handler.
+          if ((event.originalEvent.target as Element | null)?.closest?.('[data-on-map]')) return;
           const id = signAt(event.point);
           if (id !== undefined) latest.current.onPick?.(id);
         });
@@ -389,8 +394,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           latest.current.onView?.({ north: bounds.getNorth(), south: bounds.getSouth(), west: bounds.getWest(), east: bounds.getEast() });
         });
 
-        // The markers move into the element MapLibre listens on, so a drag or a pinch that begins
-        // on one of them reaches the map. Being moved would play their switching-on again: it has been played.
+        // What lies on the map moves into the element MapLibre listens on, so a drag or a pinch that
+        // begins on a marker, a chip or the credit reaches the map. Being moved would play the
+        // markers' switching-on again: it has been played.
         if (layer) {
           for (const capsule of layer.querySelectorAll<HTMLElement>('[data-lit]')) capsule.style.animation = 'none';
           live.getCanvasContainer().appendChild(layer);
@@ -546,8 +552,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
 
       <div
         ref={pins}
+        data-on-map
         className={styles.pins}
-        // A mouse drag that begins on a marker moves the map and ends on the same marker: the click that
+        // A drag that begins on a marker moves the map and ends on the same marker: the click that
         // follows is not a press on it. Only that click: one from the keyboard or a screen reader comes
         // without a drag before it, and one long after a drag is its own.
         onPointerDownCapture={(event) => {
@@ -556,7 +563,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         onPointerUpCapture={(event) => {
           const from = pressed.current;
           pressed.current = null;
-          dragEnded.current = from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > DRAG_FROM_PX ? event.timeStamp : null;
+          const far = event.pointerType === 'mouse' ? DRAG_FROM_PX.mouse : DRAG_FROM_PX.finger;
+          dragEnded.current = from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > far ? event.timeStamp : null;
         }}
         onPointerCancelCapture={() => {
           pressed.current = null;
@@ -565,7 +573,10 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         onClickCapture={(event) => {
           const ended = dragEnded.current;
           dragEnded.current = null;
-          if (ended !== null && event.timeStamp - ended < CLICK_AFTER_DRAG_MS) event.stopPropagation();
+          if (ended === null || event.timeStamp - ended >= CLICK_AFTER_DRAG_MS) return;
+          // Neither the marker's press nor the credit's link is followed.
+          event.preventDefault();
+          event.stopPropagation();
         }}
       >
         <span data-pin={YOU} className={cx(styles.pin, styles.haloPin)}>
@@ -589,30 +600,40 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         <span data-pin={YOU} className={cx(styles.pin, styles.youPin)}>
           <YouDot />
         </span>
-      </div>
 
-      {/* An open pharmacy outside the view gets a chip on the edge, on the line towards it. */}
-      {overlay.chips.map((chip) => {
-        const pharmacy = all.find((candidate) => candidate.id === chip.id);
-        if (!pharmacy) return null;
-        const way = travel(i18n, pharmacy, scene.distance);
-        return (
-          <button
-            key={chip.id}
-            type="button"
-            data-chip={chip.id}
-            className={cx(styles.edge, 'tnum')}
-            aria-label={(pharmacy.id === nearestOpenId ? t.map.edgeNearest : t.map.edge)(fullName(i18n, pharmacy, needsStreet.has(pharmacy.id)), way.primary.long, t.map.directions[chip.side])}
-            onClick={() => onSelect?.(pharmacy)}
-          >
-            <span data-arrow className={styles.arrow}>
-              <Icon name="arrowUp" size={16} />
-            </span>
-            <CrossGlyph state="open" size={15} />
-            {way.primary.short}
-          </button>
-        );
-      })}
+        {/* An open pharmacy outside the view gets a chip on the edge, on the line towards it. */}
+        {overlay.chips.map((chip) => {
+          const pharmacy = all.find((candidate) => candidate.id === chip.id);
+          if (!pharmacy) return null;
+          const way = travel(i18n, pharmacy, scene.distance);
+          return (
+            <button
+              key={chip.id}
+              type="button"
+              data-chip={chip.id}
+              className={cx(styles.edge, 'tnum')}
+              aria-label={(pharmacy.id === nearestOpenId ? t.map.edgeNearest : t.map.edge)(fullName(i18n, pharmacy, needsStreet.has(pharmacy.id)), way.primary.long, t.map.directions[chip.side])}
+              onClick={() => onSelect?.(pharmacy)}
+            >
+              <span data-arrow className={styles.arrow}>
+                <Icon name="arrowUp" size={16} />
+              </span>
+              <CrossGlyph state="open" size={15} />
+              {way.primary.short}
+            </button>
+          );
+        })}
+
+        {/* The credit lies on the map like a marker: a finger that lands on it can still move the map. */}
+        <p className={styles.attribution}>
+          {live && MAP_CREDITS.map((credit) => (
+            <a key={credit.url} href={credit.url} draggable={false}>
+              {credit.label}
+            </a>
+          ))}
+          <a href={OSM_COPYRIGHT_URL} draggable={false}>{t.map.attribution}</a>
+        </p>
+      </div>
 
       {!userOnly && (
         <ul className={styles.legend} aria-label={t.map.legend}>
@@ -648,14 +669,6 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
 
       {(mode === 'failed' || (live && tilesMissing)) && <p className={styles.missing}>{t.map.failed}</p>}
 
-      <p className={styles.attribution}>
-        {live && MAP_CREDITS.map((credit) => (
-          <a key={credit.url} href={credit.url}>
-            {credit.label}
-          </a>
-        ))}
-        <a href={OSM_COPYRIGHT_URL}>{t.map.attribution}</a>
-      </p>
     </div>
   );
 }

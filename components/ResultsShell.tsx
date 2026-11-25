@@ -22,6 +22,12 @@ type Stop = Exclude<SheetState, 'static'>;
 const DESKTOP = '(min-width: 900px)';
 /** A press has to travel this far before it is a drag: under it, it is still a tap on whatever is there. */
 const DRAG_FROM_PX = 6;
+/**
+ * A thumb rolls as it taps. The sheet follows it from 6 px on, but a finger that has gone no
+ * farther than this and leaves the sheet where it was has tapped: when the browser makes a
+ * click of it, as browsers do for a touch that moved this little, the click is the button's.
+ */
+const FINGER_TAP_PX = 12;
 /** Let go faster than this, in pixels a millisecond, and the sheet goes the way it was thrown. */
 const FLING = 0.5;
 /** Pulled this far above the card, the sheet already shows the list it is on its way to. */
@@ -40,6 +46,8 @@ interface Drag {
   lastY: number;
   lastTime: number;
   velocity: number;
+  /** The farthest the press has been from where it began. */
+  far: number;
   /** What the sheet shows right now: it changes when the drag passes the middle between two places. */
   over: Stop;
 }
@@ -222,7 +230,8 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     const from = places.find((stop) => stop.at === at)?.offset;
     const max = places[places.length - 1].offset;
     if (from === undefined || max <= 0) return;
-    const state: Drag = { pointer: event.pointerId, startY: event.clientY, from, stops: places, active: false, lastY: event.clientY, lastTime: event.timeStamp, velocity: 0, over: at as Stop };
+    const state: Drag = { pointer: event.pointerId, startY: event.clientY, from, stops: places, active: false, lastY: event.clientY, lastTime: event.timeStamp, velocity: 0, far: 0, over: at as Stop };
+    const finger = event.pointerType !== 'mouse';
     drag.current = state;
     const offsetAt = (y: number) => Math.min(max, Math.max(0, state.from + y - state.startY));
     const nearest = (offset: number) => places.reduce((best, stop) => (Math.abs(stop.offset - offset) < Math.abs(best.offset - offset) ? stop : best)).at;
@@ -243,6 +252,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     // On the window: a mouse leaves the sheet as soon as it moves up from the handle.
     const move = (moved: PointerEvent) => {
       if (moved.pointerId !== state.pointer) return;
+      state.far = Math.max(state.far, Math.abs(moved.clientY - state.startY));
       if (!state.active) {
         if (Math.abs(moved.clientY - state.startY) < DRAG_FROM_PX) return;
         state.active = true;
@@ -271,18 +281,21 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
       window.removeEventListener('pointercancel', end);
       drag.current = null;
       if (!state.active) return;
-      // The press that ends a drag is not a tap on whatever was under it.
-      dragged.current = ended.timeStamp;
       const offset = offsetAt(state.lastY);
       const thrown = ended.type === 'pointerup' && Math.abs(state.velocity) > FLING;
       // Thrown: the next place that way from where it was let go. There may be none: then the nearest.
       const onward = thrown ? (state.velocity < 0 ? places.filter((stop) => stop.offset < offset).pop() : places.find((stop) => stop.offset > offset)) : undefined;
+      const settles = onward?.at ?? nearest(offset);
+      // The press that ends a drag is not a tap on whatever was under it. A finger that only
+      // rolled, and leaves the sheet where it was, has not dragged anything.
+      const rolled = finger && state.far <= FINGER_TAP_PX && settles === at;
+      dragged.current = rolled ? null : ended.timeStamp;
       panel.style.transition = '';
       panel.style.transform = '';
       panel.style.removeProperty('user-select');
       panel.style.removeProperty('-webkit-user-select');
       shell.style.removeProperty('--map-pad');
-      show(onward?.at ?? nearest(offset));
+      show(settles);
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', end);
@@ -318,6 +331,14 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
   const openList = () => {
     toList.current = true;
     onSheetChange?.('expanded');
+  };
+  // A press on the row itself, beside its button, raises the sheet to the card: the row is the
+  // sheet's visible part, and a press that did nothing there read as a touch that was lost. The
+  // handle stays the control with a name, for the keyboard and for screen readers.
+  const onRowClick = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (at !== 'peek' || window.matchMedia(DESKTOP).matches) return;
+    if ((event.target as Element).closest('button, a')) return;
+    onSheetChange?.(next);
   };
 
   const vars = {
@@ -386,7 +407,8 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
             </div>
             {status}
             {hasPeek && (
-              <div ref={peekRef} className={styles.peek}>
+              // Not a control of its own: the handle above is the same action for the keyboard.
+              <div ref={peekRef} className={styles.peek} onClick={onRowClick}>
                 {peek}
               </div>
             )}

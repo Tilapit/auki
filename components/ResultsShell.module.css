@@ -73,6 +73,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Only its two controls take the pointer: the gap between them is the map's. */
+  pointer-events: none;
+}
+
+.bar > * {
+  pointer-events: auto;
 }
 
 .barMain {
@@ -205,10 +211,14 @@
   touch-action: none;
 }
 
-/* 44 px target around the small handle. */
+/*
+ * 44 px target around the small handle, 88 px wide. It reaches 12 px above the sheet's edge,
+ * over the map: only around the handle, so that beside it a finger that lands right above the
+ * sheet moves the map and not the sheet.
+ */
 .grabber::after {
   position: absolute;
-  inset: -12px 0 -6px;
+  inset: -12px calc(50% - 44px) -6px;
   content: '';
 }
 
