@@ -50,6 +50,11 @@ interface Props {
   area?: AreaLayer;
   /** A pharmacy picked from that layer, while it is the selected one: it gets a marker like the scene's own. */
   extra?: Pharmacy;
+  /**
+   * The selected pharmacy's details are open: when the phone's sheet grows over its marker, the
+   * map moves so that the marker is in view again above the sheet.
+   */
+  keepSelected?: boolean;
   /** One of the layer's signs was pressed: its pharmacy's id. */
   onPick?: (id: string) => void;
   /** The map was moved by hand: what it shows now, for loading the squares that came into view. */
@@ -129,7 +134,7 @@ const sameOverlay = (a: Overlay, b: Overlay): boolean =>
  * element it listens on: the markers, the edge chips and the credit. A drag or a pinch that
  * begins on any of them then moves the map like any other, and a press is still a press.
  */
-export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, onPick, onView, routeTo, routeFor }: Props) {
+export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, keepSelected, onPick, onView, routeTo, routeFor }: Props) {
   const i18n = useI18n();
   const { t, locale } = i18n;
 
@@ -178,7 +183,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const route = useRouteLine(routeFor, mode === 'live' && !userOnly ? routeTo : undefined);
 
   // What the handlers below read: always the latest, without being set up again.
-  const current = { all, lit, here, frame, camera, framing, selectedId, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, route, onPick, onView };
+  const current = { all, lit, here, frame, camera, framing, selectedId, keepSelected, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, route, onPick, onView };
   const latest = useRef(current);
   useLayoutEffect(() => {
     latest.current = current;
@@ -495,33 +500,48 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     give();
   }, [route, routeId, mode]);
 
-  // The sheet opened or closed, or the layout changed: keep the camera's centre in the part of the map that shows.
+  /**
+   * Where the camera has to go for the selected pharmacy to be in view in the part of the map
+   * that the bar and the sheet leave free: nowhere when it already is, otherwise far enough to
+   * show it together with the dot. Worked out for the frame as it is now, sheet included.
+   */
+  const showSelected = useCallback((): Camera | undefined => {
+    const { all, here, frame, camera, selectedId } = latest.current;
+    const target = all.find((pharmacy) => pharmacy.id === selectedId);
+    if (!target || !frame) return undefined;
+    const live = map.current;
+    // The camera as it is, under the frame's own padding: the real map may still be easing to that padding.
+    const centre = live?.getCenter();
+    const zoom = live ? live.getZoom() : camera.zoom;
+    const now: Camera = centre ? { lat: centre.lat, lon: centre.lng, zoom } : camera;
+    const point = projector(now, frame, cameraPadding(frame))(target.lat, target.lon);
+    const box = boxOf(frame, chipInsets(frame));
+    if (point.x >= box.left && point.x <= box.right && point.y >= box.top && point.y <= box.bottom) return undefined;
+    return fit([here, target], frame, { ...chipInsets(frame), bottom: Math.max(chipInsets(frame).bottom, frame.pad) }, { maxZoom: zoom });
+  }, []);
+
+  // The sheet opened or closed, or the layout changed: keep the camera's centre in the part of the
+  // map that shows. With a pharmacy's details open, its marker stays in view above the sheet too.
   const pad = frame?.pad;
   useEffect(() => {
-    const frame = latest.current.frame;
-    if (mode !== 'live' || !frame) return;
-    map.current?.easeTo({ padding: cameraPadding(frame), duration: 200 });
-  }, [pad, desktop, mode]);
+    const { frame, framing, keepSelected } = latest.current;
+    if (!frame) return;
+    const next = keepSelected ? showSelected() : undefined;
+    if (mode === 'live') map.current?.easeTo({ ...(next ? { center: [next.lon, next.lat], zoom: next.zoom } : {}), padding: cameraPadding(frame), duration: next ? 300 : 200 });
+    else if (next) setMoved({ framing, camera: next });
+  }, [pad, desktop, mode, showSelected]);
 
   // A pharmacy picked in the list comes into view on the map, together with the dot.
   const picked = useRef(selectedId);
   useEffect(() => {
     if (picked.current === selectedId) return;
     picked.current = selectedId;
-    const { all, here, frame, camera, framing } = latest.current;
-    const target = all.find((pharmacy) => pharmacy.id === selectedId);
-    if (!target || !frame) return;
-    const live = map.current;
-    const project: Project = live ? (lat, lon) => live.project([lon, lat]) : projector(camera, frame, cameraPadding(frame));
-    const point = project(target.lat, target.lon);
-    const box = boxOf(frame, chipInsets(frame));
-    if (point.x >= box.left && point.x <= box.right && point.y >= box.top && point.y <= box.bottom) return;
-    const zoom = live ? live.getZoom() : camera.zoom;
-    const next = fit([here, target], frame, { ...chipInsets(frame), bottom: Math.max(chipInsets(frame).bottom, frame.pad) }, { maxZoom: zoom });
-    if (!next) return;
-    if (live) live.easeTo({ center: [next.lon, next.lat], zoom: next.zoom, padding: cameraPadding(frame), duration: 400 });
+    const { frame, framing } = latest.current;
+    const next = showSelected();
+    if (!next || !frame) return;
+    if (map.current) map.current.easeTo({ center: [next.lon, next.lat], zoom: next.zoom, padding: cameraPadding(frame), duration: 400 });
     else setMoved({ framing, camera: next });
-  }, [selectedId]);
+  }, [selectedId, showSelected]);
 
   const zoomBy = (step: number) => {
     if (map.current) map.current.easeTo({ zoom: map.current.getZoom() + step, duration: 200 }, { byHand: true });

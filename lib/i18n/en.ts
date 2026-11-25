@@ -106,6 +106,7 @@ const en: Dictionary = {
     byStraight: 'In a straight line',
     allPharmacies: (count) => `All ${count} pharmacies`,
     showMore: 'Show more',
+    showLess: 'Show less',
     expandSheet: 'Show the list',
     collapseSheet: 'Shrink the list',
     closedNow: 'Closed now',

@@ -146,7 +146,9 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
       )}
 
       <div className={styles.actions}>
+        {/* The phone's sheet shows the details down to this button at its middle height (data-fold). */}
         <Button
+          data-fold
           variant="primary"
           size="block"
           icon={walk ? 'walk' : 'directions'}

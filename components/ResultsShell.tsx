@@ -83,11 +83,14 @@ interface Props {
   map: ReactNode;
   mapLabel: string;
   /**
-   * Pharmacy details. Phone: a modal sheet over everything. Desktop: takes the list's place
-   * in the panel while detailOpen is true.
+   * Pharmacy details. They take the list's place while detailOpen is true: in the panel on
+   * the desktop, and in the phone's sheet, which then rests at a middle height with the map
+   * above it, or fully up. Dragged down to the row, the sheet says so and the details close.
    */
   detail?: ReactNode;
   detailOpen?: boolean;
+  /** Phone: how much of the details the sheet shows at its middle height, in pixels from their top. */
+  detailFold?: number;
   /** Dialogs. */
   overlays?: ReactNode;
   /** False where the view already shows the emergency number prominently. */
@@ -109,7 +112,7 @@ interface Props {
  * Desktop: list panel on the left, map on the right. The list comes before the map in
  * the document, so it is first in the tab order (PLAN.md section 9).
  */
-export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, sheetStyle, status, peek, lead, listLabel, children, distance, map, mapLabel, detail, detailOpen, overlays, emergencyInFooter = true, onRefresh, onPlace, dataFrom, focusTitle }: Props) {
+export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, sheetStyle, status, peek, lead, listLabel, children, distance, map, mapLabel, detail, detailOpen, detailFold, overlays, emergencyInFooter = true, onRefresh, onPlace, dataFrom, focusTitle }: Props) {
   const { t, f } = useI18n();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const peekRef = useRef<HTMLDivElement>(null);
@@ -128,17 +131,20 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
   const focused = useRef<Element | null>(null);
   /** The list was opened from "Kaikki N apteekkia", which then goes away: focus moves on to the list. */
   const toList = useRef(false);
+  /** How far the open list was scrolled: a pharmacy's details take its place for a while, and it comes back where it was. */
+  const listTop = useRef(0);
 
   useEffect(() => {
     if (focusTitle) titleRef.current?.focus();
   }, [focusTitle]);
 
-  const classic = sheetStyle === 'classic';
+  const classic = sheetStyle === 'classic' && !detailOpen;
   const hasPeek = peek !== undefined;
   const hasLead = lead !== undefined;
   const hasMore = listLabel !== undefined && !classic;
-  // Without a row to show, the sheet's lowest place is the card. The classic sheet has no card stop.
-  const at: SheetState = sheet === 'peek' && !hasPeek ? 'half' : sheet === 'half' && classic ? 'peek' : sheet;
+  // A pharmacy's details rest at the middle or fully up. Otherwise: without a row to show, the
+  // sheet's lowest place is the card, and the classic sheet has no card stop.
+  const at: SheetState = detailOpen ? (sheet === 'expanded' ? 'expanded' : 'half') : sheet === 'peek' && !hasPeek ? 'half' : sheet === 'half' && classic ? 'peek' : sheet;
 
   // The lowest sheet is exactly as tall as its row, whatever the text size.
   const [peekHeight, setPeekHeight] = useState<number>();
@@ -185,33 +191,78 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     return () => observer.disconnect();
   }, [sheet]);
 
-  // Only the open list scrolls: anywhere else the content starts from its top again. When the
+  // Only the open sheet scrolls: anywhere else the content starts from its top again. When the
   // list opens, focus is kept in sight: what took it below the fold is brought into view, and
   // from "Kaikki N apteekkia", which goes away, it moves on to the list that button promised.
+  // A list that a pharmacy's details had taken the place of comes back where it was left.
   useEffect(() => {
     if (window.matchMedia(DESKTOP).matches) return;
-    if (at !== 'expanded') scrollRef.current?.scrollTo({ top: 0 });
+    const scroll = scrollRef.current;
+    if (at !== 'expanded' || detailOpen) scroll?.scrollTo({ top: 0 });
     else if (toList.current) listsRef.current?.querySelector<HTMLElement>('button, a[href]')?.focus();
-    else focused.current?.scrollIntoView({ block: 'nearest' });
+    else if (focused.current) focused.current.scrollIntoView({ block: 'nearest' });
+    else scroll?.scrollTo({ top: listTop.current });
+    if (at !== 'expanded' && !detailOpen) listTop.current = 0;
     focused.current = null;
     toList.current = false;
-  }, [at]);
+  }, [at, detailOpen]);
 
   const time = updated && <time dateTime={updated}>{f.clock(updated)}</time>;
-  const toggles = sheet !== 'static';
+  const toggles = at !== 'static';
   const expanded = at === 'expanded';
 
   /** The places the sheet can rest in, lowest first. */
-  const stops: Stop[] = classic ? ['peek', 'expanded'] : hasPeek ? ['peek', 'half', 'expanded'] : ['half', 'expanded'];
+  const stops: Stop[] = detailOpen ? ['half', 'expanded'] : classic ? ['peek', 'expanded'] : hasPeek ? ['peek', 'half', 'expanded'] : ['half', 'expanded'];
   // A press on the handle goes one place up, and from the top back to the lowest.
   const next = stops[(stops.indexOf(at as Stop) + 1) % stops.length];
-  const handleLabel = next === 'half' ? t.results.showMore : next === 'expanded' ? t.results.expandSheet : t.results.collapseSheet;
+  const handleLabel = detailOpen ? (next === 'expanded' ? t.results.showMore : t.results.showLess) : next === 'half' ? t.results.showMore : next === 'expanded' ? t.results.expandSheet : t.results.collapseSheet;
+
+  // What the listeners below read: always the latest, without being set up again.
+  const current = { at, detailOpen: !!detailOpen };
+  const latest = useRef(current);
+  useEffect(() => {
+    latest.current = current;
+  });
+
+  // Fully up, the sheet's content scrolls like any list. At its top, a finger that pulls
+  // down has nothing left to scroll: it takes the sheet down with it (the drag below), and the
+  // browser must not scroll or stretch anything meanwhile. It is told so on the first move of
+  // such a pull, which is the only moment it asks; every other touch stays the scroller's own.
+  useEffect(() => {
+    const scroll = scrollRef.current;
+    if (!scroll) return;
+    let from: { x: number; y: number } | null = null;
+    let pull: boolean | null = false;
+    const start = (event: TouchEvent) => {
+      const [touch] = event.touches;
+      const armed = event.touches.length === 1 && latest.current.at === 'expanded' && scroll.scrollTop <= 0 && !window.matchMedia(DESKTOP).matches;
+      from = armed ? { x: touch.clientX, y: touch.clientY } : null;
+      pull = armed ? null : false;
+    };
+    const move = (event: TouchEvent) => {
+      if (pull === null && from) {
+        const [touch] = event.touches;
+        const down = touch.clientY - from.y;
+        pull = down > 0 && down > Math.abs(touch.clientX - from.x);
+      }
+      if (pull && event.cancelable) event.preventDefault();
+    };
+    scroll.addEventListener('touchstart', start, { passive: true });
+    scroll.addEventListener('touchmove', move, { passive: false });
+    return () => {
+      scroll.removeEventListener('touchstart', start);
+      scroll.removeEventListener('touchmove', move);
+    };
+  }, []);
 
   // Dragging the phone's sheet (PLAN.md section 5). It follows the finger between its places
   // and settles on the nearest, or one place the way it was thrown. On the way it shows what
   // it is coming to: the card once it is halfway up from the row, the list as soon as it is
-  // pulled above the card. Below the open list the whole sheet is the handle; open, only the
-  // handle is, so the list under it scrolls as usual.
+  // pulled above the card. Below its open place the whole sheet is the handle. Open, the handle
+  // is, and so is the content while it is at its top and a finger pulls it down: otherwise the
+  // content scrolls as usual.
+  // With a pharmacy's details in it the sheet rests at the middle or fully up, and a drag takes
+  // it down to the row as well: let go there, the details close (Apple Maps' place card).
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     dragged.current = null;
     const shell = shellRef.current;
@@ -221,12 +272,13 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     if (!toggles || !shell || !panel || !low || !middle || drag.current || window.matchMedia(DESKTOP).matches) return;
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     const target = event.target as Element;
-    // The pharmacy's own sheet lies over this one: a drag in it is not a drag of this.
-    if (target.closest('dialog')) return;
-    if (expanded && !target.closest('[data-grab]')) return;
+    // Open, the content is the scroller's. Only a finger that pulls it down from its top moves the sheet.
+    const pull = expanded && !target.closest('[data-grab]');
+    if (pull && (event.pointerType === 'mouse' || (scrollRef.current?.scrollTop ?? 0) > 0)) return;
     const height = panel.offsetHeight;
     const visible: Record<Stop, number> = { expanded: height, half: middle.offsetHeight, peek: low.offsetHeight };
-    const places = stops.map((stop) => ({ at: stop, offset: height - visible[stop] })).sort((a, b) => a.offset - b.offset);
+    const reach: Stop[] = detailOpen ? ['peek', ...stops] : stops;
+    const places = reach.map((stop) => ({ at: stop, offset: height - visible[stop] })).sort((a, b) => a.offset - b.offset);
     const from = places.find((stop) => stop.at === at)?.offset;
     const max = places[places.length - 1].offset;
     if (from === undefined || max <= 0) return;
@@ -240,13 +292,20 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     /** What the sheet holds while it is at an offset. Without a card stop (the classic sheet): what is nearest. */
     const holds = (offset: number): Stop => {
       if (!card) return nearest(offset);
-      if (row && offset > (row.offset + card.offset) / 2) return 'peek';
+      // A pharmacy's details stay in the sheet until it is let go at the row.
+      if (row && !detailOpen && offset > (row.offset + card.offset) / 2) return 'peek';
       return offset > card.offset - LIST_FROM_PX ? 'half' : 'expanded';
     };
     const show = (stop: Stop) => {
       if (stop === state.over) return;
       state.over = stop;
       onSheetChange?.(stop);
+    };
+    const release = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      drag.current = null;
     };
 
     // On the window: a mouse leaves the sheet as soon as it moves up from the handle.
@@ -255,6 +314,8 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
       state.far = Math.max(state.far, Math.abs(moved.clientY - state.startY));
       if (!state.active) {
         if (Math.abs(moved.clientY - state.startY) < DRAG_FROM_PX) return;
+        // Upwards from the top of the open content: that is a scroll, and the scroller's.
+        if (pull && moved.clientY < state.startY) return release();
         state.active = true;
         panel.style.transition = 'none';
         // A mouse that drags the sheet by its text would select that text on the way, and the next
@@ -276,10 +337,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     };
     const end = (ended: PointerEvent) => {
       if (ended.pointerId !== state.pointer) return;
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', end);
-      window.removeEventListener('pointercancel', end);
-      drag.current = null;
+      release();
       if (!state.active) return;
       const offset = offsetAt(state.lastY);
       const thrown = ended.type === 'pointerup' && Math.abs(state.velocity) > FLING;
@@ -344,6 +402,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
   const vars = {
     ...(peekHeight ? { '--peek': `${peekHeight}px` } : {}),
     ...(leadHeight ? { '--lead': `${leadHeight}px` } : {}),
+    ...(detailOpen && detailFold ? { '--detail-fold': `${detailFold}px` } : {}),
     ...(sheet === 'static' && staticHeight ? { '--static-pad': `${staticHeight}px` } : {}),
   } as CSSProperties;
 
@@ -388,7 +447,14 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
           </button>
         )}
 
-        <div ref={scrollRef} className={styles.scroll} onFocus={onFocus}>
+        <div
+          ref={scrollRef}
+          className={styles.scroll}
+          onFocus={onFocus}
+          onScroll={(event) => {
+            if (at === 'expanded' && !detailOpen) listTop.current = event.currentTarget.scrollTop;
+          }}
+        >
           <main className={styles.main}>
             <div className={styles.titleRow}>
               <div>

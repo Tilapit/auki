@@ -29,6 +29,20 @@
   --map-pad: var(--static-pad, 300px);
 }
 
+/*
+ * A pharmacy's details in the sheet (Apple Maps' place card): at the middle the sheet shows
+ * them down to the first route button, and never more than 60 % of the screen, so the map and
+ * the selected marker stay in view above it.
+ */
+.shell[data-detail] {
+  --half-visible: min(60dvh, var(--sheet-height), calc(var(--detail-fold, 380px) + 26px + env(safe-area-inset-bottom)));
+}
+
+/* The details take the list's place, on the phone as on the desktop. */
+[data-detail] .full {
+  display: none;
+}
+
 /* The sheet as it was: two places, a tall collapsed answer, and an open list that leaves the upper half of the map. */
 @media (max-width: 899.98px) {
   .shell[data-sheet-style='classic'] {
@@ -498,11 +512,6 @@
   }
 
   .more {
-    display: none;
-  }
-
-  /* The pharmacy details take the list's place. */
-  [data-detail] .full {
     display: none;
   }
 

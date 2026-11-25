@@ -120,6 +120,7 @@ const fi = {
     allPharmacies: (count: number) => `Kaikki ${count} apteekkia`,
     /** The phone's sheet handle says what a press does: from the row to the card, from the card to the list, and back down. */
     showMore: 'Näytä lisää',
+    showLess: 'Näytä vähemmän',
     expandSheet: 'Näytä lista',
     collapseSheet: 'Pienennä lista',
     closedNow: 'Kiinni nyt',
