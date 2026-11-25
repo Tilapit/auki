@@ -156,6 +156,7 @@ private struct PharmacyMap: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(row.pharmacy.name ?? texts.fallbackName), \(texts.status(row.status, zone: row.pharmacy.zone, now: now)), \(texts.straight(row.meters))")
                     .accessibilityAddTraits(row.id == model.selectedID ? .isSelected : [])
+                    .accessibilityIdentifier(row.id == model.selectedID ? "marker-picked" : "marker")
                 }
                 .annotationTitles(row.id == model.selectedID ? .automatic : .hidden)
             }

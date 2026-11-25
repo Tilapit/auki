@@ -85,6 +85,7 @@ struct ResultsSheet: View {
                     .foregroundStyle(Palette.ink)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("results-title")
                 if let searchedAt = model.searchedAt {
                     Text(texts.updated(searchedAt))
                         .font(.footnote)
@@ -219,6 +220,7 @@ private struct LeadCard: View {
                         .buttonStyle(PrimaryButtonStyle())
                         .accessibilityLabel(texts.routeLabel(name, walking: walking))
                         .accessibilityAddTraits(selected ? .isSelected : [])
+                        .accessibilityIdentifier("lead-route")
                     } else {
                         // No route to a closed door: its hours are what is worth opening.
                         Button(action: action) {
@@ -309,6 +311,7 @@ private struct PharmacyRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityHint(texts.showDetails)
+        .accessibilityIdentifier("pharmacy-row")
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 

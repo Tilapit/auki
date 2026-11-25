@@ -21,7 +21,6 @@ struct PharmacySheet: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @ScaledMetric(relativeTo: .title2) private var glyphSize: CGFloat = 24
     @ScaledMetric(relativeTo: .subheadline) private var labelWidth: CGFloat = 104
-    @ScaledMetric(relativeTo: .footnote) private var closeSize: CGFloat = 32
 
     var body: some View {
         ScrollView {
@@ -49,7 +48,6 @@ struct PharmacySheet: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .tint(Palette.action)
-        .accessibilityIdentifier("pharmacy-sheet")
     }
 
     private var pharmacy: TilePharmacy { row.pharmacy }
@@ -58,7 +56,27 @@ struct PharmacySheet: View {
 
     // MARK: The name, and the way out
 
+    @ViewBuilder
     private var head: some View {
+        if typeSize.isAccessibilitySize {
+            // With the largest text sizes the close button has a row of its own: the name gets the whole width.
+            VStack(alignment: .leading, spacing: 0) {
+                closeButton
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.top, -14)
+                title
+            }
+        } else {
+            HStack(alignment: .top, spacing: 8) {
+                title
+                Spacer(minLength: 0)
+                closeButton
+                    .padding(.top, -6)
+            }
+        }
+    }
+
+    private var title: some View {
         HStack(alignment: .top, spacing: 12) {
             CrossGlyph(kind: row.glyph, size: glyphSize)
                 .padding(.top, 4)
@@ -68,6 +86,7 @@ struct PharmacySheet: View {
                     .foregroundStyle(Palette.ink)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("pharmacy-name")
                 if let address {
                     Text(address)
                         .font(.subheadline)
@@ -75,23 +94,26 @@ struct PharmacySheet: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            Spacer(minLength: 8)
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.footnote.weight(.bold))
-                    .foregroundStyle(Palette.ink)
-                    // The disc grows with the text size, as the mark in it does.
-                    .frame(width: closeSize, height: closeSize)
-                    .background(Palette.selected, in: Circle())
-                    // A finger needs more than thirty-two points.
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(texts.close)
-            .padding(.top, -6)
-            .padding(.trailing, -6)
         }
+    }
+
+    private var closeButton: some View {
+        Button(action: onClose) {
+            Image(systemName: "xmark")
+                .font(.footnote.weight(.bold))
+                // The mark stops growing where it would outgrow its disc.
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+                .foregroundStyle(Palette.ink)
+                .frame(width: typeSize.isAccessibilitySize ? 44 : 32, height: typeSize.isAccessibilitySize ? 44 : 32)
+                .background(Palette.selected, in: Circle())
+                // A finger needs more than thirty-two points.
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(texts.close)
+        .accessibilityIdentifier("close")
+        .padding(.trailing, -6)
     }
 
     /// The street, and the town when the tile names one.
