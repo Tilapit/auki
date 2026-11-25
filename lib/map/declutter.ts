@@ -14,7 +14,9 @@
  * offered as a button:
  * - under the bar, the sheet or the credit, or beyond the map's edge, it is taken off the map
  *   (`away`). Its pharmacy is still in the list, and an open one gets its edge chip: a
- *   pharmacy is on the map as its marker or as its chip, never as both.
+ *   pharmacy is on the map as its marker or as its chip, never as both. The same goes for a
+ *   marker that has its room and is cut where it is read: a time with its lower half under
+ *   the sheet says less than the chip does.
  * - under a chip, the zoom buttons or the markers that matter more, it stays drawn where it
  *   is and is no button (`crowded`), like the signs the map itself draws beyond the list.
  */
@@ -64,6 +66,12 @@ export const TARGET_PX = 24;
 /** The least a marker's button measures each way in full, and as a sign (MapMarker.module.css). */
 export const FULL_TARGET_PX = 44;
 export const SIGN_TARGET_PX = 36;
+/**
+ * How much of what is drawn of a marker may be hidden on a side before the marker is taken
+ * off the map: this part of its height. A capsule is 30 px tall with its time in the middle
+ * 15: a quarter is its padding, and what is cut beyond that is the text.
+ */
+const MAY_HIDE = 1 / 4;
 /** The ring a marker stands on, and the air between two that count as apart. */
 const AIR_PX = 3;
 /**
@@ -152,17 +160,21 @@ export function targetOf(centre: Point, size: { width: number; height: number },
  *   never covered.
  * - Every other marker is drawn in full only where the zoom shows streets and that covers
  *   neither the dot nor anything already placed, sign or capsule. Otherwise it is a sign.
- * - With a `cover`, a marker whose point is outside what the cover leaves clear, or whose
- *   button has no room left there, is away: it is not drawn, and takes no room from the others.
+ * - With a `cover`, a marker is away when the cover hides more of what is drawn of it than
+ *   its outer quarter, or leaves its button no room: it is not drawn, and takes no room
+ *   from the others.
  */
 export function declutter(markers: readonly Sized[], dot: Point | undefined, zoom: number, cover?: Cover): Decluttered {
   const small = new Set<string>();
   const away = new Set<string>();
   const shows = (centre: Point, marker: Sized, sign: boolean): boolean => {
     if (!cover) return true;
-    const { clear } = cover;
-    const inside = centre.x >= clear.left && centre.x <= clear.right && centre.y >= clear.top && centre.y <= clear.bottom;
-    return inside && hasRoom(targetOf(centre, marker, sign), cover.fixed ?? [], clear);
+    const { clear, fixed = [] } = cover;
+    // What has to be seen of it: the capsule, the disc or the sign without its outer quarter.
+    const drawn = sign ? { width: SIGN_PX * signScale(zoom), height: SIGN_PX * signScale(zoom) } : marker;
+    const core = rect(centre, drawn.width - 2 * MAY_HIDE * drawn.height, drawn.height - 2 * MAY_HIDE * drawn.height);
+    const seen = core.left >= clear.left && core.right <= clear.right && core.top >= clear.top && core.bottom <= clear.bottom && !fixed.some((other) => overlap(core, other));
+    return seen && hasRoom(targetOf(centre, marker, sign), fixed, clear);
   };
   if (zoom < FIRST_FROM_ZOOM) {
     for (const marker of markers) (shows(marker, marker, true) ? small : away).add(marker.id);

@@ -146,12 +146,17 @@ const SIDES: Compass[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
  * The chip for a place outside the box, or undefined when the place is inside it. The chip
  * sits where the line from the middle of the box to the place leaves the box, pulled in by
  * half its own size so that it stays whole.
+ *
+ * With `always`, also for a place just inside the box: the map has taken its marker off
+ * because the bar, the sheet or the edge hid too much of it (lib/map/declutter.ts), and the
+ * chip stands on the same line, at the edge.
  */
-export function edgeChip(point: Point, box: Box, half: Size = { width: 44, height: 22 }): EdgeChip | undefined {
-  if (isInside(point, box)) return undefined;
+export function edgeChip(point: Point, box: Box, half: Size = { width: 44, height: 22 }, always = false): EdgeChip | undefined {
+  if (!always && isInside(point, box)) return undefined;
   const middle = centreOf(box);
   const dx = point.x - middle.x;
   const dy = point.y - middle.y;
+  if (dx === 0 && dy === 0) return undefined;
   const reachX = Math.max((box.right - box.left) / 2 - half.width, 1);
   const reachY = Math.max((box.bottom - box.top) / 2 - half.height, 1);
   // How far along the line the inner box ends: the nearer of its vertical and horizontal sides.

@@ -115,6 +115,17 @@ describe('edge chips', () => {
     }
   });
 
+  it('gives a place just inside the box its chip when asked to: the map has taken its marker off', () => {
+    const inside = { x: box.left + 20, y: (box.top + box.bottom) / 2 + 30 };
+    expect(edgeChip(inside, box)).toBeUndefined();
+    const chip = edgeChip(inside, box, undefined, true)!;
+    // On the same line from the middle, at the edge, whole.
+    expect(chip.x).toBe(box.left + 44);
+    expect(chip.side).toBe('w');
+    // The very middle has no direction.
+    expect(edgeChip({ x: (box.left + box.right) / 2, y: (box.top + box.bottom) / 2 }, box, undefined, true)).toBeUndefined();
+  });
+
   it('moves chips apart when two places lie in the same direction', () => {
     const first = edgeChip({ x: 2400, y: 460 }, box)!;
     const second = edgeChip({ x: 3000, y: 470 }, box)!;

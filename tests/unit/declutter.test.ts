@@ -162,32 +162,36 @@ describe('markers the map does not show', () => {
     expect(declutter([capsule('a', -500, 100), disc('b', 100, 5000)], far, 15).away.size).toBe(0);
   });
 
-  it('are the ones beyond the edge, under the bar and under the sheet: their middle is not in what shows', () => {
+  it('are the ones beyond the edge, under the bar and under the sheet', () => {
     const { away, small } = declutter([capsule('in', 200, 200), capsule('left', -1, 200), capsule('bar', 200, 63), disc('sheet', 300, 385), disc('far', 2000, 200)], far, 15, { clear });
     expect([...away].sort()).toEqual(['bar', 'far', 'left', 'sheet']);
     expect(small.size).toBe(0);
   });
 
-  it('are also the ones whose middle shows and whose button has no room: a disc two pixels above the sheet', () => {
-    // Its button reaches from 22 px above its middle: 24 px of it are above the sheet, which is a pixel too few.
-    expect(declutter([capsule('in', 200, 200), disc('edge', 300, 382)], far, 15, { clear }).away.has('edge')).toBe(true);
-    // Three pixels above, 25 px are: it is a marker.
-    expect(declutter([capsule('in', 200, 200), disc('edge', 300, 381)], far, 15, { clear }).away.has('edge')).toBe(false);
+  it('are also the ones the sheet hides more than the outer quarter of: what is left is not read', () => {
+    // A capsule is 30 px tall: seven of them may be under the sheet, and eight may not.
+    expect(declutter([capsule('in', 200, 200), capsule('edge', 300, 376)], far, 15, { clear }).away.size).toBe(0);
+    expect([...declutter([capsule('in', 200, 200), capsule('edge', 300, 377)], far, 15, { clear }).away]).toEqual(['edge']);
+    // A disc is 25: six, and not seven.
+    expect(declutter([capsule('in', 200, 200), disc('edge', 300, 377)], far, 15, { clear }).away.size).toBe(0);
+    expect([...declutter([capsule('in', 200, 200), disc('edge', 300, 378)], far, 15, { clear }).away]).toEqual(['edge']);
   });
 
-  it('keeps a wide capsule whose middle shows, cut by the edge as it is', () => {
-    expect(declutter([capsule('in', 200, 200), capsule('cut', 3, 300)], far, 15, { clear }).away.size).toBe(0);
+  it('keeps a capsule that the screen\'s edge cuts inside its padding, and not one cut into its time', () => {
+    // 78 px wide: its left end is seven pixels beyond the edge, then eight.
+    expect(declutter([capsule('in', 200, 200), capsule('cut', 32, 300)], far, 15, { clear }).away.size).toBe(0);
+    expect([...declutter([capsule('in', 200, 200), capsule('cut', 31, 300)], far, 15, { clear }).away]).toEqual(['cut']);
   });
 
   it('are the ones the credit leaves no room: it lies on the map just above the sheet', () => {
     const credit = { left: 8, top: 352, right: 156, bottom: 376 };
     // The disc's button is 302 to 346 without the credit, and has its room.
     expect(declutter([disc('above', 60, 324)], far, 15, { clear, fixed: [credit] }).away.size).toBe(0);
-    // Lower, 25 px of it are above the credit, and then 24.
-    expect(declutter([disc('over', 60, 349)], far, 15, { clear, fixed: [credit] }).away.size).toBe(0);
-    expect(declutter([disc('under', 60, 350)], far, 15, { clear, fixed: [credit] }).away.has('under')).toBe(true);
+    // Lower, the credit hides its outer quarter, and then more.
+    expect(declutter([disc('over', 60, 345)], far, 15, { clear, fixed: [credit] }).away.size).toBe(0);
+    expect(declutter([disc('under', 60, 346)], far, 15, { clear, fixed: [credit] }).away.has('under')).toBe(true);
     // Beside the credit the same height is free.
-    expect(declutter([disc('beside', 200, 350)], far, 15, { clear, fixed: [credit] }).away.size).toBe(0);
+    expect(declutter([disc('beside', 200, 346)], far, 15, { clear, fixed: [credit] }).away.size).toBe(0);
   });
 
   it('take no room from the others: a capsule next to one that is away stays in full', () => {
@@ -204,12 +208,12 @@ describe('markers the map does not show', () => {
     expect([...declutter([sign('a', 200), sign('b', 378)], far, 6, { clear }).away]).toEqual(['b']);
     expect(declutter([sign('a', 200), sign('b', 377)], far, 6, { clear }).away.size).toBe(0);
     expect([...declutter([sign('a', 200), sign('b', 377)], far, 6, { clear }).small]).toEqual(['a', 'b']);
-    // In full the same marker's button reaches 22 px: it has its room down to three pixels above the sheet.
-    expect(declutter([sign('a', 200), sign('b', 378)], far, 15, { clear }).away.size).toBe(0);
+    // From afar a sign is drawn 12 px across: its button's room decides, not what the sheet hides of it.
+    expect(declutter([sign('a', 200), sign('b', 377)], far, 6, { clear }).away.size).toBe(0);
   });
 
   it('are judged where the first marker stands once it is moved off the dot', () => {
-    // Where its pharmacy is, 43 px of its button are below the bar. Lifted off the dot, 23 are: it is away, and nothing is moved.
+    // Where its pharmacy is, all of it is below the bar. Lifted off the dot, half of it is under the bar: it is away, and nothing is moved.
     const dot = { x: 200, y: 95 };
     expect(declutter([capsule('nearest', 200, 85)], undefined, 15, { clear }).away.size).toBe(0);
     const { away, shift } = declutter([capsule('nearest', 200, 85)], dot, 15, { clear });

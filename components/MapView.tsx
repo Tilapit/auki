@@ -225,9 +225,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     const order = all
       .map((pharmacy, index) => ({ id: pharmacy.id, rank: rank(pharmacy.id, index), ...points.get(pharmacy.id)!, ...(sizes.current.get(pharmacy.id) ?? UNMEASURED), small: signs.current.has(pharmacy.id) }))
       .sort((a, b) => a.rank - b.rank);
-    // A marker that the bar, the sheet, the credit or the map's edge leaves no room to press is
-    // not drawn (lib/map/declutter.ts). The one the keyboard is on stays as it is until the
-    // keyboard has left it: focus is never taken from under it.
+    // A marker that the bar, the sheet, the credit or the map's edge hides too much of, or leaves
+    // no room to press, is not drawn (lib/map/declutter.ts). The one the keyboard is on stays as
+    // it is until the keyboard has left it: focus is never taken from under it.
     const { small, shift, away } = declutter(order, dot, zoom, { clear: boxOf(frame, cameraPadding(frame)), fixed: lying.current.credit });
     signs.current = small;
     const focused = pins.current?.contains(document.activeElement) ? document.activeElement?.closest<HTMLElement>('[data-pin]')?.dataset.pin : undefined;
@@ -251,7 +251,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     const shown = order.filter((marker) => !away.has(marker.id) || marker.id === focused);
     const targets = shown.map((marker) => ({ id: marker.id, small: small.has(marker.id), ...targetOf(centre(marker.id), marker, small.has(marker.id)) }));
     const off = lit.flatMap((pharmacy) => {
-      const chip = away.has(pharmacy.id) && pharmacy.id !== focused ? edgeChip(project(pharmacy.lat, pharmacy.lon), box) : undefined;
+      const chip = away.has(pharmacy.id) && pharmacy.id !== focused ? edgeChip(project(pharmacy.lat, pharmacy.lon), box, undefined, true) : undefined;
       return chip ? [{ ...chip, id: pharmacy.id }] : [];
     }).slice(0, CHIPS);
     const boxesOf = (placed: typeof off) =>
