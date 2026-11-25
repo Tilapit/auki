@@ -530,6 +530,11 @@
     display: none;
   }
 
+  /* The pharmacy details take the list's place (after the rule above, which shows the list at every place of the sheet). */
+  [data-detail] .full {
+    display: none;
+  }
+
   .footer,
   [data-sheet] .footer {
     display: block;

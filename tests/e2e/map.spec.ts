@@ -48,6 +48,9 @@ test('a marker opens the same pharmacy as its row, and a row marks its marker', 
   await marker(page, /^Yliopiston apteekki/).click();
   const sheet = page.getByRole('dialog');
   await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
+  // The details take the list's place in the panel: the card and the rows are not under them.
+  await expect(card(page)).toBeHidden();
+  await expect(page.locator('ol > li').first()).toBeHidden();
   await expect(marker(page, /^Yliopiston apteekki/)).toHaveAttribute('aria-pressed', 'true');
   await expect(marker(page, /^Kampin apteekki/)).toHaveAttribute('aria-pressed', 'false');
   await page.keyboard.press('Escape');
