@@ -64,3 +64,70 @@ test('opening the pages calls nothing outside our own origin', async ({ page }) 
   }
   expect(outside).toEqual([]);
 });
+
+// Janne's iPhone, 25 Nov 2026: dark bands above and below the first window. The strips behind
+// the status bar and behind Safari's own bar are Safari's to colour: from what lies fixed at
+// that edge of the page when it is at least 6 px tall, otherwise from the body's background
+// (measured in the iOS 27.2 Simulator; before iOS 26 the upper one came from theme-color).
+// What a test can hold is that the page offers the scene's own two end colours there.
+test.describe('on a phone the scene reaches the edges of the screen', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  const edges = (page: import('@playwright/test').Page) =>
+    page.evaluate(() => {
+      const colour = (value: string) => {
+        const probe = document.createElement('span');
+        probe.style.color = value;
+        document.body.append(probe);
+        const resolved = getComputedStyle(probe).color;
+        probe.remove();
+        return resolved;
+      };
+      /** The fixed things that lie on an edge of the screen, tall enough for Safari to take their colour. */
+      const fixedAt = (edge: 'top' | 'bottom') =>
+        [...document.querySelectorAll<HTMLElement>('body *')]
+          .filter((element) => {
+            const style = getComputedStyle(element);
+            const box = element.getBoundingClientRect();
+            const onEdge = edge === 'top' ? box.top === 0 : Math.round(box.bottom) === window.innerHeight;
+            return style.position === 'fixed' && style.display !== 'none' && onEdge && box.width === window.innerWidth && box.height >= 6 && box.height <= 12;
+          })
+          .map((element) => getComputedStyle(element).backgroundColor);
+      const root = getComputedStyle(document.documentElement);
+      return {
+        top: fixedAt('top'),
+        bottom: fixedAt('bottom'),
+        body: getComputedStyle(document.body).backgroundColor,
+        themes: [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')].map((meta) => colour(meta.content)),
+        sky: colour(root.getPropertyValue('--sky-1')),
+        street: colour(root.getPropertyValue('--navy')),
+        sheet: colour(root.getPropertyValue('--sheet')),
+        overscroll: root.overscrollBehaviorY,
+      };
+    });
+
+  test('the first window: the sky’s upper colour at the top, the street’s at the bottom and behind the page', async ({ page }) => {
+    await page.clock.install({ time: new Date('2026-06-21T10:20:00Z') });
+    await page.goto('/fi');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Löydä lähin auki oleva apteekki');
+    const at = await edges(page);
+    expect(at.top).toEqual([at.sky]);
+    expect(at.bottom).toEqual([at.street]);
+    expect(at.body).toBe(at.street);
+    // By day the sky is not the street's colour: the two ends really are two colours.
+    expect(at.sky).not.toBe(at.street);
+    // Where the browser still goes by theme-color, it gets the sky's upper colour too, once the page runs.
+    await expect.poll(async () => (await edges(page)).themes).toEqual([at.sky, at.sky]);
+    // Above the sky there is no more sky: the page is not pulled past its ends.
+    expect(at.overscroll).toBe('none');
+  });
+
+  test('a map view: the map’s ground at the top, the sheet’s colour behind the page, and theme-color as it was', async ({ page }) => {
+    await page.goto('/fi/dev/states/helsinki-peek?theme=light');
+    await expect(page.locator('[data-map="ready"]')).toBeVisible();
+    const at = await edges(page);
+    expect(at.top).toEqual([await page.locator('[data-map]').evaluate((element) => getComputedStyle(element).backgroundColor)]);
+    expect(at.body).toBe(at.sheet);
+    expect(at.overscroll).toBe('none');
+  });
+});

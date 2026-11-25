@@ -3,6 +3,7 @@ import type { Locale } from '../i18n';
 import type { Line } from '../walking.ts';
 import { NO_AREA } from './area.ts';
 import type { AreaData } from './area.ts';
+import { SIGN_SCALES } from './declutter.ts';
 
 /**
  * The map's look, built from the design tokens of PLAN.md section 6. It is our own style on
@@ -362,7 +363,7 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
       source: AREA_SOURCE,
       layout: {
         'icon-image': ['concat', AREA_ICON, ['get', 'glyph']],
-        'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.5, 12, 0.75, 14.5, 1],
+        'icon-size': ['interpolate', ['linear'], ['zoom'], ...SIGN_SCALES.flat()],
         'icon-padding': 1,
         'symbol-sort-key': ['get', 'rank'],
       },

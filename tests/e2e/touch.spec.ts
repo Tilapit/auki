@@ -63,6 +63,72 @@ test.describe('with a finger', () => {
     await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
   });
 
+  // Janne's iPhone, 25 Nov 2026: "sometimes a touch doesn't register". A thumb rolls as it taps.
+  // The browser still makes a click of a touch that moved under its own limit (about 15 px in
+  // Chromium); the map used to throw that click away once the finger had travelled 6 px.
+  test('a tap by a thumb that rolls a few pixels on a marker still opens the pharmacy', async ({ page }) => {
+    await live(page);
+    const screen = await touchscreen(page);
+    const target = marker(page, /^Kampin apteekki/);
+    for (const [dx, dy] of [[5, 7], [-8, 6], [0, -11]]) {
+      const from = await centreOf(target);
+      await screen.roll(from, { x: from.x + dx, y: from.y + dy });
+      await expect(page.getByRole('dialog').getByRole('heading', { level: 2 }), `rolled ${dx}, ${dy}`).toHaveText('Kampin apteekki');
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toBeHidden();
+      // Two taps within half a second in one place are the map's own gesture: they come closer.
+      await page.waitForTimeout(600);
+    }
+    expect(await pageScale(page)).toBe(1);
+  });
+
+  test('a drag moves the map from anywhere on it: the credit, the strip above the sheet, an edge chip', async ({ page }) => {
+    await live(page);
+    const screen = await touchscreen(page);
+    const sheetTop = async () => (await page.locator('[data-grab]').boundingBox())!.y;
+    const moved = async (from: { x: number; y: number }, by = -110) => {
+      const before = await placeOf(dot(page));
+      await screen.drag(from, { x: from.x, y: from.y + by }, 12);
+      await page.waitForTimeout(300);
+      return (await placeOf(dot(page))).y - before.y;
+    };
+
+    // The credit lies right above the sheet, 334 px of the screen's 390: where a thumb starts a drag.
+    const credit = root(page).getByRole('link', { name: 'OpenFreeMap' });
+    expect(await moved(await centreOf(credit)), 'from the credit').toBeLessThan(-90);
+    // It was a drag: the link was not followed.
+    expect(new URL(page.url()).pathname).toBe('/fi');
+
+    // Just above the sheet's edge, beside the handle: the map's, not the sheet's.
+    const top = await sheetTop();
+    expect(await moved({ x: 48, y: top - 5 }), 'above the sheet, left').toBeLessThan(-90);
+    expect(await moved({ x: 342, y: top - 5 }), 'above the sheet, right').toBeLessThan(-90);
+    expect(await sheetTop()).toBe(top);
+    await expect(page.locator('[data-sheet]')).toHaveAttribute('data-sheet', 'peek');
+    // Around the handle itself the strip is still the handle's: the sheet comes up with the finger.
+    await screen.drag({ x: 195, y: top - 5 }, { x: 195, y: top - 240 }, 12);
+    await expect(page.locator('[data-sheet]')).toHaveAttribute('data-sheet', 'half');
+    await page.locator('[data-grab]').click();
+    await page.locator('[data-grab]').click();
+    await expect(page.locator('[data-sheet]')).toHaveAttribute('data-sheet', 'peek');
+    await page.waitForTimeout(400);
+
+    // Closer, until the open pharmacy 320 metres away is off the map and has its chip on the edge.
+    await screen.pinch([{ x: 150, y: 330 }, { x: 240, y: 370 }], [{ x: 30, y: 280 }, { x: 360, y: 420 }]);
+    const chip = page.locator('[data-chip]').first();
+    await expect(chip).toBeVisible();
+    await page.waitForTimeout(400);
+    const on = await centreOf(chip);
+    const before = await placeOf(dot(page));
+    await screen.drag(on, { x: on.x + 60, y: on.y + 90 }, 12);
+    await expect.poll(async () => (await placeOf(dot(page))).y - before.y, { message: 'from the chip' }).toBeGreaterThan(70);
+    await expect(page.getByRole('dialog')).toBeHidden();
+    // And a tap on a chip is still a press of it.
+    await expect(chip).toBeVisible();
+    await screen.tap(await centreOf(chip));
+    await expect(page.getByRole('dialog')).toBeVisible();
+  });
+
   test('a pinch with one finger on a marker zooms the map, never the page', async ({ page }) => {
     await live(page);
     const screen = await touchscreen(page);
@@ -170,6 +236,18 @@ test('with a mouse: a drag that begins on a marker moves the map and opens nothi
   await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
 });
 
+test.describe('on a screen with three device pixels to one', () => {
+  test.use({ deviceScaleFactor: 3 });
+
+  // Janne's iPhone, 25 Nov 2026: the map changed on 40 to 50 of 60 frames a second. What a pan
+  // costs is drawing, and drawing is per pixel: the map's canvas is limited to two to one.
+  test('the map draws two: the canvas is 780 px wide for 390, and the markers stay as sharp as the screen', async ({ page }) => {
+    await live(page);
+    const canvas = root(page).locator('canvas');
+    expect(await canvas.evaluate((element) => [(element as HTMLCanvasElement).width, element.clientWidth, window.devicePixelRatio])).toEqual([780, 390, 3]);
+  });
+});
+
 test.describe('the map never hands a touch to the page', () => {
   /** What the browser may do with a touch that begins on an element: its own rule and those of everything above it. */
   const allowed = (target: Locator) =>
@@ -194,6 +272,31 @@ test.describe('the map never hands a touch to the page', () => {
     expect(await allowed(root(page).getByRole('link', { name: 'OpenFreeMap' }))).toBe('none');
     // The markers are inside the element the map listens on: that is what lets a drag begin on one.
     expect(await root(page).locator('button[aria-pressed]').first().evaluate((element) => !!element.closest('.maplibregl-canvas-container'))).toBe(true);
+  });
+
+  // Read from the page as the browser's own hit test gives it, so WebKit is checked too: a point
+  // every 6 px. What a touch lands on is either the map, in the element MapLibre listens on, or
+  // one of the things a finger is meant to press.
+  test('everything between the bar and the sheet is the map’s to drag', async ({ page }) => {
+    await live(page);
+    const others = await page.evaluate(() => {
+      const found = new Map<string, number>();
+      const sheet = document.querySelector('[data-grab]')!.getBoundingClientRect();
+      for (let y = 3; y < window.innerHeight; y += 6) {
+        for (let x = 3; x < window.innerWidth; x += 6) {
+          const element = document.elementFromPoint(x, y);
+          if (!element || element.closest('.maplibregl-canvas-container')) continue;
+          // The bar's two floating controls (not the gap between them), and the sheet with the handle's strip above its middle.
+          if (element.closest('header > *')) continue;
+          if (y >= sheet.top) continue;
+          if (element.closest('[data-grab]') && y >= sheet.top - 12 && Math.abs(x - window.innerWidth / 2) <= 44) continue;
+          const name = `${element.tagName.toLowerCase()}.${String(element.className).split(' ')[0]}`;
+          found.set(name, (found.get(name) ?? 0) + 1);
+        }
+      }
+      return [...found].map(([name, points]) => `${name}: ${points} points`);
+    });
+    expect(others).toEqual([]);
   });
 
   test('when MapLibre could not start', async ({ page }) => {

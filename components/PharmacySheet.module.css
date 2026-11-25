@@ -38,8 +38,9 @@
   font-size: var(--t-m);
 }
 
+/* The details start at the top of the sheet's scroller: the button's circle stays inside it. */
 .close {
-  margin: -6px -8px 0 0;
+  margin: 0 -8px 0 0;
 }
 
 .summary {

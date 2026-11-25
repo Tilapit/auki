@@ -43,7 +43,7 @@ describe('walking times', () => {
     });
     expect(fetch).toHaveBeenCalledTimes(1);
     const { url, headers, body } = sent(fetch);
-    expect(url).toBe('https://api.openrouteservice.org/v2/matrix/foot-walking');
+    expect(url).toBe('https://api.heigit.org/openrouteservice/v2/matrix/foot-walking');
     expect(headers.Authorization).toBe(KEY);
     // Longitude first, as openrouteservice wants it; the position is the one source.
     expect(body).toEqual({
@@ -104,7 +104,7 @@ describe('the walking route', () => {
       line: { type: 'LineString', coordinates: [[24.93545, 60.16952], [24.9361, 60.1701], [24.93653, 60.1706]] },
     });
     const { url, body } = sent(fetch);
-    expect(url).toBe('https://api.openrouteservice.org/v2/directions/foot-walking/geojson');
+    expect(url).toBe('https://api.heigit.org/openrouteservice/v2/directions/foot-walking/geojson');
     expect(body).toEqual({ coordinates: [[24.93545, 60.16952], [24.93653, 60.1706]], instructions: false });
   });
 

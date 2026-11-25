@@ -15,7 +15,8 @@
 }
 
 .marker:focus-visible .capsule,
-.marker:focus-visible .disc {
+.marker:focus-visible .disc,
+.marker:focus-visible .sign {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
@@ -87,6 +88,59 @@
     inset 0 0 0 1.5px var(--disc-ring),
     0 0 0 3px var(--marker-ring),
     0 6px 16px rgb(11 27 49 / 0.3);
+}
+
+/*
+ * The small sign: what the map itself draws for every pharmacy beyond the list (mapSigns.ts),
+ * in the same sizes and colours. A lit disc for open and closing soon, an unlit one otherwise,
+ * no time and no glow. Shown in the marker's stead where markers would lie on top of each other.
+ */
+.sign {
+  display: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: var(--marker-ground);
+  /* The map's own signs are smaller from afar (lib/map/declutter.ts): these with them. */
+  transform: scale(var(--sign-scale, 1));
+}
+
+.open .sign {
+  background: var(--marker-open);
+  color: var(--marker-open-ink);
+}
+
+.soon .sign {
+  background: var(--soon-fill);
+  color: var(--soon-ink);
+}
+
+.closed .sign,
+.unknown .sign {
+  width: 18px;
+  height: 18px;
+  background: var(--disc);
+  box-shadow:
+    inset 0 0 0 1.5px var(--disc-ring),
+    var(--marker-ground);
+}
+
+:global([data-small]) .sign {
+  display: grid;
+}
+
+/* Out of sight, and still laid out: its box is the room the marker needs to be shown in full again. */
+:global([data-small]) .capsule,
+:global([data-small]) .disc {
+  position: absolute;
+  visibility: hidden;
+}
+
+/* A sign is pressed like the map's own: a fingertip's width around it, less than a marker's 44 px so that signs side by side each keep their own. */
+:global([data-small]) .marker {
+  min-width: 36px;
+  min-height: 36px;
 }
 
 /*

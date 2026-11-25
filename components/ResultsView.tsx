@@ -75,6 +75,8 @@ export interface ResultsOptions {
   medicineExample?: ReactNode;
   /** /dev/states only: the dialog may also be that of a provider that waits for its operator's agreement. */
   medicineReview?: boolean;
+  /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
+  mapPixels?: number;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -92,8 +94,23 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
   // Nothing open at all: the card, with 112 prominent, is what the user meets first (PLAN.md 7.6).
   const nothingOpen = !unlisted && !nearestOpen && !!firstToOpen;
-  const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
+  const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (options.detailId || (nothingOpen && !classic) ? 'half' : 'peek'));
   const [detailId, setDetailId] = useState(options.detailId);
+  /** Where the phone's sheet was before a pharmacy's details took it over: closed, it goes back there. */
+  const sheetBefore = useRef<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
+  /** How much of the details the phone's sheet shows at its middle height: down to the first route button. */
+  const [detailFold, setDetailFold] = useState<number>();
+  /** What opened the details: the row's button, a marker, a row of the list. Focus goes back there. */
+  const opener = useRef<Element | null>(null);
+  /** The control pressed last. Safari gives a button no focus when it is pressed, so focus alone can't say what opened the details. */
+  const pressed = useRef<Element | null>(null);
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      pressed.current = event.target instanceof Element ? event.target.closest('button, a[href]') : null;
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, []);
   const [counterOpen, setCounterOpen] = useState(options.counter !== undefined);
   // Which country's stock search the medicine dialog is open for: that of the pharmacy it was opened from.
   const [medicineFor, setMedicineFor] = useState(typeof options.medicine === 'string' ? options.medicine : undefined);
@@ -103,7 +120,28 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const listed = everyone.find((p) => p.id === detailId);
   const detail = listed ?? (detailId ? options.findInArea?.(detailId) : undefined);
   const selectedId = detailId ?? (unlisted?.lead ?? nearestOpen ?? firstToOpen)?.id;
-  const select = (pharmacy: Pharmacy) => setDetailId(pharmacy.id);
+  // A pharmacy's details open in the phone's sheet at its middle height, whatever it showed
+  // before, so that the map and the pharmacy's marker are in view above them.
+  const open = (pharmacyId: string) => {
+    if (!detailId) {
+      sheetBefore.current = sheet;
+      opener.current = pressed.current ?? document.activeElement;
+    }
+    setDetailId(pharmacyId);
+    setSheet('half');
+  };
+  const select = (pharmacy: Pharmacy) => open(pharmacy.id);
+  // Closed from the details themselves, the sheet shows what it showed before them.
+  const close = () => {
+    if (!detailId) return;
+    setDetailId(undefined);
+    setSheet(sheetBefore.current);
+  };
+  // Dragged down to the row, the sheet has let the details go.
+  const moveSheet = (next: SheetState) => {
+    if (next === 'peek') setDetailId(undefined);
+    setSheet(next);
+  };
   // The walking route is drawn to the selected pharmacy when it is one of the list's and its walk
   // is known and is a walk. Unasked, only to the card's own pharmacy while it is open and in
   // reach: the line is the card's "Reitti" on the map, and no line leads to a closed door.
@@ -123,24 +161,47 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // In the card it is styled by the card: next to "Ei varastossa?" where that line is, else a section of its own.
   const medicineLine = openMedicine && <MedicineLine className={cardStyles.medicine} onOpen={openMedicine} />;
 
-  // Phone: a modal bottom sheet. Desktop: the details take the list's place in the panel.
+  // The details take the list's place: in the desktop's panel, and in the phone's sheet. Not a
+  // modal: the map above them stays usable, as it does around the results.
   useEffect(() => {
     const dialog = detailRef.current;
     if (!dialog) return;
-    if (detailId && !dialog.open) {
-      if (window.matchMedia(DESKTOP).matches) dialog.show();
-      else dialog.showModal();
-    }
+    if (detailId && !dialog.open) dialog.show();
     // Start reading from the pharmacy's name, also when moving from one pharmacy to the next.
-    if (detailId) dialog.querySelector<HTMLElement>('[data-dialog-focus]')?.focus();
-    if (!detailId && dialog.open) dialog.close();
+    if (detailId) dialog.querySelector<HTMLElement>('[data-dialog-focus]')?.focus({ preventScroll: true });
+    if (!detailId && dialog.open) {
+      dialog.close();
+      // The details were not a modal, so the browser does not hand focus back: it goes to what
+      // opened them, which is on screen again by now.
+      const from = opener.current;
+      opener.current = null;
+      if (from instanceof HTMLElement && from.isConnected && from !== document.body) from.focus({ preventScroll: true });
+    }
+  }, [detailId]);
+
+  // The middle height of the phone's sheet follows the details: their top down to the first route button.
+  useEffect(() => {
+    const dialog = detailRef.current;
+    if (!dialog || !detailId) return;
+    const measure = () => {
+      const fold = dialog.querySelector<HTMLElement>('[data-fold]');
+      if (!fold || !dialog.offsetHeight) return;
+      setDetailFold(Math.round(fold.getBoundingClientRect().bottom - dialog.getBoundingClientRect().top) + 16);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(dialog);
+    return () => observer.disconnect();
   }, [detailId]);
 
   useEffect(() => {
     const query = window.matchMedia(DESKTOP);
-    const close = () => setDetailId(undefined);
-    query.addEventListener('change', close);
-    return () => query.removeEventListener('change', close);
+    const onChange = () => {
+      setDetailId(undefined);
+      setSheet(sheetBefore.current);
+    };
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
   }, []);
 
   // The far open one counts: it is the answer, although it is not in the list.
@@ -375,8 +436,9 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 time: <time dateTime={scene.updated}>{f.clock(scene.updated)}</time>,
               })
       }
-      sheet={stale ? 'static' : sheet}
-      onSheetChange={setSheet}
+      // Out-of-date data has a notice where the card would be, in a sheet that doesn't move. A pharmacy's details move like any.
+      sheet={stale && !detail ? 'static' : sheet}
+      onSheetChange={moveSheet}
       sheetStyle={options.sheetStyle}
       peek={stale ? undefined : classic ? classicPeek : row}
       status={<LiveStatus message={message} />}
@@ -463,13 +525,16 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           reveal={options.reveal}
           area={options.area}
           extra={listed ? undefined : detail}
-          onPick={setDetailId}
+          keepSelected={!!detail}
+          onPick={open}
           onView={options.onArea}
           routeTo={routeTo}
           routeFor={options.routeFor}
+          pixels={options.mapPixels}
         />
       }
       detailOpen={!!detail}
+      detailFold={detailFold}
       detail={
         <dialog
           ref={detailRef}
@@ -478,10 +543,10 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           // The dialog says it has closed a moment after it did. If another pharmacy was opened in
           // that moment, the sheet is open again and this is old news.
           onClose={(event) => {
-            if (!event.currentTarget.open) setDetailId(undefined);
+            if (!event.currentTarget.open) close();
           }}
           onKeyDown={(event) => {
-            if (event.key === 'Escape') setDetailId(undefined);
+            if (event.key === 'Escape') close();
           }}
         >
           {detail && (
@@ -495,7 +560,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               country={scene.country}
               onShowCard={() => setCounterOpen(true)}
               onMedicine={offered && providerFor(detail.country) ? () => setMedicineFor(detail.country) : undefined}
-              onClose={() => setDetailId(undefined)}
+              onClose={close}
               onSelect={select}
             />
           )}
