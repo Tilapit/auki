@@ -211,6 +211,14 @@
   visibility: hidden;
 }
 
+/*
+ * Under the phone's fully open list the map is inert (ResultsShell) and a strip of it shows
+ * above the list: the upper edge of a chip there is half a control that takes no press.
+ */
+:global([inert]) .edge {
+  visibility: hidden;
+}
+
 /* The visible chip is 34 px tall inside a 44 px target. */
 .edge::before {
   position: absolute;
