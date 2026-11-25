@@ -95,7 +95,11 @@ jobs:
 
       - name: Make new visual baselines
         if: env.WANTS_BASELINES == 'true'
-        run: npx playwright test tests/e2e/visual.spec.ts --update-snapshots
+        # Every image is made again from a screenshot that has stood still, and written only where it
+        # differs from the committed one. The default mode asks first whether the page matches the old
+        # image, and one frame that still does is enough for it to keep that image: with reduced motion
+        # a marker that is being taken off the map shows for one frame more (26 Nov 2026, seven images).
+        run: npx playwright test tests/e2e/visual.spec.ts --update-snapshots=all
 
       - name: Upload the new baselines
         if: env.WANTS_BASELINES == 'true'
