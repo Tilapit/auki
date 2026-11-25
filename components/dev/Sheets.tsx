@@ -2,6 +2,8 @@
 
 import type { ReactNode } from 'react';
 import { helsinki } from '@/lib/fixtures/helsinki';
+import { useI18n } from '@/lib/i18n/context';
+import { travel } from '@/lib/travel';
 import { latvia, riga } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
 import type { Ehditko, OpenStatus as Status, Pharmacy } from '@/lib/types';
@@ -18,8 +20,14 @@ import styles from './Sheets.module.css';
  * Captions are developer notes in English, not UI copy.
  */
 
-function Sheet({ children }: { children: ReactNode }) {
-  return <main className={styles.sheet}>{children}</main>;
+/** A page of its own: it has the one h1 every page has. */
+function Sheet({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <main className={styles.sheet}>
+      <h1 className={styles.caption}>{title}</h1>
+      {children}
+    </main>
+  );
 }
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
@@ -53,8 +61,11 @@ const STATUSES: Status[] = [
 ];
 
 export function ComponentSheet() {
+  const i18n = useI18n();
+  // Named as on the map, in short: a marker that shows a time has it in its name (WCAG 2.5.3).
+  const named = (state: string, pharmacy: Pharmacy) => `${state}: ${travel(i18n, pharmacy, 'walking').primary.long}`;
   return (
-    <Sheet>
+    <Sheet title="Components outside a full screen">
       <Block title="CrossGlyph: open, soon, closed, unknown (15, 20, 24 px)">
         {[15, 20, 24].map((size) => (
           <div key={size} className={styles.row}>
@@ -100,8 +111,8 @@ export function ComponentSheet() {
 
       <Block title="Map markers: open, closing, closed, unknown; then selected">
         <div className={styles.land}>
-          <MapMarker pharmacy={yliopiston} distance="walking" label="open" />
-          <MapMarker pharmacy={toolon} distance="walking" label="soon" />
+          <MapMarker pharmacy={yliopiston} distance="walking" label={named('open', yliopiston)} />
+          <MapMarker pharmacy={toolon} distance="walking" label={named('soon', toolon)} />
           <MapMarker pharmacy={kampin} distance="walking" label="closed" />
           <MapMarker pharmacy={kaartin} distance="walking" label="unknown" />
           <span className={styles.youSlot}>
@@ -109,8 +120,8 @@ export function ComponentSheet() {
           </span>
         </div>
         <div className={styles.land}>
-          <MapMarker pharmacy={yliopiston} distance="walking" label="open" selected />
-          <MapMarker pharmacy={toolon} distance="walking" label="soon" selected />
+          <MapMarker pharmacy={yliopiston} distance="walking" label={named('open', yliopiston)} selected />
+          <MapMarker pharmacy={toolon} distance="walking" label={named('soon', toolon)} selected />
           <MapMarker pharmacy={kampin} distance="walking" label="closed" selected />
           <MapMarker pharmacy={kaartin} distance="walking" label="unknown" selected />
         </div>
@@ -126,52 +137,60 @@ const tightToolon: Pharmacy = { ...toolon, walkMin: 16, walkMeters: 1280 };
 const tight: Ehditko = { kind: 'timeline', arrive: '20:57', closes: '21:00', slackMin: 3 };
 const farToolon: Pharmacy = { ...toolon, walkMin: 30, walkMeters: 2400 };
 
-export function CardCases() {
-  return (
-    <Sheet>
-      <Block title="1. Closes within the hour: timeline">
-        <NearestOpenCard pharmacy={toolon} distance="walking" ehditko={timeline} nextOpen={yliopiston} />
-      </Block>
-      <Block title="1b. Tight slack: under 5 min, or under a fifth of the walk (5 min after a 30 min walk)">
-        <NearestOpenCard pharmacy={tightToolon} distance="walking" ehditko={tight} />
-        <NearestOpenCard pharmacy={farToolon} distance="walking" ehditko={{ kind: 'timeline', arrive: '20:55', closes: '21:00', slackMin: 5 }} />
-      </Block>
-      <Block title="2. Arrival after closing: the closing one keeps Soita, the next open one has the main actions">
-        <NearestOpenCard
-          pharmacy={lateToolon}
-          distance="walking"
-          ehditko={{ kind: 'tooLate', arrive: '20:47', closes: '20:45' }}
-          nextOpen={farYliopiston}
-        />
-      </Block>
-      <Block title="3. Closes later: status line only">
-        <NearestOpenCard pharmacy={yliopiston} distance="walking" ehditko={{ kind: 'none' }} />
-      </Block>
-      <Block title="4. Open 24 hours, abroad, nearer ones closed, no phone number">
-        <NearestOpenCard
-          pharmacy={marijas}
-          distance="walking"
-          ehditko={{ kind: 'none' }}
-          nextOpen={riga.farOpen}
-          nextOpenWithStreet
-          closerClosed={9}
-          closedOpens={riga.closedOpens}
-          country={latvia}
-        >
-          <CountryBanner country={latvia} />
-        </NearestOpenCard>
-      </Block>
-      <Block title="5. Long name, three actions, no prescriptions">
-        <NearestOpenCard
-          pharmacy={{ ...stress.pharmacies[3], dispensing: false }}
-          distance="walking"
-          ehditko={{ kind: 'none' }}
-          country={latvia}
-        />
-      </Block>
-      <Block title="6. Straight-line fallback: metres lead, no timeline">
-        <NearestOpenCard pharmacy={{ ...toolon, walkMin: undefined, walkMeters: undefined }} distance="straight" ehditko={{ kind: 'none' }} />
-      </Block>
-    </Sheet>
-  );
+/**
+ * "Lähin auki nyt" in each of its cases, one to a page. The card is a landmark with a name,
+ * and a page that showed it eight times had eight landmarks by one name: no page of the app
+ * has two.
+ */
+export const CARD_CASES: Record<string, { title: string; card: () => ReactNode }> = {
+  timeline: {
+    title: '1. Closes within the hour: timeline',
+    card: () => <NearestOpenCard pharmacy={toolon} distance="walking" ehditko={timeline} nextOpen={yliopiston} />,
+  },
+  tight: {
+    title: '1b. Tight slack: under 5 min',
+    card: () => <NearestOpenCard pharmacy={tightToolon} distance="walking" ehditko={tight} />,
+  },
+  'tight-far': {
+    title: '1c. Tight slack: under a fifth of the walk (5 min after a 30 min walk)',
+    card: () => <NearestOpenCard pharmacy={farToolon} distance="walking" ehditko={{ kind: 'timeline', arrive: '20:55', closes: '21:00', slackMin: 5 }} />,
+  },
+  late: {
+    title: '2. Arrival after closing: the closing one keeps Soita, the next open one has the main actions',
+    card: () => <NearestOpenCard pharmacy={lateToolon} distance="walking" ehditko={{ kind: 'tooLate', arrive: '20:47', closes: '20:45' }} nextOpen={farYliopiston} />,
+  },
+  later: {
+    title: '3. Closes later: status line only',
+    card: () => <NearestOpenCard pharmacy={yliopiston} distance="walking" ehditko={{ kind: 'none' }} />,
+  },
+  abroad: {
+    title: '4. Open 24 hours, abroad, nearer ones closed, no phone number',
+    card: () => (
+      <NearestOpenCard
+        pharmacy={marijas}
+        distance="walking"
+        ehditko={{ kind: 'none' }}
+        nextOpen={riga.farOpen}
+        nextOpenWithStreet
+        closerClosed={9}
+        closedOpens={riga.closedOpens}
+        country={latvia}
+      >
+        <CountryBanner country={latvia} />
+      </NearestOpenCard>
+    ),
+  },
+  long: {
+    title: '5. Long name, three actions, no prescriptions',
+    card: () => <NearestOpenCard pharmacy={{ ...stress.pharmacies[3], dispensing: false }} distance="walking" ehditko={{ kind: 'none' }} country={latvia} />,
+  },
+  straight: {
+    title: '6. Straight-line fallback: metres lead, no timeline',
+    card: () => <NearestOpenCard pharmacy={{ ...toolon, walkMin: undefined, walkMeters: undefined }} distance="straight" ehditko={{ kind: 'none' }} />,
+  },
+};
+
+export function CardCase({ id }: { id: keyof typeof CARD_CASES }) {
+  const { title, card } = CARD_CASES[id];
+  return <Sheet title={title}>{card()}</Sheet>;
 }

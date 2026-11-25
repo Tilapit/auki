@@ -45,7 +45,7 @@ export function DataView({ loaded, zone }: { loaded: Loaded; zone?: string }) {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <Link href={`/${locale}`} className={styles.home} aria-label={t.data.back}>
+        <Link href={`/${locale}`} className={styles.home} aria-label={t.data.home}>
           <Wordmark size={26} />
         </Link>
         <LanguageSwitch />

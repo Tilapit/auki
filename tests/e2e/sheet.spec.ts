@@ -88,7 +88,7 @@ test('at its lowest the sheet is one row: the nearest open pharmacy, how far, it
   await expect(page.getByRole('heading', { name: 'Lähin auki nyt', level: 2 })).toHaveCount(1);
 
   // The row's one button is the route: it opens the pharmacy, where the map apps are.
-  await answer.getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' }).click();
+  await answer.getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
 });
 
@@ -205,11 +205,11 @@ test('below the open list the whole sheet is the handle, and a drag by a button 
   await expectAt(page, 'peek');
   await rest(handle(page));
   // By the route button: the sheet moves, and the pharmacy's own sheet does not open.
-  await drag(page, await rest(row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' })), -(low - middle) * 0.7);
+  await drag(page, await rest(row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' })), -(low - middle) * 0.7);
   await expectAt(page, 'half');
   await expect(page.getByRole('dialog')).toBeHidden();
   // The same by the card's route button, a short way: the mouse lets go over the button it pressed, and that is still not a press.
-  const route = card(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+  const route = card(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
   await drag(page, await rest(route), 40);
   await expectAt(page, 'half');
   await rest(handle(page));

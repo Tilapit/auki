@@ -191,7 +191,21 @@ export const groups: ViewGroup[] = [
     title: 'Components',
     views: [
       { id: 'components', title: 'Glyphs, status lines, buttons, markers', sizes: ['phone'], fullPage: true },
-      { id: 'card-cases', title: 'Lähin auki nyt: the ehditkö cases', sizes: ['phone'], fullPage: true },
+    ],
+  },
+  {
+    id: 'card',
+    title: 'Lähin auki nyt: the ehditkö cases',
+    note: 'One case to a page: the card is a landmark with a name, and no page of the app has two of them.',
+    views: [
+      { id: 'card-timeline', title: '1. Closes within the hour: timeline', sizes: PHONE },
+      { id: 'card-tight', title: '1b. Tight slack: under 5 min', sizes: PHONE },
+      { id: 'card-tight-far', title: '1c. Tight slack: under a fifth of the walk (5 min after a 30 min walk)', sizes: PHONE },
+      { id: 'card-late', title: '2. Arrival after closing: the closing one keeps Soita, the next open one has the main actions', sizes: PHONE },
+      { id: 'card-later', title: '3. Closes later: status line only', sizes: PHONE },
+      { id: 'card-abroad', title: '4. Open 24 hours, abroad, nearer ones closed, no phone number', sizes: PHONE, fullPage: true },
+      { id: 'card-long', title: '5. Long name, three actions, no prescriptions', sizes: PHONE },
+      { id: 'card-straight', title: '6. Straight-line fallback: metres lead, no timeline', sizes: PHONE },
     ],
   },
 ];

@@ -24,7 +24,7 @@ test('the map and the list agree: the same pharmacies, named and lit the same wa
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
   // Six pharmacies: the one in the card and the five rows. Each has one marker, named like its row.
   await expect(markers(page)).toHaveCount(6);
-  await expect(marker(page, /^Kampin apteekki, sulkeutuu pian, klo 21, 130 metriä linnuntietä$/)).toBeVisible();
+  await expect(marker(page, /^Kampin apteekki, sulkeutuu pian, klo 21, 130 m linnuntietä$/)).toBeVisible();
   await expect(marker(page, /^Yliopiston apteekki, auki klo 24 asti, /)).toBeVisible();
   await expect(marker(page, /^Hietalahden apteekki, kiinni, avautuu huomenna klo 9$/)).toBeVisible();
   await expect(marker(page, /^Apteekki, Runeberginkatu 6, aukioloaikoja ei ole merkitty$/)).toBeVisible();

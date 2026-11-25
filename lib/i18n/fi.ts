@@ -17,7 +17,11 @@ const fi = {
     name: BRAND,
     otherLanguage: 'In English',
     otherLanguageShort: 'EN',
-    otherLanguageLabel: 'Vaihda kieli: English',
+    /**
+     * The name of the round language link, which shows only "EN". It starts with what is shown
+     * (WCAG 2.5.3), and it is in the other language, like the link's own `lang`.
+     */
+    otherLanguageLabel: 'EN: In English',
     back: 'Takaisin',
     close: 'Sulje',
     fallbackName: 'Apteekki',
@@ -202,13 +206,14 @@ const fi = {
     nextOpen: 'Seuraava auki',
     outOfStock: 'Ei varastossa? Seuraava auki: {name}, {details}.',
     route: 'Reitti',
-    routeLabel: (name: string) => `Kävelyreitti: ${name}`,
+    /** The names of buttons that show "Reitti" begin with that word: a name contains what its control shows (WCAG 2.5.3). */
+    routeLabel: (name: string) => `Reitti kävellen: ${name}`,
     /** Too far to walk: the route is handed to the map app without a way of travel. */
     directionsLabel: (name: string) => `Reitti: ${name}`,
     call: 'Soita',
     callLabel: (name: string) => `Soita: ${name}`,
     showAtCounter: 'Näytä apteekissa',
-    showAtCounterLabel: (inLanguage: string) => `Näytä apteekkikortti ${inLanguage}`,
+    showAtCounterLabel: (inLanguage: string) => `Näytä apteekissa: apteekkikortti ${inLanguage}`,
     showDetails: 'Näytä tiedot',
     details: (name: string) => `Näytä tiedot: ${name}`,
   },
@@ -364,6 +369,8 @@ const fi = {
     failed: 'Lukujen haku ei onnistunut juuri nyt.',
     licence: 'Aineisto: {osm}, lisenssi ODbL.',
     back: 'Takaisin apteekkihakuun',
+    /** The name of the wordmark as a link: the name it shows, then where it leads. */
+    home: `${BRAND}: takaisin apteekkihakuun`,
   },
   map: {
     label: 'Kartta: sijaintisi ja lähimmät apteekit',
