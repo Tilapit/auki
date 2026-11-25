@@ -73,14 +73,23 @@ export interface CountryInfo {
   inLanguage: Record<Locale, string>;
   status: Record<Locale, string>;
   tip: Record<Locale, string>;
+  /**
+   * What happened at the counter on the research trip, with its sample size, month and city
+   * (PLAN.md section 8, decision D1). Never a pharmacy's name. Left out where nothing was tried.
+   */
+  field?: Record<Locale, string>;
   source: { label: string; url: string; checked: string };
 }
+
+/** What the card is shown for: a Finnish e-prescription, a paper original, or a prescription the doctor sends to the pharmacy. */
+export type CardVariant = 'ePrescription' | 'paper' | 'doctorSends';
 
 export interface CardPhrases {
   /** BCP 47 tag of the local language. */
   lang: string;
   reviewed: boolean;
-  variants: Record<'ePrescription' | 'paper', { local: string[]; english: string }>;
+  /** Only the variants that make sense in the country: no e-prescription lines where it can't be bought with one. */
+  variants: Partial<Record<CardVariant, { local: string[]; english: string }>>;
   pharmacist: { local: string; english: string };
 }
 

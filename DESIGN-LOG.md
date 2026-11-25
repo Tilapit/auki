@@ -767,3 +767,22 @@ Entry format:
   - With an approximate position (the user's own choice in the system's question) the sheet starts with the web's notice, "Sijaintisi on likimääräinen. Etäisyydet voivat heittää.", without the web's link to place search, which I1 doesn't have.
 - Why: One voice on both platforms. The location question says what the app does and not more: it does not say the position never leaves the phone, because Apple's map is told which part of the map is on screen, as the map tile host is on the web.
 - Status: provisional, waiting for Janne: the wording of the location question, which is a privacy statement
+
+## 2026-11-25: Abroad: the banner's third line is what happened at the counter (provisional)
+- Where: `CountryBanner`, `data/countries/guides.ts`; `/dev/states`, "riga" and "abroad" (every country's banner and card lines on one page)
+- Change: M6, cut down by Janne's brief of 25 Nov. Under the status, the tip and the source, the banner has the trip's result as a line of its own: "Kokeiltu Riiassa 11/2026: e-resepti löytyi 1/1 apteekista." It is in the small quiet size of the source line, after it, with tabular figures.
+  - The live app now shows the banner and the card in every covered country but Finland, from the country of the pharmacy the card leads with.
+  - Status is Kanta's list as read on 25 Nov 2026, and nothing more: a country not on it says "Suomalainen e-resepti ei toimi …". What the trip saw is in the tip and in the field line, never in the status.
+  - The line always opens with the place and the month and has the count of pharmacies. Lithuania and Norway name the country, because the repository's evidence names no city for them. Sweden has none.
+  - Nothing says that a medicine is sold without a prescription, and no medicine is named; one field line names a class of medicine, because that is what was refused (Athens).
+- Why: The rule and the result are two kinds of knowledge and read as two: one is what Kanta says, the other what a few pharmacies did on one day. After the source, so that "Lähde: Kanta" is not read as the source of the field line.
+- Status: provisional, waiting for Janne: the line's place and wording (PLAN.md section 5 sends both through `/dev/states`), and each country's three lines.
+
+## 2026-11-25: The counter card offers what makes sense in the country, and says only what is true of the screen
+- Where: `CounterCard`, `data/countries/phrases.ts`; `/dev/states`, "counter", "counter-paper", "counter-doctor", "counter-one"
+- Change: The switch has the variants the country is offered: the e-prescription only in Kanta's eight countries, "Lääkäri lähettää" where the trip saw a doctor's email or fax accepted. With one variant there is no switch. Malta's card is in English alone: no second language under it, and no "unchecked" note.
+  - "Näyttö pysyy päällä." was on the card since M1 without anything behind it. The card now asks the browser to keep the screen awake while it is open (Screen Wake Lock), lets go when it closes, asks again when the page comes back, and shows the line only while the browser has agreed.
+  - Seventeen languages are drafted. All are marked unchecked on the card, the five that started from what was said at the counter on the trip too.
+  - Greek is set in the system's face: Atkinson Hyperlegible Next has no Greek, and the font stack already falls through to it.
+- Why: A card that asks a German pharmacist to look up a Finnish e-prescription wastes the one moment it is for. A line that says the screen stays on has to be true when the phone is handed over.
+- Status: done; the translations wait for native checks, language by language.

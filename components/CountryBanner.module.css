@@ -28,3 +28,12 @@
   color: var(--meta);
   font-size: var(--t-s);
 }
+
+/* What a few pharmacies did on one day: after the rule and its source, in the small quiet size, with numbers that line up. */
+.field {
+  margin-top: 6px;
+  color: var(--ink-2);
+  font-size: var(--t-s);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}

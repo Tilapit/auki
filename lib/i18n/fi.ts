@@ -244,6 +244,7 @@ const fi = {
     format: 'Reseptin muoto',
     ePrescription: 'E-resepti',
     paper: 'Paperiresepti',
+    doctorSends: 'Lääkäri lähettää',
     ifNotFound: 'Jos myyjä ei löydä reseptiä',
     ifRefused: 'Jos myyjä ei hyväksy reseptiä',
     unreviewed: 'Käännös tarkistamatta',

@@ -214,6 +214,7 @@ const en: Dictionary = {
     format: 'Prescription format',
     ePrescription: 'E-prescription',
     paper: 'Paper prescription',
+    doctorSends: 'Doctor sends it',
     ifNotFound: "If the assistant can't find the prescription",
     ifRefused: "If the assistant won't accept the prescription",
     unreviewed: 'Unreviewed translation',

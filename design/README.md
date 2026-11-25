@@ -49,3 +49,7 @@ Screenshots for the pull request "Medicine availability: a hand-off to each coun
 ## The iOS app, I1, 25 Nov 2026 (`ios-i1/`)
 
 Screenshots for the pull request "I1: the iOS app". From the iOS Simulator (iPhone 17, iOS 27.2), with a position set in Kamppi, Helsinki, and the real pharmacies of the data host as fetched from OpenStreetMap on 24 Nov. The app's clock was set with its debug launch argument: Wednesday 25 Nov at 20.41, and the night after at 2.30. The first window, the results, a pharmacy picked with the sheet at its lowest place, and the list (`light.jpg`); the same in the dark, with the night when nothing nearby is open (`dark.jpg`); that night by day, English, location denied, and the largest text size (`states.jpg`); and the system's location question with the app's sentence in it (`question.jpg`). The map under the markers is Apple's.
+
+## M6, cut down, 25 Nov 2026 (`m6/`)
+
+Screenshots for the pull request "M6, cut down: the abroad banner with the field result, and the counter card". From `/dev/states`: the Riga results with the banner in the card, and the counter card in Latvian (e-prescription and paper), in German where a Finnish e-prescription can't be used, and in English for Malta (`cards.jpg`); and every country's banner with its counter card's lines as text, the review page in three columns (`abroad.jpg`).

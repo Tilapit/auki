@@ -165,6 +165,9 @@ export const groups: ViewGroup[] = [
       { id: 'sheet-far', title: 'Pharmacy sheet, the farther open one: city in the address, route without walking', ready: 'dialog[open]' },
       { id: 'counter', title: 'Counter card, e-prescription', ready: 'dialog[open]' },
       { id: 'counter-paper', title: 'Counter card, paper (drafted, unreviewed)', ready: 'dialog[open]' },
+      { id: 'counter-doctor', title: 'Counter card where a Finnish e-prescription can\'t be used: paper and "the doctor sends it" (Germany\'s card, on the Riga fixture), without the wake lock', ready: 'dialog[open]', sizes: PHONE },
+      { id: 'counter-one', title: 'Counter card with one variant and English as the pharmacy\'s language (Malta\'s, on the Riga fixture): no switch, no second language', ready: 'dialog[open]', sizes: PHONE, themes: ['light'] },
+      { id: 'abroad', title: 'Every country\'s banner and counter-card lines, for reading through (M6)', sizes: PHONE, themes: ['light'], fullPage: true },
     ],
   },
   {

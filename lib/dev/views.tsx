@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
-import { CardCases, ComponentSheet } from '@/components/dev/Sheets';
+import { AbroadSheet, CardCases, ComponentSheet } from '@/components/dev/Sheets';
+import { abroadFor } from '@/data/countries';
 import { StockExample } from '@/components/dev/StockExample';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
@@ -89,8 +90,12 @@ export const renderers: Record<string, () => ReactNode> = {
   sheet: () => <ResultsView scene={helsinki} sheet="peek" detailId="yliopiston" />,
   'sheet-sparse': () => <ResultsView scene={helsinki} sheet="peek" detailId="kaartin" />,
   'sheet-far': () => <ResultsView scene={rigaFarOpen} sheet="peek" detailId="meness-marupe" />,
-  counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" />,
-  'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" />,
+  counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" counterAwake />,
+  'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" counterAwake />,
+  // Where a Finnish e-prescription can't be used the card has no lines for one: Germany's, on the Riga fixture's pharmacies.
+  'counter-doctor': () => <ResultsView scene={{ ...riga, ...abroadFor('DE') }} sheet="expanded" counter="doctorSends" counterAwake={false} />,
+  'counter-one': () => <ResultsView scene={{ ...riga, ...abroadFor('MT') }} sheet="expanded" counter="paper" counterAwake />,
+  abroad: () => <AbroadSheet />,
 
   'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
   'tiles-half': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="half" />,

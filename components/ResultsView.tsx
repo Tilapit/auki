@@ -9,7 +9,7 @@ import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } fro
 import { providerFor, providerForReview } from '@/lib/stock/providers';
 import { travel, withinWalk } from '@/lib/travel';
 import type { AreaLayer, Bounds } from '@/lib/map/area';
-import type { Pharmacy, Scene } from '@/lib/types';
+import type { CardVariant, Pharmacy, Scene } from '@/lib/types';
 import { ApproximateNotice } from './ApproximateNotice';
 import { Button } from './Button';
 import { CounterCard } from './CounterCard';
@@ -40,7 +40,9 @@ export interface ResultsOptions {
   /** Start with a pharmacy's details open. */
   detailId?: string;
   /** Start with the counter card open. */
-  counter?: 'ePrescription' | 'paper';
+  counter?: CardVariant;
+  /** /dev/states only, which asks the browser for nothing: the card as it is with the screen kept awake, or without. */
+  counterAwake?: boolean;
   closedOpen?: boolean;
   onRefresh?: () => void;
   /** Opens the place search: from the place name, and from the approximate-location notice. */
@@ -503,7 +505,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       }
       overlays={
         <>
-          {scene.card && <CounterCard card={scene.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} />}
+          {scene.card && <CounterCard card={scene.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} fixedAwake={options.counterAwake} />}
           {offered && (
             <MedicineDialog provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
               {options.medicineExample}

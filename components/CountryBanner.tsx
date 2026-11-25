@@ -9,7 +9,10 @@ import styles from './CountryBanner.module.css';
 
 /**
  * "Resepti Suomesta?" Shown only outside Finland, as a section of the card: the country's
- * status in one line, the key tip, and where that comes from and when it was checked.
+ * status in one line, the key tip, where that comes from and when it was checked, and what
+ * happened at the counter on the research trip, with its sample size, month and city
+ * (PLAN.md section 8). The trip's line stands apart from the rule above it: one is what Kanta
+ * says, the other what a few pharmacies did on one day.
  */
 export function CountryBanner({ country }: { country: CountryInfo }) {
   const { t, f, locale } = useI18n();
@@ -36,6 +39,7 @@ export function CountryBanner({ country }: { country: CountryInfo }) {
             date: f.date(country.source.checked),
           })}
         </p>
+        {country.field && <p className={styles.field}>{country.field[locale]}</p>}
       </div>
     </section>
   );
