@@ -954,3 +954,25 @@ Entry format:
   - Greek is set in the system's face: Atkinson Hyperlegible Next has no Greek, and the font stack already falls through to it.
 - Why: A card that asks a German pharmacist to look up a Finnish e-prescription wastes the one moment it is for. A line that says the screen stays on has to be true when the phone is handed over.
 - Status: done; the translations wait for native checks, language by language.
+
+## 2026-11-26: "Resepti kotimaasta?": the prescription banner for any pair of countries (provisional)
+- Where: `data/countries/` (all of it), `lib/home.ts`, `components/CountryBanner.tsx`, `CounterCard.tsx`, `ResultsView.tsx`; `/dev/states/abroad`, `abroad-visitor`, `abroad-finland`, `abroad-ask`, `counter-visitor`; `docs/research/prescriptions-across-borders.md`
+- Change: Janne's scope decision of 26 Nov (PLAN.md D10): the app is for anyone in any covered country. The banner of pull request #17, which answered for a Finnish prescription abroad, now answers for a prescription from any country at a pharmacy in any covered one, Finland among them.
+  - **Two answers, one sentence each**: the electronic prescription and the paper one. #17 had one status line, which was Kanta's list. The two formats have different rules and different sources, and for most pairs they differ: paper is covered by the EU's rule, the electronic one by whichever two countries have connected.
+  - **The home country is shown, not asked.** It is the browser's suggestion, in a native list that changes it, right under the title: the one place where it matters. A native list because it is thirty-four names long, and a phone's own picker is the easiest way through that.
+  - **The field line is for everyone, and says whose it was.** "Suomalaisella reseptillä. Kokeiltu Riiassa 11/2026: …". It is about that country's counters, which a German's prescription meets too. It never names the trip's company.
+  - **The sources are behind one button**, with the conditions. Open, each is a link by its publisher and page, with the date of the page and the day it was read. Closed, one line says when they were read. The visible part stays at two answers, the field line and one tip.
+  - **Nothing is shown at home.** The banner was "only outside Finland"; now it is "only where the prescription's country is not the pharmacy's".
+  - **The counter card names the country after a colon** ("Valsts: Vācija."), in the pharmacy's language, by the browser's own country names. No sentence has a country woven in, so no language needs a name in another case, and no name is a translation of ours.
+- Why: Stated by the data. Of 672 pairs the electronic prescription works in 95, a page says it does not in 430, and for 147 nothing official was found. One line could not carry that honestly.
+  - **No European list exists for the electronic prescription.** The Commission's page names no country and Your Europe's example for Finland (three countries) is older than Kanta's list (eight). So each pair is read from the two countries' own pages, and Croatia's, which is from 2022, is not read for what it leaves out.
+  - "Does not work" is said where a list that was read leaves the pair out. That is a reading of a list, not a sentence on a page, so the details say which list.
+  - Considered and dropped: the banner asking "Mistä maasta reseptisi on?" on first sight. No question until it matters, and the browser's languages are right for most.
+  - Considered and dropped: a dialog for the details. A button that opens them in place needs no focus trap and keeps the card one surface.
+  - Considered and dropped: taking the home country from the device's time zone as well. The brief names the language and the region.
+  - English is passed over while another language is there: "en-GB" with "fi-FI" behind it is a Finn, far more often than a Briton.
+- Status: provisional, and not merged: Janne reads the claims first, and they have had one reader.
+  - Weak spots, each named in the research file: Spain's list does not split the two directions; Greece's table is icons; Austria's and Cyprus's own pages were not read; Switzerland rests on a pharmacists' position paper; Germany on gematik and the national contact point.
+  - Seventeen translations are drafts, as in #17, and rewritten for this: none has had a native reader.
+  - Not built: a way to the control for someone at home whose phone suggests the wrong country. The banner is not shown at home.
+  - The home country, once picked, is kept on the device: the second thing the app keeps there (PLAN.md 7.6).

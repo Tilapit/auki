@@ -196,23 +196,44 @@ export function CardCase({ id }: { id: keyof typeof CARD_CASES }) {
   return <Sheet title={title}>{card()}</Sheet>;
 }
 
-/** A counter card's lines as plain text, each variant under its name. */
-function CardLines({ home, here }: { home: string; here: string }) {
-  const card = guideFor(home, here)?.card;
-  if (!card) return null;
+/**
+ * What the app says of one pair, as plain text in the page's language: both answers, every
+ * note with its source, the trip's line, and the counter card's lines under their variant's name.
+ */
+function PairTexts({ home, here }: { home: string; here: string }) {
+  const { locale } = useI18n();
+  const guide = guideFor(home, here);
+  if (!guide) return null;
+  const { card } = guide;
+  const said: [string, string][] = [
+    [`e-prescription: ${guide.ePrescription.status}`, guide.ePrescription.text[locale]],
+    ...guide.ePrescription.notes.map((note): [string, string] => [note.source, note.text[locale]]),
+    [`paper: ${guide.paper.status}`, guide.paper.text[locale]],
+    ...guide.paper.notes.map((note): [string, string] => [note.source, note.text[locale]]),
+    ...(guide.field ? [['field, with a prescription from Finland', guide.field[locale]] as [string, string]] : []),
+  ];
   return (
     <>
+      {said.map(([caption, text]) => (
+        <p key={caption + text} className={styles.lines}>
+          <span lang="en" className={styles.caption}>
+            {caption}
+          </span>
+          {text}
+        </p>
+      ))}
       {Object.entries(card.variants).map(([variant, lines]) => (
         <p key={variant} lang={card.lang} className={styles.lines}>
           <span lang="en" className={styles.caption}>
-            {variant}
+            card, {variant}
+            {card.reviewed ? '' : ' (unreviewed)'}
           </span>
           {lines.local.join(' ')}
         </p>
       ))}
       <p lang={card.lang} className={styles.lines}>
         <span lang="en" className={styles.caption}>
-          pharmacist
+          card, pharmacist
         </span>
         {card.pharmacist.local}
       </p>
@@ -221,7 +242,7 @@ function CardLines({ home, here }: { home: string; here: string }) {
 }
 
 /** Pairs that show each kind of answer the banner can give, beyond a prescription from Finland. */
-const VISITORS: { home: string | null; here: string; what: string }[] = [
+const VISITORS: { home: string; here: string; what: string }[] = [
   { home: 'EE', here: 'FI', what: 'Estonia to Finland: both countries list each other' },
   { home: 'DE', here: 'FI', what: 'Germany to Finland: not on Finland’s list; paper recognised, with Finland’s own conditions' },
   { home: 'CH', here: 'FI', what: 'Switzerland to Finland: outside the EU rule, and Finland takes the paper prescription' },
@@ -237,32 +258,29 @@ const VISITORS: { home: string | null; here: string; what: string }[] = [
   { home: 'DE', here: 'CH', what: 'Germany to Switzerland: outside the EU rule' },
   { home: 'CH', here: 'DE', what: 'Switzerland to Germany: outside the EU rule, the other way' },
   { home: 'XX', here: 'IT', what: 'Another country to Italy: nothing official found' },
-  { home: null, here: 'LV', what: 'No country suggested by the device: the banner asks' },
 ];
 
 /**
- * The prescription guidance for reading through in one place (data/countries/): for every
- * country one can be in, the banner for a prescription from Finland (in Finland, from Estonia)
- * with its details open, and the counter card's lines as plain text. Then pairs that show each
- * kind of answer. The whole matrix is in docs/research/prescriptions-across-borders.md.
+ * The prescription guidance for reading through in one place (data/countries/), as plain text:
+ * for every country one can be in, what is said of a prescription from Finland (in Finland,
+ * of one from Estonia) and the counter card's lines. Then pairs that show each kind of answer.
+ * The banner itself is in the views of its own; the whole matrix is in
+ * docs/research/prescriptions-across-borders.md.
  */
 export function AbroadSheet() {
   return (
-    <Sheet title="Prescriptions across borders: each country's banner and counter-card lines">
+    <Sheet title="Prescriptions across borders: what is said of each country, and the counter-card lines">
       {HERE.map((place) => {
         const home = place.code === 'FI' ? 'EE' : 'FI';
-        const card = guideFor(home, place.code)!.card;
         return (
-          <Block key={place.code} title={`${place.code}, a prescription from ${home}: banner, then the card ${place.inLanguage.en}${card.reviewed ? '' : ' (unreviewed)'}`}>
-            <BannerFor home={home} here={place.code} open />
-            <CardLines home={home} here={place.code} />
+          <Block key={place.code} title={`${place.code}, a prescription from ${home}; the card ${place.inLanguage.en}`}>
+            <PairTexts home={home} here={place.code} />
           </Block>
         );
       })}
       {VISITORS.map(({ home, here, what }) => (
         <Block key={`${home}-${here}`} title={what}>
-          <BannerFor home={home} here={here} />
-          {home && <CardLines home={home} here={here} />}
+          <PairTexts home={home} here={here} />
         </Block>
       ))}
     </Sheet>
