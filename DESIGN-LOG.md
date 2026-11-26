@@ -966,7 +966,7 @@ Entry format:
     2. another typeface for figures only;
     3. keeping the zero as the typeface has it. PLAN.md section 6 chose this typeface for its "distinct I/l/1 and O/0".
   - The card, the list's rows and the markers keep their tabular figures: there the minutes stand in a column down the list and change in place, and a marker must not change its width when a minute passes.
-- Status: the row is done. The figures are provisional: the monospace look is gone from the details, the slashed zero is not, and which of the three ways to take is Janne's (a change to the typeface is his by `CLAUDE.md`).
+- Status: decided. Janne, 26 Nov 2026 (evening): the third way. The zero stays as the typeface has it, slash and all, and the typeface is not copied or changed. The figures in a pharmacy's details stay the ordinary ones.
 
 ## 2026-11-26: A tab that is loaded again shows the results it had, and what that does to the footer's sentence (provisional)
 - Where: `lib/session.ts`, `hooks/usePharmacySearch.ts` (the arrival, the search, what is kept and forgotten), `components/MapStage.tsx` (the open pharmacy); `lib/i18n/` (`footer.privacy`, `meta.description`); `tests/e2e/session.spec.ts`
@@ -981,4 +981,70 @@ Entry format:
   - Other wordings considered: "Sijaintiasi käytetään vain tähän hakuun." (says less, promises nothing about keeping); "Sijaintiasi ei tallenneta palvelimelle. Välilehti muistaa viimeisen haun, kunnes suljet sen." (the whole truth, and long for a line that is meant to be quiet).
   - The other way out: keep the old sentence and don't keep the position. A tab that is loaded again then locates anew, as a later visit does since today: the results come back a second or two later, Safari may ask again, and the walking times are asked for again.
   - The iOS app keeps nothing and its sentence stays as it was.
-- Status: provisional, and not merged: the privacy claims are Janne's (`CLAUDE.md`). The pull request waits for his word on the sentence.
+- Status: decided. Janne, 26 Nov 2026 (evening): merged as it is, with "Sijaintiasi ei tallenneta palvelimelle." / "Your location is not saved on a server."
+
+## 2026-11-25: Abroad: the banner's third line is what happened at the counter (provisional)
+- Where: `CountryBanner`, `data/countries/guides.ts`; `/dev/states`, "riga" and "abroad" (every country's banner and card lines on one page)
+- Change: M6, cut down by Janne's brief of 25 Nov. Under the status, the tip and the source, the banner has the trip's result as a line of its own: "Kokeiltu Riiassa 11/2026: e-resepti löytyi 1/1 apteekista." It is in the small quiet size of the source line, after it, with tabular figures.
+  - The live app now shows the banner and the card in every covered country but Finland, from the country of the pharmacy the card leads with.
+  - Status is Kanta's list as read on 25 Nov 2026, and nothing more: a country not on it says "Suomalainen e-resepti ei toimi …". What the trip saw is in the tip and in the field line, never in the status.
+  - The line always opens with the place and the month and has the count of pharmacies. Lithuania and Norway name the country, because the repository's evidence names no city for them. Sweden has none.
+  - Nothing says that a medicine is sold without a prescription, and no medicine is named; one field line names a class of medicine, because that is what was refused (Athens).
+- Why: The rule and the result are two kinds of knowledge and read as two: one is what Kanta says, the other what a few pharmacies did on one day. After the source, so that "Lähde: Kanta" is not read as the source of the field line.
+- Status: provisional, waiting for Janne: the line's place and wording (PLAN.md section 5 sends both through `/dev/states`), and each country's three lines.
+
+## 2026-11-25: The counter card offers what makes sense in the country, and says only what is true of the screen
+- Where: `CounterCard`, `data/countries/phrases.ts`; `/dev/states`, "counter", "counter-paper", "counter-doctor", "counter-one"
+- Change: The switch has the variants the country is offered: the e-prescription only in Kanta's eight countries, "Lääkäri lähettää" where the trip saw a doctor's email or fax accepted. With one variant there is no switch. Malta's card is in English alone: no second language under it, and no "unchecked" note.
+  - "Näyttö pysyy päällä." was on the card since M1 without anything behind it. The card now asks the browser to keep the screen awake while it is open (Screen Wake Lock), lets go when it closes, asks again when the page comes back, and shows the line only while the browser has agreed.
+  - Seventeen languages are drafted. All are marked unchecked on the card, the five that started from what was said at the counter on the trip too.
+  - Greek is set in the system's face: Atkinson Hyperlegible Next has no Greek, and the font stack already falls through to it.
+- Why: A card that asks a German pharmacist to look up a Finnish e-prescription wastes the one moment it is for. A line that says the screen stays on has to be true when the phone is handed over.
+- Status: done; the translations wait for native checks, language by language.
+
+## 2026-11-26: "Resepti kotimaasta?": the prescription banner for any pair of countries (provisional)
+- Where: `data/countries/` (all of it), `lib/home.ts`, `components/CountryBanner.tsx`, `CounterCard.tsx`, `ResultsView.tsx`; `/dev/states/abroad`, `abroad-visitor`, `abroad-finland`, `abroad-ask`, `counter-visitor`; `docs/research/prescriptions-across-borders.md`
+- Change: Janne's scope decision of 26 Nov (PLAN.md D10): the app is for anyone in any covered country. The banner of pull request #17, which answered for a Finnish prescription abroad, now answers for a prescription from any country at a pharmacy in any covered one, Finland among them.
+  - **Two answers, one sentence each**: the electronic prescription and the paper one. #17 had one status line, which was Kanta's list. The two formats have different rules and different sources, and for most pairs they differ: paper is covered by the EU's rule, the electronic one by whichever two countries have connected.
+  - **The home country is shown, not asked.** It is the browser's suggestion, in a native list that changes it, right under the title: the one place where it matters. A native list because it is thirty-four names long, and a phone's own picker is the easiest way through that.
+  - **The field line is for everyone, and says whose it was.** "Suomalaisella reseptillä. Kokeiltu Riiassa 11/2026: …". It is about that country's counters, which a German's prescription meets too. It never names the trip's company.
+  - **The sources are behind one button**, with the conditions. Open, each is a link by its publisher and page, with the date of the page and the day it was read. Closed, one line says when they were read. The visible part stays at two answers, the field line and one tip.
+  - **Nothing is shown at home.** The banner was "only outside Finland"; now it is "only where the prescription's country is not the pharmacy's".
+  - **The counter card names the country after a colon** ("Valsts: Vācija."), in the pharmacy's language, by the browser's own country names. No sentence has a country woven in, so no language needs a name in another case, and no name is a translation of ours.
+- Why: Stated by the data. Of 672 pairs the electronic prescription works in 95, a page says it does not in 430, and for 147 nothing official was found. One line could not carry that honestly.
+  - **No European list exists for the electronic prescription.** The Commission's page names no country and Your Europe's example for Finland (three countries) is older than Kanta's list (eight). So each pair is read from the two countries' own pages, and Croatia's, which is from 2022, is not read for what it leaves out.
+  - "Does not work" is said where a list that was read leaves the pair out. That is a reading of a list, not a sentence on a page, so the details say which list.
+  - Considered and dropped: the banner asking "Mistä maasta reseptisi on?" on first sight. No question until it matters, and the browser's languages are right for most.
+  - Considered and dropped: a dialog for the details. A button that opens them in place needs no focus trap and keeps the card one surface.
+  - Considered and dropped: taking the home country from the device's time zone as well. The brief names the language and the region.
+  - English is passed over while another language is there: "en-GB" with "fi-FI" behind it is a Finn, far more often than a Briton.
+- Status: provisional, and not merged: Janne reads the claims first, and they have had one reader.
+  - Weak spots, each named in the research file: Spain's list does not split the two directions; Greece's table is icons; Austria's and Cyprus's own pages were not read; Switzerland rests on a pharmacists' position paper; Germany on gematik and the national contact point.
+  - Seventeen translations are drafts, as in #17, and rewritten for this: none has had a native reader.
+  - At home the banner is not shown, so its control would be out of reach for someone whose phone suggests the wrong country (a German in Finland who reads their phone in Finnish). The results footer has one line for that, "Resepti toisesta maasta?", in the footer's own size: it brings the banner up with the keyboard on the control. A line in the footer, and not in the card, because at home it is for very few.
+  - The home country, once picked, is kept on the device: the second thing the app keeps there (PLAN.md 7.6).
+
+## 2026-11-26: A pair that a list leaves out is not a "no" (Janne's decision; the wording provisional)
+- Where: `data/countries/index.ts` (`notListed`), the "Resepti kotimaasta?" banner; `/dev/states`, "abroad" (every pair's sentence on one page)
+- Change: 238 of the 672 pairs are ones where a country's list of partners was read and the other country is not on it. The banner said of them "Saksassa kirjoitettu sähköinen resepti ei käy Latviassa.", in the same words as where an authority says so, and the reason was behind "Lisätiedot ja lähteet". Janne, 26 Nov: it must not read as a flat no; say whose list it is and its date, and point to the paper prescription under the EU's rule as the way that works.
+  - The answer is now three short sentences: what the list leaves out, whose list it is with its date, and the way that works. "Saksa ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa. Luettelo: eveseliba.gov.lv (Latvia), luettu 26.11.2026. Paperinen resepti käy EU:n säännön nojalla."
+  - The date is the page's own where it shows one ("päivitetty 5.8.2026") and the day it was read where it shows none ("luettu 26.11.2026"): the same two cases as in the list of sources.
+  - Whose list: the publisher as the list of sources names it, up to the colon of its label. A unit test holds every such label to that form.
+  - Three kinds of list, three sentences. The list of the country one is in: "Saksa ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa." The home country's list: "Italia ei ole niiden maiden luettelossa, joissa Suomessa kirjoitettu sähköinen resepti käy." Both, where neither has the pair: "Kummankaan maan luettelossa ei mainita, että Tšekissä kirjoitettu sähköinen resepti kävisi Portugalissa." The last is about one direction on purpose: Portugal's prescriptions are dispensed in Czechia.
+  - The pointer to paper is there only where the EU's rule covers the pair (a paper answer of "kelpaa"). A prescription from Switzerland, the United Kingdom or outside Europe gets the first two sentences and no pointer, because the paper answer below it is not a yes.
+  - The note that used to explain the list behind the button is gone: the answer says it. Where an authority says in words that pharmacies take no e-prescription from abroad (Sweden, Denmark, Norway, Germany, Switzerland) the answer is still "ei käy", with that authority's sentence in the details.
+  - The names are in the nominative and the verb in the singular for "Alankomaat" too ("Alankomaat ei ole … luettelossa"), which Finnish allows for a country's name in the plural.
+  - The same evening the pages nobody had read were read (`docs/research/prescriptions-across-borders.md`, "The evening reading"). Croatia's contact point has both lists on one page; its date does not fit its text, so it is still not read for what it leaves out. Austria's own page lists where Austrian e-prescriptions are dispensed (Czechia and Spain) and names no country whose prescriptions Austria takes, so it is read for that direction alone. With it, six pairs from Austria are "not on the list", and one pair is the first where two current pages disagree: Latvia's page takes Austrian e-prescriptions, Austria's list does not have Latvia. The banner says that they disagree and picks no side; the counter card keeps its e-prescription lines there.
+  - Counts now: 95 work, 192 are a "no" in an authority's own words, 244 are left out by a list, 1 disagrees, 140 have nothing found. The entry of this morning has the counts as they were then.
+- Status: the rule is Janne's. The wording is provisional: the answer is two to three lines longer on a phone than the sentence it replaces.
+
+## 2026-11-26: The prescription guidance is fetched only when a prescription's country is not the pharmacy's
+- Where: `lib/guidance.ts`, `components/GuidanceParts.ts`, `data/countries/codes.ts`, `hooks/usePharmacySearch.ts`, `components/ResultsView.tsx`; `/dev/states` renders through `components/dev/Results.tsx`
+- Change: The banner, the counter card and all of `data/countries/` (every pair's sentences, the sources, the card's lines in nineteen languages) travelled with the results for everyone, also for someone at home who never sees them: 18 KB before the first result. Now they are one file of their own, asked for when the search finds a pharmacy in another country than the prescription's, and at home only when "Resepti toisesta maasta?" is pressed.
+  - What decides it is in the first load and small: the home countries' codes and the browser's suggestion (`data/countries/codes.ts`), not their names or anything said about them.
+  - Abroad the file is asked for as soon as the search knows its pharmacies, a moment before their walking times, so the banner comes with the card and the card does not grow after it is shown. Measured on an emulated slow connection: with the early ask the banner is in the same frame as the results; without it, some 360 ms later.
+  - No waiting view: until the file is there the card is as it is at home. If the file fails to arrive there is no banner until a results view next asks for it.
+  - `/dev/states` has the guidance from the first render, on the server too: its views are photographed, and none may be caught while a file is on its way.
+- Why: PLAN.md section 12 counts the JavaScript that travels before the first result, and most searches are made at home. Measured on this Mac against a production build: 226.1 KB before, 208.5 KB after, at home; the pull request has CI's own figure. The first window itself grew by 0.7 KB (the codes and the loader).
+- Also: the reading sheet of every pair, `/dev/states/abroad`, is two views now (`abroad` and `abroad-pairs`). With the longer sentences and the evening's notes it was taller than WebKit can photograph (32,767 px).
+- Status: done. Not tried on a real phone.

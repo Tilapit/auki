@@ -205,6 +205,8 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
     ...(dataFrom !== undefined ? { dataFrom } : {}),
     ...(result.missing.length > 0 ? { missing: result.missing } : {}),
     ...(result.hoursListed ? { hoursListed: result.hoursListed } : {}),
+    // The country of the pharmacy the card leads with: at a border the guidance matches the pharmacy the user is sent to.
+    ...(answer?.country ? { here: answer.country } : {}),
     views: { phone: view(150), desktop: view(330) },
   };
 }

@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { canLocate, locateOnce, locatedBefore, locatesOnArrival, locationPermission, rememberLocated, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
+import { loadGuidance } from '@/lib/guidance';
+import { deviceHome } from '@/lib/home';
 import type { Locale } from '@/lib/i18n';
 import { RERANK_GAP_SECONDS, movedEnough } from '@/lib/live';
 import type { Bounds } from '@/lib/map/area';
@@ -178,7 +180,16 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     // A search that came back from the tab's storage has its walking times with it: the list is
     // in the order it was left in, and the one request that carries the position is not made again.
     const kept = restored.current?.position === position ? restored.current : undefined;
-    const walks: AskWalks = kept ? async () => kept.walks : walksFrom(position, controller.signal);
+    const times: AskWalks = kept ? async () => kept.walks : walksFrom(position, controller.signal);
+    // The pharmacies are known here, a moment before their walking times. Where one of them is in
+    // another country than the prescription's, the guidance is asked for now and not when the
+    // results appear: the banner then comes with the card and not after it (lib/guidance.ts).
+    // At home nothing is asked for.
+    const home = deviceHome(locale);
+    const walks: AskWalks = (candidates) => {
+      if (candidates.some((found) => found.pharmacy.country && found.pharmacy.country !== home)) loadGuidance();
+      return times(candidates);
+    };
     // Ranked when the position was fixed: a device that has moved since is followed at its first fix.
     tiles.current = { position, store, controller, rankedAt: kept ? kept.fixedAt : Date.now() };
     void findPharmacies(store, position, nowSeconds(), walks).then((outcome) => {
@@ -189,7 +200,7 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
       else if (outcome.kind === 'notCovered') dispatch({ type: 'notCovered', position, country: outcome.country });
       else dispatch({ type: 'searchFailed', position, offline: navigator.onLine === false });
     });
-  }, [state]);
+  }, [state, locale]);
 
   useEffect(() => () => tiles.current?.controller.abort(), []);
 

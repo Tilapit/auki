@@ -60,3 +60,16 @@
     display: block;
   }
 }
+
+/* A question in the footer's own size, pressed like a link: the way to the prescription banner at home. */
+.ask {
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
