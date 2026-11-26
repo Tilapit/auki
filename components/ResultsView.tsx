@@ -136,7 +136,9 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // Which country's stock search the medicine dialog is open for: that of the pharmacy it was opened from.
   const [medicineFor, setMedicineFor] = useState(typeof options.medicine === 'string' ? options.medicine : undefined);
   const detailRef = useRef<HTMLDialogElement>(null);
-  const [reportOpen, setReportOpen] = useState(options.reportOpen === true);
+  // Which pharmacy the report dialog was opened for. It is open only while that pharmacy's details are:
+  // it can never come up by itself over another pharmacy's.
+  const [reportFor, setReportFor] = useState(options.reportOpen ? options.detailId : undefined);
 
   const everyone = useMemo(() => [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])], [scene]);
   const listed = everyone.find((p) => p.id === detailId);
@@ -455,6 +457,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const [reportUsed, setReportUsed] = useState(0);
   // Closed without being used, the dialog gives the keyboard back to the row that opened it. The
   // browser does that by itself only when the row had the focus, and Safari gives a pressed button none.
+  const reportOpen = !!detail && reportFor === detail.id;
   const reportOpener = useRef<Element | null>(null);
   useEffect(() => {
     if (reportOpen) return;
@@ -616,7 +619,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                   note: report.note ?? options.reportNote,
                   onOpen: () => {
                     reportOpener.current = pressed.current ?? document.activeElement;
-                    setReportOpen(true);
+                    setReportFor(detail.id);
                   },
                   onSkip: () => {
                     report.skip();
@@ -636,12 +639,12 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           {options.reports && (
             <ReportDialog
               name={detail ? displayName(i18n, detail) : ''}
-              open={reportOpen && !!detail}
-              onClose={() => setReportOpen(false)}
+              open={reportOpen}
+              onClose={() => setReportFor(undefined)}
               onSend={async (answers) => {
                 const result = await report.send(answers);
                 if (result !== 'failed') {
-                  setReportOpen(false);
+                  setReportFor(undefined);
                   afterReport();
                 }
                 return result;
