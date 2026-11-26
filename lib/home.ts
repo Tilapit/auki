@@ -47,6 +47,15 @@ export function suggestedHome(languages: readonly string[] | undefined, locale: 
   return homeFromLanguages(languages ?? []) ?? (locale === 'fi' ? 'FI' : undefined);
 }
 
+/**
+ * The home country as the device has it at this moment: what was picked here, else the
+ * browser's suggestion. For the search, which asks for the guidance a moment before the
+ * results when a pharmacy it found is in another country (hooks/usePharmacySearch.ts).
+ */
+export function deviceHome(locale: Locale): string | undefined {
+  return storedHome() ?? suggestedHome(navigator.languages, locale);
+}
+
 const listen = (onChange: () => void) => {
   window.addEventListener('storage', onChange);
   return () => window.removeEventListener('storage', onChange);
@@ -64,7 +73,7 @@ const nothing = () => undefined;
 export function useHome(locale: Locale, fixed?: string | null): [string | undefined, (code: string) => void] {
   const device = useSyncExternalStore(
     listen,
-    () => (fixed !== undefined ? undefined : (storedHome() ?? suggestedHome(navigator.languages, locale))),
+    () => (fixed !== undefined ? undefined : deviceHome(locale)),
     nothing,
   );
   const [picked, setPicked] = useState<string>();
