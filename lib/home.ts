@@ -11,7 +11,7 @@
  * again at every visit (PLAN.md 7.6).
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useSyncExternalStore } from 'react';
 import { OTHER, homeFromLanguages, homeOf } from '@/data/countries';
 import type { Locale } from './i18n';
 
@@ -45,25 +45,34 @@ export function suggestedHome(languages: readonly string[] | undefined, locale: 
   return homeFromLanguages(languages ?? []) ?? (locale === 'fi' ? 'FI' : undefined);
 }
 
+const listen = (onChange: () => void) => {
+  window.addEventListener('storage', onChange);
+  return () => window.removeEventListener('storage', onChange);
+};
+const nothing = () => undefined;
+
 /**
  * The home country and the way to change it. `fixed` is a view of /dev/states, which reads
  * and keeps nothing: it starts from that country and a change holds while the view is open.
  * Undefined while it is not known: the banner then asks.
+ *
+ * What the device says is read as an outside store, so that a page rendered on a server, which
+ * knows no device, is taken over on the device without a mismatch.
  */
 export function useHome(locale: Locale, fixed?: string | null): [string | undefined, (code: string) => void] {
-  const [home, setHome] = useState<string | undefined>(() => {
-    if (fixed !== undefined) return fixed ?? undefined;
-    // The live results are rendered on the device only (MapStage), so the device can be asked here.
-    if (typeof window === 'undefined') return undefined;
-    return storedHome() ?? suggestedHome(navigator.languages, locale);
-  });
+  const device = useSyncExternalStore(
+    listen,
+    () => (fixed !== undefined ? undefined : (storedHome() ?? suggestedHome(navigator.languages, locale))),
+    nothing,
+  );
+  const [picked, setPicked] = useState<string>();
   const choose = useCallback(
     (code: string) => {
       if (!isHome(code)) return;
-      setHome(code);
+      setPicked(code);
       if (fixed === undefined) rememberHome(code);
     },
     [fixed],
   );
-  return [home, choose];
+  return [picked ?? (fixed !== undefined ? (fixed ?? undefined) : device), choose];
 }

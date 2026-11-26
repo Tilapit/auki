@@ -15,6 +15,7 @@ import { EXAMPLE_MEDICINE } from '@/lib/fixtures/stock';
 import { stress } from '@/lib/fixtures/stress';
 import { HERE, MONDAY_EVENING, NINE_DAYS_LATER, daily, farOpen, indexOf, kamppi, kamppiClosed, resultOf, walkedResultOf, weekly } from '@/lib/fixtures/tiles';
 import { toScene } from '@/lib/live';
+import type { Scene } from '@/lib/types';
 import type { SearchResult } from '@/lib/live';
 import { distanceMeters } from '@/lib/geo';
 import { sceneAt } from '@/lib/scene';
@@ -25,7 +26,8 @@ const at = (iso: string): SkyAt => ({ at: iso, zone: 'Europe/Helsinki' });
 const TWILIGHT = at('2026-11-19T14:10:00Z');
 
 /** A scene as the live app builds it, from tile data at a fixed instant. */
-const fromTiles = (result: SearchResult, now = MONDAY_EVENING) => toScene({ position: HERE, result, now, deviceZone: 'Europe/Helsinki' });
+// A view here never asks the device for anything: the prescription's country is Finland's, as the canvas boards have it.
+const fromTiles = (result: SearchResult, now = MONDAY_EVENING): Scene => ({ ...toScene({ position: HERE, result, now, deviceZone: 'Europe/Helsinki' }), home: 'FI' });
 const far = { pharmacy: farOpen, meters: distanceMeters(HERE, farOpen) };
 /** Monday 20.57: the nearest open pharmacy closes at 21, three minutes' walk away. */
 const TOO_LATE = MONDAY_EVENING + 16 * 60;
