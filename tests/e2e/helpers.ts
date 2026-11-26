@@ -259,6 +259,27 @@ export async function touchscreen(page: Page) {
       await page.waitForTimeout(30);
       await send('touchEnd', []);
     },
+    /**
+     * A flick: the finger travels `by` at `speed` px a second and lifts without slowing. Chromium
+     * makes the touches itself, a frame apart, which steps sent from here can't be: each takes
+     * some fifty milliseconds to arrive.
+     */
+    async flick(from: Finger, by: Finger, speed: number) {
+      await devtools.send('Input.synthesizeScrollGesture', { x: Math.round(from.x), y: Math.round(from.y), xDistance: Math.round(by.x), yDistance: Math.round(by.y), speed, gestureSourceType: 'touch', preventFling: false });
+    },
+    /** A finger laid on the screen and left there. `slide` moves it, `lift` takes it off. */
+    async hold(at: Finger) {
+      await send('touchStart', [at]);
+    },
+    async slide(from: Finger, to: Finger, steps = 12) {
+      for (let step = 1; step <= steps; step++) {
+        await send('touchMove', [between(from, to, step / steps)]);
+        await page.waitForTimeout(16);
+      }
+    },
+    async lift() {
+      await send('touchEnd', []);
+    },
     /** A tap as a thumb makes it: the finger rolls a few pixels between touching and lifting. */
     async roll(from: Finger, to: Finger) {
       await send('touchStart', [from]);
