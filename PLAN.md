@@ -721,7 +721,7 @@ What a visit was like, told by the visitor and shown to the next one (section 5)
 - one server instance passes on at most 30 reports a minute;
 - the database takes at most 20 reports a day for one pharmacy, and 2,000 a day in all. Past either, the answer is 429 and nothing is written;
 - the summaries of a country are read from the database at most once in five minutes per server instance, and cached at the edge for as long.
-- What this does not stop: someone who sets out to fill one pharmacy's day with invented reports. Without an account or an address there is no telling two visitors from one. That is why the summary says "Nimettömiä, ei tarkistettuja", why a day's reports for one pharmacy are capped, and why the trip's own findings are kept apart.
+- What this does not stop: the limits count calls, not callers. Someone who sets out to can fill one pharmacy's day with invented reports from one script, or use up the day's 2,000 so that nobody's report is taken until the next day. Without an account or an address there is no telling two visitors from one, and that is kept on purpose. That is why the summary says "Nimettömiä, ei tarkistettuja", why a day's reports for one pharmacy are capped, and why the trip's own findings are kept apart. What would fix it later: a rate limit per address at the platform's edge, which counts and refuses there, so that no address reaches our code or the database. The README lists this under its known limitations.
 
 **The day** is the database's own date in UTC when the report arrives: around midnight it can differ by a day from the visitor's calendar. The time is not kept.
 
