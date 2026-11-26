@@ -1,3 +1,4 @@
+import { abroadFor } from '../../data/countries/index.ts';
 import type { CardPhrases, CountryInfo, Pharmacy, Scene } from '../types';
 
 /**
@@ -63,56 +64,13 @@ const farOpen: Pharmacy = {
   straightMeters: 1300,
 };
 
-/** Banner content for Latvia. Public rule (Kanta) plus one general tip. The field result joins the banner in M6. */
-export const latvia: CountryInfo = {
-  code: 'LV',
-  inCountry: { fi: 'Latviassa', en: 'in Latvia' },
-  inLanguage: { fi: 'latviaksi', en: 'in Latvian' },
-  status: {
-    fi: 'Suomalainen e-resepti toimii Latviassa passilla.',
-    en: 'A Finnish e-prescription works in Latvia with your passport.',
-  },
-  tip: {
-    fi: 'Jos kysytään ”insurance numberia”, se on henkilötunnuksesi passin tietosivulla.',
-    en: 'If you are asked for an “insurance number”, it is your personal identity code on the passport’s data page.',
-  },
-  source: {
-    label: 'Kanta',
-    url: 'https://www.kanta.fi/en/buying-prescription-medicines-abroad',
-    checked: '2026-11-19',
-  },
-};
-
 /**
- * Counter card in Latvian. The e-prescription lines come from the canvas; the paper
- * lines are a first draft. Nothing here has had a native check, so reviewed stays false.
+ * Latvia's banner and counter card, as the live app has them (data/countries/): the fixture
+ * shows the real texts, so a change to them is seen in /dev/states and in the baselines.
  */
-export const latvianCard: CardPhrases = {
-  lang: 'lv',
-  reviewed: false,
-  variants: {
-    ePrescription: {
-      local: [
-        'Labdien! Man ir Somijas e-recepte.',
-        'Lūdzu, atrodiet to pārrobežu e-receptes sistēmā. Valsts: Somija.',
-        'Ja sistēma prasa apdrošināšanas numuru, tas ir mans Somijas personas kods. Tas ir pases datu lapā.',
-      ],
-      english:
-        'Hello. I have a Finnish e-prescription. Please look it up in the cross-border e-prescription system. Country: Finland. If the system asks for an insurance number, it is my Finnish personal identity code, on my passport’s data page.',
-    },
-    paper: {
-      local: [
-        'Labdien! Šī ir oriģināla recepte, ko izrakstījis ārsts Somijā, Eiropas Savienībā.',
-        'Vai varat izsniegt zāles pēc šīs receptes?',
-      ],
-      english: 'Hello. This is an original prescription from a doctor in Finland, in the EU. Can you dispense it?',
-    },
-  },
-  pharmacist: {
-    local: 'Vai farmaceits varētu man palīdzēt?',
-    english: 'Could a pharmacist help me with this?',
-  },
-};
+const abroad = abroadFor('LV')!;
+export const latvia: CountryInfo = abroad.country;
+export const latvianCard: CardPhrases = abroad.card;
 
 export const riga: Scene = {
   id: 'riga',

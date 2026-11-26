@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { GUIDES, abroadFor } from '@/data/countries';
 import { helsinki } from '@/lib/fixtures/helsinki';
 import { useI18n } from '@/lib/i18n/context';
 import { travel } from '@/lib/travel';
@@ -193,4 +194,38 @@ export const CARD_CASES: Record<string, { title: string; card: () => ReactNode }
 export function CardCase({ id }: { id: keyof typeof CARD_CASES }) {
   const { title, card } = CARD_CASES[id];
   return <Sheet title={title}>{card()}</Sheet>;
+}
+
+/**
+ * Every country's banner as the card shows it, and its counter card's lines as plain text:
+ * for reading the texts of data/countries/ through in one place. The cards themselves are
+ * the "counter" views.
+ */
+export function AbroadSheet() {
+  return (
+    <Sheet title="Abroad: every country's banner and counter-card lines">
+      {GUIDES.map((guide) => {
+        const { country, card } = abroadFor(guide.code)!;
+        return (
+          <Block key={guide.code} title={`${guide.code}: banner, then the card ${country.inLanguage.en}${card.reviewed ? '' : ' (unreviewed)'}`}>
+            <CountryBanner country={country} />
+            {Object.entries(card.variants).map(([variant, lines]) => (
+              <p key={variant} lang={card.lang} className={styles.lines}>
+                <span lang="en" className={styles.caption}>
+                  {variant}
+                </span>
+                {lines.local.join(' ')}
+              </p>
+            ))}
+            <p lang={card.lang} className={styles.lines}>
+              <span lang="en" className={styles.caption}>
+                pharmacist
+              </span>
+              {card.pharmacist.local}
+            </p>
+          </Block>
+        );
+      })}
+    </Sheet>
+  );
 }

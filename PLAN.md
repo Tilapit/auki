@@ -660,6 +660,12 @@ Two wording rules for everything built from this data:
 
 Static, typed data in the repo (`data/countries/*.ts`).
 
+As built in M6 (25 Nov 2026): `guides.ts` has one entry per covered country but Finland, with the banner's three lines and which counter-card variants the country is offered; `phrases.ts` has the card's lines by language; `index.ts` turns a pharmacy's country into the banner and the card (`abroadFor`). Of the fields of 8.1, the banner and the card use the status, one tip, the field result, the source and the phrases. The per-format notes, `outOfHours` and `overTheCounter` are not in the data yet: the duty lookup and the advice lines wait for their sources, and nothing about medicines sold over the counter is shown at all.
+- **Status** is Kanta's list, read again on 25 Nov 2026: Croatia, Czechia, Estonia, Latvia, Lithuania, Poland, Portugal and Spain. Every other country says "ei toimi".
+- **The field line** opens with the place and the month ("Kokeiltu Riiassa 11/2026: …") and gives the count of pharmacies. Lithuania and Norway name the country, not a city: the evidence in this repository names no city for them. Sweden has no field line: it was not tried at a counter.
+- **The card's variants** follow the country: the e-prescription lines only in Kanta's eight; "the doctor sends it" where the trip saw that work (HR, DE, AT, CH, DK, NO, IT, SI, SK). Malta's card is the English master lines themselves.
+- **Every translation is a draft** (`reviewed: false`), and the card says so on its face. A native check per language is still owed before the card is relied on.
+
 ### 8.1 Fields per country
 
 | Field | Meaning |

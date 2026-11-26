@@ -63,3 +63,7 @@ Screenshots for the pull request "The iPhone findings of 25 Nov". The pharmacy's
 ## The iOS app's basics, 25 Nov 2026 (`ios-basics/`)
 
 Screenshots for the pull request "The iOS app's basics: a pharmacy's sheet with its hours, the call and the route". From the iOS Simulator (iPhone 17, iOS 27.2), with a position set in Kamppi, Helsinki, the real pharmacies of the data host as fetched from OpenStreetMap on 25 Nov, and the app's clock set to Wednesday 25 Nov at 20.41. The results with the card's new buttons, a pharmacy's sheet at half the screen with its marker above it, the same sheet fully up, and a pharmacy without a name, hours or a phone number (`light.jpg`); the same in the dark, with a closed pharmacy last (`dark.jpg`); English at half the screen and fully up, and the largest text size at both heights (`states.jpg`). What the sheets say of each pharmacy is OpenStreetMap's, as it is written there: the note on the ramp is a mapper's own words. The map under the markers is Apple's.
+
+## M6, cut down, 25 Nov 2026 (`m6/`)
+
+Screenshots for the pull request "M6, cut down: the abroad banner with the field result, and the counter card". From `/dev/states`: the Riga results with the banner in the card, and the counter card in Latvian (e-prescription and paper), in German where a Finnish e-prescription can't be used, and in English for Malta (`cards.jpg`); and every country's banner with its counter card's lines as text, the review page in three columns (`abroad.jpg`).

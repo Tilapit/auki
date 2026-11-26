@@ -56,3 +56,14 @@
   background: #1e417f;
   --focus: #ffffff;
 }
+
+/* A counter card's lines as plain text, under their variant's name. */
+.lines {
+  margin-top: 10px;
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.lines .caption {
+  display: block;
+}
