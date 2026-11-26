@@ -141,15 +141,21 @@ describe('electronic prescriptions, pair by pair', () => {
     }
   });
 
-  it('a page from 2022 is not read for what it leaves out', () => {
-    // Croatia's only notice with a list is from October 2022. Poland, Latvia and Lithuania list Croatia now.
+  it('a page that shows an old date is not read for what it leaves out', () => {
+    // Croatia's page with both lists shows 4.10.2024 as its date, though it has a service that began on 30.6.2025.
     expect(EXCHANGE.HR.dated).toBe(true);
-    expect((SOURCES[EXCHANGE.HR.source] as Source).updated).toBe('2022-10-20');
+    expect((SOURCES[EXCHANGE.HR.source] as Source).updated).toBe('2024-10-04');
+    // What it names works: on its word, and on the other country's where that has a page too.
     for (const here of ['PL', 'LV', 'LT']) {
       const answer = ePrescription('HR', here);
       expect(answer.status, here).toBe('works');
-      expect(answer.sources, here).toEqual([EXCHANGE[here].source]);
+      expect(answer.sources, here).toEqual(['hzzo', EXCHANGE[here].source]);
     }
+    // Cyprus has no page of its own that was read: the pair rests on Croatia's word alone, each way.
+    expect(ePrescription('HR', 'CY')).toMatchObject({ status: 'works', sources: ['hzzo'] });
+    expect(ePrescription('CY', 'HR')).toMatchObject({ status: 'works', sources: ['hzzo'] });
+    // What it asks of its own people is from its notice of 30.6.2025, not from the page with the lists.
+    expect(ePrescription('HR', 'EE').notes[0].source).toBe('hzzoNotice');
     // Czechia says no in so many words: that stands. And with no other page to go by, nothing is claimed.
     expect(ePrescription('HR', 'CZ')).toMatchObject({ status: 'notListed', sources: ['epreskripce'] });
     expect(ePrescription('HR', 'AT').status).toBe('unknown');
@@ -180,7 +186,7 @@ describe('electronic prescriptions, pair by pair', () => {
     for (const { guide } of guides) counts[guide.ePrescription.status] = (counts[guide.ePrescription.status] ?? 0) + 1;
     // 33 countries one can be from, 21 one can be in, less the 21 pairs at home.
     expect(pairs).toHaveLength(33 * 21 - 21);
-    expect(counts).toEqual({ works: 95, notListed: 238, notHere: 160, notAbroad: 32, unknown: 147 });
+    expect(counts).toEqual({ works: 96, notListed: 238, notHere: 160, notAbroad: 32, unknown: 146 });
   });
 });
 

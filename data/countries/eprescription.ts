@@ -31,11 +31,13 @@ export interface ExchangePage {
   inbound: string[];
   /**
    * The page is too old to say what is missing: a pair it leaves out is not taken as a "no".
-   * Croatia's only notice with a list is from October 2022.
+   * Croatia's page with both lists shows October 2024 as its date.
    */
   dated?: boolean;
   /** What the page asks of its own people before they travel, when the pair works. */
   forOwn?: Text;
+  /** Where `forOwn` is from, when it is another page than the one with the lists. */
+  forOwnSource?: SourceId;
   /** What it says to visitors with an e-prescription from another country, when the pair works. */
   forVisitors?: Text;
 }
@@ -99,10 +101,12 @@ export const EXCHANGE: Record<string, ExchangePage> = {
     },
   },
   HR: {
+    // The contact point's page, which shows 4.10.2024 as its date and has a service that began on 30.6.2025.
     source: 'hzzo',
+    forOwnSource: 'hzzoNotice',
     dated: true,
-    outbound: ['FI', 'EE', 'PT', 'ES'],
-    inbound: ['FI', 'EE', 'PT', 'PL', 'ES'],
+    outbound: ['FI', 'EE', 'PT', 'ES', 'CY', 'PL', 'LV', 'LT'],
+    inbound: ['FI', 'EE', 'PT', 'PL', 'CZ', 'ES', 'CY', 'LV', 'LT'],
     forOwn: {
       fi: 'Anna ensin suostumus Portal zdravlja -palvelussa. Palvelu koskee kertareseptejä.',
       en: 'First give your consent in Portal zdravlja. The service is for non-repeat prescriptions.',
@@ -253,7 +257,7 @@ export function ePrescription(home: string, here: string): EPrescription {
     const sources = [...(sent ? [from.source] : []), ...(taken ? [inboundSource(here)] : [])];
     if (denied) return { status: 'disagree', sources: [from!.source, inboundSource(here)], notes: [] };
     const notes: Note[] = [];
-    if (from?.forOwn) notes.push({ text: from.forOwn, source: from.source });
+    if (from?.forOwn) notes.push({ text: from.forOwn, source: from.forOwnSource ?? from.source });
     const pair = PAIR_NOTES[`${home}>${here}`];
     if (pair) notes.push(pair);
     else if (to?.forVisitors) notes.push({ text: to.forVisitors, source: inboundSource(here) });

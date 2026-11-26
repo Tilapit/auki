@@ -97,9 +97,15 @@ export const SOURCES = {
     checked: READ,
   },
   hzzo: {
-    label: { fi: 'HZZO (Kroatia): sähköiset rajat ylittävät terveyspalvelut', en: 'HZZO (Croatia): electronic cross-border health services' },
-    url: one('https://hzzo.hr/novosti/ostalo/elektronicke-prekogranicne-zdravstvene-usluge-u-eu'),
-    updated: '2022-10-20',
+    label: { fi: 'HZZO (Kroatia): kansallinen yhteyspiste', en: 'HZZO (Croatia): the National Contact Point' },
+    url: one('https://hzzo.hr/nacionalna-kontaktna-tocka-ncp'),
+    updated: '2024-10-04',
+    checked: READ,
+  },
+  hzzoNotice: {
+    label: { fi: 'HZZO (Kroatia): tiedote rajat ylittävästä e-reseptistä Kyproksen kanssa', en: 'HZZO (Croatia): notice on the cross-border e-prescription with Cyprus' },
+    url: one('https://hzzo.hr/novosti/obavijest-o-prekogranicnoj-usluzi-e-recepta-sa-ciprom'),
+    updated: '2025-06-30',
     checked: READ,
   },
   epreskripce: {
