@@ -17,7 +17,7 @@ export type Mode = 'allow' | 'approximate' | 'deny' | 'unavailable' | 'timeout' 
 // A position no fixture uses, so that it can be searched for in the requests.
 export const HERE = { lat: 60.16952, lon: 24.93545 };
 
-export async function fakeLocation(page: Page, mode: Mode, permission: 'prompt' | 'granted' = 'prompt') {
+export async function fakeLocation(page: Page, mode: Mode, permission: 'prompt' | 'granted' | 'denied' = 'prompt') {
   await page.addInitScript(
     ({ mode, permission, here }) => {
       let calls = 0;

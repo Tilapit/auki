@@ -22,7 +22,7 @@ In CI the same things are measured on every push, against a build and with fixtu
 
 ## What is in it
 
-- **The first window** asks nothing. One button asks the browser for the position; another opens a search by place name.
+- **The first window** asks nothing. One button asks the browser for the position; another opens a search by place name. It is for a first visit: once that button has brought a position, later visits go straight to locating and the map.
 - **Results, map first.** The nearest pharmacies as markers and as a list, sorted by walking time. Each has a status worked out on the device from the hours in the data, and renewed every minute: open, closes soon, closed and when it opens, hours not listed.
 - **Ehditkö.** When the nearest open pharmacy closes within the hour, the card shows when you would be there, when it closes and the minutes to spare. When you would not make it, it says so and puts the next open one forward.
 - **Nothing open nearby:** the app looks up to 30 km for one that is, and otherwise shows the first to open, with 112 kept in view.
@@ -81,7 +81,7 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 
 ## Privacy
 
-- No accounts, no cookies, no analytics, and nothing about the position is stored.
+- No accounts, no cookies, no analytics, and nothing about the position is stored. The device keeps one mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it.
 - The position: one request, to the app's own server, as above. Checked by a test on every push.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.

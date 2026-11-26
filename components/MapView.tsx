@@ -22,6 +22,7 @@ import { cx } from './cx';
 import { Icon } from './Icon';
 import { MapMarker, YouDot, YouHalo } from './MapMarker';
 import { drawSign, SIGN_TOKENS, SIGNS, type SignColours } from './mapSigns';
+import { ExternalLink } from './NewTab';
 import styles from './MapView.module.css';
 
 interface Props {
@@ -819,11 +820,11 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         {/* The credit lies on the map like a marker: a finger that lands on it can still move the map. */}
         <p data-credit className={styles.attribution}>
           {live && MAP_CREDITS.map((credit) => (
-            <a key={credit.url} href={credit.url} draggable={false}>
+            <ExternalLink key={credit.url} href={credit.url} draggable={false}>
               {credit.label}
-            </a>
+            </ExternalLink>
           ))}
-          <a href={OSM_COPYRIGHT_URL} draggable={false}>{t.map.attribution}</a>
+          <ExternalLink href={OSM_COPYRIGHT_URL} draggable={false}>{t.map.attribution}</ExternalLink>
         </p>
       </div>
 

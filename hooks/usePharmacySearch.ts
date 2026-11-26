@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { canLocate, locateOnce, locationPermission, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
+import { canLocate, locateOnce, locatedBefore, locatesOnArrival, locationPermission, rememberLocated, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import type { Locale } from '@/lib/i18n';
 import { RERANK_GAP_SECONDS, movedEnough } from '@/lib/live';
 import type { Bounds } from '@/lib/map/area';
@@ -73,7 +73,7 @@ interface PlaceAnswer {
 
 export interface PharmacySearch {
   state: State;
-  /** Asks the device for its position. Only ever called from a button press, or when permission is already given. */
+  /** Asks the device for its position. Called from a button press, or on arrival when permission is given or this is a later visit. */
   locate: () => void;
   openSearch: () => void;
   /** Looks a typed place name up through our server. */
@@ -114,6 +114,8 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     const timer = window.setTimeout(() => dispatch({ type: 'waiting', attempt: id }), WAITING_AFTER_MS);
     void locateOnce().then((outcome) => {
       window.clearTimeout(timer);
+      // It worked here: the next visit asks at once, without the first window.
+      if (outcome.ok) rememberLocated();
       dispatch(
         outcome.ok
           ? { type: 'located', attempt: id, lat: outcome.lat, lon: outcome.lon, accuracy: outcome.accuracy, at: wallClock(new Date()) }
@@ -253,16 +255,18 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
       });
   }, []);
 
-  // On arrival: without the API or HTTPS, straight to place search. With permission
-  // already given, straight to the map. Otherwise wait for the button.
+  // On arrival: without the API or HTTPS, straight to place search. With permission already
+  // given, or on a later visit after a "show pharmacies near me" that worked, straight to
+  // locating and the map. Otherwise, on a first visit, wait for the button.
   useEffect(() => {
     if (!canLocate()) {
       dispatch({ type: 'unsupported' });
       return;
     }
     let live = true;
+    const before = locatedBefore();
     void locationPermission().then((permission) => {
-      if (live && permission === 'granted') locate();
+      if (live && locatesOnArrival(permission, before)) locate();
     });
     return () => {
       live = false;
