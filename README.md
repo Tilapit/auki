@@ -28,6 +28,7 @@ In CI the same things are measured on every push, against a build and with fixtu
 - **Nothing open nearby:** the app looks up to 30 km for one that is, and otherwise shows the first to open, with 112 kept in view.
 - **A pharmacy's details:** the week's opening hours, a route handed off to Google Maps or Apple Maps, the phone number, the website and email when OpenStreetMap has them, and a link to correct the data there.
 - **Medicine availability, as a hand-off.** Where a country has a stock search of its own that may be linked to (Finland, Germany, Austria, Norway), the card and every pharmacy's details open it, with the medicine's name in the link where the service's address takes one. The app says where to check, never that a pharmacy has a medicine, and the name never reaches the app's server. The research is in [`docs/research/medicine-availability.md`](docs/research/medicine-availability.md).
+- **Visitors' reports.** A row in a pharmacy's details offers to tell how a visit went: one screen of chips, no text, always skippable, never asked. Anonymous, and shown for a pharmacy only once it has three, as counts with the days they came (`PLAN.md` section 7.10).
 - **A data page** with the pipeline's numbers per country, and when each was last fetched.
 - **Finnish and English**, light and dark, phone and desktop.
 - **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. Its time logic passes the same test cases as the web's (`tests/vectors/`). No pharmacy details, walking times or route yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
@@ -85,6 +86,8 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 - The position: one request, to the app's own server, as above. Checked by a test on every push.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.
+- A visitor's report: sent only when the user presses "Lähetä", and it carries the pharmacy, its country and the chips pressed, to the letter. Stored with the day and nothing else: no account, no position, no medicine, no text, no time of day, no IP address. Shown for a pharmacy only once it has three, as counts with the days. The database is behind the app's own server, with row-level security on and no policy; the browser never talks to it. Checked by a third test, and by a unit test that reads the table's columns from the migration.
+- For the reports the device keeps one more thing: today's date and the ids of the pharmacies whose row was answered or passed over today, so that the same visit is not asked about twice. Never sent, and empty again the next day.
 
 ## Accessibility
 
@@ -117,7 +120,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 - The app's own medicine stock or price data: there is no source for it. For stock the app hands over to each country's own service.
 - Doctor, chat or triage: that is Treat's product, not this app's.
 - Reviews or ratings from Google on the map: Google's terms for the EEA don't allow its Places content with someone else's map. The app links to Google Maps instead.
-- Storing prescriptions or identity numbers. Accounts, a database, any LLM feature, push notifications.
+- Storing prescriptions or identity numbers. Accounts, any LLM feature, push notifications. A database for anything but the visitors' reports: the pharmacies are static files.
 - Claims about what a single pharmacy can do with a foreign prescription: the field samples are too small, and the answer depended on who stood at the counter.
 
 ## Known limitations
@@ -151,6 +154,7 @@ npm run dev
 Then open `/fi` or `/en`, and `/dev/states` for every view and state in light and dark, phone and desktop. Node 22.18 or later.
 
 - Place search needs `CONTACT_EMAIL` in `.env.local` (Nominatim asks callers to identify themselves), and walking times need `ORS_API_KEY`, a free key from openrouteservice. Copy `.env.example`. Without them the app works: by straight line, and without the search.
+- Visitors' reports need a Supabase project: `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `.env.local`, and `npm run db:push` once with `SUPABASE_DB_URL` (it needs the Supabase CLI). Without them the app offers no report and shows none.
 - Real pharmacies in development: `npm run data` once (it needs `CONTACT_EMAIL`), then `npm run data:serve` next to the dev server.
 - Tests: `npm test` (unit and property tests), `npm run test:e2e` (Playwright, Chromium and WebKit), `npm run lighthouse` (the budgets, against a build).
 - The other commands are listed in `CLAUDE.md`.
@@ -161,7 +165,8 @@ Then open `/fi` or `/en`, and `/dev/states` for every view and state in light an
 |---|---|
 | `app/`, `components/`, `hooks/` | The pages, the views and their state |
 | `lib/` | The logic, pure where it can be: tiles, opening status, ehditkö, the map's arithmetic, formats, the two languages |
-| `lib/server/`, `app/api/` | The two server routes |
+| `lib/server/`, `app/api/` | The three server routes: place search, walking times, visitors' reports |
+| `supabase/migrations/` | The reports table and its two functions |
 | `pipeline/` | The nightly data pipeline |
 | `tests/` | Unit and property tests, the Playwright tests with their visual baselines, and the shared cases for the iOS app |
 | `ios/` | The iOS app |

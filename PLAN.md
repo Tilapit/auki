@@ -69,9 +69,10 @@ Decided with Janne on 19–22 Nov: keep v1 small and do it well.
 - A short page that lists every request the app makes (section 7.6), and a data page with the pipeline's numbers per country (section 7.2).
 - A hand-off link that another app can open with the country and the prescription format preset (section 7.8).
 - Medicine availability (Janne's decision of 24 Nov 2026; until then "later", and Finland only): where a country has a stock search of its own, the app opens it from the card and from every pharmacy sheet, with the medicine's name in the link where the service's address takes one (sections 5 and 7.9). The app says where to check, and never that a pharmacy has a medicine. The name goes from the device straight to the service the user opens: never to our server, never stored (section 7.6). No scraping and no undocumented endpoints: a country joins only when its service can be linked to in the way its own search does.
+- Visitors' reports (Janne's decision of 26 Nov 2026; until then "later"): a row in every pharmacy sheet offers to tell how a visit went, on one screen of chips with no text field. Offered, never asked, and "Ohita" is always in view. Anonymous: what is stored is the pharmacy's id, its country, the day and the chips, in a database behind our own server. Shown per pharmacy from three reports on, with the count and the days (sections 5 and 7.10). The trip's field findings stay as they are.
 - Finnish and English UI. Accessibility to the level in section 9.
 
-**Later (designed as concepts on the canvas, not built in v1):** visit reports (always skippable, anonymous), full country guide pages, doctor's-email helper, before-you-travel checklist, guide for internationals in Finland, share link.
+**Later (designed as concepts on the canvas, not built in v1):** full country guide pages, doctor's-email helper, before-you-travel checklist, guide for internationals in Finland, share link.
 
 **Later, from the field findings:** a prefilled email to the pharmacy in its language; a hint for pharmacies with "International" in the name.
 
@@ -85,8 +86,9 @@ Decided with Janne on 19–22 Nov: keep v1 small and do it well.
 - Doctor, chat, triage or routing to clinics (that's Treat's product, not this app's).
 - Reviews or ratings from Google on our map (Google's EEA terms don't allow Places content with a map; link to Google Maps instead).
 - Storing prescriptions or ID numbers. The app tells people where their ID number is printed; it never asks for it.
-- Accounts, a database, a chatbot or any LLM feature, scraping stock or prices, push notifications, Android before iOS is done. Each adds work without changing what a reviewer learns about the engineering.
-- Per-pharmacy claims about cross-border capability in v1. Samples are too small and answers depend on the staff member (Prague: pharmacies on the official list of those that have dispensed foreign e-prescriptions still said no). Later, visit reports can show dated user experiences with sample sizes.
+- Accounts, a chatbot or any LLM feature, scraping stock or prices, push notifications, Android before iOS is done. Each adds work without changing what a reviewer learns about the engineering.
+- A database for anything but the visitors' reports of section 7.10 (Janne, 26 Nov 2026; until then "no database"). The pharmacies stay static tiles, and nothing about a user is kept in it.
+- Per-pharmacy claims about cross-border capability in v1. Samples are too small and answers depend on the staff member (Prague: pharmacies on the official list of those that have dispensed foreign e-prescriptions still said no). What visitors tell is shown as theirs and not as ours: counts from three reports on, with the days they came (section 7.10).
 
 ---
 
@@ -192,6 +194,20 @@ The app does not know what a pharmacy has in stock, and says so. It says where t
 - The country is that of the pharmacy the line was pressed on: the card's pharmacy, or the sheet's.
 - No medicine is named anywhere in the app's own texts, not even as an example in the field: that would read as advice.
 - The name is gone when the dialog closes.
+
+### Visitors' reports (provisional, `DESIGN-LOG.md` 26 Nov 2026)
+What a visit was like, told by those who made one. Offered, never asked: nothing about it appears during a search, on the card, on the list or over the map.
+- **The row** "Kävitkö täällä?" with "Kerro, miten meni" under it, in every pharmacy sheet, below the route buttons and the medicine row and above the footnote. "Ohita" stands beside it and is always in view. Pressed, the row is gone and nothing is sent. The same visit is never asked about twice: a visit is a pharmacy and a day, and the device remembers which pharmacies it has asked about today (section 7.6).
+- **The dialog** "Miten käynti meni?", with the pharmacy's name under the title: the whole screen on the phone, a card in the middle on the desktop. One screen, no steps and no text field:
+  - five pairs of chips: "Resepti kävi" / "Resepti ei käynyt", "Englantia puhuttiin" / "Englantia ei puhuttu", "Lääke oli varastossa" / "Lääkettä ei ollut", "Lyhyt jono" / "Pitkä jono", "Esteetön sisäänkäynti" / "Portaita tai kynnys". Of a pair at most one is pressed, a second press takes it back, and none has to be pressed;
+  - "Lähetä" and "Ohita". With nothing pressed, "Lähetä" says "Valitse ainakin yksi." and sends nothing;
+  - what is stored, in so many words: "Ilmoitus on nimetön. Siitä tallennetaan apteekki, valintasi ja päivä. Sijaintia, lääkkeen nimeä tai laitteesi osoitetta ei tallenneta."
+- A chip is a rounded rectangle like every button here, never a pill. Pressed, it is filled: a change of light and dark, not of hue alone.
+- **After sending:** "Kiitos. Ilmoituksesi on tallennettu." in the row's place. If it could not be sent, the dialog stays with the chips as they were and says so. If the pharmacy's day is full (section 7.10), the sheet says that this one was not stored.
+- **What others told:** "Kävijöiden ilmoituksia", above the row, only once the pharmacy has three reports. Per question that anyone answered, how many said which ("Kävi 3, ei käynyt 1"), then "5 ilmoitusta, 12.11.2026–26.11.2026. Nimettömiä, ei tarkistettuja." Below three, nothing is shown and nothing leaves the database.
+- No medicine is asked for or named: "the medicine" is whichever one the visitor went for. Nothing here says that anything is sold without a prescription.
+- Where the report service is not there (no database configured, or it does not answer), no row and no summary are shown: the sheet is as it was.
+- The trip's field findings are not mixed with these. They stay where they are, with their sample size, month and city.
 
 ### Abroad
 - "Resepti Suomesta?" only outside Finland, as a section of the card (one surface, not a card of its own): the country status in one line ("Suomalainen e-resepti toimii Latviassa passilla"), the key tip ("insurance number" = the personal identity code on the passport's data page), the field result for that country with its sample size, month and city, never a pharmacy's name ("Kokeiltu Riiassa 11/2026: e-resepti löytyi 1/1 apteekista"), and the source with the date it was checked. The field line is new to the card: its wording and place go through `/dev/states` in M6.
@@ -545,7 +561,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 
 ### 7.6 Privacy
 
-The claim is narrow so that it can be checked: **the position leaves the device in one request, `POST /api/walking`, and the page talks to one third party, the map tile host.** A second claim, since 25 Nov 2026: **a medicine's name never reaches our host. It leaves the device only in the link the user opens, to the service that link names.**
+The claim is narrow so that it can be checked: **the position leaves the device in one request, `POST /api/walking`, and the page talks to one third party, the map tile host.** A second claim, since 25 Nov 2026: **a medicine's name never reaches our host. It leaves the device only in the link the user opens, to the service that link names.** A third, since 26 Nov 2026: **a visitor's report carries the pharmacy, its country and the chips pressed, and nothing else, and it is sent only when the user presses "Lähetä".**
 
 Every request the app makes:
 
@@ -555,6 +571,8 @@ Every request the app makes:
 | `/tiles/v1/index.json` and `/tiles/v1/10/{x}/{y}.json` | Every search; and when the user moves the map to an area whose squares aren't on the device yet | Which squares of 20 to 30 km are needed: around the search, or under the part of the map the user moved to | Our host |
 | `POST /api/walking` | Once the pharmacies are known; again when the list is ranked after a walk of about 300 m, at most once in two minutes; again for the route line to a selected pharmacy | The position to about a metre (the device's, or the searched place's) and up to 20 pharmacy positions, in the request's body | Our server, which asks openrouteservice. openrouteservice sees our server, not the user |
 | `GET /api/geocode?q=` | Submitting a place search | The text typed | Our server, which asks Nominatim |
+| `GET /api/report?country=` | The first time a pharmacy's details are opened in a country, once per country while the page lives | The two-letter country of that pharmacy. Not the pharmacy, not the position | Our server, which asks our database. The answer is the same for everyone and is cached for five minutes |
+| `POST /api/report` | Only when the user presses "Lähetä" in the report dialog | In the body: the pharmacy's OpenStreetMap id, its country, and the chips pressed (up to five answers, each yes or no). No position, no text, no medicine, no day, no language | Our server, which stores it in our database (Supabase) with the day. The database sees our server, not the user |
 | Map tiles and glyphs | While the map is visible | Which map squares are on screen (1 to 2 km across at the closest zoom), IP address | The map tile host (OpenFreeMap), the only third party |
 | Links the user taps: Google Maps, Apple Maps, phone, a pharmacy's email or website, OpenStreetMap's note form, a country's duty-pharmacy lookup, Kanta, the map's credits | On tap, in a tab of its own | The pharmacy's position or nothing. Never the user's position. No referrer, and the new tab can't reach back to ours | Whoever the link names |
 | A country's own medicine stock search (section 7.9), opened by the user from the medicine dialog | On tap | The medicine's name as the user typed it, in the link's address, where the service takes one; otherwise nothing. Never the position, never a pharmacy. No referrer, and the new tab can't reach back to ours | The service the link names. Never our host |
@@ -570,6 +588,8 @@ Rules:
   - What is read back is treated as untrusted text: anything of another shape is no search at all.
   - So the footer no longer says "Sijaintiasi ei tallenneta." without more. It says "Sijaintiasi ei tallenneta palvelimelle." / "Your location is not saved on a server." (provisional: the sentence is Janne's to word).
 - The device keeps one mark in the browser's local storage, `located-before`: that "show pharmacies near me" has worked here before, so that a later visit skips the first window (section 5). One character. It holds no position, no time and nothing about the search, it is never sent anywhere, and clearing the site's data removes it. A browser test reads the whole of the storage after a search and finds that mark alone in local storage, and in the tab's session storage only the keys of the next rule.
+- **Visitors' reports** (section 7.10). What is stored of a report is the pharmacy's id, its country, the day (UTC, set by the database) and the answers. Nothing else: no account, no position, no medicine, no text, no time of day, no IP address and no other trace of the device, and no running number that would say in which order the reports came. Our server reads nothing about the caller for the limits either: they are counted per server, per pharmacy and per day, never per user. A request body with anything a report has no place for is refused whole.
+- The device keeps one more thing in the browser's local storage, `reports-done`: today's date and the OpenStreetMap ids of the pharmacies whose row was answered or passed over today, so that the same visit is not asked about twice. When the day changes the list starts empty, so it never holds more than one day. It is never sent anywhere, the answers themselves are not kept on the device at all, and clearing the site's data removes it. It does show, to someone holding the device, which pharmacies' rows were used today.
 - The locale lives in the URL.
 - Tile requests name squares, never coordinates.
 - Walking requests carry the exact position but go through our server: the user's IP isn't forwarded, the position is in the request body, and nothing is logged. Nothing about the device is kept for the budget either: it is counted per endpoint, not per user. The route takes requests from our own pages only.
@@ -593,6 +613,7 @@ Checked, not promised:
 - **One list.** `lib/requests.ts` names every request the app may make. The CSP, the privacy test and the page below are all built from it, so they can't drift apart.
 - **A test.** A Playwright test (Chromium and WebKit) runs the whole flow with a faked position (locate, results, select a pharmacy, route line, place search, counter card) and records every request. It fails if any request other than `POST /api/walking` contains the position at three decimals or more, in the URL, the headers or the body, and if the walking request itself has it anywhere but in its body. It also fails if any request goes to a host that isn't ours or the map tile host. It runs in CI on every push (section 12).
 - **A second test**, for the medicine's name (`tests/e2e/medicine.spec.ts`, both browsers): it types a name no medicine has, opens the link, and reads every request the browser made. One request has the name: the one to the service, in a new tab, without a referrer and without a way back to our tab. No request to our host or to the map tile host has it, in its address, its headers or its body, and afterwards neither do the page's address, history, cookies or storage. It also checks that the field has no form and no name, and that the name is gone when the dialog is opened again. The service is answered by the test.
+- **A third test**, for the reports (`tests/e2e/reports.spec.ts`, both browsers): it presses chips, sends, and reads what left the browser. The body is the pharmacy's id, its country and the chips, to the letter; the address has no query; nothing in it gives the position away; and afterwards the device holds the list of today's pharmacies and none of the answers. A unit test reads the migration and fails if the table has any column but the eight named above, or anything that could hold a moment, an address or a text.
 - **Headers**, set in `next.config.ts`:
   - `Content-Security-Policy`: `default-src 'self'`, and `connect-src 'self'` plus the map tile host. That line is what stops the page from calling anyone else, whatever the code tries. Also `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`, `object-src 'none'`.
   - `script-src` and `style-src` allow inline code. The pages are static, and Next.js can only give inline scripts a nonce on dynamically rendered pages, which would cost the CDN-cached shell. In M7, try Next's experimental hash-based integrity and tighten if the inline sky script and the framework's own inline scripts pass.
@@ -668,7 +689,36 @@ The other fifteen countries were not researched. A country joins by a provider a
 
 **For live stock later.** An agreed interface has to be callable from the browser without a secret, or the name would pass through our server; it has to say when its figures are from; and its pharmacies have to be matchable to OpenStreetMap's. Whom to ask in each country is in the research file.
 
+### 7.10 Visitors' reports (decision D11)
+
+What a visit was like, told by the visitor and shown to the next one (section 5). Built on 26 Nov 2026 by Janne's decision; until then it was "later".
+
+**Stored, per report** (`supabase/migrations/`): the pharmacy's OpenStreetMap id, the country it is in, the day, and five answers, each yes, no or not given: the prescription was accepted, English was spoken, the medicine was in stock, the wait was short, the way in was step-free. A report with no answer is refused by the table itself. There is no other column (section 7.6).
+
+**Through our server only** (`app/api/report/route.ts`, `lib/server/reports.ts`). The browser never talks to the database:
+- `POST /api/report` takes a report from our own pages only, reads the body as untrusted, and refuses it whole unless it is exactly a pharmacy id, a covered country and one to five answers. It hands those to one database function, which adds the day.
+- `GET /api/report?country=FI` gives, for the pharmacies of one country that have at least three reports, the count, the first and the last day, and how many said yes and no to each question. It is asked per country and not per pharmacy, so the address tells our server less about where the user is than the pharmacy tiles already do, and the answer can be cached for everyone.
+- Without the database's address and key both answer 503 at once, and the app then offers no report and shows none.
+
+**The database** is Supabase's Postgres. Row-level security is on for the table and no policy opens it, and the two public roles have no rights to the table or to the two functions, so a publishable key can do nothing. Only the secret key works, and it exists only on the server (`SUPABASE_SECRET_KEY`). The schema is a migration in the repository, applied with `npm run db:push` (the Supabase CLI and `SUPABASE_DB_URL`).
+
+**Three reports before anything is shown.** The rule is in the database function itself (`having count(*) >= 3`), so below three nothing about a pharmacy leaves the database; our server and the page each check it again.
+
+**How often it can be called**, without knowing who calls:
+- one server instance passes on at most 30 reports a minute;
+- the database takes at most 20 reports a day for one pharmacy, and 2,000 a day in all. Past either, the answer is 429 and nothing is written;
+- the summaries of a country are read from the database at most once in five minutes per server instance, and cached at the edge for as long.
+- What this does not stop: someone who sets out to fill one pharmacy's day with invented reports. Without an account or an address there is no telling two visitors from one. That is why the summary says "Nimettömiä, ei tarkistettuja", why a day's reports for one pharmacy are capped, and why the trip's own findings are kept apart.
+
+**The day** is the database's own date in UTC when the report arrives: around midnight it can differ by a day from the visitor's calendar. The time is not kept.
+
+**On the device:** which pharmacies were asked about today, and nothing of what was answered (section 7.6).
+
+**Not in v1:** the iOS app; a way to take a report back; anything typed; reports about anything but the five questions.
+
 ---
+
+## 8. Country guide data---
 
 ## 8. Country guide data
 
@@ -798,6 +848,7 @@ app/
   manifest.ts                 name from lib/brand.ts, icons (M6, with offline)
   api/walking/route.ts        POST: openrouteservice Matrix, and Directions for one pharmacy; no-store; our own pages only; the one request with the position
   api/geocode/route.ts        GET: Nominatim, submit only, cached, 1 req/s
+  api/report/route.ts         POST: one anonymous report, our own pages only; GET: a country's summaries, from three reports on (7.10)
   globals.css                 tokens (light-dark), sky defaults, focus ring, visually-hidden, hyphenation
 components/
   PharmacyFinder.tsx          client; owns the reducer, picks the view (M1)
@@ -924,6 +975,7 @@ Each milestone is a branch (`m1`, `m2`, …) and a pull request. The description
 | M4 (built) | MapLibre map in the look chosen in S1 (top-down; flat at overview zooms, sun-lit 3D buildings from about zoom 15), with stronger markers and dusk and night clearly different; you-are-here with `watchPosition`, list ↔ map selection, edge chip, bottom sheet drag gesture | Map and list always agree; the dot follows a walk; list still works if the map fails; the map tile host is the one third party the privacy test sees |
 | M5 (built) | Walking times and the route line through the one `/api/walking` endpoint (ORS Matrix and Directions) + budget + fallback; "Lähin auki nyt" card with the ehditkö rule; next open; pharmacy sheet with Google/Apple Maps hand-off, website, email and the OpenStreetMap note link | List renders once; ehditkö tested at its boundaries; `/api/walking` is the only request with the position; time to first result measured again; the note link opens the form at the pharmacy |
 | MA (built, 25 Nov) | Medicine availability, Janne's scope change of 24 Nov 2026: the research (`docs/research/medicine-availability.md`), one provider per country with the hand-off (section 7.9), the line in the card and the sheet, the dialog, the seam for live stock on example data in `/dev/states`, the second privacy claim and its test | From a pharmacy in a country with a stock search of its own, the dialog opens that service, with the typed name where its address takes one; the name reaches no other host; a country without such a service shows nothing; no provider of the live app fetches stock |
+| MR (built, 26 Nov) | Visitors' reports, Janne's scope change of 26 Nov 2026 (section 7.10): the migration, `/api/report`, the row in the pharmacy sheet, the dialog of chips, the summary from three reports on | A report carries the pharmacy, its country and the chips and nothing else, by a browser test; the table has those columns and the day and no other, by a unit test; `/dev/states` shows the row, the chips, a failed sending, the thanks and a summary |
 | M6 | Abroad: banner with the field result, counter card, wake lock, the duty-pharmacy lookup with every source verified; the hand-off link (section 7.8); offline (service worker, section 7.6); place search polish; the "what the app sends" page; fi/en | Denied location still gets the user to a result; banner only outside Finland; the nothing-open state in Germany shows the duty lookup first and Finland's doesn't; the hand-off link presets the card; after one visit the app answers offline with the data date |
 | M7 (built in part, 26 Nov) | Accessibility pass, Playwright + axe, README (below), deploy. The name is decided before the recording and the domain (D4). Built: axe, the keyboard-only run and reflow on every state, with what they found fixed, the map's markers among them (section 9, "Targets"); the README, with the three numbers. Deployed by Janne at `https://auki.vercel.app`. Waits for Janne: the name, the recording and the VoiceOver pass. Of M6 the banner and the counter card are an open pull request; the README says what is not built | axe clean on every state; VoiceOver pass logged in README; the three README numbers measured on the live site |
 
@@ -1027,6 +1079,7 @@ A new push to a branch cancels the run still going for it: the repository is pri
 - **D7 Tile hosting: confirmed on 22 Nov 2026.** The Action deploys the tiles as a static project of their own, and the app serves them under its own origin through a cached rewrite (section 7.2). The data host may be public: it holds only OpenStreetMap data. Not taken: building the tiles into the app's own deployment, which would send every deploy through the Action. `CONTACT_EMAIL` is set as a GitHub secret. Still needed from Janne: `VERCEL_TOKEN` as a GitHub secret. Once Janne has logged in to Vercel and set it, Claude Code may create the data project, set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as GitHub secrets, and add `ORS_API_KEY` to the app's Vercel environment when that project exists. Other GitHub and Vercel settings stay with Janne.
 - **D8 Outside the covered countries: accepted.** Section 7.7: a "not covered" view with a map-app hand-off, no live fallback, a notice near the edge of the coverage, and more countries by adding them to a list. Coverage is now 21 countries.
 - **D9 Medicine availability: in v1 as a hand-off (Janne, 24 Nov 2026).** Treat will show which medicines each Finnish pharmacy has in stock, from apteekki.fi; Janne wants the same here, starting where it is allowed. Decided: research first (`docs/research/medicine-availability.md`); a hand-off to each country's own stock search, with the medicine's name in the link where the service takes one; no scraping and no undocumented endpoints; one provider interface per country as the seam for an agreed API, shown in `/dev/states` on example data and never in the live app; the name never reaches our server (section 7.6); no medical advice and never a claim that a pharmacy has a medicine. The design calls are provisional (`DESIGN-LOG.md`, 25 Nov 2026). Six countries were researched: four are offered (FI, DE, AT, NO), Sweden is built and waits for Lif's free linking agreement, Denmark has nothing to hand over to (section 7.9). Open for Janne: the message to Lif; whether to ask the services for an API (the research file lists whom); and the rule a lookup through our own server would need.
+- **D11 Visitors' reports: in v1 (Janne, 26 Nov 2026).** Anonymous and offered, never asked; one screen of chips, no text; stored in Supabase behind our own server, with row-level security on and the secret key on the server only; shown per pharmacy from three reports on, with the count and the days. This reverses two lines of section 4 ("visit reports: later", "no database") for this one use. The design calls are provisional (`DESIGN-LOG.md`, 26 Nov 2026). Section 7.10.
 - **Already decided:** map in v1 (MapLibre); first visit is one window without questions; ehditkö only when informative; route hand-off to Google/Apple Maps; place search; nearest-open line; pharmacy data from a nightly pipeline as static tiles, not live Overpass; walking times and routes via openrouteservice with a free key (Janne creates it); styling with CSS Modules; build in Claude Code, web first, every milestone as a pull request. Claude Code makes smaller design decisions itself and proposes larger ones (`CLAUDE.md`).
 
 ---
