@@ -50,6 +50,12 @@ export const SOURCES = {
     checked: READ,
   },
 
+  medicinesDirective: {
+    label: { fi: 'Direktiivi 2001/83/EY, 70 ja 71 artikla', en: 'Directive 2001/83/EC, Articles 70 and 71' },
+    url: one('http://publications.europa.eu/resource/celex/32001L0083'),
+    checked: READ,
+  },
+
   // Finland
   kantaAbroad: {
     label: { fi: 'Kanta: reseptilääkkeen ostaminen ulkomailta', en: 'Kanta (Finland): purchasing prescription medicines abroad' },
@@ -106,6 +112,18 @@ export const SOURCES = {
     label: { fi: 'HZZO (Kroatia): tiedote rajat ylittävästä e-reseptistä Kyproksen kanssa', en: 'HZZO (Croatia): notice on the cross-border e-prescription with Cyprus' },
     url: one('https://hzzo.hr/novosti/obavijest-o-prekogranicnoj-usluzi-e-recepta-sa-ciprom'),
     updated: '2025-06-30',
+    checked: READ,
+  },
+  gesundheitAt: {
+    label: { fi: 'gesundheit.gv.at (Itävalta): MyHealth@EU-palvelujen maat', en: 'gesundheit.gv.at (Austria): the countries of the MyHealth@EU services' },
+    url: one('https://www.gesundheit.gv.at/service/my-health-eu/laenderuebersicht.html'),
+    updated: '2026-08-19',
+    checked: READ,
+  },
+  gesundheitAtSteps: {
+    label: { fi: 'gesundheit.gv.at (Itävalta): EU-resepti vaihe vaiheelta', en: 'gesundheit.gv.at (Austria): the EU prescription, step by step' },
+    url: one('https://www.gesundheit.gv.at/service/my-health-eu/eu-rezept-nutzen.html'),
+    updated: '2026-02-24',
     checked: READ,
   },
   epreskripce: {
