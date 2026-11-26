@@ -3,7 +3,6 @@
  * and instant always give the same scene, so the views can be tested at fixed moments.
  */
 
-import { abroadFor } from '../data/countries/index.ts';
 import { arrivesInTime, ehditko } from './ehditko.ts';
 import { distanceMeters } from './geo.ts';
 import { hoursStatus, isOpenStatus, isStale, localMoment, openFor } from './hoursStatus.ts';
@@ -191,11 +190,6 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
   const clear = answer ? zoomToFit(answer.straightMeters, position.lat, ANSWER_CLEAR_PX) : 0;
   const view = (pixels: number) => ({ center, zoom: Math.max(zoomToFit(reach, position.lat, pixels), clear) });
 
-  // Abroad: the country of the pharmacy the card leads with, and what the app knows about a
-  // prescription from Finland there (PLAN.md section 8). Nothing in Finland, and nothing where
-  // the country has no entry.
-  const abroad = abroadFor(answer?.country);
-
   return {
     id: 'live',
     searched: position.source === 'search' ? position.label : undefined,
@@ -211,7 +205,8 @@ export function toScene({ position, result, now, deviceZone }: SceneInput): Scen
     ...(dataFrom !== undefined ? { dataFrom } : {}),
     ...(result.missing.length > 0 ? { missing: result.missing } : {}),
     ...(result.hoursListed ? { hoursListed: result.hoursListed } : {}),
-    ...(abroad ? { country: abroad.country, card: abroad.card } : {}),
+    // The country of the pharmacy the card leads with: at a border the guidance matches the pharmacy the user is sent to.
+    ...(answer?.country ? { here: answer.country } : {}),
     views: { phone: view(150), desktop: view(330) },
   };
 }

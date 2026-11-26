@@ -11,29 +11,142 @@
   color: var(--link);
 }
 
+.body {
+  min-width: 0;
+}
+
 .title {
   font-size: var(--t-body);
   font-weight: 650;
 }
 
+/* The country the prescription is from: a label and the control that changes it, on one line where they fit. */
+.home {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-top: 6px;
+  color: var(--ink-2);
+  font-size: var(--t-m);
+}
+
+.select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  background-color: var(--surface);
+  /* The arrow of a list one picks from, in the text's own colour. */
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  appearance: none;
+}
+
 .text {
-  margin-top: 4px;
+  margin-top: 6px;
   color: var(--ink-2);
   font-size: var(--t-m);
   line-height: 1.45;
 }
 
-.source {
-  margin-top: 6px;
+.answers {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.answers dt {
   color: var(--meta);
   font-size: var(--t-s);
 }
 
-/* What a few pharmacies did on one day: after the rule and its source, in the small quiet size, with numbers that line up. */
+.answers dd {
+  color: var(--ink);
+}
+
+/* What a few pharmacies did on one day: under the rule, quieter, and labelled as what it is. */
 .field {
-  margin-top: 6px;
+  margin-top: 10px;
   color: var(--ink-2);
   font-size: var(--t-s);
   line-height: 1.45;
-  font-variant-numeric: tabular-nums;
+}
+
+.fieldLabel {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.tip {
+  margin-top: 8px;
+  color: var(--ink-2);
+  font-size: var(--t-s);
+  line-height: 1.45;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  font-size: var(--t-m);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.details {
+  display: grid;
+  gap: 8px;
+  color: var(--ink-2);
+  font-size: var(--t-s);
+  line-height: 1.45;
+}
+
+.details[hidden] {
+  display: none;
+}
+
+.required {
+  display: grid;
+  gap: 4px;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.sourcesTitle {
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: var(--t-s);
+  font-weight: 600;
+}
+
+.sources {
+  display: grid;
+  gap: 6px;
+  color: var(--meta);
+  overflow-wrap: anywhere;
+}
+
+.source {
+  color: var(--meta);
+  font-size: var(--t-s);
 }

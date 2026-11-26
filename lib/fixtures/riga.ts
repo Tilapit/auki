@@ -1,5 +1,5 @@
-import { abroadFor } from '../../data/countries/index.ts';
-import type { CardPhrases, CountryInfo, Pharmacy, Scene } from '../types';
+import { hereOf } from '../../data/countries/index.ts';
+import type { CountryInfo, Pharmacy, Scene } from '../types';
 
 /**
  * Riga, Friday 20 Nov 2026 at 23:40, from the canvas boards.
@@ -64,13 +64,8 @@ const farOpen: Pharmacy = {
   straightMeters: 1300,
 };
 
-/**
- * Latvia's banner and counter card, as the live app has them (data/countries/): the fixture
- * shows the real texts, so a change to them is seen in /dev/states and in the baselines.
- */
-const abroad = abroadFor('LV')!;
-export const latvia: CountryInfo = abroad.country;
-export const latvianCard: CardPhrases = abroad.card;
+/** Latvia, as the buttons that open the counter card name its language. */
+export const latvia: CountryInfo = { code: 'LV', inLanguage: hereOf('LV')!.inLanguage };
 
 export const riga: Scene = {
   id: 'riga',
@@ -81,8 +76,9 @@ export const riga: Scene = {
   farOpen,
   ehditko: { kind: 'none' },
   closedOpens: { from: '08:00', to: '10:00' },
-  country: latvia,
-  card: latvianCard,
+  here: 'LV',
+  // The canvas board: a traveller from Finland in Riga.
+  home: 'FI',
   views: {
     desktop: { center: [56.94936, 24.11462], zoom: 16.2 },
     phone: { center: [56.94924, 24.11485], zoom: 14.99 },

@@ -167,7 +167,11 @@ export const groups: ViewGroup[] = [
       { id: 'counter-paper', title: 'Counter card, paper (drafted, unreviewed)', ready: 'dialog[open]' },
       { id: 'counter-doctor', title: 'Counter card where a Finnish e-prescription can\'t be used: paper and "the doctor sends it" (Germany\'s card, on the Riga fixture), without the wake lock', ready: 'dialog[open]', sizes: PHONE },
       { id: 'counter-one', title: 'Counter card with one variant and English as the pharmacy\'s language (Malta\'s, on the Riga fixture): no switch, no second language', ready: 'dialog[open]', sizes: PHONE, themes: ['light'] },
-      { id: 'abroad', title: 'Every country\'s banner and counter-card lines, for reading through (M6)', sizes: PHONE, themes: ['light'], fullPage: true },
+      { id: 'counter-visitor', title: 'Counter card in Finnish, for a visitor with an e-prescription from Estonia (on the Helsinki fixture)', ready: 'dialog[open]', sizes: PHONE, themes: ['light'] },
+      { id: 'abroad-visitor', title: 'The banner for a prescription from Germany in Latvia: not on Latvia\'s list, paper recognised, the trip\'s line labelled as Finnish', fullPage: true },
+      { id: 'abroad-finland', title: 'The banner in Finland for a prescription from Estonia, details and sources open', fullPage: true },
+      { id: 'abroad-ask', title: 'The banner when the device suggests no country: it asks', sizes: PHONE, themes: ['light'], fullPage: true },
+      { id: 'abroad', title: 'Every country\'s banner and counter-card lines, and pairs for each kind of answer, for reading through', sizes: PHONE, themes: ['light'], fullPage: true },
     ],
   },
   {

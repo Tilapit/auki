@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { GUIDES, abroadFor } from '@/data/countries';
+import { HERE, guideFor } from '@/data/countries';
 import { helsinki } from '@/lib/fixtures/helsinki';
 import { useI18n } from '@/lib/i18n/context';
 import { travel } from '@/lib/travel';
@@ -9,7 +9,7 @@ import { latvia, riga } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
 import type { Ehditko, OpenStatus as Status, Pharmacy } from '@/lib/types';
 import { Button, IconButton } from '../Button';
-import { CountryBanner } from '../CountryBanner';
+import { BannerFor } from '../CountryBanner';
 import { CrossGlyph } from '../CrossGlyph';
 import { MapMarker, YouAreHere } from '../MapMarker';
 import { NearestOpenCard } from '../NearestOpenCard';
@@ -177,7 +177,7 @@ export const CARD_CASES: Record<string, { title: string; card: () => ReactNode }
         closedOpens={riga.closedOpens}
         country={latvia}
       >
-        <CountryBanner country={latvia} />
+        <BannerFor home="FI" here="LV" />
       </NearestOpenCard>
     ),
   },
@@ -196,36 +196,75 @@ export function CardCase({ id }: { id: keyof typeof CARD_CASES }) {
   return <Sheet title={title}>{card()}</Sheet>;
 }
 
+/** A counter card's lines as plain text, each variant under its name. */
+function CardLines({ home, here }: { home: string; here: string }) {
+  const card = guideFor(home, here)?.card;
+  if (!card) return null;
+  return (
+    <>
+      {Object.entries(card.variants).map(([variant, lines]) => (
+        <p key={variant} lang={card.lang} className={styles.lines}>
+          <span lang="en" className={styles.caption}>
+            {variant}
+          </span>
+          {lines.local.join(' ')}
+        </p>
+      ))}
+      <p lang={card.lang} className={styles.lines}>
+        <span lang="en" className={styles.caption}>
+          pharmacist
+        </span>
+        {card.pharmacist.local}
+      </p>
+    </>
+  );
+}
+
+/** Pairs that show each kind of answer the banner can give, beyond a prescription from Finland. */
+const VISITORS: { home: string | null; here: string; what: string }[] = [
+  { home: 'EE', here: 'FI', what: 'Estonia to Finland: both countries list each other' },
+  { home: 'DE', here: 'FI', what: 'Germany to Finland: not on Finland’s list; paper recognised, with Finland’s own conditions' },
+  { home: 'CH', here: 'FI', what: 'Switzerland to Finland: outside the EU rule, and Finland takes the paper prescription' },
+  { home: 'GB', here: 'FI', what: 'United Kingdom to Finland: Finland says it takes none from outside the EU, the EEA and Switzerland' },
+  { home: 'DE', here: 'LV', what: 'Germany to Latvia: not on Latvia’s list' },
+  { home: 'PT', here: 'CZ', what: 'Portugal to Czechia: works one way (Czechia to Portugal does not)' },
+  { home: 'CZ', here: 'PT', what: 'Czechia to Portugal: the other way, on neither list' },
+  { home: 'CZ', here: 'HR', what: 'Czechia to Croatia: on Czechia’s page; Croatia’s own notice is from 2022' },
+  { home: 'ES', here: 'AT', what: 'Spain to Austria: on Spain’s page only, Austria’s own was not read' },
+  { home: 'FR', here: 'IT', what: 'France to Italy: nothing official found for the electronic prescription' },
+  { home: 'NO', here: 'EE', what: 'Norway to Estonia: Norway says its prescription needs paper abroad' },
+  { home: 'EE', here: 'SE', what: 'Estonia to Sweden: Sweden takes no e-prescription from abroad' },
+  { home: 'DE', here: 'CH', what: 'Germany to Switzerland: outside the EU rule' },
+  { home: 'CH', here: 'DE', what: 'Switzerland to Germany: outside the EU rule, the other way' },
+  { home: 'XX', here: 'IT', what: 'Another country to Italy: nothing official found' },
+  { home: null, here: 'LV', what: 'No country suggested by the device: the banner asks' },
+];
+
 /**
- * Every country's banner as the card shows it, and its counter card's lines as plain text:
- * for reading the texts of data/countries/ through in one place. The cards themselves are
- * the "counter" views.
+ * The prescription guidance for reading through in one place (data/countries/): for every
+ * country one can be in, the banner for a prescription from Finland (in Finland, from Estonia)
+ * with its details open, and the counter card's lines as plain text. Then pairs that show each
+ * kind of answer. The whole matrix is in docs/research/prescriptions-across-borders.md.
  */
 export function AbroadSheet() {
   return (
-    <Sheet title="Abroad: every country's banner and counter-card lines">
-      {GUIDES.map((guide) => {
-        const { country, card } = abroadFor(guide.code)!;
+    <Sheet title="Prescriptions across borders: each country's banner and counter-card lines">
+      {HERE.map((place) => {
+        const home = place.code === 'FI' ? 'EE' : 'FI';
+        const card = guideFor(home, place.code)!.card;
         return (
-          <Block key={guide.code} title={`${guide.code}: banner, then the card ${country.inLanguage.en}${card.reviewed ? '' : ' (unreviewed)'}`}>
-            <CountryBanner country={country} />
-            {Object.entries(card.variants).map(([variant, lines]) => (
-              <p key={variant} lang={card.lang} className={styles.lines}>
-                <span lang="en" className={styles.caption}>
-                  {variant}
-                </span>
-                {lines.local.join(' ')}
-              </p>
-            ))}
-            <p lang={card.lang} className={styles.lines}>
-              <span lang="en" className={styles.caption}>
-                pharmacist
-              </span>
-              {card.pharmacist.local}
-            </p>
+          <Block key={place.code} title={`${place.code}, a prescription from ${home}: banner, then the card ${place.inLanguage.en}${card.reviewed ? '' : ' (unreviewed)'}`}>
+            <BannerFor home={home} here={place.code} open />
+            <CardLines home={home} here={place.code} />
           </Block>
         );
       })}
+      {VISITORS.map(({ home, here, what }) => (
+        <Block key={`${home}-${here}`} title={what}>
+          <BannerFor home={home} here={here} />
+          {home && <CardLines home={home} here={here} />}
+        </Block>
+      ))}
     </Sheet>
   );
 }

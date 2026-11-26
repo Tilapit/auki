@@ -241,9 +241,27 @@ const fi = {
     fixLabel: (name: string) => `Korjaa OpenStreetMapissa: ${name}`,
     backToList: 'Takaisin listaan',
   },
+  /**
+   * The prescription banner (PLAN.md section 8). What it says of a pair of countries is in
+   * data/countries/: here only its own words. It never names a medicine.
+   */
   banner: {
-    title: 'Resepti Suomesta?',
-    source: 'Lähde: {source}, tarkistettu {date}.',
+    title: 'Resepti kotimaasta?',
+    home: 'Reseptin maa',
+    choose: 'Valitse maa',
+    other: 'Muu maa',
+    ask: 'Valitse maa, jossa reseptisi on kirjoitettu, niin näet, käykö se täällä.',
+    electronic: 'Sähköinen resepti',
+    paper: 'Paperinen resepti',
+    /** The research trip was made with prescriptions from Finland: every line of it is shown under these words. */
+    field: 'Suomalaisella reseptillä.',
+    pharmacist: 'Jos ensimmäinen vastaus on ei, pyydä farmaseuttia.',
+    more: 'Lisätiedot ja lähteet',
+    required: 'Paperisessa reseptissä pitää olla vähintään:',
+    sources: 'Lähteet',
+    pageDated: 'Sivu päivitetty {updated}, luettu {checked}.',
+    pageRead: 'Luettu {checked}.',
+    read: 'Viralliset lähteet luettu {date}.',
   },
   counter: {
     title: 'Näytä tämä apteekissa',
