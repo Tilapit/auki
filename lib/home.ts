@@ -12,7 +12,9 @@
  */
 
 import { useCallback, useState, useSyncExternalStore } from 'react';
-import { OTHER, homeFromLanguages, homeOf } from '@/data/countries';
+// From the list of countries alone, not from data/countries as a whole: this file is part of
+// the first load, and the guidance is not (lib/guidance.ts).
+import { OTHER, homeFromLanguages, homeOf } from '@/data/countries/homes';
 import type { Locale } from './i18n';
 
 export const HOME_KEY = 'home-country';

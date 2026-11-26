@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { guideFor, hereOf } from '@/data/countries';
 import type { RouteFor } from '@/hooks/useRouteLine';
+import { COUNTRY_CODES } from '@/lib/countries';
+import { useGuidance } from '@/lib/guidance';
 import { useHome } from '@/lib/home';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
@@ -14,8 +15,6 @@ import type { AreaLayer, Bounds } from '@/lib/map/area';
 import type { CardVariant, Pharmacy, Scene } from '@/lib/types';
 import { ApproximateNotice } from './ApproximateNotice';
 import { Button } from './Button';
-import { CounterCard } from './CounterCard';
-import { CountryBanner } from './CountryBanner';
 import { CrossGlyph } from './CrossGlyph';
 import { cx } from './cx';
 import { LiveStatus } from './LiveStatus';
@@ -172,14 +171,20 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // show at the counter (PLAN.md section 8). The home country is the device's own suggestion
   // until the user changes it in the banner; a fixture names its own.
   const [home, setHome] = useHome(i18n.locale, options.home !== undefined ? options.home : scene.home);
-  const here = hereOf(scene.here);
-  const guide = useMemo(() => guideFor(home, here?.code), [home, here]);
-  const country = guide && { code: guide.here, inLanguage: guide.inLanguage };
+  // The country of the pharmacy, where it is one the app covers (data/countries/here.ts has the same list).
+  const here = scene.here !== undefined && (COUNTRY_CODES as readonly string[]).includes(scene.here) ? scene.here : undefined;
   // One surface: the banner is a section of the card. Not at home, where there is nothing to say,
   // unless it is asked for from the footer: the phone's suggestion can be wrong at home too.
-  const atHome = !!here && home === here.code;
+  const atHome = !!here && home === here;
   const [asked, setAsked] = useState(false);
-  const banner = here && (!atHome || asked) && <CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={asked} />;
+  const abroad = !!here && (!atHome || asked);
+  // The guidance itself (the sentences, the sources, the card's lines) is not part of the first
+  // load: it is fetched when the two countries differ, and at home never (lib/guidance.ts).
+  // Until it has arrived the card is as it is at home.
+  const guidance = useGuidance(abroad);
+  const guide = useMemo(() => guidance?.guideFor(home, here), [guidance, home, here]);
+  const country = guide && { code: guide.here, inLanguage: guide.inLanguage };
+  const banner = guidance && abroad && <guidance.CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={asked} />;
   // Where to check a medicine's stock: the service of the country the card's pharmacy is in
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
@@ -604,7 +609,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       }
       overlays={
         <>
-          {guide && <CounterCard card={guide.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} fixedAwake={options.counterAwake} />}
+          {guidance && guide && <guidance.CounterCard card={guide.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} fixedAwake={options.counterAwake} />}
           {offered && (
             <MedicineDialog provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
               {options.medicineExample}
