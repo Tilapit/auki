@@ -171,7 +171,8 @@ export const groups: ViewGroup[] = [
       { id: 'abroad-visitor', title: 'The banner for a prescription from Germany in Latvia: not on Latvia\'s list, paper recognised, the trip\'s line labelled as Finnish', fullPage: true },
       { id: 'abroad-finland', title: 'The banner in Finland for a prescription from Estonia, details and sources open', fullPage: true },
       { id: 'abroad-ask', title: 'The banner when the device suggests no country: it asks', sizes: PHONE, themes: ['light'], fullPage: true },
-      { id: 'abroad', title: 'Every country\'s banner and counter-card lines, and pairs for each kind of answer, for reading through', sizes: PHONE, themes: ['light'], fullPage: true },
+      { id: 'abroad', title: 'Every country\'s banner and counter-card lines, for reading through', sizes: PHONE, themes: ['light'], fullPage: true },
+      { id: 'abroad-pairs', title: 'A pair for each kind of answer, and the footer\'s line at home, for reading through', sizes: PHONE, themes: ['light'], fullPage: true },
     ],
   },
   {

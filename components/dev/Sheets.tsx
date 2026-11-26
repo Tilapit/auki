@@ -266,9 +266,10 @@ const VISITORS: { home: string; here: string; what: string }[] = [
 /**
  * The prescription guidance for reading through in one place (data/countries/), as plain text:
  * for every country one can be in, what is said of a prescription from Finland (in Finland,
- * of one from Estonia) and the counter card's lines. Then pairs that show each kind of answer.
- * The banner itself is in the views of its own; the whole matrix is in
- * docs/research/prescriptions-across-borders.md.
+ * of one from Estonia) and the counter card's lines. The pairs that show each kind of answer
+ * are a sheet of their own (AbroadPairsSheet): as one page the two were taller than a browser
+ * can photograph (32,767 px in WebKit). The banner itself is in the views of its own; the
+ * whole matrix is in docs/research/prescriptions-across-borders.md.
  */
 export function AbroadSheet() {
   return (
@@ -281,6 +282,14 @@ export function AbroadSheet() {
           </Block>
         );
       })}
+    </Sheet>
+  );
+}
+
+/** The second half of the reading: one pair for each kind of answer, and the footer's line that brings the banner up at home. */
+export function AbroadPairsSheet() {
+  return (
+    <Sheet title="Prescriptions across borders: a pair for each kind of answer">
       {VISITORS.map(({ home, here, what }) => (
         <Block key={`${home}-${here}`} title={what}>
           <PairTexts home={home} here={here} />

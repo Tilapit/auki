@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
 import { ResultsView } from '@/components/dev/Results';
-import { AbroadSheet, CardCase, ComponentSheet } from '@/components/dev/Sheets';
+import { AbroadPairsSheet, AbroadSheet, CardCase, ComponentSheet } from '@/components/dev/Sheets';
 import { StockExample } from '@/components/dev/StockExample';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
@@ -102,6 +102,7 @@ export const renderers: Record<string, () => ReactNode> = {
   'abroad-finland': () => <ResultsView scene={{ ...helsinki, here: 'FI' }} home="EE" sheet="expanded" bannerOpen />,
   'abroad-ask': () => <ResultsView scene={riga} home={null} sheet="expanded" />,
   abroad: () => <AbroadSheet />,
+  'abroad-pairs': () => <AbroadPairsSheet />,
 
   'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
   'tiles-half': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="half" />,
