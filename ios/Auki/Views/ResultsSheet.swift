@@ -85,6 +85,7 @@ struct ResultsSheet: View {
                     .foregroundStyle(Palette.ink)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("results-title")
                 if let searchedAt = model.searchedAt {
                     Text(texts.updated(searchedAt))
                         .font(.footnote)
@@ -142,6 +143,7 @@ private struct LeadCard: View {
     let action: () -> Void
 
     @Environment(\.texts) private var texts
+    @Environment(\.openURL) private var openURL
     @Environment(\.dynamicTypeSize) private var typeSize
     @ScaledMetric(relativeTo: .title2) private var glyphSize: CGFloat = 24
     @ScaledMetric(relativeTo: .headline) private var compactGlyphSize: CGFloat = 20
@@ -203,12 +205,45 @@ private struct LeadCard: View {
             }
 
             if !compact {
-                Button(action: action) {
-                    Text(texts.showOnMap).frame(minHeight: 22)
+                // Side by side, and one under the other with the largest text sizes.
+                let buttons = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))
+                buttons {
+                    if row.status.isOpen {
+                        // The web's "Reitti": it opens the pharmacy's sheet, where the route is, with the map above it.
+                        Button(action: action) {
+                            HStack(spacing: 8) {
+                                Image(systemName: walking ? "figure.walk" : "arrow.triangle.turn.up.right.diamond")
+                                Text(texts.route)
+                            }
+                            .frame(minHeight: 22)
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        .accessibilityLabel(texts.routeLabel(name, walking: walking))
+                        .accessibilityAddTraits(selected ? .isSelected : [])
+                        .accessibilityIdentifier("lead-route")
+                    } else {
+                        // No route to a closed door: its hours are what is worth opening.
+                        Button(action: action) {
+                            Text(texts.showDetails).frame(minHeight: 22)
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                        .accessibilityAddTraits(selected ? .isSelected : [])
+                    }
+                    if let call = row.pharmacy.phone.flatMap(Handoff.call).flatMap(URL.init(string:)) {
+                        Button {
+                            openURL(call)
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "phone")
+                                Text(texts.call)
+                            }
+                            .frame(minHeight: 22)
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                        .accessibilityLabel(texts.callLabel(name))
+                    }
                 }
-                .buttonStyle(SecondaryButtonStyle())
-                .accessibilityAddTraits(selected ? .isSelected : [])
-                // Room above it, so the sheet's lowest place ends under the status line and not on the button's edge.
+                // Room above them, so the sheet's lowest place ends under the status line and not on a button's edge.
                 .padding(.top, 8)
             }
         }
@@ -217,6 +252,9 @@ private struct LeadCard: View {
         .onTapGesture(perform: compact ? action : {})
     }
 
+    private var name: String { row.pharmacy.name ?? texts.fallbackName }
+    private var walking: Bool { Handoff.withinWalk(row.meters) }
+
     /// The street, and the town when the tile names one.
     private var address: String? {
         let parts = [row.pharmacy.street, row.pharmacy.city].compactMap { $0 }
@@ -224,7 +262,7 @@ private struct LeadCard: View {
     }
 }
 
-/// One pharmacy of the list: glyph, name, status, distance. Pressing it shows it on the map.
+/// One pharmacy of the list: glyph, name, status, distance. Pressing it opens its sheet, with the map above it.
 private struct PharmacyRow: View {
     let row: Row
     let now: Int
@@ -272,7 +310,8 @@ private struct PharmacyRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityHint(texts.showOnMap)
+        .accessibilityHint(texts.showDetails)
+        .accessibilityIdentifier("pharmacy-row")
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 

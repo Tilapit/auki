@@ -894,6 +894,48 @@ Entry format:
 - Status: provisional, waiting for Janne's phone. The rate (0.998), the slowest flick that glides (100 px/s) and the fastest that counts (3,200 px/s) are the three numbers to turn if it feels wrong.
   - In tests a flick is all of its touches sent at once: on any machine that is the fastest flick the map counts, and the tests hold the glide of that one. A flick with a speed of its own can't be sent from a test: a touch bears the time it was sent at, and sent one by one a step takes thirty milliseconds here and over a hundred in CI, which the map rightly takes for a finger that stops and starts. Chromium's own synthesized flick is truer, and `scripts/map-feel.ts` measures with it on a Mac, but in CI's Linux it moved nothing. CI also draws a gliding map only every few tenths of a second, so the test holds each drawn frame to the list's curve at that frame's own time. Three failed CI runs went into finding this out; the second of them is what moved the app's reckoning from frames to touches.
 
+## 2026-11-25: iOS: a pharmacy's sheet over the results, as a place card in Apple's Maps (provisional)
+- Where: `ios/Auki/Views/PharmacySheet.swift`, `ResultsView.swift`; `design/ios-basics/`
+- Change: New, by Janne's brief of 25 Nov 2026 (the iOS app's missing basics: a pharmacy sheet with the opening hours, a call button and an Apple Maps route) and his note of the same day on how the web's pharmacy sheet should behave. A press on a row, on the card's "Reitti" or on a marker opens a sheet of the pharmacy's own, lying over the results.
+  - It opens at half the screen. The map shows above it and can still be used, and it moves to hold the picked marker and the dot in the part that shows.
+  - A pull down closes it, and so does its close button. The results are under it as they were.
+  - A finger on its content moves the sheet first: the content scrolls only once the sheet is fully up. This is the system's own behaviour for a sheet with two heights, asked for by name so that it stays.
+  - Results that were fully open step down to half the screen when a pharmacy is picked, so they don't stand taller than the sheet over them.
+  - Another marker pressed while the sheet is up changes the pharmacy in it. The sheet stays where it is.
+  - Closing it clears the pick: no marker stays marked. In I1 the last pick stayed marked.
+- Why: A sheet that opened fully up would hide the one thing a pick on a map is for, which is seeing where the pharmacy is. A sheet of its own, and not the details in the list's place inside the results' sheet (the web's desktop way): only a sheet of its own can be closed with a pull down, and the list is still there, at its place, when it goes.
+- Status: provisional, waiting for Janne: a new view on iOS. Tried with real touches in the Simulator (seven tests, `ios/README.md`), not on a phone.
+
+## 2026-11-25: iOS: in a pharmacy's sheet the buttons stand before the facts (provisional)
+- Where: `ios/Auki/Views/PharmacySheet.swift`; `design/ios-basics/light.jpg`
+- Change: From the top: the glyph, the name and the address, with the close button; the status with the distance beside it; "Reitti Apple Kartoissa" as the primary button, the whole width, with the walking mark and the mark for leaving the app; under it "Soita" and "Näytä kartalla" side by side; then what OpenStreetMap knows (Aukioloajat, Esteettömyys, Puhelin, Sähköposti, Verkkosivu) between two hairlines; and the web's footnote, with "Korjaa OpenStreetMapissa" as a link. On the web and on the canvas the facts come first and the buttons after them.
+  - The week's hours are grouped as on the web: "Ma–pe 8.00–21.00", "La 10.00–16.00", "Su suljettu". Hours that are not times are shown as OpenStreetMap writes them.
+  - Without a phone number there is no "Soita", and "Näytä kartalla" has the row.
+  - With the largest text sizes the two lower buttons stand one under the other, the distance goes under the status, and each fact's label stands above its value.
+  - A long email address breaks after its at sign or before a dot. The system put a hyphen into one, which read as part of the address.
+  - Hours missing or unreadable: "Korjaa OpenStreetMapissa" stands right under the status, as on the web.
+- Why: The sheet opens at half the screen. There is room for about five lines under the name, and on a phone in the street those are the route and the call: with the facts first, the route button was under the screen's edge at the height the sheet opens at. The hours start right under the buttons and are one pull away.
+  - "Näytä kartalla" is kept here, not on the card: fully up, the sheet covers the map, and the button brings it down to half and the map back to the pharmacy. With VoiceOver it is the way back to the map without dragging a sheet.
+  - No button for Google Maps: the brief asks for Apple Maps, which every iPhone has. To decide.
+  - Not here yet: "Ei varastossa? Seuraava auki", the medicine line, the counter card.
+- Status: provisional, waiting for Janne: the order departs from the canvas's sheet
+
+## 2026-11-25: iOS: the card's buttons are the web's, "Reitti" and "Soita" (provisional)
+- Where: the card in `ios/Auki/Views/ResultsSheet.swift`
+- Change: In place of I1's one button, "Näytä kartalla". "Reitti" is the primary button, with the walking mark within three kilometres, and opens the pharmacy's sheet, as on the web. "Soita" stands beside it where OpenStreetMap has a number. A pharmacy that is not open, the one that opens first, has "Näytä tiedot" in place of "Reitti". A row's hint for VoiceOver is "Näytä tiedot".
+- Why: One voice on both platforms, now that the route and the call exist. "Reitti" opens the sheet and not Apple Maps at once: the sheet says where the link leads and what it carries before the app is left, and the map moves to the pharmacy on the way. No route to a closed door: what is worth opening there is its hours.
+  - To decide: whether on iOS, where there is one map app to hand off to, the card's "Reitti" should start the route at once.
+- Status: provisional, waiting for Janne: changes the card of I1, which was provisional itself
+
+## 2026-11-25: iOS: the route is a link that carries only the pharmacy's position
+- Where: `ios/Auki/Core/Handoff.swift`, the route button of the pharmacy's sheet
+- Change: The button opens `https://maps.apple.com/?daddr=<latitude>,<longitude>&dirflg=w`, the link the web app makes, through the system. Beyond three kilometres in a straight line it has no `dirflg`, and Apple Maps picks how to get there. It is not MapKit's own hand-off (`MKMapItem.openInMaps`).
+- Why: The sheet says "linkissä on vain apteekin sijainti", and with a link that is true to the letter and can be tested: a unit test reads the link and finds the destination and the way of travel in it, nothing else. One rule and one test case for both apps (PLAN.md 7.6).
+  - MapKit's hand-off would also need two ways of making its map item: the one that iOS 17 knows is deprecated from iOS 26 on.
+  - What it costs: Apple Maps names the destination by its address or as a dropped pin, not by the pharmacy's name.
+  - The button was not pressed in the Simulator: Apple's Maps app, once opened there, puts its own questions over every later screenshot (`ios/README.md`). It has to be tried on a phone.
+- Status: done. The hand-off itself is not yet tried on a real iPhone.
+
 
 ## 2026-11-26: The first window is for a first visit, and links that leave the app open in a tab of their own
 - Where: `lib/geolocation.ts` (`locatesOnArrival`, `rememberLocated`), `hooks/usePharmacySearch.ts`; `components/NewTab.tsx` and every link to another site; `tests/e2e/flow.spec.ts`

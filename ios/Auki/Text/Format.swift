@@ -55,6 +55,16 @@ struct Format: Sendable {
         }
     }
 
+    /// A calendar date, from "YYYY-MM-DD": "13.9.2023" / "13 Sept 2023". Anything else is given back as it came.
+    func date(_ iso: String) -> String {
+        let pieces = iso.split(separator: "-").compactMap { Int($0) }
+        guard pieces.count == 3, (1...12).contains(pieces[1]), (1...31).contains(pieces[2]) else { return iso }
+        switch language {
+        case .fi: return "\(pieces[2]).\(pieces[1]).\(pieces[0])"
+        case .en: return "\(pieces[2]) \(Self.months[pieces[1] - 1]) \(pieces[0])"
+        }
+    }
+
     /// The time of an instant on the device's clock, as a status line says it: "klo 20.41" / "20:41".
     func time(of instant: Int, zone: String = TimeZone.current.identifier) -> String {
         clockShort(Zone.clock(instant, zone: zone))

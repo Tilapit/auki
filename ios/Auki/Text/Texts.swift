@@ -118,6 +118,68 @@ struct Texts: Sendable {
         }
     }
 
+    // MARK: A pharmacy's sheet
+
+    var close: String { pick("Sulje", "Close") }
+    var route: String { pick("Reitti", "Route") }
+    /// What the route button does, for a screen reader. Too far to walk: the map app picks how to get there.
+    func routeLabel(_ name: String, walking: Bool) -> String {
+        walking ? pick("Kävelyreitti: \(name)", "Walking directions to \(name)") : pick("Reitti: \(name)", "Directions to \(name)")
+    }
+    var call: String { pick("Soita", "Call") }
+    func callLabel(_ name: String) -> String { pick("Soita: \(name)", "Call \(name)") }
+    var showDetails: String { pick("Näytä tiedot", "Show details") }
+
+    var hours: String { pick("Aukioloajat", "Opening hours") }
+    var accessibility: String { pick("Esteettömyys", "Accessibility") }
+    var phone: String { pick("Puhelin", "Phone") }
+    var email: String { pick("Sähköposti", "Email") }
+    var website: String { pick("Verkkosivu", "Website") }
+    func wheelchair(_ value: Wheelchair) -> String {
+        switch value {
+        case .yes: pick("Esteetön", "Step-free")
+        case .limited: pick("Osittain", "Partly")
+        case .no: pick("Ei esteetön", "Not step-free")
+        }
+    }
+
+    var appleRoute: String { pick("Reitti Apple Kartoissa", "Route in Apple Maps") }
+    var handOff: String {
+        pick("Reitti avautuu karttasovelluksessa, ja linkissä on vain apteekin sijainti.", "The route opens in the map app, and the link carries only the pharmacy's position.")
+    }
+    var source: String { pick("Tiedot: OpenStreetMap.", "Data: OpenStreetMap.") }
+    /// `date` is the check date of the opening hours, "YYYY-MM-DD".
+    func sourceChecked(_ date: String) -> String {
+        pick("Tiedot: OpenStreetMap, aukioloajat tarkistettu \(format.date(date)).", "Data: OpenStreetMap, opening hours checked \(format.date(date)).")
+    }
+    /// The way to correct the data: the question, and the link after it, which ends the sentence.
+    var wrong: String { pick("Väärät tiedot?", "Wrong details?") }
+    var fix: String { pick("Korjaa OpenStreetMapissa", "Fix them on OpenStreetMap") }
+    func fixLabel(_ name: String) -> String { pick("Korjaa OpenStreetMapissa: \(name)", "Fix on OpenStreetMap: \(name)") }
+
+    /// One line of the week's hours, as a door sign reads: "Joka päivä 8.00–24.00", "Ma–pe 8.00–21.00", "Su suljettu".
+    func weekLine(_ line: WeekLine) -> String { "\(daysLabel(line.days)) \(dayHours(line.hours))" }
+
+    /// Weekdays as a door sign names them: "Joka päivä", "Ma–pe", "La", "Ma–ke, pe". 0 is Monday.
+    func daysLabel(_ days: [Int]) -> String {
+        if days.count == DayLabel.weekdays.count { return pick("Joka päivä", "Every day") }
+        func name(_ day: Int) -> String { DayLabel.weekdays.indices.contains(day) ? weekday(DayLabel.weekdays[day]) : "" }
+        let text = Week.runs(days)
+            .map { $0.lowerBound == $0.upperBound ? name($0.lowerBound) : "\(name($0.lowerBound))–\(name($0.upperBound))" }
+            .joined(separator: ", ")
+        return text.prefix(1).uppercased() + text.dropFirst()
+    }
+
+    /// The hours of a day or a group of days: "8.00–21.00", "8.00–12.00, 13.00–17.00", "suljettu".
+    func dayHours(_ hours: DayHours) -> String {
+        switch hours {
+        case .open(let ranges): ranges.map { "\(format.clock($0.from))–\(format.clock($0.to))" }.joined(separator: ", ")
+        case .closed: pick("suljettu", "closed")
+        case .allDay: pick("ympäri vuorokauden", "open 24 hours")
+        case .unknown: pick("ei tiedossa", "not known")
+        }
+    }
+
     // MARK: When something is in the way
 
     var retry: String { pick("Yritä uudelleen", "Try again") }

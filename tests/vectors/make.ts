@@ -14,6 +14,7 @@ import { hoursStatus, localMoment } from '../../lib/hoursStatus.ts';
 import type { HoursStatus } from '../../lib/hoursStatus.ts';
 import { TILE_ZOOM, decodeTile, distanceToTile, encodeTile, searchStep, tileBounds, tileKey, tileOf } from '../../lib/tiles.ts';
 import type { GridJson, Hours, Interval, LatLon, Tile, TilePharmacy, TileRef } from '../../lib/tiles.ts';
+import { weekHours } from '../../lib/week.ts';
 import { clockAt, dateAt, dayNumber, instantOf, startOfDay, wallAt, weekdayAt } from '../../lib/zone.ts';
 import type { Wall } from '../../lib/zone.ts';
 
@@ -416,6 +417,103 @@ function ehditkoVectors() {
 
 // ---------------------------------------------------------------------------
 
+interface WeekCase {
+  name: string;
+  zone: string;
+  windowFrom: number;
+  windowUntil: number;
+  hours: Hours;
+  now: number;
+}
+
+function weekVectors() {
+  const base = { zone: HELSINKI, windowFrom: FROM, windowUntil: UNTIL };
+  const days = [0, 1, 2, 3, 4, 5, 6, 7];
+  const span = (day: number, open: string, close: string): Interval => ({ from: at(day, open), to: at(day, close) });
+  const parsed = (open: Interval[], unknown: Interval[] = []): Hours => ({ kind: 'parsed', open, unknown });
+  const weekdaysAndWeekend = parsed(days.map((day) => (day % 7 >= 5 ? span(day, '10:00', '18:00') : span(day, '08:00', '21:00'))));
+  const everyDay = parsed(days.map((day) => span(day, '08:00', '21:00')));
+
+  const cases: WeekCase[] = [
+    { name: 'the same hours every day are one line, and a closing at midnight is 24:00', ...base, hours: parsed(days.map((day) => span(day, '08:00', '24:00'))), now: at(0, '20:41') },
+    { name: 'weekdays and the weekend, seen on a Monday', ...base, hours: weekdaysAndWeekend, now: at(0, '12:00') },
+    { name: 'weekdays and the weekend, seen on a Tuesday: the groups still start from Monday', ...base, hours: weekdaysAndWeekend, now: at(1, '12:00') },
+    {
+      name: 'a day that differs stands apart: closed on Thursday and Sunday, shorter on Saturday',
+      ...base,
+      hours: parsed(days.flatMap((day) => (day % 7 === 3 || day % 7 === 6 ? [] : [day % 7 === 5 ? span(day, '09:00', '15:00') : span(day, '08:00', '21:00')]))),
+      now: at(0, '12:00'),
+    },
+    { name: 'a lunch break is two ranges on one day', ...base, hours: parsed(days.flatMap((day) => [span(day, '08:00', '12:00'), span(day, '13:00', '17:00')])), now: at(0, '09:00') },
+    {
+      name: 'an opening past midnight belongs to the day it begins on',
+      ...base,
+      hours: parsed(days.map((day) => ({ from: at(day, '18:00'), to: at(day + 1, '02:00') }))),
+      now: at(0, '19:00'),
+    },
+    { name: 'around the clock', ...base, hours: parsed([{ from: FROM, to: UNTIL }]), now: at(1, '03:00') },
+    {
+      name: 'an opening of several days is cut at midnight',
+      ...base,
+      hours: parsed([span(0, '08:00', '16:00'), span(1, '08:00', '16:00'), span(2, '08:00', '16:00'), span(3, '08:00', '16:00'), { from: at(4, '08:00'), to: at(7, '08:00') }]),
+      now: at(1, '12:00'),
+    },
+    { name: 'openings that touch are one opening', ...base, hours: parsed(days.flatMap((day) => [span(day, '08:00', '12:00'), span(day, '12:00', '18:00')])), now: at(0, '09:00') },
+    { name: 'openings that touch, given out of order', ...base, hours: parsed(days.flatMap((day) => [span(day, '12:00', '18:00'), span(day, '08:00', '12:00')]).reverse()), now: at(0, '09:00') },
+    {
+      name: 'a day with a stretch the data calls unknown is unknown, not closed',
+      ...base,
+      hours: parsed(days.filter((day) => day !== 3).map((day) => span(day, '08:00', '21:00')), [span(3, '00:00', '24:00')]),
+      now: at(0, '12:00'),
+    },
+    { name: 'only the days the data covers: on Thursday it knows five', ...base, hours: everyDay, now: at(3, '12:00') },
+    { name: 'the last day the window holds whole', ...base, hours: everyDay, now: at(7, '23:59') },
+    { name: 'past the window: nothing', ...base, hours: everyDay, now: at(8, '00:00') },
+    { name: 'before the window: nothing', ...base, hours: everyDay, now: FROM - 60 },
+    { name: 'never open in the window: every day closed', ...base, hours: parsed([]), now: at(0, '12:00') },
+    { name: 'an opening that began the evening before and runs past noon is not a tail: the day starts at 0:00', ...base, hours: parsed([{ from: at(1, '20:00'), to: at(2, '14:00') }]), now: at(0, '12:00') },
+    { name: 'hours missing', ...base, hours: { kind: 'missing' }, now: at(0, '12:00') },
+    { name: 'hours that could not be read', ...base, hours: { kind: 'unparseable', raw: 'by appointment' }, now: at(0, '12:00') },
+    { name: 'hours that are uncertain', ...base, hours: { kind: 'uncertain', raw: 'Mo-Fr 08:00-18:00; PH off' }, now: at(0, '12:00') },
+  ];
+
+  // The weeks in which the clocks change, in zones on four different offsets: the hours are on
+  // the wall clock, as the pipeline works them out, so the week reads the same as any other.
+  const HOUR = 3600;
+  for (const zone of ['Europe/Helsinki', 'Europe/Berlin', 'Europe/Lisbon', 'Atlantic/Azores']) {
+    for (const thursday of ['2026-10-22T10:00:00Z', '2027-03-25T10:00:00Z']) {
+      const now = utc(thursday);
+      const windowFrom = startOfDay(now, zone);
+      // Local midnights of the window's days, each found from the noon after the one before.
+      const starts = [windowFrom];
+      for (let day = 1; day <= 8; day++) starts.push(startOfDay(starts[day - 1] + 36 * HOUR, zone));
+      const windowUntil = starts[8];
+      const on = (day: number, hour: number): number => {
+        const { year, month, day: date } = wallAt(starts[day] + 12 * HOUR, zone);
+        return instantOf({ year, month, day: date, hour, minute: 0 }, zone);
+      };
+      const window = { zone, windowFrom, windowUntil, now };
+      const month = thursday.slice(0, 7);
+      cases.push(
+        { name: `${zone}, the week of the clock change of ${month}: 8 to 21 every day`, ...window, hours: parsed(starts.slice(0, 8).map((_, day) => ({ from: on(day, 8), to: on(day, 21) }))) },
+        { name: `${zone}, the week of the clock change of ${month}: around the clock`, ...window, hours: parsed([{ from: windowFrom, to: windowUntil }]) },
+        { name: `${zone}, the week of the clock change of ${month}: 18 to 2 every night`, ...window, hours: parsed(starts.slice(0, 7).map((_, day) => ({ from: on(day, 18), to: on(day + 1, 2) }))) },
+      );
+    }
+  }
+
+  return {
+    about:
+      'The week in the pharmacy sheet: the coming seven local days from the intervals a tile carries, today first, equal days grouped (lib/week.ts). ' +
+      'days are weekdays, 0 for Monday to 6 for Sunday, in that order; the lines are in the order of their first weekday. ' +
+      'hours.kind is open (ranges of wall-clock times "HH:mm" on the pharmacy\'s own clock; a closing at midnight is "24:00"), closed, allDay or unknown. ' +
+      'Only days the window covers whole are listed. Hours that are not parsed intervals give no lines.',
+    cases: cases.map((entry) => ({ ...entry, lines: weekHours(entry, entry.now) })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+
 export function buildVectors(): Record<string, unknown> {
   return {
     'zone.json': zoneVectors(),
@@ -424,6 +522,7 @@ export function buildVectors(): Record<string, unknown> {
     'search.json': searchVectors(),
     'tile-file.json': tileFileVectors(),
     'ehditko.json': ehditkoVectors(),
+    'week.json': weekVectors(),
   };
 }
 
