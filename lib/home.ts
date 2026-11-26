@@ -12,14 +12,14 @@
  */
 
 import { useCallback, useState, useSyncExternalStore } from 'react';
-// From the list of countries alone, not from data/countries as a whole: this file is part of
-// the first load, and the guidance is not (lib/guidance.ts).
-import { OTHER, homeFromLanguages, homeOf } from '@/data/countries/homes';
+// The codes alone, not data/countries as a whole: this file is part of the first load, and the
+// guidance is not (lib/guidance.ts).
+import { OTHER, homeFromLanguages, isHomeCode } from '@/data/countries/codes';
 import type { Locale } from './i18n';
 
 export const HOME_KEY = 'home-country';
 
-const isHome = (code: string | null | undefined): code is string => !!code && (code === OTHER || homeOf(code) !== undefined);
+const isHome = (code: string | null | undefined): code is string => code === OTHER || isHomeCode(code);
 
 /** Private windows and blocked storage throw: then the browser's suggestion stands at every visit. */
 function storedHome(): string | undefined {
