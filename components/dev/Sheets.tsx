@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { HERE, guideFor } from '@/data/countries';
 import { helsinki } from '@/lib/fixtures/helsinki';
 import { useI18n } from '@/lib/i18n/context';
 import { travel } from '@/lib/travel';
@@ -8,11 +9,12 @@ import { latvia, riga } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
 import type { Ehditko, OpenStatus as Status, Pharmacy } from '@/lib/types';
 import { Button, IconButton } from '../Button';
-import { CountryBanner } from '../CountryBanner';
+import { BannerFor } from '../CountryBanner';
 import { CrossGlyph } from '../CrossGlyph';
 import { MapMarker, YouAreHere } from '../MapMarker';
 import { NearestOpenCard } from '../NearestOpenCard';
 import { OpenStatus } from '../OpenStatus';
+import { SiteFooter } from '../SiteFooter';
 import styles from './Sheets.module.css';
 
 /*
@@ -176,7 +178,7 @@ export const CARD_CASES: Record<string, { title: string; card: () => ReactNode }
         closedOpens={riga.closedOpens}
         country={latvia}
       >
-        <CountryBanner country={latvia} />
+        <BannerFor home="FI" here="LV" />
       </NearestOpenCard>
     ),
   },
@@ -193,4 +195,110 @@ export const CARD_CASES: Record<string, { title: string; card: () => ReactNode }
 export function CardCase({ id }: { id: keyof typeof CARD_CASES }) {
   const { title, card } = CARD_CASES[id];
   return <Sheet title={title}>{card()}</Sheet>;
+}
+
+/**
+ * What the app says of one pair, as plain text in the page's language: both answers, every
+ * note with its source, the trip's line, and the counter card's lines under their variant's name.
+ */
+function PairTexts({ home, here }: { home: string; here: string }) {
+  const { locale } = useI18n();
+  const guide = guideFor(home, here);
+  if (!guide) return null;
+  const { card } = guide;
+  const said: [string, string][] = [
+    [`e-prescription: ${guide.ePrescription.status}`, guide.ePrescription.text[locale]],
+    ...guide.ePrescription.notes.map((note): [string, string] => [note.source, note.text[locale]]),
+    [`paper: ${guide.paper.status}`, guide.paper.text[locale]],
+    ...guide.paper.notes.map((note): [string, string] => [note.source, note.text[locale]]),
+    ...(guide.field ? [['field, with a prescription from Finland', guide.field[locale]] as [string, string]] : []),
+  ];
+  return (
+    <>
+      {said.map(([caption, text]) => (
+        <p key={caption + text} className={styles.lines}>
+          <span lang="en" className={styles.caption}>
+            {caption}
+          </span>
+          {text}
+        </p>
+      ))}
+      {Object.entries(card.variants).map(([variant, lines]) => (
+        <p key={variant} lang={card.lang} className={styles.lines}>
+          <span lang="en" className={styles.caption}>
+            card, {variant}
+            {card.reviewed ? '' : ' (unreviewed)'}
+          </span>
+          {lines.local.join(' ')}
+        </p>
+      ))}
+      <p lang={card.lang} className={styles.lines}>
+        <span lang="en" className={styles.caption}>
+          card, pharmacist
+        </span>
+        {card.pharmacist.local}
+      </p>
+    </>
+  );
+}
+
+/** Pairs that show each kind of answer the banner can give, beyond a prescription from Finland. */
+const VISITORS: { home: string; here: string; what: string }[] = [
+  { home: 'EE', here: 'FI', what: 'Estonia to Finland: both countries list each other' },
+  { home: 'DE', here: 'FI', what: 'Germany to Finland: not on Finland’s list; paper recognised, with Finland’s own conditions' },
+  { home: 'CH', here: 'FI', what: 'Switzerland to Finland: outside the EU rule, and Finland takes the paper prescription' },
+  { home: 'GB', here: 'FI', what: 'United Kingdom to Finland: Finland says it takes none from outside the EU, the EEA and Switzerland' },
+  { home: 'DE', here: 'LV', what: 'Germany to Latvia: not on Latvia’s list' },
+  { home: 'PT', here: 'CZ', what: 'Portugal to Czechia: works one way (Czechia to Portugal does not)' },
+  { home: 'CZ', here: 'PT', what: 'Czechia to Portugal: the other way, on neither list' },
+  { home: 'CZ', here: 'HR', what: 'Czechia to Croatia: on both countries’ pages' },
+  { home: 'AT', here: 'LV', what: 'Austria to Latvia: the two pages disagree (Latvia lists Austria; Austria’s own list is Czechia and Spain)' },
+  { home: 'AT', here: 'HU', what: 'Austria to Hungary: not on Austria’s own list, and Hungary publishes none' },
+  { home: 'ES', here: 'AT', what: 'Spain to Austria: on Spain’s page only; Austria’s own page names no country whose prescriptions it takes' },
+  { home: 'FR', here: 'IT', what: 'France to Italy: nothing official found for the electronic prescription' },
+  { home: 'NO', here: 'EE', what: 'Norway to Estonia: Norway says its prescription needs paper abroad' },
+  { home: 'EE', here: 'SE', what: 'Estonia to Sweden: Sweden takes no e-prescription from abroad' },
+  { home: 'DE', here: 'CH', what: 'Germany to Switzerland: outside the EU rule' },
+  { home: 'CH', here: 'DE', what: 'Switzerland to Germany: outside the EU rule, the other way' },
+  { home: 'XX', here: 'IT', what: 'Another country to Italy: nothing official found' },
+];
+
+/**
+ * The prescription guidance for reading through in one place (data/countries/), as plain text:
+ * for every country one can be in, what is said of a prescription from Finland (in Finland,
+ * of one from Estonia) and the counter card's lines. The pairs that show each kind of answer
+ * are a sheet of their own (AbroadPairsSheet): as one page the two were taller than a browser
+ * can photograph (32,767 px in WebKit). The banner itself is in the views of its own; the
+ * whole matrix is in docs/research/prescriptions-across-borders.md.
+ */
+export function AbroadSheet() {
+  return (
+    <Sheet title="Prescriptions across borders: what is said of each country, and the counter-card lines">
+      {HERE.map((place) => {
+        const home = place.code === 'FI' ? 'EE' : 'FI';
+        return (
+          <Block key={place.code} title={`${place.code}, a prescription from ${home}; the card ${place.inLanguage.en}`}>
+            <PairTexts home={home} here={place.code} />
+          </Block>
+        );
+      })}
+    </Sheet>
+  );
+}
+
+/** The second half of the reading: one pair for each kind of answer, and the footer's line that brings the banner up at home. */
+export function AbroadPairsSheet() {
+  return (
+    <Sheet title="Prescriptions across borders: a pair for each kind of answer">
+      {VISITORS.map(({ home, here, what }) => (
+        <Block key={`${home}-${here}`} title={what}>
+          <PairTexts home={home} here={here} />
+        </Block>
+      ))}
+      {/* In the results this line is under the list, below what a screenshot of a view holds. */}
+      <Block title="At home the banner is not shown: the results footer's last line but one brings it up">
+        <SiteFooter variant="panel" distance="walking" emergency onPrescription={() => undefined} />
+      </Block>
+    </Sheet>
+  );
 }

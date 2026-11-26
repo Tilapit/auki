@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { canLocate, locateOnce, locatedBefore, locatesOnArrival, locationPermission, rememberLocated, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
+import { loadGuidance } from '@/lib/guidance';
+import { deviceHome } from '@/lib/home';
 import type { Locale } from '@/lib/i18n';
 import { RERANK_GAP_SECONDS, movedEnough } from '@/lib/live';
 import type { Bounds } from '@/lib/map/area';
 import { Tiles, findFarOpen, findPharmacies, shownIds, type AskWalks } from '@/lib/search';
+import { forgetLastSearch, readLastSearch, saveLastSearch, type LastSearch } from '@/lib/session';
 import { APPROXIMATE_OVER_METERS, initialState, isMapView, reducer, type DevicePosition, type Position, type State } from '@/lib/state';
 import type { TilePharmacy } from '@/lib/tiles';
 import { WALKING_PATH, WALKING_WAIT_MS, readWalks, walkingBody } from '@/lib/walking';
@@ -102,6 +105,10 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
   const [area, setArea] = useState(NOTHING);
   const attempt = useRef(0);
   const lookup = useRef<AbortController | null>(null);
+  // The search this tab showed last, read once on arrival: undefined until then, null when there is none.
+  const restored = useRef<LastSearch | null | undefined>(undefined);
+  // When each position was fixed. A search that came back keeps the time it was made at.
+  const fixedAt = useRef(new WeakMap<Position, number>());
 
   const locate = useCallback(() => {
     if (!canLocate()) {
@@ -170,8 +177,22 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     const { position } = state;
     const controller = new AbortController();
     const store = new Tiles(loader(controller.signal));
-    tiles.current = { position, store, controller, rankedAt: Date.now() };
-    void findPharmacies(store, position, nowSeconds(), walksFrom(position, controller.signal)).then((outcome) => {
+    // A search that came back from the tab's storage has its walking times with it: the list is
+    // in the order it was left in, and the one request that carries the position is not made again.
+    const kept = restored.current?.position === position ? restored.current : undefined;
+    const times: AskWalks = kept ? async () => kept.walks : walksFrom(position, controller.signal);
+    // The pharmacies are known here, a moment before their walking times. Where one of them is in
+    // another country than the prescription's, the guidance is asked for now and not when the
+    // results appear: the banner then comes with the card and not after it (lib/guidance.ts).
+    // At home nothing is asked for.
+    const home = deviceHome(locale);
+    const walks: AskWalks = (candidates) => {
+      if (candidates.some((found) => found.pharmacy.country && found.pharmacy.country !== home)) loadGuidance();
+      return times(candidates);
+    };
+    // Ranked when the position was fixed: a device that has moved since is followed at its first fix.
+    tiles.current = { position, store, controller, rankedAt: kept ? kept.fixedAt : Date.now() };
+    void findPharmacies(store, position, nowSeconds(), walks).then((outcome) => {
       if (controller.signal.aborted) return;
       if (outcome.kind === 'results') setArea(store.all());
       if (outcome.kind === 'results') dispatch({ type: 'found', position, result: outcome.result });
@@ -179,7 +200,7 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
       else if (outcome.kind === 'notCovered') dispatch({ type: 'notCovered', position, country: outcome.country });
       else dispatch({ type: 'searchFailed', position, offline: navigator.onLine === false });
     });
-  }, [state]);
+  }, [state, locale]);
 
   useEffect(() => () => tiles.current?.controller.abort(), []);
 
@@ -255,10 +276,27 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
       });
   }, []);
 
-  // On arrival: without the API or HTTPS, straight to place search. With permission already
-  // given, or on a later visit after a "show pharmacies near me" that worked, straight to
-  // locating and the map. Otherwise, on a first visit, wait for the button.
+  // The tab keeps its last search, so that results left for a map app or another page of ours are
+  // there again when the tab is loaded anew (lib/session.ts). Kept while they are on screen.
   useEffect(() => {
+    if (state.view !== 'results') return;
+    const at = fixedAt.current.get(state.position) ?? Date.now();
+    fixedAt.current.set(state.position, at);
+    saveLastSearch({ position: state.position, at: state.at, fixedAt: at, walks: state.result.walks });
+  }, [state]);
+
+  // On arrival: the search this tab showed last, if it is recent. Otherwise: without the API or
+  // HTTPS, straight to place search. With permission already given, or on a later visit after a
+  // "show pharmacies near me" that worked, straight to locating and the map. Otherwise, on a
+  // first visit, wait for the button.
+  useEffect(() => {
+    if (restored.current === undefined) restored.current = readLastSearch(Date.now()) ?? null;
+    const last = restored.current;
+    if (last) {
+      fixedAt.current.set(last.position, last.fixedAt);
+      dispatch({ type: 'restore', position: last.position, at: last.at });
+      return;
+    }
     if (!canLocate()) {
       dispatch({ type: 'unsupported' });
       return;
@@ -281,6 +319,8 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
   useEffect(() => {
     const from = previous.current;
     previous.current = stage;
+    // The user has left the results, for the first window, the search box or a new position: the tab forgets them.
+    if (from === 'searching' && stage !== 'searching') forgetLastSearch();
     if (popped.current) {
       popped.current = false;
       return;

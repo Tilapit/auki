@@ -5,7 +5,7 @@ import type { Dictionary } from './index';
 const en: Dictionary = {
   meta: {
     title: `${BRAND}: the nearest open pharmacy`,
-    description: 'Find the nearest open pharmacy on a map and in a list. Your location is not saved.',
+    description: 'Find the nearest open pharmacy on a map and in a list. Your location is not saved on a server.',
   },
   app: {
     name: BRAND,
@@ -24,7 +24,7 @@ const en: Dictionary = {
   footer: {
     project: 'A job application project by Janne Lappi.',
     notTreat: 'Not affiliated with Treat Health.',
-    privacy: 'Your location is not saved.',
+    privacy: 'Your location is not saved on a server.',
     emergency: 'In an emergency, call {number}.',
     walking: 'Distances are walking routes.',
     straight: 'Distances are straight lines.',
@@ -32,6 +32,7 @@ const en: Dictionary = {
     osm: '© OpenStreetMap contributors',
     fetched: 'Data: OpenStreetMap, fetched {date}. {about}',
     aboutData: 'About the data',
+    prescription: 'A prescription from another country?',
   },
   first: {
     headline: 'Find the nearest open pharmacy',
@@ -208,14 +209,28 @@ const en: Dictionary = {
     backToList: 'Back to the list',
   },
   banner: {
-    title: 'Prescription from Finland?',
-    source: 'Source: {source}, checked {date}.',
+    title: 'Prescription from home?',
+    home: 'Country of the prescription',
+    choose: 'Choose a country',
+    other: 'Another country',
+    ask: 'Choose the country your prescription was written in to see whether it works here.',
+    electronic: 'Electronic prescription',
+    paper: 'Paper prescription',
+    field: 'With a prescription from Finland.',
+    pharmacist: 'If the first answer is no, ask for the pharmacist.',
+    more: 'Details and sources',
+    required: 'A paper prescription has to show at least:',
+    sources: 'Sources',
+    pageDated: 'Page updated {updated}, read {checked}.',
+    pageRead: 'Read {checked}.',
+    read: 'Official sources read {date}.',
   },
   counter: {
     title: 'Show this at the pharmacy',
     format: 'Prescription format',
     ePrescription: 'E-prescription',
     paper: 'Paper prescription',
+    doctorSends: 'Doctor sends it',
     ifNotFound: "If the assistant can't find the prescription",
     ifRefused: "If the assistant won't accept the prescription",
     unreviewed: 'Unreviewed translation',

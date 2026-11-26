@@ -2,6 +2,9 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { RouteFor } from '@/hooks/useRouteLine';
+import { COUNTRY_CODES } from '@/lib/countries';
+import { useGuidance } from '@/lib/guidance';
+import { useHome } from '@/lib/home';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
@@ -9,11 +12,9 @@ import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } fro
 import { providerFor, providerForReview } from '@/lib/stock/providers';
 import { travel, withinWalk } from '@/lib/travel';
 import type { AreaLayer, Bounds } from '@/lib/map/area';
-import type { Pharmacy, Scene } from '@/lib/types';
+import type { CardVariant, Pharmacy, Scene } from '@/lib/types';
 import { ApproximateNotice } from './ApproximateNotice';
 import { Button } from './Button';
-import { CounterCard } from './CounterCard';
-import { CountryBanner } from './CountryBanner';
 import { CrossGlyph } from './CrossGlyph';
 import { cx } from './cx';
 import { LiveStatus } from './LiveStatus';
@@ -40,7 +41,9 @@ export interface ResultsOptions {
   /** Start with a pharmacy's details open. */
   detailId?: string;
   /** Start with the counter card open. */
-  counter?: 'ePrescription' | 'paper';
+  counter?: CardVariant;
+  /** /dev/states only, which asks the browser for nothing: the card as it is with the screen kept awake, or without. */
+  counterAwake?: boolean;
   closedOpen?: boolean;
   onRefresh?: () => void;
   /** Opens the place search: from the place name, and from the approximate-location notice. */
@@ -65,6 +68,8 @@ export interface ResultsOptions {
   onArea?: (bounds: Bounds) => void;
   /** Where the walking route to a pharmacy comes from. Without it no route is drawn: /dev/states calls no service. */
   routeFor?: RouteFor;
+  /** Told which pharmacy's details are open, and when none is: the tab keeps it (lib/session.ts). */
+  onDetail?: (id: string | undefined) => void;
   /**
    * Medicine availability (provisional, DESIGN-LOG.md 25 Nov 2026). false leaves it out, for the
    * comparison in /dev/states. A country code starts with that country's dialog open.
@@ -75,6 +80,13 @@ export interface ResultsOptions {
   medicineExample?: ReactNode;
   /** /dev/states only: the dialog may also be that of a provider that waits for its operator's agreement. */
   medicineReview?: boolean;
+  /**
+   * /dev/states only: the country the prescription is from. null: the device suggests none, and
+   * the banner asks. Left out, the scene's own; the live app takes it from the device (lib/home.ts).
+   */
+  home?: string | null;
+  /** /dev/states only: the banner's details open from the start. */
+  bannerOpen?: boolean;
   /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
   mapPixels?: number;
   /** /dev/map only: the map under a finger as MapLibre has it, to compare with ours on a phone. */
@@ -98,6 +110,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const nothingOpen = !unlisted && !nearestOpen && !!firstToOpen;
   const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (options.detailId || (nothingOpen && !classic) ? 'half' : 'peek'));
   const [detailId, setDetailId] = useState(options.detailId);
+  const { onDetail } = options;
+  useEffect(() => onDetail?.(detailId), [onDetail, detailId]);
   /** Where the phone's sheet was before a pharmacy's details took it over: closed, it goes back there. */
   const sheetBefore = useRef<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
   /** How much of the details the phone's sheet shows at its middle height: down to the first route button. */
@@ -153,8 +167,24 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     return detailId || (isOpenNow(target.status) && !target.tooLate) ? target : undefined;
   }, [scene, selectedId, detailId]);
   const fullNameOf = (pharmacy: Pharmacy) => fullName(i18n, pharmacy, pharmacy.name === null);
-  // One surface: abroad, the prescription banner is a section of the card.
-  const banner = scene.country && <CountryBanner country={scene.country} />;
+  // A prescription from another country than the pharmacy's: what works here, and the card to
+  // show at the counter (PLAN.md section 8). The home country is the device's own suggestion
+  // until the user changes it in the banner; a fixture names its own.
+  const [home, setHome] = useHome(i18n.locale, options.home !== undefined ? options.home : scene.home);
+  // The country of the pharmacy, where it is one the app covers (data/countries/here.ts has the same list).
+  const here = scene.here !== undefined && (COUNTRY_CODES as readonly string[]).includes(scene.here) ? scene.here : undefined;
+  // One surface: the banner is a section of the card. Not at home, where there is nothing to say,
+  // unless it is asked for from the footer: the phone's suggestion can be wrong at home too.
+  const atHome = !!here && home === here;
+  const [asked, setAsked] = useState(false);
+  const abroad = !!here && (!atHome || asked);
+  // The guidance itself (the sentences, the sources, the card's lines) is not part of the first
+  // load: it is fetched when the two countries differ, and at home never (lib/guidance.ts).
+  // Until it has arrived the card is as it is at home.
+  const guidance = useGuidance(abroad);
+  const guide = useMemo(() => guidance?.guideFor(home, here), [guidance, home, here]);
+  const country = guide && { code: guide.here, inLanguage: guide.inLanguage };
+  const banner = guidance && abroad && <guidance.CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={asked} />;
   // Where to check a medicine's stock: the service of the country the card's pharmacy is in
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
@@ -470,7 +500,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 knownOpen={nearestOpen}
                 knownOpenWithStreet={nearestOpen && needsStreet.has(nearestOpen.id)}
                 hoursListed={scene.hoursListed}
-                country={scene.country}
+                country={country}
                 onRoute={select}
                 onSelect={select}
                 onShowCard={() => setCounterOpen(true)}
@@ -492,7 +522,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 closerClosed={closedGroup.length > 0 ? closerClosed : 0}
                 closedOpens={scene.closedOpens}
                 closerUnknown={closerUnknown}
-                country={scene.country}
+                country={country}
                 onRoute={select}
                 onSelect={select}
                 onShowCard={() => setCounterOpen(true)}
@@ -517,6 +547,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       onRefresh={options.onRefresh}
       onPlace={options.onSearch ?? NO_ACTION}
       dataFrom={scene.dataFrom}
+      onPrescription={atHome && !asked ? () => setAsked(true) : undefined}
       focusTitle={options.focusTitle}
       distance={scene.distance}
       mapLabel={t.map.label}
@@ -566,7 +597,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               headingId={`${id}-detail`}
               nextOpen={detailNext}
               nextOpenWithStreet={detailNext && needsStreet.has(detailNext.id)}
-              country={scene.country}
+              country={country}
               onShowCard={() => setCounterOpen(true)}
               onMedicine={offered && providerFor(detail.country) ? () => setMedicineFor(detail.country) : undefined}
               medicineSite={siteOf(detail.country)}
@@ -578,7 +609,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       }
       overlays={
         <>
-          {scene.card && <CounterCard card={scene.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} />}
+          {guidance && guide && <guidance.CounterCard card={guide.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} fixedAwake={options.counterAwake} />}
           {offered && (
             <MedicineDialog provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
               {options.medicineExample}

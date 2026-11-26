@@ -103,6 +103,8 @@ interface Props {
   onPlace?: () => void;
   /** When the data shown was fetched from OpenStreetMap, epoch seconds: the footer says so. */
   dataFrom?: number;
+  /** The footer's way to the prescription banner, where the banner is not shown by itself. */
+  onPrescription?: () => void;
   /** After a search the user started, focus moves to the title (PLAN.md section 9). */
   focusTitle?: boolean;
 }
@@ -112,7 +114,7 @@ interface Props {
  * Desktop: list panel on the left, map on the right. The list comes before the map in
  * the document, so it is first in the tab order (PLAN.md section 9).
  */
-export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, sheetStyle, status, peek, lead, listLabel, children, distance, map, mapLabel, detail, detailOpen, detailFold, overlays, emergencyInFooter = true, onRefresh, onPlace, dataFrom, focusTitle }: Props) {
+export function ResultsShell({ place, updated, barLine, title, sheet, onSheetChange, sheetStyle, status, peek, lead, listLabel, children, distance, map, mapLabel, detail, detailOpen, detailFold, overlays, emergencyInFooter = true, onRefresh, onPlace, dataFrom, onPrescription, focusTitle }: Props) {
   const { t, f } = useI18n();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const peekRef = useRef<HTMLDivElement>(null);
@@ -519,7 +521,7 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
             </div>
           </main>
           <div className={styles.footer}>
-            <SiteFooter variant="panel" distance={distance} emergency={emergencyInFooter} dataFrom={dataFrom} />
+            <SiteFooter variant="panel" distance={distance} emergency={emergencyInFooter} dataFrom={dataFrom} onPrescription={onPrescription} />
           </div>
         </div>
       </div>

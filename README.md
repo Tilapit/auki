@@ -27,6 +27,8 @@ In CI the same things are measured on every push, against a build and with fixtu
 - **Ehditkö.** When the nearest open pharmacy closes within the hour, the card shows when you would be there, when it closes and the minutes to spare. When you would not make it, it says so and puts the next open one forward.
 - **Nothing open nearby:** the app looks up to 30 km for one that is, and otherwise shows the first to open, with 112 kept in view.
 - **A pharmacy's details:** the week's opening hours, a route handed off to Google Maps or Apple Maps, the phone number, the website and email when OpenStreetMap has them, and a link to correct the data there.
+- **A prescription from another country.** For anyone, in any covered country, Finland among them: where the country of the prescription is not the country of the pharmacy, the card says whether the electronic prescription and the paper one work there. Each answer is what an official page said on the day it was read (each country's own list of the cross-border e-prescription; the EU's rule on prescriptions from another member state), with the page named and dated, and where no page speaks it says that nothing was found. The home country is the browser's own suggestion, changed in one control; nobody is asked. What a research trip met at each country's counters is shown with its sample size, month and city, labelled as made with prescriptions from Finland. The research is in [`docs/research/prescriptions-across-borders.md`](docs/research/prescriptions-across-borders.md).
+- **A card to show at the counter**, in the pharmacy's language with English under it, in nineteen languages. Seventeen are drafts that no native speaker has read, and the card says so on its face.
 - **Medicine availability, as a hand-off.** Where a country has a stock search of its own that may be linked to (Finland, Germany, Austria, Norway), the card and every pharmacy's details open it, with the medicine's name in the link where the service's address takes one. The app says where to check, never that a pharmacy has a medicine, and the name never reaches the app's server. The research is in [`docs/research/medicine-availability.md`](docs/research/medicine-availability.md).
 - **A data page** with the pipeline's numbers per country, and when each was last fetched.
 - **Finnish and English**, light and dark, phone and desktop.
@@ -81,7 +83,7 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 
 ## Privacy
 
-- No accounts, no cookies, no analytics, and nothing about the position is stored. The device keeps one mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it.
+- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps three things. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. The country of the prescription, once it has been picked in the "Resepti kotimaasta?" banner: two letters, read on the device and never sent. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
 - The position: one request, to the app's own server, as above. Checked by a test on every push.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.
@@ -106,7 +108,6 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 **Not built yet (milestone M6).** These are in the plan and not in the app:
 
-- Abroad: the "Resepti Suomesta?" banner with the field result for the country, and the counter card in the local language. Both exist as views on example data in `/dev/states`; the live app does not show them.
 - The duty-pharmacy lookup for countries where night duty rotates.
 - The hand-off link another app could open with the country and the prescription's format preset (`PLAN.md` section 7.8). Nothing reads such a link today.
 - Offline use for the area searched last.
@@ -138,8 +139,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 This file describes what is in `main`. Open on 26 Nov 2026, and not described above:
 
-- [#21](https://github.com/Tilapit/auki/pull/21): a tab that is loaded again shows the results it had, from its own session storage. It keeps the position on the device, so it waits for the wording of the footer's sentence about the position.
-- [#23](https://github.com/Tilapit/auki/pull/23): "Prescription from home?" for anyone in any covered country: what works for a prescription from one country at a pharmacy in another, from official sources, and the counter card in the pharmacy's language, in the live app. It replaces #17 and waits for a review of its claims.
+- [#25](https://github.com/Tilapit/auki/pull/25): visitors' reports. A row in a pharmacy's details offers to tell how a visit went, on one screen of chips with no text; anonymous, kept behind the app's own server, and shown for a pharmacy only once it has three. It waits for a review.
 
 ## Run it
 

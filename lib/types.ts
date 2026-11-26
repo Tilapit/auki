@@ -65,22 +65,22 @@ export interface MapViewSpec {
   zoom: number;
 }
 
+/** The country a pharmacy is in, as the buttons that open the counter card name its language. */
 export interface CountryInfo {
   code: string;
-  /** "Latviassa" / "in Latvia" */
-  inCountry: Record<Locale, string>;
   /** "latviaksi" / "in Latvian" */
   inLanguage: Record<Locale, string>;
-  status: Record<Locale, string>;
-  tip: Record<Locale, string>;
-  source: { label: string; url: string; checked: string };
 }
+
+/** What the card is shown for: a Finnish e-prescription, a paper original, or a prescription the doctor sends to the pharmacy. */
+export type CardVariant = 'ePrescription' | 'paper' | 'doctorSends';
 
 export interface CardPhrases {
   /** BCP 47 tag of the local language. */
   lang: string;
   reviewed: boolean;
-  variants: Record<'ePrescription' | 'paper', { local: string[]; english: string }>;
+  /** Only the variants that make sense in the country: no e-prescription lines where it can't be bought with one. */
+  variants: Partial<Record<CardVariant, { local: string[]; english: string }>>;
   pharmacist: { local: string; english: string };
 }
 
@@ -108,7 +108,12 @@ export interface Scene {
   missing?: string[];
   /** The country of the nearest pharmacy, and the share of its pharmacies that have opening hours in OpenStreetMap (index.json). */
   hoursListed?: { country: string; share: number };
-  country?: CountryInfo;
-  card?: CardPhrases;
+  /**
+   * ISO code of the country the card's pharmacy is in. With the home country, which only the
+   * device knows, it decides what the prescription banner and the counter card say (PLAN.md section 8).
+   */
+  here?: string;
+  /** Fixtures only: the home country the view is shown for. The live app takes it from the device (lib/home.ts). */
+  home?: string | null;
   views: { phone: MapViewSpec; desktop: MapViewSpec };
 }

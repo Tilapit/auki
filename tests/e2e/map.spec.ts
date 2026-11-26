@@ -234,6 +234,16 @@ test('from afar the markers do not pile up: one stays in full, clear of the dot,
   await expect(signs).toHaveCount(0);
   expect(await overlapping()).toBe(false);
 
+  // The map itself arrives after the results, on the page's clock. The zoom buttons are pressed
+  // once it is there (or has failed to come): pressed before, on a slow runner, the map that then
+  // arrives starts from the results' own framing again.
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(100);
+      return page.locator('[data-map]').getAttribute('data-basemap');
+    })
+    .not.toBe('plain');
+
   // Three levels out the neighbourhood is a thumb wide.
   for (let presses = 0; presses < 3; presses++) await step(zoomOut);
   await expect.poll(async () => signs.count()).toBeGreaterThan(2);
