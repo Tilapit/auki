@@ -4,8 +4,11 @@ name: Data
 # countries, as static tiles on a host of their own. The app is not rebuilt for data.
 #
 # - Every night, and by hand: the whole coverage, then publish.
-# - Later the same night, a second attempt for the countries the first one could not
-#   refresh. With none of them it fetches nothing and publishes nothing.
+# - At the end of the same run, a second pass for the countries that failed (Janne's decision
+#   of 26 Nov 2026): ten minutes later, only those countries, and the site is published once,
+#   with whatever the two passes got.
+# - Later the same night, another attempt for the countries that still have older data.
+#   With none of them it fetches nothing and publishes nothing.
 # - On a push that touches the pipeline: Malta alone, nothing published. It shows in the
 #   pull request that the pipeline still runs here and that Overpass answers this runner.
 #
@@ -57,7 +60,9 @@ jobs:
   data:
     name: Pipeline
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # Two passes, each of which may wait ten minutes for a country that does not answer and
+    # gives up after three in a row; the pause between them; the publish.
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
 
@@ -80,8 +85,23 @@ jobs:
           RETRY: ${{ (github.event.schedule == env.RETRY_SCHEDULE || inputs.retry == true) && '--retry' || '' }}
         run: npm run data -- $RETRY $COUNTRIES
 
+      # The public Overpass servers are busy by the hour: on 24 and 25 Nov 2026 countries that
+      # failed got through when asked again later. The pipeline reads the last run from its own
+      # output, so --retry here asks only for what the first pass left with older data, or without any.
+      - name: Second pass, for the countries that failed
+        id: second
+        if: steps.pipeline.outcome == 'failure' && github.event_name != 'push'
+        continue-on-error: true
+        env:
+          CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL }}
+          COUNTRIES: ${{ inputs.countries }}
+        run: |
+          # Not at once: a server that has just said no says it again.
+          sleep 600
+          npm run data -- --retry $COUNTRIES
+
       - name: Publish the tiles
-        if: steps.pipeline.outputs.written == 'true' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish))
+        if: (steps.pipeline.outputs.written == 'true' || steps.second.outputs.written == 'true') && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish))
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -94,10 +114,11 @@ jobs:
           # Thousands of small files: sent as one archive, which also stays clear of the upload rate limit.
           npx --yes vercel@66 deploy .data/site --prod --yes --archive=tgz --token "$VERCEL_TOKEN"
 
+      # What counts is how the run ended: the second pass's word where there was one.
       - name: Fail when a country was not refreshed
-        if: steps.pipeline.outcome == 'failure'
+        if: steps.second.outcome == 'failure' || (steps.pipeline.outcome == 'failure' && steps.second.outcome != 'success')
         env:
-          NOT_FRESH: ${{ steps.pipeline.outputs.not_fresh }}
+          NOT_FRESH: ${{ steps.second.outcome == 'failure' && steps.second.outputs.not_fresh || steps.pipeline.outputs.not_fresh }}
         run: |
           # The countries are named here so that the list of runs answers "which ones, how often".
           echo "::error::Not refreshed: ${NOT_FRESH:-nothing could be written}. See the table in the summary."
