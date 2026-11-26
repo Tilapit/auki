@@ -7,17 +7,18 @@ Read this file as the record of what the pages said on that day. It has had a se
 ## What the app takes from it
 
 1. **Paper prescriptions.** A prescription written in one EU or EEA country can be dispensed in the others, under the dispensing country's own rules: Directive 2011/24/EU, Article 11, taken into the EEA Agreement by Joint Committee Decision No 153/2014, and in plain words on Your Europe (last checked there 26.8.2026), which also lists what the prescription has to show. Switzerland is outside the rule in both directions (Your Europe's FAQ).
-2. **Electronic prescriptions.** There is no European list. The Commission's page on the service names no country, and Your Europe gives one example (Finland to Croatia, Estonia and Portugal) that is older than Finland's own list. So the pairs come from each country's own page: Finland (Kanta), Estonia, Poland, Spain, Portugal, Croatia, Czechia, Latvia, Lithuania and Greece. Among the nine with a current page no pair is told two ways.
-3. **Croatia's list is from October 2022.** It is not read for what it leaves out: where another country's current page names Croatia, the pair is shown as working on that page's word.
+2. **Electronic prescriptions.** There is no European list. The Commission's page on the service names no country, and Your Europe gives one example (Finland to Croatia, Estonia and Portugal) that is older than Finland's own list. So the pairs come from each country's own page: Finland (Kanta), Estonia, Poland, Spain, Portugal, Croatia, Czechia, Latvia, Lithuania and Greece. Among the nine with a current page no pair is told two ways. Since the evening reading Austria has a page for one direction, and one pair with it is told two ways (Austria to Latvia): the app says so.
+3. **Croatia's page with both lists shows 4.10.2024 as its date** (the contact point's page, found in the evening reading; until then the only list was a notice of October 2022). What it names is shown as working. It is still not read for what it leaves out: its date is two years old, and it has a service that began after that date.
 4. **Countries that take no e-prescription from abroad**, by their own authorities: Sweden, Denmark, Norway, Germany. Switzerland's guidance for pharmacies recognises only the Swiss e-prescription.
 5. **Finland as the country one is in**: Kanta's eight countries for electronic prescriptions, at any pharmacy; paper prescriptions from the EU, the EEA and Switzerland; none from anywhere else (EU-healthcare.fi).
 6. **Nothing found**, and shown as that: the electronic prescription wherever neither country publishes a list (Italy, Hungary, Malta, Slovenia, Slovakia and Austria as the country one is in, for most home countries); paper prescriptions from outside the EU, the EEA and Switzerland everywhere but Finland.
 
 ## What is weaker than it looks
 
-- **Spain's list does not split the two directions.** The ministry says every region works "as issuer and receiver" and lists eleven countries; the app takes each as both ways. An unread page of the same site (its map) may split them.
+- **Spain's list does not split the two directions.** The ministry says every region works "as issuer and receiver" and lists eleven countries; the app takes each as both ways. The site's map page was read in the evening and does not split them either: one colour for the countries that "can exchange" e-prescriptions, the same eleven, dated 7 October 2026.
 - **Greece's table is icons without a legend.** "In Greece" was read as inbound and "abroad" as outbound; Portugal's page agrees with that reading.
-- **Austria and Cyprus** appear in other countries' lists; their own pages were not read. A pair with Austria as the country one is in rests on the home country's page alone.
+- **Austria and Cyprus** appear in other countries' lists. Their own pages were read in the evening. Austria's names where its own e-prescriptions are dispensed (Czechia and Spain, August 2026) and no country whose e-prescriptions it takes; Cyprus's name no country at all. So a pair with Austria as the country one is in still rests on the home country's page alone.
+- **Austria to Latvia is told two ways**: Latvia's page takes Austria's e-prescriptions, Austria's own list of destinations does not have Latvia. The app says the pages disagree.
 - **Switzerland** rests on a position paper for pharmacies, read from the pharmacists' association's site. It is not a federal statement; no page of the Federal Office of Public Health or Swissmedic was found.
 - **Germany**: the e-prescription statement is gematik's FAQ for pharmacies; the paper statement is from the national contact point's page for people insured in Germany. Neither is the health ministry.
 - **The United Kingdom**: no general official statement was found. GOV.UK's guide for Spain (last updated 2.9.2021) says a UK prescription can be used there; the app does not use it, because it is one country and five years old.
@@ -44,6 +45,154 @@ The same afternoon two more readers, who had not seen the first reading's notes,
 - **Left as it is, and worth knowing:** Your Europe's sentence on Switzerland speaks of "EU countries". The app applies it to Iceland, Liechtenstein and Norway too, which are not obliged either by anything that was read, and to the United Kingdom's and other countries' prescriptions in Switzerland.
 - Every date in `sources.ts` matched its page.
 
+## The evening reading, 26 Nov 2026: the pages nobody had read
+
+The pages listed under "Not done" after the second reading, taken in that list's order by one more reader the same evening. Each page was fetched as text and quoted from that text; nothing here is from memory. Where a page changed the data, the pair and the count are given. Counts are of the 672 pairs by the electronic answer (`tests/unit/countries.test.ts`).
+
+### E1. Croatia: the later notices, and a page with both lists
+
+Three pages of HZZO (Hrvatski zavod za zdravstveno osiguranje), all read 26 Nov 2026 (evening).
+
+**The notice of 27.06.2023**, https://hzzo.hr/novosti/prekogranicne-usluge-e-recepta-obavijest-o-novim-uslugama-hr-ep-pl-ep-b-i-cz-ep-hr-ep-b (the page's own date: 27.06.2023):
+
+> Od 26 lipnja 2023. godine Elektronički sustav razmjene zdravstvenih podataka (eHealth Digital Service Infrastructure) proširuje se za dvije prekogranične usluge: podizanje lijeka u Poljskoj temeljem recepta koji je propisan u Hrvatskoj i podizanje lijeka u Hrvatskoj temeljem recepta koji je propisan u Češkoj.
+
+> Podsjećamo do sada je bilo moguće u Hrvatskoj podići lijek temeljem e-recepta koji je propisan u Finskoj, Estoniji, Portugalu, Poljskoj i Španjolskoj, a prekogranične usluge e-recepta podržane su za građane Republike Hrvatske koji putuju u Finsku, Estoniju, Portugal ili Španjolsku temeljem neponovljivog e-recepta koji je propisan u Hrvatskoj.
+
+(From 26 June 2023 two services are added: collecting a medicine in Poland on a prescription written in Croatia, and in Croatia on a prescription written in Czechia. Until then: in Croatia on e-prescriptions from Finland, Estonia, Portugal, Poland and Spain; Croatian non-repeat e-prescriptions in Finland, Estonia, Portugal and Spain.)
+
+**The notice of 30.06.2025**, https://hzzo.hr/novosti/obavijest-o-prekogranicnoj-usluzi-e-recepta-sa-ciprom (the page's own date: 30.06.2025), found through the site's own search:
+
+> Od 30. lipnja 2025. godine Elektronički sustav razmjene zdravstvenih podataka (eHealth Digital Service Infrastructure) proširuje se za prekograničnu uslugu e-recepta za građane Republike Hrvatske koji u Cipru žele podići lijek temeljem recepta koji je propisan u Hrvatskoj.
+
+> Podsjećamo do sada su građani Republike Hrvatske koji putuju u Finsku, Estoniju, Portugal, Španjolsku i Poljsku temeljem neponovljivog e-recepta koji je propisan u Hrvatskoj mogli podizati svoje lijekove u tim zemljama putovanja. Sada će to moći i u Cipru pod uvjetom da putem Portala zdravlja dozvole dohvat propisanih recepta ljekarnicima iz drugih država EU.
+
+(From 30 June 2025 Croatian prescriptions can be collected in Cyprus too, provided that the person allows, through Portal zdravlja, pharmacists of other EU countries to retrieve their prescriptions. The service is for non-repeat e-prescriptions.)
+
+**The National Contact Point's page**, https://hzzo.hr/nacionalna-kontaktna-tocka-ncp, section "Nacionalna kontaktna točka za eZdravlje". The section ends with "Datum ažuriranja: 4.10.2024."; the response's own Last-Modified header is the moment of the request and says nothing. Found through the same search:
+
+> U ovom trenutku u Hrvatskoj je moguće podići lijek temeljem e-recepta koji je propisan u Finskoj, Estoniji, Portugalu, Poljskoj, Češkoj, Španjolskoj, Cipru, Latviji i Litvi.
+
+> Građani Republike Hrvatske koji putuju u Finsku, Estoniju, Portugal, Španjolsku, Cipar, Poljsku, Latviju ili Litvu temeljem neponovljivog e-recepta koji je propisan u Hrvatskoj mogu podići svoje lijekove u tim zemljama putovanja.
+
+(At this moment a medicine can be collected in Croatia on an e-prescription written in Finland, Estonia, Portugal, Poland, Czechia, Spain, Cyprus, Latvia and Lithuania. Croatian citizens travelling to Finland, Estonia, Portugal, Spain, Cyprus, Poland, Latvia or Lithuania can collect their medicines there on a non-repeat e-prescription written in Croatia.)
+
+What this is, and what was done with it:
+
+- It is the list the first reading did not find: both directions, on one page. Inbound: FI, EE, PT, PL, CZ, ES, CY, LV, LT (9). Outbound: FI, EE, PT, ES, CY, PL, LV, LT (8). `EXCHANGE.HR` has these now, and its source `hzzo` is this page (date 2024-10-04).
+- **The page's date does not fit its text.** It shows 4.10.2024, and it names Cyprus as a destination, which HZZO's own notice says began on 30.6.2025. So the text was changed after the date it shows, and by how much is not known. It also goes further than the 2025 notice (Latvia and Lithuania as destinations), which fits those countries' own pages.
+- So `dated: true` stays: the page is read for what it names, not for what it leaves out. Whether to read it as current is a decision for a person; if it were, the pairs with Croatia on one side that now say "nothing found" would say "not on the list" (26 of them at this point, 25 after E3).
+- It agrees with every other country's page where both speak. Czechia's page says Czech prescriptions are dispensed in Croatia and Croatian ones are not in Czechia; Croatia's page has Czechia inbound and not outbound. The six pairs the first reading listed as disagreements with Croatia (HR to PL, LV, LT; CZ, LV, LT to HR) are all on Croatia's page now.
+- What Croatia asks of its own people (consent in Portal zdravlja, non-repeat prescriptions) is now sourced to the notice of 30.6.2025, which says both in so many words (`hzzoNotice`). The notice of 20.10.2022 is no longer a source in the app; its quotes stay in section 3.5 below.
+- **Pairs that changed: one.** Cyprus to Croatia: from "nothing found" to "yes", on Croatia's page alone (Cyprus's own page: see E3). Croatia to Cyprus changes the same way, and is not among the 672 pairs because the app does not cover Cyprus as a country one is in. Three pairs gained a second source (Croatia to Poland, Latvia, Lithuania).
+- Counts: works 95 → 96, nothing found 147 → 146; the rest as they were (not on the list 238, not here 160, not abroad 32).
+- Not read: the two PDFs linked there on how patient data is handled; zdravlje.gov.hr; Portal zdravlja.
+
+### E2. Spain: the map page
+
+https://www.sanidad.gob.es/areas/saludDigital/recetaElectronicaUE/mapaRecetaUE.htm, read 26 Nov 2026 (evening). The page's text is its heading, "Países europeos que pueden intercambiar prescripciones electrónicas", and one image, https://www.sanidad.gob.es/areas/saludDigital/img/Mapa_receta_europa.png (alt text "Mapa receta interoperabilidad europa"; the file's Last-Modified is 15 Oct 2026). The image was opened and read by eye. Its words:
+
+> Fecha de actualización: 07 octubre de 2026
+
+> Estados Miembros de la UE y CCAA que pueden intercambiar prescripciones electrónicas [blue]
+
+> Estados Miembros próximos a interoperar con España [yellow]
+
+- Blue, as labelled on the map: Finlandia, Estonia, Letonia, Lituania, Polonia, Rep. Checa, Austria, Croacia, Grecia, Portugal, Chipre, and Spain's own regions. Eleven countries: the same eleven as the ministry's list (AT, CZ, CY, HR, EE, FI, GR, LV, LT, PL, PT).
+- Yellow ("next to interoperate with Spain"): Alemania, Francia, Hungría, Eslovenia.
+- **The map does not split the two directions.** It has one colour for "can exchange". So Spain's two lists in the app stay what they were, each country taken both ways on the ministry's sentence that every region works as issuer and as receiver, and the weakness stands.
+- No change to the data. The app shows nothing about the yellow countries: "next" is not a pair that works.
+- Read from an image: a colour on a small map is easier to misread than a list. Cyprus and Slovenia are a few pixels each; both are also labelled by name.
+
+### E3. Austria: its own pages
+
+Four pages of gesundheit.gv.at, Austria's public health portal ("Erstellt durch: Gesundheit Österreich GmbH, Abteilung Digitalisierung und Dateninfrastrukturen"), all read 26 Nov 2026 (evening).
+
+**The country overview**, https://www.gesundheit.gv.at/service/my-health-eu/laenderuebersicht.html ("Stand: August 2026", "Letzte Aktualisierung: 19. August 2026"):
+
+> In welchen Ländern kann ich mithilfe des EU-Rezept-Service ein in Österreich ausgestelltes e-Rezept einlösen?
+
+> Als in Österreich lebende Person können Sie das EU-Rezept-Service nutzen, um mittels e-Rezept verordnete Medikamente in einer Apotheke eines teilnehmenden Landes zu erhalten. Die nachstehende Information zeigt, wo das bereits möglich ist:
+
+> Tschechische Republik: Teilnehmende Apotheken in der Tschechischen Republik finden Sie hier: CZ-List-of-connected-pharmacies-XBorder-ePrescription
+
+> Spanien: Eine Übersicht der spanischen Regionen, die am EU-Rezept teilnehmen, finden Sie unter www.sanidad.gob.es. Spanien bietet das EU-Rezept-Service in allen Apotheken an, die sich in den auf der Karte blau dargestellten Regionen befinden.
+
+(Where an e-prescription written in Austria can be redeemed: Czechia, at participating pharmacies, and Spain, at every pharmacy of the regions shown in blue on Spain's map.) The page's one image is a decoration and names no country.
+
+**Step by step**, https://www.gesundheit.gv.at/service/my-health-eu/eu-rezept-nutzen.html ("Letzte Aktualisierung: 24. Februar 2026"):
+
+> Um das EU-Rezept nutzen zu können, müssen Sie Ihr einmaliges Einverständnis zur Teilnahme (Opt-In) geben […] In Mein Gesundheitsportal über www.gesundheit.gv.at, nach Login mit ID-Austria [oder] Schriftlich über die eHealth-Servicestelle
+
+> Mit österreichischem Reisepass oder Personalausweis […] Alternativ: Mit One-Time-Token (Code). Wenn Sie eine ID Austria haben, können Sie online einen 8-stelligen Code erzeugen.
+
+> Sie haben ein für das EU-Rezept qualifiziertes, gültiges e-Rezept (keine Freitextverordnung, keine magistrale Zubereitung, kein Suchtmittel).
+
+> EU-Rezepte werden im Ausland als Privatrezepte behandelt. Das bedeutet: Sie müssen die Kosten für die Medikamente zunächst selbst bezahlen.
+
+**What the EU prescription is**, https://www.gesundheit.gv.at/service/my-health-eu/eu-rezept.html ("Letzte Aktualisierung: 15. April 2026"): for people living in Austria; "Welche Länder nehmen teil?" points to the overview above. No country is named on the page.
+
+**For patients travelling to Austria**, https://www.gesundheit.gv.at/service/my-health-eu/information-for-patients-travelling-to-austria.html ("Letzte Aktualisierung: 29. Oktober 2026"):
+
+> The documents below contain information for patients travelling to Austria provided by the country of travel (Austria) in different EU languages.
+
+> List of pharmacies in Austria offering the MyHealth@EU ePrescription service
+
+followed by 44 pharmacies with their addresses. **It names no country whose e-prescriptions those pharmacies take.** The two Word documents linked there (the patient information notice) were not read.
+
+What was done with it:
+
+- Austria's list of where its own e-prescriptions are dispensed is in the data as `OUTBOUND_ONLY.AT`: Czechia and Spain, source `gesundheitAt` (2026-08-19). What it asks of its own people is a note from the step-by-step page (`gesundheitAtSteps`, 2026-02-24).
+- **Nothing is said from Austria's pages about a prescription brought to Austria**, because they name no country. A pair with Austria as the country one is in still rests on the home country's page alone (Czechia, Latvia and Spain say yes), and where that has none, nothing was found. That only some pharmacies in Austria take part is on Austria's page and is not yet a note in the app: it would be shown for pairs Austria's page does not itself confirm. For whoever continues.
+- **One pair is now told two ways: Austria to Latvia.** Latvia's page (its images replaced 24 Nov 2026, read twice on 26 Nov) has Austria among the countries whose e-prescriptions are dispensed in Latvia. Austria's overview (August 2026) names Czechia and Spain only. The app says that the two pages disagree and names both; it does not pick one. Latvia's images were not opened a third time in the evening.
+- Austria to Czechia and to Spain: yes, as before, now on both countries' word.
+- Austria to Croatia, Hungary, Italy, Malta, Slovenia and Slovakia: from "nothing found" to "not on the list" (Austria's). Austria to Finland, Estonia, Lithuania, Poland, Portugal and Greece were "not on the list" by those countries' pages and are now so by both.
+- Counts after Austria: works 96 → 95, disagree 0 → 1, not on the list 238 → 244, nothing found 146 → 140; not here 160 and not abroad 32 as they were.
+
+### E4. Cyprus: its own pages
+
+Read 26 Nov 2026 (evening), and **no list of countries was found on them.**
+
+- The National eHealth Authority's page, https://neha.org.cy/en/myhealtheu/ (in its metadata: 2025-05-15): "Through these services, citizens travelling or temporarily staying in another EU country will be able to access important health information such as ePrescription and Patient Summary." It names no country.
+- The contact point's wiki, main page, https://wiki.ncpeh.en.neha.org.cy/ ("This page was last edited on 14 October 2025"): describes the services and names no country. Its other pages were not read. An older address of the same wiki (wiki.ncpeh.citizen.ehealthlab.cs.ucy.ac.cy) did not answer.
+- gov.cy's page on the electronic prescription was found by a search and not fetched.
+
+No change to the data from Cyprus's side. Cyprus as a home country still rests on the other countries' pages, and since E1 on Croatia's too.
+
+### E5. Germany and Sweden as home countries
+
+Read 26 Nov 2026 (evening). **No official statement was found on using a German or a Swedish e-prescription abroad.** No change to the data: both still get "not on the list" where the country one is in publishes a list, and "nothing found" elsewhere.
+
+- gematik's questions on the e-prescription, https://www.gematik.de/anwendungen/e-rezept/faq-e-rezept: the word "Ausland" occurs in two questions, neither about a German e-prescription abroad. The one already in the app: "E-Rezepte aus dem EU-Ausland sind derzeit noch nicht in Deutschland einlösbar."
+- The German contact point's page for people insured in Germany, https://www.eu-patienten.de/de/behandlung_ausland/verordnungen_einloesen_eu/verordnungen_einloesen_eu.jsp: no mention of the e-prescription ("E-Rezept", "elektronisch": no match).
+- Its page for visitors, "Behandlung in Deutschland > Verschreibungen einlösen": the address that was guessed answered 404, and the right one was not looked for.
+- The Swedish eHealth Agency's English pages, https://www.ehalsomyndigheten.se/sprak/english/eu/how-prescriptions-work-in-sweden/ and https://www.ehalsomyndigheten.se/sprak/english/eu/purchase-of-medicinal-products/: both are for visitors to Sweden. The second says: "If you need medicinal products that require a prescription in Sweden, you must either have a current paper prescription for cross-border use from your home country or get a new Swedish prescription before you can buy the medicinal product at a pharmacy." Nothing on a Swedish e-prescription abroad. The agency's Swedish-language pages were not read.
+- A search turned up reports to the Swedish government from 2020 to 2023 on the legal groundwork; they are not current statements and were not read.
+
+### E6. Iceland and Liechtenstein
+
+Read 26 Nov 2026 (evening). **Nothing was found that the app can show.** No change to the data.
+
+- Iceland, https://island.is/en/electronic-cross-border-health-services: "Iceland will be able to receive and share patient summary information with other European countries in early 2026." and "This refers to a summary of health data and electronic prescriptions that an individual can authorise a healthcare professional in another European country to access if they need healthcare services there." It says of no country that an Icelandic e-prescription is dispensed there, nor that Iceland's pharmacies take another country's. It also says the EU's directive on patients' rights "came into effect in Iceland in 2016 (No. 484/2016)".
+- Iceland, the Medicines Agency's page on medicines in luggage, https://www.ima.is/medicinal-products/medicines-in-luggage-and-postal-shipments/ ("Last updated: September 23, 2026"; the site says it is no longer updated and has moved to island.is): about bringing medicines into Iceland. Nothing on a prescription from another country at an Icelandic pharmacy, or an Icelandic one abroad. A search summary said the agency warns that foreign pharmacies cannot see Icelandic e-prescriptions; that sentence is not in the page as fetched, so it is not used.
+- Liechtenstein: one search for a page of the Amt für Gesundheit on prescriptions from abroad found none. No page was fetched.
+
+### E7. Which medicines Article 11(6) leaves out
+
+Article 11(6) of Directive 2011/24/EU, as quoted in the notes of the first reading: "Paragraph 1 shall not apply to medicinal products subject to special medical prescription provided for in Article 71(2) of Directive 2001/83/EC." (The Publications Office's address for 32011L0024 answered 404 in the evening; the quote is the morning's.)
+
+Directive 2001/83/EC was read in the evening from the Publications Office's copy, http://publications.europa.eu/resource/celex/32001L0083, in English and in Finnish: the text as published in Official Journal L 311, 28/11/2001. A consolidated version with later amendments was not read.
+
+> Article 70(2): The competent authorities may fix sub-categories for medicinal products which are available on medical prescription only. In that case, they shall refer to the following classification: (a) medicinal products on renewable or non-renewable medical prescription; (b) medicinal products subject to special medical prescription; (c) medicinal products on restricted medical prescription, reserved for use in certain specialized areas.
+
+> Article 71(2): Where Member States provide for the sub-category of medicinal products subject to special medical prescription, they shall take account of the following factors: - the medicinal product contains, in a non-exempt quantity, a substance classified as a narcotic or a psychotropic substance within the meaning of the international conventions in force, such as the United Nations Conventions of 1961 and 1971, or - the medicinal product is likely, if incorrectly used, to present a substantial risk of medicinal abuse, to lead to addiction or be misused for illegal purposes, or - the medicinal product contains a substance which, by reason of its novelty or properties, could be considered as belonging to the group envisaged in the second indent as a precautionary measure.
+
+> 71 artiklan 2 kohta: Jos jäsenvaltiot vahvistavat alaluokan erityislääkemääräystä edellyttäville lääkkeille, on niiden otettava huomioon seuraavat tekijät: - lääke sisältää vapauttamattomina määrinä ainetta, joka on luokiteltu huumaus- tai psykotrooppiseksi aineeksi kansainvälisissä yleissopimuksissa […] - lääke todennäköisesti aiheuttaa väärin käytettynä merkittävän väärinkäytön vaaran, johtaa riippuvuuteen, tai sitä käytetään laittomiin tarkoituksiin […]
+
+- So the directive names no medicine. It is a category that each country may set up, and it tells them what to weigh: narcotic and psychotropic substances, a substantial risk of abuse or addiction, and new substances as a precaution.
+- In the app: one more note for every pair the rule covers, after the one on Article 11(6), sourced to this directive (`medicinesDirective`). It names no medicine.
+- Which medicines each country has put in the category was not read for any country. Finland, Sweden and Norway say on their own pages what they do not dispense on a foreign prescription, and the app has those notes already.
+
 ## Every pair: the electronic prescription
 
 Rows: the country the prescription is from. Columns: the country of the pharmacy. Generated from `data/countries/` (`guideFor`).
@@ -52,15 +201,18 @@ Rows: the country the prescription is from. Columns: the country of the pharmacy
 - **no (list)**: a page that lists its partners was read and the pair is not on it.
 - **no (here)**: the country one is in takes none from abroad.
 - **no (home)**: the home country says its e-prescription can't be used abroad.
+- **disagree**: one country's page has the pair and the other's, as current, leaves it out.
 - **?**: nothing official found.
+
+Counts after the evening reading: yes 95, disagree 1, no (list) 244, no (here) 160, no (home) 32, nothing found 140. Before it: yes 95, no (list) 238, no (here) 160, no (home) 32, nothing found 147.
 
 | from \ in | FI | EE | LV | LT | PL | CZ | HR | PT | ES | DE | AT | CH | DK | NO | SE | GR | HU | IT | MT | SI | SK |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **AT** | no (list) | no (list) | yes | no (list) | no (list) | yes | ? | no (list) | yes | no (here) | · | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **AT** | no (list) | no (list) | disagree | no (list) | no (list) | yes | no (list) | no (list) | yes | no (here) | · | no (here) | no (here) | no (here) | no (here) | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) |
 | **BE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 | **BG** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 | **CH** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | · | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **CY** | no (list) | yes | yes | yes | yes | yes | ? | no (list) | yes | no (here) | ? | no (here) | no (here) | no (here) | no (here) | yes | ? | ? | ? | ? | ? |
+| **CY** | no (list) | yes | yes | yes | yes | yes | yes | no (list) | yes | no (here) | ? | no (here) | no (here) | no (here) | no (here) | yes | ? | ? | ? | ? | ? |
 | **CZ** | yes | yes | yes | yes | yes | · | yes | no (list) | yes | no (here) | yes | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
 | **DE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | · | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 | **DK** | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (here) | no (home) | no (here) | · | no (here) | no (here) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) |
@@ -138,14 +290,17 @@ Rows: the country the prescription is from. Columns: the country of the pharmacy
 ## Not done, for whoever continues
 
 1. A person's reading of the claims, against the pages.
-2. Croatia: the later HZZO notice about services added since 2022 (https://hzzo.hr/novosti/prekogranicne-usluge-e-recepta-obavijest-o-novim-uslugama-hr-ep-pl-ep-b-i-cz-ep-hr-ep-b), and a current list if one exists.
-3. Spain: the map page, for the two directions (https://www.sanidad.gob.es/areas/saludDigital/recetaElectronicaUE/mapaRecetaUE.htm).
-4. Austria's and Cyprus's own pages.
-5. Germany and Sweden as home countries: an official statement on using their e-prescription abroad. Germany's visitor-facing page on eu-patienten.de.
+2. Croatia: whether the contact point's page is to be read as current (E1); a person could ask HZZO. The two PDFs it links were not read.
+3. Austria: whose e-prescriptions its pharmacies take. Its page for visitors names 44 pharmacies and no country (E3); the patient information notice linked there (a Word file) was not read. And Austria to Latvia, which the two countries' pages tell two ways: Latvia's images a third time, or a question to either authority.
+4. Cyprus: the other pages of the contact point's wiki, and gov.cy's page on the electronic prescription (E4).
+5. Germany and Sweden as home countries: still no official statement found (E5). Not read: Germany's visitor-facing page on eu-patienten.de (the right address), a page of the Federal Ministry of Health, the Swedish-language pages of E-hälsomyndigheten.
 6. Switzerland: the position paper from kantonsapotheker.ch itself; a federal page.
-7. Iceland and Liechtenstein as home countries: not started.
+7. Iceland and Liechtenstein: nothing found that the app can show (E6). Liechtenstein: no page fetched; the Amt für Gesundheit's site was not searched directly.
 8. Info Norden, by a person with a browser.
 9. The countries with nothing found, as the country one is in: Italy, Hungary, Malta, Slovenia, Slovakia.
+10. Directive 2001/83/EC in its consolidated version, and which medicines each country has put under "special medical prescription" (E7).
+
+Done in the evening reading and taken off this list: Croatia's later notices and its page with both lists; Spain's map page; Austria's and Cyprus's own pages; Article 71(2) of Directive 2001/83/EC.
 
 ---
 

@@ -22,6 +22,7 @@ import {
   type Source,
   type SourceId,
 } from '@/data/countries';
+import { OUTBOUND_ONLY } from '@/data/countries/eprescription';
 import { COUNTRY_CODES } from '@/lib/countries';
 import { date } from '@/lib/format';
 import { kamppi, resultOf, HERE as POSITION, MONDAY_EVENING } from '@/lib/fixtures/tiles';
@@ -129,9 +130,23 @@ describe('electronic prescriptions, pair by pair', () => {
     for (const home of eight) expect(guideFor(home, 'FI')!.ePrescription.sources, home).toContain('kantaForeign');
   });
 
-  it('no two current pages disagree about a pair today', () => {
-    // When one does, the banner says that they disagree: this fails first, so that somebody reads both pages again.
-    expect(guides.filter(({ guide }) => guide.ePrescription.status === 'disagree').map(({ home, here }) => key(home, here))).toEqual([]);
+  it('two current pages disagree about one pair today, and the app says so', () => {
+    // Austria's page (August 2026) names Czechia and Spain as where its e-prescriptions are dispensed. Latvia's (November 2026) takes Austria's.
+    // When another pair joins this list, this fails first, so that somebody reads both pages again.
+    expect(guides.filter(({ guide }) => guide.ePrescription.status === 'disagree').map(({ home, here }) => key(home, here))).toEqual(['AT to LV']);
+    expect(ePrescription('AT', 'LV').sources).toEqual(['gesundheitAt', 'eveseliba']);
+  });
+
+  it('Austria’s page is read for where its own are dispensed, and for nothing about who it takes', () => {
+    expect(OUTBOUND_ONLY.AT.outbound).toEqual(['CZ', 'ES']);
+    expect(EXCHANGE.AT).toBeUndefined();
+    expect(ePrescription('AT', 'CZ')).toMatchObject({ status: 'works', sources: ['gesundheitAt', 'epreskripce'] });
+    expect(ePrescription('AT', 'CZ').notes[0].source).toBe('gesundheitAtSteps');
+    // A country with no page of its own: Austria's list is the one it is missing from.
+    expect(ePrescription('AT', 'HU')).toMatchObject({ status: 'notListed', sources: ['gesundheitAt'] });
+    // To Austria: its page names pharmacies and no country, so only the other country's page speaks.
+    expect(ePrescription('CZ', 'AT')).toMatchObject({ status: 'works', sources: ['epreskripce'] });
+    expect(ePrescription('FR', 'AT').status).toBe('unknown');
   });
 
   it('the pairs that work one way only are one way only', () => {
@@ -142,15 +157,21 @@ describe('electronic prescriptions, pair by pair', () => {
     }
   });
 
-  it('a page from 2022 is not read for what it leaves out', () => {
-    // Croatia's only notice with a list is from October 2022. Poland, Latvia and Lithuania list Croatia now.
+  it('a page that shows an old date is not read for what it leaves out', () => {
+    // Croatia's page with both lists shows 4.10.2024 as its date, though it has a service that began on 30.6.2025.
     expect(EXCHANGE.HR.dated).toBe(true);
-    expect((SOURCES[EXCHANGE.HR.source] as Source).updated).toBe('2022-10-20');
+    expect((SOURCES[EXCHANGE.HR.source] as Source).updated).toBe('2024-10-04');
+    // What it names works: on its word, and on the other country's where that has a page too.
     for (const here of ['PL', 'LV', 'LT']) {
       const answer = ePrescription('HR', here);
       expect(answer.status, here).toBe('works');
-      expect(answer.sources, here).toEqual([EXCHANGE[here].source]);
+      expect(answer.sources, here).toEqual(['hzzo', EXCHANGE[here].source]);
     }
+    // Cyprus has no page of its own that was read: the pair rests on Croatia's word alone, each way.
+    expect(ePrescription('HR', 'CY')).toMatchObject({ status: 'works', sources: ['hzzo'] });
+    expect(ePrescription('CY', 'HR')).toMatchObject({ status: 'works', sources: ['hzzo'] });
+    // What it asks of its own people is from its notice of 30.6.2025, not from the page with the lists.
+    expect(ePrescription('HR', 'EE').notes[0].source).toBe('hzzoNotice');
     // Czechia says no in so many words: that stands. And with no other page to go by, nothing is claimed.
     expect(ePrescription('HR', 'CZ')).toMatchObject({ status: 'notListed', sources: ['epreskripce'] });
     expect(ePrescription('HR', 'AT').status).toBe('unknown');
@@ -172,7 +193,7 @@ describe('electronic prescriptions, pair by pair', () => {
       const taken = EXCHANGE[here]?.inbound.includes(home) ?? false;
       if (guide.ePrescription.status === 'works') expect(sent || taken, key(home, here)).toBe(true);
       // And nothing is claimed either way where no page speaks: the answer is that nothing was found.
-      if (!EXCHANGE[home] && !EXCHANGE[here] && !NO_FOREIGN[here] && !NOT_ABROAD[home]) expect(guide.ePrescription.status, key(home, here)).toBe('unknown');
+      if (!EXCHANGE[home] && !OUTBOUND_ONLY[home] && !EXCHANGE[here] && !NO_FOREIGN[here] && !NOT_ABROAD[home]) expect(guide.ePrescription.status, key(home, here)).toBe('unknown');
     }
   });
 
@@ -221,7 +242,7 @@ describe('electronic prescriptions, pair by pair', () => {
     for (const { guide } of guides) counts[guide.ePrescription.status] = (counts[guide.ePrescription.status] ?? 0) + 1;
     // 33 countries one can be from, 21 one can be in, less the 21 pairs at home.
     expect(pairs).toHaveLength(33 * 21 - 21);
-    expect(counts).toEqual({ works: 95, notListed: 238, notHere: 160, notAbroad: 32, unknown: 147 });
+    expect(counts).toEqual({ works: 95, disagree: 1, notListed: 244, notHere: 160, notAbroad: 32, unknown: 140 });
   });
 });
 
@@ -364,7 +385,7 @@ describe('the counter card', () => {
 
   it('offers the e-prescription lines exactly where a page says the pair works, and has them in that language', () => {
     for (const { home, here, guide } of guides) {
-      expect(guide.card.variants.ePrescription !== undefined, key(home, here)).toBe(guide.ePrescription.status === 'works');
+      expect(guide.card.variants.ePrescription !== undefined, key(home, here)).toBe(guide.ePrescription.status === 'works' || guide.ePrescription.status === 'disagree');
     }
   });
 

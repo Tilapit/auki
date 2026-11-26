@@ -62,6 +62,14 @@ export const EVERYWHERE: Note[] = [
       en: 'The rule does not cover medicines that need a special medical prescription (Article 11(6) of the directive).',
     },
   },
+  {
+    // Directive 2001/83/EC, Articles 70(2) and 71(2), which Article 11(6) points to. No medicine is named there or here.
+    source: 'medicinesDirective',
+    text: {
+      fi: 'Kukin maa päättää itse, mitkä lääkkeet edellyttävät erityistä lääkemääräystä. Lääkedirektiivin (2001/83/EY, 71 artiklan 2 kohta) mukaan maiden on otettava huomioon, sisältääkö lääke huumausaineeksi tai psykotrooppiseksi aineeksi luokiteltua ainetta ja aiheuttaako se väärin käytettynä todennäköisesti merkittävän väärinkäytön tai riippuvuuden vaaran.',
+      en: 'Each country decides for itself which medicines need a special medical prescription. The medicines directive (2001/83/EC, Article 71(2)) tells them to take into account whether the medicine contains a substance classified as a narcotic or a psychotropic substance, and whether it is likely, if incorrectly used, to present a substantial risk of abuse or to lead to addiction.',
+    },
+  },
 ];
 
 /** What the authorities of the country one is in add, for a prescription the rule covers. */
