@@ -24,16 +24,23 @@ test('the map and the list agree: the same pharmacies, named and lit the same wa
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
   // Six pharmacies: the one in the card and the five rows. Each has one marker, named like its row.
   await expect(markers(page)).toHaveCount(6);
-  await expect(marker(page, /^Kampin apteekki, sulkeutuu pian, klo 21, 130 metriä linnuntietä$/)).toBeVisible();
+  await expect(marker(page, /^Kampin apteekki, sulkeutuu pian, klo 21, 130 m linnuntietä$/)).toBeVisible();
   await expect(marker(page, /^Yliopiston apteekki, auki klo 24 asti, /)).toBeVisible();
   await expect(marker(page, /^Hietalahden apteekki, kiinni, avautuu huomenna klo 9$/)).toBeVisible();
-  await expect(marker(page, /^Apteekki, Runeberginkatu 6, aukioloaikoja ei ole merkitty$/)).toBeVisible();
-  await expect(marker(page, /^Töölön apteekki, aukioloajat epäselvät/)).toBeVisible();
+  // Two of the rows' pharmacies lie beyond the map's upper edge as the results frame it. What
+  // the map does not show is no button on it: neither a press nor the keyboard is offered it.
+  await expect(marker(page, /^Apteekki, Runeberginkatu 6/)).toBeHidden();
+  await expect(marker(page, /^Töölön apteekki/)).toBeHidden();
   // Lit markers carry the distance, like the open rows; unlit ones don't.
   await expect(map(page).locator('button[aria-pressed]', { hasText: /\d/ })).toHaveCount(2);
   // The card's pharmacy is the one that stands out on the map.
   await expect(marker(page, /^Kampin apteekki/)).toHaveAttribute('aria-pressed', 'true');
   await expect(map(page).locator('button[aria-pressed="true"]')).toHaveCount(1);
+  // One step out the map shows those two as well, named like their rows.
+  await page.getByRole('button', { name: 'Loitonna' }).click();
+  await page.clock.runFor(400);
+  await expect(marker(page, /^Apteekki, Runeberginkatu 6, aukioloaikoja ei ole merkitty$/)).toBeVisible();
+  await expect(marker(page, /^Töölön apteekki, aukioloajat epäselvät/)).toBeVisible();
 
   // A minute's tick changes both at once: at 21:01 the nearest one has closed, on the map as in the card.
   await page.clock.runFor(21 * 60_000);
@@ -185,14 +192,18 @@ test('a searched place is not followed: no watch on the device', async ({ page }
 
 test('an open pharmacy off the map gets a chip on the edge, and the chip brings it into view', async ({ page }) => {
   await start(page, world(kamppi));
+  const chip = map(page).getByRole('button', { name: /^Seuraava auki: Yliopiston apteekki, .* kartan ulkopuolella/ });
+  // On the map it is its marker, and has no chip: never both.
+  await expect(marker(page, /^Yliopiston apteekki/)).toBeVisible();
+  await expect(chip).toBeHidden();
   // Zoom in on the dot until the open pharmacy 320 metres away is outside the view.
   const zoomIn = page.getByRole('button', { name: 'Lähennä' });
   for (let step = 0; step < 4; step++) {
     await zoomIn.click();
     await page.clock.runFor(400);
   }
-  const chip = map(page).getByRole('button', { name: /^Seuraava auki: Yliopiston apteekki, .* kartan ulkopuolella/ });
   await expect(chip).toBeVisible();
+  await expect(marker(page, /^Yliopiston apteekki/)).toBeHidden();
   await chip.click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
 });
@@ -273,4 +284,72 @@ test('the map draws itself only after the results, on real code and a faked host
   await expect(map(page).getByRole('link', { name: 'OpenFreeMap' })).toHaveAttribute('href', 'https://openfreemap.org');
   await expect(map(page).getByRole('link', { name: '© OpenMapTiles' })).toBeVisible();
   await expect(map(page).getByRole('link', { name: '© OpenStreetMapin tekijät' })).toBeVisible();
+});
+
+// axe's `target-size`, 25 and 26 Nov 2026: markers with a strip of 44 by 1 px left under the
+// phone's sheet, half a marker under the bar with its own chip lying on it, signs four pixels
+// apart. A marker is offered as a button only where a finger has room for it (lib/map/declutter.ts).
+test.describe('a marker without room to press', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  const open = async (page: Page, view: string) => {
+    await page.goto(`/fi/dev/states/${view}`);
+    await page.waitForFunction(() => !document.querySelector('[data-map]:not([data-map="ready"])'));
+  };
+  const pin = (page: Page, id: string) => page.locator(`[data-pin="${id}"]`);
+  const chip = (page: Page, id: string) => page.locator(`[data-chip="${id}"]`);
+
+  test('under the phone’s bar it is taken off the map, and an open pharmacy is on its chip instead: never both', async ({ page }) => {
+    // Riga: the one open pharmacy lies half under the bar.
+    await open(page, 'riga-peek');
+    await expect(chip(page, 'meness-brivibas')).toBeVisible();
+    await expect(pin(page, 'meness-brivibas').getByRole('button', { includeHidden: true })).toBeHidden();
+    await expect(page.getByRole('button', { name: /^Mēness aptieka, .*auki ympäri vuorokauden/ })).toHaveCount(0);
+    // Helsinki: the nearest one stands whole just above the sheet. It is its marker, and has no chip.
+    await open(page, 'helsinki-half');
+    await expect(pin(page, 'toolon').getByRole('button')).toBeVisible();
+    await expect(chip(page, 'toolon')).toHaveCount(0);
+  });
+
+  test('half under the sheet it is taken off the map, and is back when the sheet is lower', async ({ page }) => {
+    // The same pharmacies with the sheet at the card and at its lowest: the sheet's edge runs through one marker.
+    await open(page, 'riga-half');
+    await expect(pin(page, 'benu-grecinieku').getByRole('button', { includeHidden: true })).toBeHidden();
+    await expect(pin(page, 'apotheka-valnu').getByRole('button')).toBeVisible();
+    await open(page, 'riga-peek');
+    await expect(pin(page, 'apotheka-valnu').getByRole('button')).toBeVisible();
+    // Every marker that is a button has at least 24 by 24 px inside what the bar and the sheet leave of the map.
+    const rooms = await page.evaluate(() => {
+      const sheet = document.querySelector('[data-grab]')!.getBoundingClientRect().top;
+      return [...document.querySelectorAll<HTMLElement>('[data-pin]:not([data-away]):not([inert]) button')].map((button) => {
+        const box = button.getBoundingClientRect();
+        return { width: Math.min(box.right, innerWidth) - Math.max(box.left, 0), height: Math.min(box.bottom, sheet) - Math.max(box.top, 64) };
+      });
+    });
+    expect(rooms.length).toBeGreaterThan(5);
+    for (const room of rooms) {
+      expect(room.width).toBeGreaterThanOrEqual(24);
+      expect(room.height).toBeGreaterThanOrEqual(24);
+    }
+  });
+
+  test('in a pile of signs it is still drawn and is no button: the keyboard goes to the signs that have room, and to no other', async ({ page }) => {
+    // Riga from afar: nine signs within seventy pixels.
+    await open(page, 'sheet-far');
+    const drawn = page.locator('[data-pin][data-small]:not([data-away])');
+    const still = page.locator('[data-pin][data-small][inert]');
+    await expect(drawn).toHaveCount(9);
+    await expect.poll(async () => still.count()).toBeGreaterThan(3);
+    // Still drawn, each in its place.
+    await expect(still.first().locator('button')).toBeVisible();
+    // Which of the nine take the focus: the ones that are buttons, and at least the first of the pile.
+    const takes = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>('[data-pin][data-small]')].map((sign) => {
+        const button = sign.querySelector('button')!;
+        button.focus();
+        return { still: sign.inert, focused: document.activeElement === button };
+      }),
+    );
+    expect(takes.filter((sign) => !sign.still).length).toBeGreaterThan(0);
+    for (const sign of takes) expect(sign.focused).toBe(!sign.still);
+  });
 });

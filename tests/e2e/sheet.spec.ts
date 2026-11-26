@@ -88,7 +88,7 @@ test('at its lowest the sheet is one row: the nearest open pharmacy, how far, it
   await expect(page.getByRole('heading', { name: 'Lähin auki nyt', level: 2 })).toHaveCount(1);
 
   // The row's one button is the route: it opens the pharmacy, where the map apps are.
-  await answer.getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' }).click();
+  await answer.getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
 });
 
@@ -205,11 +205,11 @@ test('below the open list the whole sheet is the handle, and a drag by a button 
   await expectAt(page, 'peek');
   await rest(handle(page));
   // By the route button: the sheet moves, and the pharmacy's own sheet does not open.
-  await drag(page, await rest(row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' })), -(low - middle) * 0.7);
+  await drag(page, await rest(row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' })), -(low - middle) * 0.7);
   await expectAt(page, 'half');
   await expect(page.getByRole('dialog')).toBeHidden();
   // The same by the card's route button, a short way: the mouse lets go over the button it pressed, and that is still not a press.
-  const route = card(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+  const route = card(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
   await drag(page, await rest(route), 40);
   await expectAt(page, 'half');
   await rest(handle(page));
@@ -358,7 +358,7 @@ test.describe('a pharmacy’s details in the sheet', () => {
   test.use({ hasTouch: true });
 
   const details = (page: Page) => page.getByRole('dialog');
-  const route = (page: Page) => row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+  const route = (page: Page) => row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
   const scrolled = (page: Page) => handle(page).evaluate((element) => element.nextElementSibling!.scrollTop);
 
   test('they open at a middle height: the map and the pharmacy’s marker stay in view above them, and the map still moves', async ({ page }) => {
@@ -545,7 +545,7 @@ test.describe('with a finger', () => {
       await page.clock.runFor(30);
       await touch('touchEnd');
     };
-    const route = row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+    const route = row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
     for (const by of [-9, 10]) {
       await roll(await rest(route), by);
       await expect(page.getByRole('dialog').getByRole('heading', { level: 2 }), `rolled ${by}`).toHaveText('Kampin apteekki');

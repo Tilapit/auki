@@ -160,14 +160,13 @@ test('the map loads after the results, and stays inside its own budget', async (
   // No walking times here: the server without a key, answered by the test. No test reaches a real service.
   await page.route(`**${WALKING_PATH}`, (route) => route.fulfill({ status: 503, json: { error: 'not-configured' } }));
 
-  // Every script the page fetches, with the bytes it took on the wire and when it was asked for.
+  // Every script the page fetches, with the bytes it took on the wire.
   const devtools = await context.newCDPSession(page);
   await devtools.send('Network.enable');
-  const scripts = new Map<string, { url: string; bytes: number; order: number }>();
-  let order = 0;
+  const scripts = new Map<string, { url: string; bytes: number }>();
   devtools.on('Network.responseReceived', (event) => {
     const { pathname } = new URL(event.response.url);
-    if (event.type === 'Script' || pathname.endsWith('.js') || pathname.endsWith('.mjs')) scripts.set(event.requestId, { url: pathname, bytes: 0, order: order++ });
+    if (event.type === 'Script' || pathname.endsWith('.js') || pathname.endsWith('.mjs')) scripts.set(event.requestId, { url: pathname, bytes: 0 });
   });
   devtools.on('Network.loadingFinished', (event) => {
     const script = scripts.get(event.requestId);
@@ -176,9 +175,27 @@ test('the map loads after the results, and stays inside its own budget', async (
 
   await page.goto('/fi');
   await page.waitForFunction(() => performance.getEntriesByName('first-result').length > 0, undefined, { timeout: 60_000 });
-  const before = order;
   await page.waitForFunction(() => performance.getEntriesByName('map-ready').length > 0, undefined, { timeout: 60_000 });
   await page.waitForLoadState('networkidle');
+
+  // Which scripts were asked for before the first result was on screen, by the page's own clock:
+  // each file's request and the mark are read from the same timeline. (The order in which the
+  // answers reach this test is not that: on 26 Nov 2026 a busy runner heard of the map's two
+  // files before it had heard of the mark, and counted them among the first window's.)
+  const askedFirst = await page.evaluate(() => {
+    const shown = performance.getEntriesByName('first-result')[0].startTime;
+    return performance
+      .getEntriesByType('resource')
+      .filter((entry) => entry.startTime < shown)
+      .map((entry) => new URL(entry.name).pathname);
+  });
+  const mapsOwn = await page.evaluate(() => {
+    const shown = performance.getEntriesByName('first-result')[0].startTime;
+    return performance
+      .getEntriesByType('resource')
+      .filter((entry) => entry.startTime >= shown)
+      .map((entry) => new URL(entry.name).pathname);
+  });
 
   // The worker is fetched by the browser on the page's behalf, outside what DevTools reports for
   // the page: it is asked for again here, compressed, and its bytes counted as they arrive.
@@ -193,8 +210,10 @@ test('the map loads after the results, and stays inside its own budget', async (
   });
 
   const all = [...scripts.values()];
-  const first = all.filter((script) => script.order < before);
-  const map = [...all.filter((script) => script.order >= before), { url: 'maplibre-gl-worker.mjs', bytes: workerBytes, order }];
+  // A script the page's timeline does not list at all counts with the first window's: never in the map's favour.
+  const later = all.filter((script) => mapsOwn.includes(script.url) && !askedFirst.includes(script.url));
+  const first = all.filter((script) => !later.includes(script));
+  const map = [...later, { url: 'maplibre-gl-worker.mjs', bytes: workerBytes }];
   const sum = (list: typeof all) => list.reduce((total, script) => total + script.bytes, 0);
   const kilobytes = (bytes: number) => `${(bytes / 1024).toFixed(1)} KB`;
   const summary = `until the first result ${kilobytes(sum(first))} in ${first.length} files; the map ${kilobytes(sum(map))} in ${map.length} files (${map.map((script) => `${script.url.split('/').pop()} ${kilobytes(script.bytes)}`).join(', ')})`;

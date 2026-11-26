@@ -150,7 +150,7 @@ test.describe('ehditkö', () => {
     await expect(card(page).getByRole('link', { name: 'Soita: Kampin apteekki' })).toBeVisible();
     await expect(card(page)).toContainText('Seuraava auki');
     await expect(card(page).getByRole('heading', { level: 3 }).nth(1)).toHaveText('Yliopiston apteekki');
-    await card(page).getByRole('button', { name: 'Kävelyreitti: Yliopiston apteekki' }).click();
+    await card(page).getByRole('button', { name: 'Reitti kävellen: Yliopiston apteekki' }).click();
     await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
   });
 
@@ -178,7 +178,7 @@ test('the pharmacy sheet: the walk, the hand-off, the website, the email, and th
   await fakeWalking(page);
   const withContacts: TilePharmacy[] = [{ ...kampin, email: 'kamppi@apteekki.example; toinen@apteekki.example', website: 'https://www.kampinapteekki.example/yhteystiedot' }, ...kamppi.slice(1)];
   await start(page, world(withContacts));
-  await card(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' }).click();
+  await card(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' }).click();
   const sheet = page.getByRole('dialog');
   await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
   await expect(sheet).toContainText('3 min');

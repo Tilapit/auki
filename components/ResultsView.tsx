@@ -216,7 +216,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     : unlisted
       ? t.results.foundUnlisted(arranged.total, unlisted.count)
       : nearestOpen && way
-        ? t.results.found(arranged.total, displayName(i18n, nearestOpen), way.distance?.long ?? way.primary.long, statusText(i18n, nearestOpen.status))
+        ? t.results.found(arranged.total, displayName(i18n, nearestOpen), way.distance?.long ?? way.primary.spoken, statusText(i18n, nearestOpen.status))
         : t.results.foundNoneOpen(arranged.total);
   const missing = (scene.missing ?? []).map((code) => f.countryName(code));
   const firstWay = firstToOpen && travel(i18n, firstToOpen, scene.distance);

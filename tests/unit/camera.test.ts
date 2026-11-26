@@ -115,6 +115,23 @@ describe('edge chips', () => {
     }
   });
 
+  it('gives a place just inside the box its chip when asked to: the map has taken its marker off', () => {
+    const inside = { x: box.left + 20, y: (box.top + box.bottom) / 2 + 30 };
+    expect(edgeChip(inside, box)).toBeUndefined();
+    const chip = edgeChip(inside, box, undefined, true)!;
+    // On the same line from the middle, at the edge, whole.
+    expect(chip.x).toBe(box.left + 44);
+    expect(chip.side).toBe('w');
+    // The very middle has no direction.
+    expect(edgeChip({ x: (box.left + box.right) / 2, y: (box.top + box.bottom) / 2 }, box, undefined, true)).toBeUndefined();
+  });
+
+  it('gives no chip where the box cannot hold one whole: the strip of map above a fully open list', () => {
+    const strip = { left: 12, top: 76, right: 378, bottom: 76 + 43 };
+    expect(edgeChip({ x: 200, y: 900 }, strip)).toBeUndefined();
+    expect(edgeChip({ x: 200, y: 900 }, { ...strip, bottom: 76 + 44 })).toBeDefined();
+  });
+
   it('moves chips apart when two places lie in the same direction', () => {
     const first = edgeChip({ x: 2400, y: 460 }, box)!;
     const second = edgeChip({ x: 3000, y: 470 }, box)!;
@@ -122,5 +139,16 @@ describe('edge chips', () => {
     expect(a).toEqual(first);
     expect(Math.abs(b.y - a.y)).toBeGreaterThanOrEqual(40);
     expect(b.x).toBe(second.x);
+  });
+
+  it('moves a chip off what it is told to keep clear of: the answer\'s marker, along the edge it is on', () => {
+    const chip = edgeChip({ x: 2400, y: 460 }, box)!;
+    // A marker's button right where the chip would lie.
+    const marker = { left: chip.x - 60, top: chip.y - 22, right: chip.x + 32, bottom: chip.y + 22 };
+    const [moved] = spread([chip], box, undefined, [marker]);
+    expect(moved.x).toBe(chip.x);
+    expect(Math.abs(moved.y - chip.y)).toBeGreaterThanOrEqual(40);
+    // Nothing to keep clear of: it stays.
+    expect(spread([chip], box, undefined, [{ ...marker, top: chip.y + 200, bottom: chip.y + 244 }])).toEqual([chip]);
   });
 });

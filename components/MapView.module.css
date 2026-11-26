@@ -2,6 +2,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* Not a scroll container: a marker beyond the map's edge that takes the keyboard's focus must not shift the whole map. */
+  overflow: clip;
   background: var(--map-land);
   /*
    * Every touch on the map is the map's own, whatever is drawing it: the plain ground before
@@ -68,6 +70,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* As above: once MapLibre has taken the markers in, this is the box a browser would scroll to a focused one. */
+  overflow: clip;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -134,6 +138,15 @@
   visibility: hidden;
 }
 
+/*
+ * A marker that the bar, the sheet, the credit or the map's edge hides too much of, or leaves
+ * no room to press (lib/map/declutter.ts): not drawn, so nothing half hidden asks to be read or
+ * pressed. Its pharmacy is in the list, and an open one has its chip on the edge.
+ */
+.pin[data-away] {
+  visibility: hidden;
+}
+
 .body {
   position: absolute;
   top: 0;
@@ -146,6 +159,14 @@
 
 .front {
   z-index: 3;
+}
+
+/*
+ * Where markers lie on one another, the one the keyboard is on is in front: what has the
+ * focus can be seen. Under `.pins`, so that it holds over any rule that orders the markers.
+ */
+.pins .pin:has(:focus-visible) {
+  z-index: 4;
 }
 
 .haloPin {
@@ -188,6 +209,15 @@
   pointer-events: auto;
   /* Shown once the script has put it on the edge. */
   visibility: hidden;
+}
+
+/*
+ * Under the phone's fully open list the map is inert (ResultsShell) and a strip of it shows
+ * above the list: the upper edge of a chip there is half a control that takes no press.
+ */
+:global([inert]) .edge {
+  /* Not `visibility`: the script sets that on the chip itself once it has placed it. */
+  opacity: 0;
 }
 
 /* The visible chip is 34 px tall inside a 44 px target. */
@@ -248,6 +278,9 @@
   color: var(--meta);
   text-decoration: none;
   white-space: nowrap;
+  /* A target 24 px tall (WCAG 2.5.8) in a line that stays 18: the margin takes back what the padding adds. */
+  padding-block: 3px;
+  margin-block: -3px;
 }
 
 .attribution a:hover {
