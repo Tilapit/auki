@@ -83,7 +83,7 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 
 ## Privacy
 
-- No accounts, no cookies, no analytics, and nothing about the position is stored. The device keeps one mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it.
+- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps two things. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
 - The position: one request, to the app's own server, as above. Checked by a test on every push.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.

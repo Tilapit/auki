@@ -55,6 +55,8 @@ export const isMapView = (state: State): state is MapView => 'position' in state
 
 export type Action =
   | { type: 'unsupported' }
+  /** The tab was loaded again: the search it showed last, from its own storage (lib/session.ts). */
+  | { type: 'restore'; position: Position; at: string }
   | { type: 'locate'; attempt: number }
   | { type: 'waiting'; attempt: number }
   | { type: 'located'; attempt: number; lat: number; lon: number; accuracy: number; at: string }
@@ -88,6 +90,10 @@ export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'unsupported':
       return { view: 'search', problem: 'unsupported', lookup: idle };
+
+    case 'restore':
+      // Only on arrival. The same position object as the action's: the search that watches it knows it by that.
+      return state.view === 'ready' ? { view: 'searching', position: action.position, at: action.at } : state;
 
     case 'locate':
       return { view: 'locating', attempt: action.attempt, waiting: false };

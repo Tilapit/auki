@@ -968,6 +968,21 @@ Entry format:
   - The card, the list's rows and the markers keep their tabular figures: there the minutes stand in a column down the list and change in place, and a marker must not change its width when a minute passes.
 - Status: the row is done. The figures are provisional: the monospace look is gone from the details, the slashed zero is not, and which of the three ways to take is Janne's (a change to the typeface is his by `CLAUDE.md`).
 
+## 2026-11-26: A tab that is loaded again shows the results it had, and what that does to the footer's sentence (provisional)
+- Where: `lib/session.ts`, `hooks/usePharmacySearch.ts` (the arrival, the search, what is kept and forgotten), `components/MapStage.tsx` (the open pharmacy); `lib/i18n/` (`footer.privacy`, `meta.description`); `tests/e2e/session.spec.ts`
+- Change: The other half of Janne's note of 26 Nov: "the last results come back from sessionStorage". The tab keeps its last search in its own session storage and, loaded again, goes straight to those results: the same order, the same pharmacy's details open, no question about the position and no second request for walking times.
+  - Kept: the position the search was made for, the time it was fixed, the walking times that came, and the id of the pharmacy whose details are open. Not the pharmacies: they are read again from the tiles, so a status is never older than the minute the tab came back.
+  - Half an hour, counted from the position, not from the last load: after that the tab locates again. A position from the device is followed as before, and the list is ranked again at the first fix far enough from the old one, without the two-minute wait that follows a fresh ranking.
+  - Forgotten when the user leaves the results: back to the first window, the search box, a new position. Never kept for a search that found nothing.
+  - What comes out of storage is read as untrusted text, field by field. A tab can't be made to show a place or a time that is not one.
+- Why: Links out open in a tab of their own since today, which covers coming back while the tab is alive. A phone that is short of memory throws the tab away meanwhile, and then the answer someone walked off with was gone. The same held for a change of language.
+  - **It keeps a position on the device, which the app has not done until now.** Results can't come back without the position they were ranked from: the distances alone would give it away as well. So `PLAN.md` 7.6 now names the two keys and what is in them, and the README says the same.
+  - **The footer's sentence.** "Sijaintiasi ei tallenneta." / "Your location is not saved." is no longer true as written once a tab keeps the position. This branch says "Sijaintiasi ei tallenneta palvelimelle." / "Your location is not saved on a server.", and the page's description with it. That is the smallest change that makes it true, and it is weaker than before: it reads as if the position were saved somewhere else, which it now is.
+  - Other wordings considered: "Sijaintiasi käytetään vain tähän hakuun." (says less, promises nothing about keeping); "Sijaintiasi ei tallenneta palvelimelle. Välilehti muistaa viimeisen haun, kunnes suljet sen." (the whole truth, and long for a line that is meant to be quiet).
+  - The other way out: keep the old sentence and don't keep the position. A tab that is loaded again then locates anew, as a later visit does since today: the results come back a second or two later, Safari may ask again, and the walking times are asked for again.
+  - The iOS app keeps nothing and its sentence stays as it was.
+- Status: provisional, and not merged: the privacy claims are Janne's (`CLAUDE.md`). The pull request waits for his word on the sentence.
+
 ## 2026-11-25: Abroad: the banner's third line is what happened at the counter (provisional)
 - Where: `CountryBanner`, `data/countries/guides.ts`; `/dev/states`, "riga" and "abroad" (every country's banner and card lines on one page)
 - Change: M6, cut down by Janne's brief of 25 Nov. Under the status, the tip and the source, the banner has the trip's result as a line of its own: "Kokeiltu Riiassa 11/2026: e-resepti löytyi 1/1 apteekista." It is in the small quiet size of the source line, after it, with tabular figures.
