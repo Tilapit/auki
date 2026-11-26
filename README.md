@@ -140,7 +140,6 @@ This file describes what is in `main`. Open on 26 Nov 2026, and not described ab
 
 - [#13](https://github.com/Tilapit/auki/pull/13), the iOS app's basics: a pharmacy's sheet with its hours, the call and the route.
 - [#17](https://github.com/Tilapit/auki/pull/17), milestone M6 cut down: the abroad banner with the field result, and the counter card, in the live app.
-- [#18](https://github.com/Tilapit/auki/pull/18), the map under a finger: after a flick it glides as a list does on an iPhone, and the one-finger zoom goes Apple Maps' way.
 
 ## Run it
 
