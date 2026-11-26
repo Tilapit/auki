@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { canLocate, LOCATE_OPTIONS, locateOnce, locationPermission, wallClock } from '@/lib/geolocation';
+import { canLocate, LOCATE_OPTIONS, LOCATED_KEY, locateOnce, locatedBefore, locatesOnArrival, locationPermission, rememberLocated, wallClock } from '@/lib/geolocation';
 
 const geolocation = (run: (success: PositionCallback, failure: PositionErrorCallback) => void) =>
   ({ getCurrentPosition: vi.fn((success, failure) => run(success, failure as PositionErrorCallback)) }) as unknown as Geolocation;
@@ -38,6 +38,47 @@ describe('locationPermission', () => {
     await expect(locationPermission({ query: async () => ({ state: 'granted' }) as PermissionStatus })).resolves.toBe('granted');
     await expect(locationPermission({ query: async () => Promise.reject(new TypeError('unsupported')) })).resolves.toBe('unknown');
     await expect(locationPermission(undefined)).resolves.toBe('unknown');
+  });
+});
+
+describe('a later visit', () => {
+  it('leaves one mark on the device, with no position and no time in it', () => {
+    const kept = new Map<string, string>();
+    const storage = { setItem: (key: string, value: string) => void kept.set(key, value), getItem: (key: string) => kept.get(key) ?? null };
+    expect(locatedBefore(storage)).toBe(false);
+    rememberLocated(storage);
+    expect([...kept]).toEqual([[LOCATED_KEY, '1']]);
+    expect(locatedBefore(storage)).toBe(true);
+  });
+
+  it('is a first visit where storage is refused', () => {
+    const refusing = {
+      setItem: () => {
+        throw new DOMException('refused', 'SecurityError');
+      },
+      getItem: () => {
+        throw new DOMException('refused', 'SecurityError');
+      },
+    };
+    expect(() => rememberLocated(refusing)).not.toThrow();
+    expect(locatedBefore(refusing)).toBe(false);
+    expect(locatedBefore(undefined)).toBe(false);
+  });
+
+  it.each([
+    // permission, located before, asks on arrival
+    ['granted', false, true],
+    ['granted', true, true],
+    // Safari says "prompt" for a site it lets through: the mark decides.
+    ['prompt', false, false],
+    ['prompt', true, true],
+    ['unknown', false, false],
+    ['unknown', true, true],
+    // A browser that says the site is blocked is believed: the first window, with its button.
+    ['denied', false, false],
+    ['denied', true, false],
+  ] as const)('permission %s, located before %s: asks on arrival %s', (permission, before, asks) => {
+    expect(locatesOnArrival(permission, before)).toBe(asks);
   });
 });
 

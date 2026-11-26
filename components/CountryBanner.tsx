@@ -6,6 +6,7 @@ import { useHome } from '@/lib/home';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { Icon } from './Icon';
+import { ExternalLink } from './NewTab';
 import styles from './CountryBanner.module.css';
 
 interface Props {
@@ -115,7 +116,7 @@ export function CountryBanner({ home, onHome, guide, open = false }: Props) {
                   const { label, url, updated, checked }: Source = SOURCES[source];
                   return (
                     <li key={source}>
-                      <a href={url[locale]}>{label[locale]}</a>
+                      <ExternalLink href={url[locale]}>{label[locale]}</ExternalLink>
                       {'. '}
                       {updated ? rich(t.banner.pageDated, { updated: f.date(updated), checked: f.date(checked) }) : rich(t.banner.pageRead, { checked: f.date(checked) })}
                     </li>

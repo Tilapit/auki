@@ -128,6 +128,7 @@ test('outside the covered countries: says so, and hands off to a map app without
   await expect(page.getByText(/Mukana ovat .*Suomi.* ja /)).toBeVisible();
   const google = page.getByRole('link', { name: 'Google Mapsista' });
   await expect(google).toHaveAttribute('href', 'https://www.google.com/maps/search/?api=1&query=apteekki');
+  await expect(google).toHaveAttribute('target', '_blank');
   await expect(page.getByRole('link', { name: '112' })).toBeVisible();
   // The index was enough to know: no tile was asked for.
   expect(asked).toEqual([INDEX_PATH]);

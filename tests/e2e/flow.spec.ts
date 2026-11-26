@@ -1,5 +1,6 @@
 import { expect, test } from './fixtures';
 import { HERE, fakeLocation, fakePlaces, fakeTiles, locateButton, open, searchingStatus } from './helpers';
+import { LOCATED_KEY } from '@/lib/geolocation';
 
 /**
  * M1: every way from the first window to a position, and every way it can fail (PLAN.md 7.3).
@@ -38,6 +39,52 @@ test.describe('location from the device', () => {
     await fakeLocation(page, 'allow', 'granted');
     await open(page, '/fi');
     await expect(searchingStatus(page)).toBeVisible();
+  });
+
+  // The first window is for a first visit. Safari says "prompt" for a site it lets through, so
+  // the browser's word alone would show it every time: the app keeps a mark of its own.
+  test('a later visit: straight to locating and the map, though the browser does not report the permission', async ({ page }) => {
+    await fakeLocation(page, 'allow', 'prompt');
+    await open(page, '/fi');
+    await expect(locateButton(page)).toBeVisible();
+    expect(await page.evaluate(() => ({ ...localStorage }))).toEqual({});
+    await locateButton(page).click();
+    await expect(searchingStatus(page)).toBeVisible();
+    // The whole of what the visit left on the device: one mark, with no position and no time in it.
+    expect(await page.evaluate(() => [{ ...localStorage }, { ...sessionStorage }, document.cookie])).toEqual([{ [LOCATED_KEY]: '1' }, {}, '']);
+
+    await page.reload();
+    await expect(searchingStatus(page)).toBeVisible();
+    await expect(locateButton(page)).toHaveCount(0);
+    // Back from there the first window is still one step away, with place search on it.
+    await page.goBack();
+    await expect(locateButton(page)).toBeVisible();
+  });
+
+  test('a later visit asks at once and then waits like the button does', async ({ page }) => {
+    await page.addInitScript((key) => localStorage.setItem(key, '1'), LOCATED_KEY);
+    await fakeLocation(page, 'ignore');
+    await open(page, '/fi');
+    await expect(page.getByRole('status')).toContainText('Haetaan sijaintiasi…');
+    await expect(page.getByRole('button', { name: 'Hae paikan nimellä' })).toBeVisible();
+  });
+
+  test('a location that was refused leaves no mark: the next visit is a first visit', async ({ page }) => {
+    await fakeLocation(page, 'deny');
+    await open(page, '/fi');
+    await locateButton(page).click();
+    await expect(page.getByRole('heading', { name: 'Sijainti on estetty tältä sivulta' })).toBeFocused();
+    expect(await page.evaluate(() => ({ ...localStorage }))).toEqual({});
+    await page.reload();
+    await expect(locateButton(page)).toBeVisible();
+  });
+
+  test('blocked in the browser: the first window with its button, also on a later visit', async ({ page }) => {
+    await page.addInitScript((key) => localStorage.setItem(key, '1'), LOCATED_KEY);
+    await fakeLocation(page, 'deny', 'denied');
+    await open(page, '/fi');
+    await expect(locateButton(page)).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Löydä lähin auki oleva apteekki');
   });
 
   test('the real permission, granted in the browser, works too', async ({ browser, browserName }) => {

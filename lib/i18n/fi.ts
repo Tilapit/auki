@@ -24,6 +24,8 @@ const fi = {
     otherLanguageLabel: 'EN: In English',
     back: 'Takaisin',
     close: 'Sulje',
+    /** Read out after the name of a link that leaves the app: it opens in a tab of its own. */
+    newTab: '(avautuu uuteen välilehteen)',
     fallbackName: 'Apteekki',
   },
   notFound: {

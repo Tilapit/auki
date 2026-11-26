@@ -196,10 +196,20 @@ test('the pharmacy sheet: the walk, the hand-off, the website, the email, and th
   const fix = sheet.getByRole('link', { name: 'Korjaa OpenStreetMapissa: Kampin apteekki' });
   await expect(fix).toHaveAttribute('href', `https://www.openstreetmap.org/note/new?lat=${kampin.lat}&lon=${kampin.lon}#map=19/${kampin.lat}/${kampin.lon}`);
   await expect(sheet).toContainText('Väärät tiedot? Korjaa OpenStreetMapissa.');
+  let leaving = 0;
   for (const link of await sheet.getByRole('link').all()) {
     const href = (await link.getAttribute('href')) ?? '';
     expect(carriesPosition(href, HERE), href).toBe(false);
+    // A link that leaves the app opens in a tab of its own, so the results stay as they were, and
+    // says so to a screen reader. The new tab gets no referrer and no way back to this one.
+    if (!href.startsWith('http')) continue;
+    leaving++;
+    await expect(link, href).toHaveAttribute('target', '_blank');
+    await expect(link, href).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(link, href).toHaveAccessibleName(/\(avautuu uuteen välilehteen\)$/);
   }
+  // The two map apps, the pharmacy's own website and the note form.
+  expect(leaving).toBe(4);
 
   // Where the hours are missing, the same link sits under the line that says so.
   await page.keyboard.press('Escape');

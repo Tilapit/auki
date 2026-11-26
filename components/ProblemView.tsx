@@ -11,6 +11,7 @@ import { Button } from './Button';
 import { PlaceSearch, PlaceSearchForm, type LocationProblem } from './PlaceSearch';
 import { ResultsShell } from './ResultsShell';
 import { MapView } from './MapView';
+import { ExternalLink } from './NewTab';
 import styles from './ProblemView.module.css';
 
 type Props =
@@ -51,8 +52,8 @@ export function ProblemView(props: Props) {
           {/* No pharmacy data and no open or closed claims from us here: a map app knows this country. */}
           <p className={styles.body}>
             {rich(t.problem.mapApps, {
-              google: <a href={googleSearchUrl(t.problem.mapQuery)}>{t.problem.googleSearch}</a>,
-              apple: <a href={appleSearchUrl(t.problem.mapQuery)}>{t.problem.appleSearch}</a>,
+              google: <ExternalLink href={googleSearchUrl(t.problem.mapQuery)}>{t.problem.googleSearch}</ExternalLink>,
+              apple: <ExternalLink href={appleSearchUrl(t.problem.mapQuery)}>{t.problem.appleSearch}</ExternalLink>,
             })}
           </p>
           <PlaceSearchForm tone="surface" onSearch={props.onSearch} />
@@ -81,7 +82,7 @@ export function ProblemView(props: Props) {
           <>
             <PlaceSearchForm tone="surface" onSearch={props.onSearch} />
             <p className={styles.body}>
-              <a href={OSM_ADD_PLACE_URL}>{t.problem.none.add}</a>
+              <ExternalLink href={OSM_ADD_PLACE_URL}>{t.problem.none.add}</ExternalLink>
             </p>
           </>
         ) : (
@@ -95,8 +96,8 @@ export function ProblemView(props: Props) {
         {props.kind === 'error' && (
           <p className={styles.body}>
             {rich(t.problem.mapApps, {
-              google: <a href={googleSearchUrl(t.problem.mapQuery)}>{t.problem.googleSearch}</a>,
-              apple: <a href={appleSearchUrl(t.problem.mapQuery)}>{t.problem.appleSearch}</a>,
+              google: <ExternalLink href={googleSearchUrl(t.problem.mapQuery)}>{t.problem.googleSearch}</ExternalLink>,
+              apple: <ExternalLink href={appleSearchUrl(t.problem.mapQuery)}>{t.problem.appleSearch}</ExternalLink>,
             })}
           </p>
         )}

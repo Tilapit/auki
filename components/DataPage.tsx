@@ -9,6 +9,7 @@ import { INDEX_PATH } from '@/lib/tiles';
 import type { CountryStats, IndexJson } from '@/lib/tiles';
 import { Wordmark } from './FirstVisit';
 import { LanguageSwitch } from './LanguageSwitch';
+import { ExternalLink } from './NewTab';
 import { SiteFooter } from './SiteFooter';
 import styles from './DataPage.module.css';
 
@@ -73,7 +74,7 @@ export function DataView({ loaded, zone }: { loaded: Loaded; zone?: string }) {
           ))}
         </ul>
         <p className={styles.text}>{t.data.fix}</p>
-        <p className={styles.text}>{rich(t.data.licence, { osm: <a href={OSM_COPYRIGHT_URL}>{t.footer.osm}</a> })}</p>
+        <p className={styles.text}>{rich(t.data.licence, { osm: <ExternalLink href={OSM_COPYRIGHT_URL}>{t.footer.osm}</ExternalLink> })}</p>
         <p className={styles.text}>
           <Link href={`/${locale}`}>{t.data.back}</Link>
         </p>
