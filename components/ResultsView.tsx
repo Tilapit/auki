@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useReport } from '@/hooks/useReport';
 import type { RouteFor } from '@/hooks/useRouteLine';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
+import type { Answers, Reports } from '@/lib/reports';
 import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
 import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
 import { providerFor, providerForReview } from '@/lib/stock/providers';
@@ -27,6 +29,7 @@ import { ResultsNotice } from './ResultsNotice';
 import { ResultsShell, type SheetState } from './ResultsShell';
 import { MapView } from './MapView';
 import { MedicineDialog, MedicineRow } from './MedicineDialog';
+import { ReportDialog } from './ReportDialog';
 import styles from './ResultsView.module.css';
 
 export interface ResultsOptions {
@@ -77,6 +80,18 @@ export interface ResultsOptions {
   medicineExample?: ReactNode;
   /** /dev/states only: the dialog may also be that of a provider that waits for its operator's agreement. */
   medicineReview?: boolean;
+  /**
+   * Visitors' reports (provisional, DESIGN-LOG.md 26 Nov 2026). Where they come from and go to,
+   * and the device's memory of what it has offered. Without it nothing is offered, shown or
+   * asked for: /dev/states calls no service.
+   */
+  reports?: Reports;
+  /** /dev/states only: the report dialog open from the start, with these chips pressed, or after a sending that failed. */
+  reportOpen?: boolean;
+  reportAnswers?: Answers;
+  reportFailed?: boolean;
+  /** /dev/states only: the line that stands in the row's place after a report was sent. */
+  reportNote?: 'thanks' | 'limit';
   /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
   mapPixels?: number;
   /** /dev/map only: the map under a finger as MapLibre has it, to compare with ours on a phone. */
@@ -121,6 +136,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // Which country's stock search the medicine dialog is open for: that of the pharmacy it was opened from.
   const [medicineFor, setMedicineFor] = useState(typeof options.medicine === 'string' ? options.medicine : undefined);
   const detailRef = useRef<HTMLDialogElement>(null);
+  const [reportOpen, setReportOpen] = useState(options.reportOpen === true);
 
   const everyone = useMemo(() => [...scene.pharmacies, ...(scene.farOpen ? [scene.farOpen] : [])], [scene]);
   const listed = everyone.find((p) => p.id === detailId);
@@ -431,6 +447,25 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
   const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status) && !p.tooLate);
   const detailNext = detail && nextFor(detail);
+  // What visitors told of the pharmacy whose details are open, and the offer to tell of one's own visit.
+  const report = useReport(options.reports, detail);
+  // The row goes when it is used, and the keyboard would be left on a button that is gone: it is
+  // put on the pharmacy's name, where the sheet starts. In an effect, which runs after the report's
+  // dialog has closed and handed the focus back to that button.
+  const [reportUsed, setReportUsed] = useState(0);
+  // Closed without being used, the dialog gives the keyboard back to the row that opened it. The
+  // browser does that by itself only when the row had the focus, and Safari gives a pressed button none.
+  const reportOpener = useRef<Element | null>(null);
+  useEffect(() => {
+    if (reportOpen) return;
+    const opener = reportOpener.current;
+    reportOpener.current = null;
+    if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+  }, [reportOpen]);
+  useEffect(() => {
+    if (reportUsed > 0) document.getElementById(`${id}-detail`)?.focus();
+  }, [reportUsed, id]);
+  const afterReport = () => setReportUsed((count) => count + 1);
 
   return (
     <ResultsShell
@@ -574,6 +609,21 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               onShowCard={() => setCounterOpen(true)}
               onMedicine={offered && providerFor(detail.country) ? () => setMedicineFor(detail.country) : undefined}
               medicineSite={siteOf(detail.country)}
+              report={
+                options.reports && {
+                  summary: report.summary,
+                  offered: report.offered && !options.reportNote,
+                  note: report.note ?? options.reportNote,
+                  onOpen: () => {
+                    reportOpener.current = pressed.current ?? document.activeElement;
+                    setReportOpen(true);
+                  },
+                  onSkip: () => {
+                    report.skip();
+                    afterReport();
+                  },
+                }
+              }
               onClose={close}
               onSelect={select}
             />
@@ -583,6 +633,27 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       overlays={
         <>
           {scene.card && <CounterCard card={scene.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} />}
+          {options.reports && (
+            <ReportDialog
+              name={detail ? displayName(i18n, detail) : ''}
+              open={reportOpen && !!detail}
+              onClose={() => setReportOpen(false)}
+              onSend={async (answers) => {
+                const result = await report.send(answers);
+                if (result !== 'failed') {
+                  setReportOpen(false);
+                  afterReport();
+                }
+                return result;
+              }}
+              onSkip={() => {
+                report.skip();
+                afterReport();
+              }}
+              initialAnswers={options.reportAnswers}
+              initialFailed={options.reportFailed}
+            />
+          )}
           {offered && (
             <MedicineDialog provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
               {options.medicineExample}

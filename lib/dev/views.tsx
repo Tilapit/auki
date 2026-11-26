@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
+import { ReportView } from '@/components/dev/ReportView';
 import { CardCase, ComponentSheet } from '@/components/dev/Sheets';
 import { StockExample } from '@/components/dev/StockExample';
 import { FirstVisit } from '@/components/FirstVisit';
@@ -88,6 +89,11 @@ export const renderers: Record<string, () => ReactNode> = {
 
   sheet: () => <ResultsView scene={helsinki} sheet="peek" detailId="yliopiston" />,
   'sheet-sparse': () => <ResultsView scene={helsinki} sheet="peek" detailId="kaartin" />,
+  'report-row': () => <ReportView state="row" />,
+  'report-summary': () => <ReportView state="summary" />,
+  'report-open': () => <ReportView state="open" />,
+  'report-failed': () => <ReportView state="failed" />,
+  'report-thanks': () => <ReportView state="thanks" />,
   'sheet-far': () => <ResultsView scene={rigaFarOpen} sheet="peek" detailId="meness-marupe" />,
   counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" />,
   'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" />,

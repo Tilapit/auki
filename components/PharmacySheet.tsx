@@ -7,6 +7,7 @@ import { appleDirectionsUrl, emailAddress, googleDirectionsUrl, osmNoteUrl, webs
 import { hoursUnknown } from '@/lib/results';
 import { dayHoursText, daysLabel, displayName, glyphFor, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
+import type { Summary } from '@/lib/reports';
 import type { CountryInfo, Pharmacy, Scene } from '@/lib/types';
 import { Button, IconButton } from './Button';
 import { CrossGlyph } from './CrossGlyph';
@@ -15,6 +16,7 @@ import { Measure } from './Measure';
 import { MedicineRow } from './MedicineDialog';
 import { ExternalLink, NEW_TAB, NewTabNote } from './NewTab';
 import { OpenStatus } from './OpenStatus';
+import { ReportNote, ReportRow, ReportSummary } from './ReportDialog';
 import styles from './PharmacySheet.module.css';
 
 interface Props {
@@ -34,6 +36,12 @@ interface Props {
   onMedicine?: () => void;
   /** The address of that service, as the row names it: "apteekki.fi". */
   medicineSite?: string;
+  /**
+   * Visitors' reports (PLAN.md 7.10): what others told, once there are three; the row that
+   * offers to tell of one's own visit; and what stands in the row's place after it was used.
+   * Left out where there is no report service: then the sheet is as it was without it.
+   */
+  report?: { summary?: Summary; offered: boolean; note?: 'thanks' | 'limit'; onOpen: () => void; onSkip: () => void };
   onClose?: () => void;
   onSelect?: (pharmacy: Pharmacy) => void;
 }
@@ -44,7 +52,7 @@ interface Props {
  * data in OpenStreetMap. The pharmacy's own email and website are shown when OpenStreetMap
  * has them: emailing a prescription ahead often works (PLAN.md section 2).
  */
-export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onMedicine, medicineSite, onClose, onSelect }: Props) {
+export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onMedicine, medicineSite, report, onClose, onSelect }: Props) {
   const i18n = useI18n();
   const { t, f } = i18n;
   const name = displayName(i18n, pharmacy);
@@ -200,6 +208,11 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
       )}
 
       {onMedicine && medicineSite && <MedicineRow className={styles.medicine} onOpen={onMedicine} site={medicineSite} />}
+
+      {/* After everything that helps one get there: what visitors told, and the offer to tell. Never above the route. */}
+      {report?.summary && <ReportSummary summary={report.summary} className={styles.report} />}
+      {report?.offered && <ReportRow name={name} onOpen={report.onOpen} onSkip={report.onSkip} className={styles.report} />}
+      {report?.note && <ReportNote kind={report.note} className={styles.report} />}
 
       <p className={styles.footnote}>
         {t.sheet.handOff} {pharmacy.checkDate ? t.sheet.sourceChecked(f.date(pharmacy.checkDate)) : t.sheet.source} {rich(t.sheet.wrong, { link: fix })}

@@ -4,6 +4,7 @@ import { MAP_TILE_HOST, MAP_TILES_URL } from '@/lib/requests';
 import { distanceMeters } from '@/lib/geo';
 import { INDEX_PATH, encodeTile, tileKey, tileOf, tilePath } from '@/lib/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
+import { REPORT_PATH } from '@/lib/reports';
 import { WALKING_PATH, WALK_METERS_PER_SECOND, type Walk } from '@/lib/walking';
 
 /**
@@ -141,6 +142,34 @@ export async function fakeWalking(page: Page, answer: 'grid' | 'hold' | number |
     const [to] = body.to;
     const line = body.route ? { type: 'LineString', coordinates: [[body.from.lon, body.from.lat], [to.lon, body.from.lat], [to.lon, to.lat]] } : undefined;
     await route.fulfill({ json: { walks, ...(line ? { line } : {}) }, headers: { 'cache-control': 'no-store' } });
+  });
+  return asked;
+}
+
+export interface ReportsAsked {
+  /** The query of every request for summaries: "?country=FI". */
+  read: string[];
+  /** Every report that was sent: its address, its body as text, and its headers. */
+  sent: { url: string; body: string; headers: Record<string, string> }[];
+}
+
+/**
+ * Answers /api/report as our server does with a database: the summaries given, and for a
+ * report the status given (201 stored, 429 over the day's limit, 503 not there). A function
+ * gives each sending its own status. No test reaches the real route or the database.
+ */
+export async function fakeReports(page: Page, summaries: Record<string, unknown> = {}, status: number | ((nth: number) => number) = 201): Promise<ReportsAsked> {
+  const asked: ReportsAsked = { read: [], sent: [] };
+  await page.route(`**${REPORT_PATH}*`, async (route) => {
+    const request = route.request();
+    if (request.method() === 'GET') {
+      asked.read.push(new URL(request.url()).search);
+      return route.fulfill({ json: { summaries } });
+    }
+    asked.sent.push({ url: request.url(), body: request.postData() ?? '', headers: request.headers() });
+    const code = typeof status === 'function' ? status(asked.sent.length) : status;
+    const error = code === 429 ? 'limit' : 'upstream';
+    await route.fulfill({ status: code, json: code === 201 ? { stored: true } : { error }, headers: { 'cache-control': 'no-store' } });
   });
   return asked;
 }
