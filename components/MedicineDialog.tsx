@@ -6,22 +6,26 @@ import { rich } from '@/lib/i18n/rich';
 import { MEDICINE_MAX_LENGTH, type StockProvider } from '@/lib/stock/provider';
 import { Button, IconButton } from './Button';
 import { cx } from './cx';
+import { Icon } from './Icon';
 import { NEW_TAB, NewTabNote } from './NewTab';
 import styles from './MedicineDialog.module.css';
 
 /**
- * The entry: one quiet line, under the card and in a pharmacy's details. It asks nothing
- * until it is pressed (PLAN.md section 3, principle 8).
+ * The entry: a row of its own, in the card and in a pharmacy's details (Janne, 26 Nov 2026;
+ * until then a link at the end of the "Ei varastossa?" line). It is named as the dialog it
+ * opens is, and says under the name where the check is made: the country's own service.
+ * It asks nothing until it is pressed (PLAN.md section 3, principle 8).
  */
-export function MedicineLine({ onOpen, className }: { onOpen: () => void; className?: string }) {
+export function MedicineRow({ onOpen, site, className }: { onOpen: () => void; site: string; className?: string }) {
   const { t } = useI18n();
   return (
-    <p className={cx(styles.line, className)}>
-      {t.medicine.ask}{' '}
-      <button type="button" className={styles.open} aria-haspopup="dialog" onClick={onOpen}>
-        {t.medicine.check}
-      </button>
-    </p>
+    <button type="button" className={cx(styles.row, className)} aria-haspopup="dialog" onClick={onOpen}>
+      <Icon name="search" size={20} />
+      <span className={styles.rowText}>
+        <span className={styles.rowTitle}>{t.medicine.title}</span>
+        <span className={styles.rowSite}>{site}</span>
+      </span>
+    </button>
   );
 }
 

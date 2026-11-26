@@ -951,3 +951,19 @@ Entry format:
   - Phone numbers and email addresses open as before: they are not pages, and a new tab for them would be an empty one.
 - Status: done. Not tried on a real iPhone: whether Safari asks again on a later visit is Safari's to decide, and the app can't see it.
   - The other half of Janne's note, the last results coming back from the tab's own storage after a reload, is a pull request of its own: it keeps the position in the tab, which changes what the footer's "Sijaintiasi ei tallenneta." may say.
+
+## 2026-11-26: The pharmacy sheet: the medicine search is a row of its own, and the figures are the typeface's proportional ones
+- Where: `components/MedicineDialog.tsx` (`MedicineRow`) and its styles, `NearestOpenCard.module.css`, `PharmacySheet.tsx` and its styles, `ResultsView.tsx`; the views with a card or a pharmacy's details in a country that has a stock search
+- Change: Janne's two decisions of 26 Nov.
+  - **The medicine search** was a link at the end of the "Ei varastossa?" line: "Etsitkö tiettyä lääkettä? Tarkista saatavuus". It is a row now, in the card and in a pharmacy's details: a rule above it, the search glyph in the column of the crosses, "Tarkista lääkkeen saatavuus", and under that the address of the service it leads to ("apteekki.fi"). The whole row is the button.
+  - It is named as the dialog it opens is, so the action keeps one name through the flow, and the address says before the press where the check is made: the country's own service, not this app.
+  - It stands under "Ei varastossa?", as the line did. Above would follow the order of thought (check, then the next one), and would put it between the card's buttons and the next open pharmacy, which is the more urgent of the two.
+  - **The figures** of a pharmacy's details (hours, phone number, walking time, distance) had `tabular-nums`. They are the typeface's ordinary figures now.
+- Why: The row because a second sentence in a quiet line was easy to miss, and it is the way to what people ask a pharmacy first.
+  - The figures because of what tabular figures look like in this typeface. Atkinson Hyperlegible Next has two sets, and in the tabular one every figure is as wide as the next and the "1" stands on a foot: three lines of hours and a phone number in them read as a monospace face. Nothing in the details stands in a column that needs it or changes while it is looked at.
+  - **The zero keeps its slash, and that part of the decision is not done.** "No slashed zeros" can't be had from the font as it is: the slash is the typeface's own zero in both sets of figures, there to tell 0 from O, and the font has no other zero and no feature that changes it (read from the font file: `zero` and `zero.tf`, features `ccmp frac locl pnum tnum`). The ways to a plain zero:
+    1. a copy of the typeface with the slash taken out of the zero, served from the app (its licence, the SIL Open Font License, allows that under another name). It would change every figure in the app and every baseline, and the typeface would no longer be the published one;
+    2. another typeface for figures only;
+    3. keeping the zero as the typeface has it. PLAN.md section 6 chose this typeface for its "distinct I/l/1 and O/0".
+  - The card, the list's rows and the markers keep their tabular figures: there the minutes stand in a column down the list and change in place, and a marker must not change its width when a minute passes.
+- Status: the row is done. The figures are provisional: the monospace look is gone from the details, the slashed zero is not, and which of the three ways to take is Janne's (a change to the typeface is his by `CLAUDE.md`).

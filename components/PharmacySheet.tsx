@@ -10,10 +10,9 @@ import { travel, withinWalk } from '@/lib/travel';
 import type { CountryInfo, Pharmacy, Scene } from '@/lib/types';
 import { Button, IconButton } from './Button';
 import { CrossGlyph } from './CrossGlyph';
-import { cx } from './cx';
 import { Icon } from './Icon';
 import { Measure } from './Measure';
-import { MedicineLine } from './MedicineDialog';
+import { MedicineRow } from './MedicineDialog';
 import { ExternalLink, NEW_TAB, NewTabNote } from './NewTab';
 import { OpenStatus } from './OpenStatus';
 import styles from './PharmacySheet.module.css';
@@ -33,6 +32,8 @@ interface Props {
   onShowCard?: () => void;
   /** Opens the medicine dialog for this pharmacy's country. Left out where the country has no stock search of its own. */
   onMedicine?: () => void;
+  /** The address of that service, as the row names it: "apteekki.fi". */
+  medicineSite?: string;
   onClose?: () => void;
   onSelect?: (pharmacy: Pharmacy) => void;
 }
@@ -43,7 +44,7 @@ interface Props {
  * data in OpenStreetMap. The pharmacy's own email and website are shown when OpenStreetMap
  * has them: emailing a prescription ahead often works (PLAN.md section 2).
  */
-export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onMedicine, onClose, onSelect }: Props) {
+export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onMedicine, medicineSite, onClose, onSelect }: Props) {
   const i18n = useI18n();
   const { t, f } = i18n;
   const name = displayName(i18n, pharmacy);
@@ -92,10 +93,10 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
           {pharmacy.dispensing === false && <p className={styles.note}>{t.status.noPrescriptions}</p>}
         </div>
         <p className={styles.travel}>
-          <span className={cx(styles.time, 'tnum')}>
+          <span className={styles.time}>
             <Measure {...way.primary} />
           </span>
-          <span className={cx(styles.distance, 'tnum')}>
+          <span className={styles.distance}>
             <Measure short={way.secondary.short} long={way.secondary.long || way.secondary.short} />
           </span>
         </p>
@@ -106,7 +107,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
           {hours.length > 0 && (
             <>
               <dt>{t.sheet.hours}</dt>
-              <dd className="tnum">
+              <dd>
                 {hours.map((line) => (
                   <span key={line} className={styles.line}>
                     {line}
@@ -124,7 +125,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
           {pharmacy.phone && (
             <>
               <dt>{t.sheet.phone}</dt>
-              <dd className="tnum">{pharmacy.phone}</dd>
+              <dd>{pharmacy.phone}</dd>
             </>
           )}
           {email && (
@@ -198,7 +199,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
         </p>
       )}
 
-      {onMedicine && <MedicineLine className={styles.medicine} onOpen={onMedicine} />}
+      {onMedicine && medicineSite && <MedicineRow className={styles.medicine} onOpen={onMedicine} site={medicineSite} />}
 
       <p className={styles.footnote}>
         {t.sheet.handOff} {pharmacy.checkDate ? t.sheet.sourceChecked(f.date(pharmacy.checkDate)) : t.sheet.source} {rich(t.sheet.wrong, { link: fix })}
