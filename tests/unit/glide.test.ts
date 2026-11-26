@@ -44,6 +44,14 @@ describe('the speed at letting go', () => {
     expect(speedAt([{ t: 900, x: 0, y: 0 }, { t: 950, x: 30, y: 0 }, { t: 1000, x: 60, y: 0 }], 1020)!.x).toBeCloseTo(600);
   });
 
+  it('is a number also when two touches bear the same time, and the glide then is the fastest one, the same way', () => {
+    const speed = speedAt([{ t: 1000, x: 0, y: 0 }, { t: 1000, x: 30, y: -40 }], 1000)!;
+    expect(Number.isFinite(speed.x) && Number.isFinite(speed.y)).toBe(true);
+    const glide = glideOf(speed)!;
+    expect(Math.hypot(glide.x, glide.y)).toBeCloseTo(Math.hypot(glideOf({ x: FASTEST_PX_S, y: 0 })!.x, 0));
+    expect(glide.y / glide.x).toBeCloseTo(-40 / 30);
+  });
+
   it('needs two places to go by', () => {
     expect(speedAt([], 1000)).toBeUndefined();
     expect(speedAt([{ t: 990, x: 0, y: 0 }], 1000)).toBeUndefined();

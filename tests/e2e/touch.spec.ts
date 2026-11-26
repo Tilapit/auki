@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { kamppi } from '@/lib/fixtures/tiles';
 import { expect, test } from './fixtures';
+import { FASTEST_PX_S } from '@/lib/map/glide';
 import { hasWebGL, open, startRunning, touchscreen, world } from './helpers';
 
 /**
@@ -35,12 +36,15 @@ interface Followed {
   x: number;
   y: number;
   event?: string;
+  /** For a touch: where the finger was, and the touch's own time. */
+  finger?: number;
+  touched?: number;
 }
 
-/** Starts a record in the page of where the dot is on every frame, and of when a finger touches and lifts. */
+/** Starts a record in the page of where the dot is on every frame, and of every touch: where the finger was, and its own time. */
 async function follow(page: Page) {
   await page.evaluate(() => {
-    const log: { t: number; x: number; y: number; event?: string }[] = [];
+    const log: { t: number; x: number; y: number; event?: string; finger?: number; touched?: number }[] = [];
     (window as unknown as { followed: typeof log }).followed = log;
     const pin = [...document.querySelectorAll<HTMLElement>('[data-pin="you-are-here"]')].pop()!;
     const at = () => {
@@ -52,21 +56,29 @@ async function follow(page: Page) {
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-    for (const event of ['touchstart', 'touchend']) document.addEventListener(event, () => log.push({ t: performance.now(), ...at(), event }), { capture: true, passive: true });
+    for (const event of ['touchstart', 'touchmove', 'touchend'])
+      document.addEventListener(event, (touch) => log.push({ t: performance.now(), ...at(), event, finger: (touch as TouchEvent).touches[0]?.clientX, touched: touch.timeStamp }), { capture: true, passive: true });
   });
 }
 
-/** What `follow` recorded, as: the finger's speed when it lifted, in px a second, and how far the dot went on in the time after. */
+/**
+ * What `follow` recorded of a flick: the finger's speed when it lifted, in px a second, as the
+ * map itself reckons and caps it (lib/map/glide.ts), and how far beyond the place the finger
+ * left it the dot was after a time.
+ */
 async function afterLifting(page: Page) {
   const log = await page.evaluate(() => (window as unknown as { followed: Followed[] }).followed);
+  const began = log.findLast((entry) => entry.event === 'touchstart')!;
   const lifted = log.findLast((entry) => entry.event === 'touchend')!;
-  // The speed of the last tenth of a second in which the map moved under the finger, as the map itself reckons it (lib/map/glide.ts).
-  const moved = log.filter((entry, index) => index > 0 && entry.t < lifted.t && entry.x !== log[index - 1].x);
-  const last = moved[moved.length - 1];
-  const first = last && moved.find((entry) => last.t - entry.t <= 100);
-  const speed = first && first !== last ? ((last.x - first.x) / (last.t - first.t)) * 1000 : 0;
-  const within = (ms: number) => log.findLast((entry) => entry.t <= lifted.t + ms)!.x - lifted.x;
-  return { speed, within };
+  const touches = log.filter((entry) => entry.event && entry.event !== 'touchend' && entry.t >= began.t);
+  const last = touches[touches.length - 1];
+  const first = touches.find((entry) => last.touched! - entry.touched! <= 100)!;
+  const speed = first === last ? 0 : Math.min(Math.abs(last.finger! - first.finger!) / (Math.max(last.touched! - first.touched!, 1) / 1000), FASTEST_PX_S);
+  // Where the finger left the dot: where it was when the finger came down, and the finger's own way.
+  const left = began.x + (last.finger! - began.finger!);
+  const frames = log.filter((entry) => !entry.event);
+  const beyond = (ms: number) => frames.findLast((entry) => entry.t <= lifted.t + ms)!.x - left;
+  return { speed, beyond };
 }
 
 /** The results with the real map under them, drawn and at rest. */
@@ -212,22 +224,22 @@ test.describe('with a finger', () => {
     await follow(page);
     await screen.flick({ x: 60, y: 300 }, { x: 340, y: 300 });
     await page.waitForTimeout(3300);
-    const { speed, within } = await afterLifting(page);
-    // A flick it was, however fast this machine made it.
-    expect(speed).toBeGreaterThan(300);
+    const { speed, beyond } = await afterLifting(page);
+    // A flick it was: the fastest the map counts, on any machine.
+    expect(speed).toBeGreaterThan(1000);
 
-    // No hitch at letting go, and no surge: in the first fifth of a second it covers most of what the
-    // finger would have. (MapLibre's own glide covers a quarter. The speed is read from the frames
-    // of a test machine, so the limits are wide.)
-    expect(within(200) / (speed * 0.2)).toBeGreaterThan(0.45);
-    expect(within(200) / (speed * 0.2)).toBeLessThan(1.4);
+    // No hitch at letting go, and no surge: in the first two fifths of a second it covers over half
+    // of what the finger would have at its speed. (MapLibre's own glide covers a fifth at most. A
+    // test machine may draw a frame only every tenth of a second, so the limits are wide.)
+    expect(beyond(400) / (speed * 0.4)).toBeGreaterThan(0.4);
+    expect(beyond(400) / (speed * 0.4)).toBeLessThan(1.1);
     // It only ever slows.
-    expect(within(600) - within(300)).toBeLessThan(within(300));
-    expect(within(900) - within(600)).toBeLessThan(within(600) - within(300));
-    // And comes to rest about half as many pixels on as its speed was in pixels a second. (MapLibre's own: a thirteenth.)
-    expect(within(3200) / speed).toBeGreaterThan(0.3);
-    expect(within(3200) / speed).toBeLessThan(0.8);
-    expect(within(3200)).toBe(within(3300));
+    expect(beyond(600) - beyond(300)).toBeLessThan(beyond(300));
+    expect(beyond(900) - beyond(600)).toBeLessThan(beyond(600) - beyond(300));
+    // And comes to rest half as many pixels on as its speed was in pixels a second. (MapLibre's own: a thirteenth.)
+    expect(beyond(3200) / speed).toBeGreaterThan(0.4);
+    expect(beyond(3200) / speed).toBeLessThan(0.6);
+    expect(beyond(3200)).toBe(beyond(3300));
     expect(await pageScale(page)).toBe(1);
   });
 
@@ -237,8 +249,7 @@ test.describe('with a finger', () => {
     await screen.flick({ x: 60, y: 300 }, { x: 340, y: 300 });
     await page.waitForTimeout(120);
     const gliding = await placeOf(dot(page));
-    await page.waitForTimeout(80);
-    expect((await placeOf(dot(page))).x).toBeGreaterThan(gliding.x + 10);
+    await expect.poll(async () => (await placeOf(dot(page))).x).toBeGreaterThan(gliding.x + 10);
 
     // Somewhere on the map's ground, so that lifting the finger again opens nothing.
     const ground = await page.evaluate(() => [{ x: 40, y: 140 }, { x: 350, y: 140 }, { x: 40, y: 600 }, { x: 350, y: 600 }, { x: 200, y: 200 }].find((point) => document.elementFromPoint(point.x, point.y)?.tagName === 'CANVAS'));
@@ -260,13 +271,11 @@ test.describe('with a finger', () => {
     await follow(page);
     await screen.flick({ x: 60, y: 300 }, { x: 340, y: 300 });
     await page.waitForTimeout(900);
-    const { speed, within } = await afterLifting(page);
-    // A flick it was, however fast this machine made it.
-    expect(speed).toBeGreaterThan(300);
-    // The last step of the finger's own way, 28 px, is drawn a frame or two after it has lifted:
-    // that, and nothing after it. (A glide would be some three hundred.)
-    expect(Math.abs(within(900))).toBeLessThanOrEqual(40);
-    expect(within(900)).toBe(within(150));
+    const { speed, beyond } = await afterLifting(page);
+    expect(speed).toBeGreaterThan(1000);
+    // Where the finger left it, to the pixel, and nothing after. (A glide would be some sixteen hundred pixels.)
+    expect(Math.abs(beyond(900))).toBeLessThanOrEqual(2);
+    expect(beyond(900)).toBe(beyond(500));
   });
 
   test('a pinch zooms around the fingers: the place between them stays between them', async ({ page }) => {

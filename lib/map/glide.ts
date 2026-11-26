@@ -27,9 +27,9 @@ export const MEASURED_OVER_MS = 100;
 export const STOPPED_AFTER_MS = 70;
 
 export interface Sample {
-  /** When, in ms. */
+  /** When, in ms: the touch's own time. */
   t: number;
-  /** Where a fixed place of the map was on the screen then, in px. */
+  /** Where the finger was on the screen then, in px. One finger moves the map with it, pixel for pixel. */
   x: number;
   y: number;
 }
@@ -43,8 +43,8 @@ export interface Glide {
 }
 
 /**
- * The speed of the map's content when the finger lifted at `now`, in px per second: the speed
- * of its last MEASURED_OVER_MS of movement, as a touch screen itself reckons a flick. The
+ * The speed of the finger, and so of the map under it, when it lifted at `now`, in px per
+ * second: the speed of its last MEASURED_OVER_MS of movement, as a touch screen itself reckons a flick. The
  * time between the last movement and the lifting is not counted into it: touches arrive a
  * frame or three apart, and that gap would make every flick look slower than it was. A finger
  * that held still for longer than STOPPED_AFTER_MS before lifting has no speed at all.
@@ -54,7 +54,8 @@ export function speedAt(samples: readonly Sample[], now: number): { x: number; y
   if (!last || now - last.t > STOPPED_AFTER_MS) return undefined;
   const first = samples.find((sample) => last.t - sample.t <= MEASURED_OVER_MS);
   if (!first || first === last) return undefined;
-  const seconds = (last.t - first.t) / 1000;
+  // Two touches may bear the same time: a millisecond at least, so that the speed is a number.
+  const seconds = Math.max(last.t - first.t, 1) / 1000;
   return { x: (last.x - first.x) / seconds, y: (last.y - first.y) / seconds };
 }
 

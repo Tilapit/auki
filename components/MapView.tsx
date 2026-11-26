@@ -459,37 +459,44 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         // then slower and slower (lib/map/glide.ts). MapLibre begins a glide of its own right after
         // `dragend`, which starts at half the finger's speed and is over in half a second: ours
         // takes its place. One finger only, and not a mouse, whose drags end as MapLibre ends them.
-        // A place of the map is followed while the finger moves it, for its speed at letting go.
-        let followed: { lng: number; lat: number } | undefined;
-        let zoomAtStart = 0;
+        // The finger's speed is read from the touches themselves, their own places and times: what
+        // the map has drawn meanwhile says how fast the device is, not how fast the finger was.
         let trail: Sample[] = [];
+        let pinched = false;
         let gliding = false;
-        live.on('dragstart', () => {
-          followed = live.getCenter();
-          zoomAtStart = live.getZoom();
-          trail = [];
-        });
-        live.on('drag', () => {
-          if (!followed) return;
-          const at = live.project(followed);
-          trail.push({ t: performance.now(), x: at.x, y: at.y });
-          if (trail.length > 16) trail.shift();
-        });
+        const touched = (event: TouchEvent) => {
+          const [finger] = event.touches;
+          if (event.touches.length !== 1) {
+            pinched = true;
+            trail = [];
+            return;
+          }
+          if (event.type === 'touchstart') {
+            pinched = false;
+            trail = [];
+            // A finger laid on the gliding map stops it there, before it has moved at all.
+            if (gliding) live.stop();
+          }
+          if (pinched) return;
+          trail.push({ t: event.timeStamp, x: finger.clientX, y: finger.clientY });
+          if (trail.length > 24) trail.shift();
+        };
+        const surface = live.getCanvasContainer();
+        surface.addEventListener('touchstart', touched, { capture: true, passive: true });
+        surface.addEventListener('touchmove', touched, { capture: true, passive: true });
         live.on('dragend', (event) => {
-          const from = followed;
-          followed = undefined;
           const lifted = event.originalEvent;
-          // The last finger has lifted, and the fingers did not zoom on the way: a pinch ends as MapLibre ends it.
-          if (!from || !lifted || !('touches' in lifted) || lifted.touches.length > 0 || Math.abs(live.getZoom() - zoomAtStart) > 0.01) return;
+          // The last finger has lifted, and no second one was down on the way: a pinch ends as MapLibre ends it.
+          if (!lifted || !('touches' in lifted) || lifted.touches.length > 0 || pinched) return;
           // Who has asked for less motion gets none here: the map stays where the finger left it.
           if (plainTouch || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-          const glide = glideOf(speedAt(trail, performance.now()));
+          const glide = glideOf(speedAt(trail, lifted.timeStamp));
           if (!glide) return;
           // The map last moved with the finger a frame ago and is first drawn gliding a frame from now.
           const stoodSince = trail[trail.length - 1].t;
           queueMicrotask(() => {
             if (map.current !== live) return;
-            const lead = Math.min(performance.now() - stoodSince + 16, LEAD_UP_TO_MS);
+            const lead = Math.min(Math.max(performance.now() - stoodSince, 0) + 16, LEAD_UP_TO_MS);
             live.panBy([-glide.x, -glide.y], { duration: glide.duration, easing: easingOf(glide.duration, lead) }, { byHand: true });
             gliding = true;
           });
@@ -497,11 +504,6 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         live.on('moveend', () => {
           gliding = false;
         });
-        // A finger laid on the gliding map stops it there, before it has moved at all.
-        const hold = () => {
-          if (gliding) live.stop();
-        };
-        live.getCanvasContainer().addEventListener('touchstart', hold, { capture: true, passive: true });
 
         // The area layer's signs are drawn when the map first needs one.
         live.setMissingStyleImageResolver((id) => {
