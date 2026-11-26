@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { kamppi } from '@/lib/fixtures/tiles';
 import { expect, test } from './fixtures';
-import { FASTEST_PX_S } from '@/lib/map/glide';
+import { FASTEST_PX_S, KEEP_PER_MS } from '@/lib/map/glide';
 import { hasWebGL, open, startRunning, touchscreen, world } from './helpers';
 
 /**
@@ -76,9 +76,11 @@ async function afterLifting(page: Page) {
   const speed = first === last ? 0 : Math.min(Math.abs(last.finger! - first.finger!) / (Math.max(last.touched! - first.touched!, 1) / 1000), FASTEST_PX_S);
   // Where the finger left the dot: where it was when the finger came down, and the finger's own way.
   const left = began.x + (last.finger! - began.finger!);
-  const frames = log.filter((entry) => !entry.event);
-  const beyond = (ms: number) => frames.findLast((entry) => entry.t <= lifted.t + ms)!.x - left;
-  return { speed, beyond };
+  const drawn = log.filter((entry) => !entry.event);
+  const beyond = (ms: number) => drawn.findLast((entry) => entry.t <= lifted.t + ms)!.x - left;
+  // Every frame drawn after the lifting: how long after, and how far beyond that place the dot was on it.
+  const frames = drawn.filter((entry) => entry.t > lifted.t).map((entry) => ({ after: entry.t - lifted.t, beyond: entry.x - left }));
+  return { speed, beyond, frames };
 }
 
 /** The results with the real map under them, drawn and at rest. */
@@ -223,23 +225,35 @@ test.describe('with a finger', () => {
     const screen = await touchscreen(page);
     await follow(page);
     await screen.flick({ x: 60, y: 300 }, { x: 340, y: 300 });
-    await page.waitForTimeout(3300);
-    const { speed, beyond } = await afterLifting(page);
+    await page.waitForTimeout(3800);
+    const { speed, beyond, frames } = await afterLifting(page);
     // A flick it was: the fastest the map counts, on any machine.
     expect(speed).toBeGreaterThan(1000);
 
-    // No hitch at letting go, and no surge: in the first two fifths of a second it covers over half
-    // of what the finger would have at its speed. (MapLibre's own glide covers a fifth at most. A
-    // test machine may draw a frame only every tenth of a second, so the limits are wide.)
-    expect(beyond(400) / (speed * 0.4)).toBeGreaterThan(0.4);
-    expect(beyond(400) / (speed * 0.4)).toBeLessThan(1.1);
-    // It only ever slows.
-    expect(beyond(600) - beyond(300)).toBeLessThan(beyond(300));
-    expect(beyond(900) - beyond(600)).toBeLessThan(beyond(600) - beyond(300));
-    // And comes to rest half as many pixels on as its speed was in pixels a second. (MapLibre's own: a thirteenth.)
-    expect(beyond(3200) / speed).toBeGreaterThan(0.4);
-    expect(beyond(3200) / speed).toBeLessThan(0.6);
-    expect(beyond(3200)).toBe(beyond(3300));
+    // How far a list has gone on a time after it was let go at that speed (lib/map/glide.ts).
+    const decay = -Math.log(KEEP_PER_MS) * 1000;
+    const list = (ms: number) => (speed / decay) * (1 - Math.exp((-decay * Math.max(ms, 0)) / 1000));
+    // The finger's own way is drawn within a frame or two of the lifting, on a slow machine a little later.
+    const caughtUp = frames.findIndex((frame) => frame.beyond >= 0);
+    expect(caughtUp).toBeGreaterThanOrEqual(0);
+    expect(frames[caughtUp].after).toBeLessThan(900);
+    // From then on every frame is on the list's curve, at its own time: no hitch at letting go, no
+    // surge, and never faster than before. A frame may show the map as it stood one frame earlier,
+    // and a test machine may draw one only every few tenths of a second: so not below the curve of
+    // the frame before, and not above its own. (MapLibre's own glide is under it from the start.)
+    let checked = 0;
+    for (let index = caughtUp + 1; index < frames.length && frames[index].after <= 2600; index++) {
+      const frame = frames[index];
+      expect(frame.beyond, `${Math.round(frame.after)} ms after lifting`).toBeGreaterThanOrEqual(0.8 * list(frames[index - 1].after) - 20);
+      expect(frame.beyond, `${Math.round(frame.after)} ms after lifting`).toBeLessThanOrEqual(1.15 * list(frame.after + 70) + 20);
+      expect(frame.beyond).toBeGreaterThanOrEqual(frames[index - 1].beyond);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(3);
+    // And it comes to rest half as many pixels on as its speed was in pixels a second. (MapLibre's own: a thirteenth.)
+    expect(beyond(3400) / speed).toBeGreaterThan(0.4);
+    expect(beyond(3400) / speed).toBeLessThan(0.6);
+    expect(beyond(3400)).toBe(beyond(3700));
     expect(await pageScale(page)).toBe(1);
   });
 
