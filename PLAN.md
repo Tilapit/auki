@@ -45,7 +45,7 @@ Findings from Treat's research trip of 3–13 November 2026: three people, 20 co
 2. **Render once, never jump.** The list appears complete and doesn't reorder under the user's eyes.
 3. **Honest about uncertainty.** "Hours not listed", "Hours unclear", "Hours may be out of date", "Not field-tested", "Unreviewed translation" are first-class states.
 4. **Your language on screen, theirs on the counter card.**
-5. **Nothing stored on a server, almost nothing sent.** No accounts, no analytics, no cookies. Finding pharmacies sends no position at all: the browser works out which data tiles it needs and fetches those. The position leaves the device in one request only, for walking times, through our server. The device keeps the app and the last area's tiles so that it works offline, one mark that location has worked here before (section 5, "First visit"), and nothing else. Section 7.6 lists every request, and a test fails the build if that list stops being true.
+5. **Nothing stored on a server, almost nothing sent.** No accounts, no analytics, no cookies. Finding pharmacies sends no position at all: the browser works out which data tiles it needs and fetches those. The position leaves the device in one request only, for walking times, through our server. The device keeps the app and the last area's tiles so that it works offline, one mark that location has worked here before (section 5, "First visit"), and nothing else. A tab keeps its own last search, the position with it, until it is closed (section 7.6). Section 7.6 lists every request, and a test fails the build if that list stops being true.
 6. **Route, don't resolve.** No medical advice. Link to 112, national advice lines and Kanta.
 7. **Fast.** Pharmacy data is static files on a CDN, fetched by tile. No hours parser and no UI kit in the browser. The map (MapLibre) is the one heavy dependency: load it after the first paint, and the list works without it. Budgets for initial JavaScript and mobile LCP are enforced in CI (section 12).
 8. **Ask only when it matters.** No onboarding questions. Prescription details are asked abroad, when the user opens them.
@@ -105,6 +105,12 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
   - The mark is left only by a position that came. A refusal, a timeout or a search by place name leaves none, and the next visit is a first visit.
   - A browser that says the site is blocked is believed: the first window with its button, since asking would only fail. Without the mark and without permission, the button, as before.
   - The first window is one step back from the map, with place search on it.
+- **A tab that is loaded again shows the results it had** (Janne, 26 Nov 2026; `lib/session.ts`). A phone throws a tab away while its user follows a route in a map app, and a change of language or a look at the data page loads the page anew: each used to start over from the first window.
+  - The tab keeps its last search in its own session storage: the position it was made for, when, the walking times that came with it, and which pharmacy's details were open. Loaded again, it goes straight to those results: the same order, the same pharmacy open, no question about the position and no second request for walking times.
+  - The pharmacies are read again from the tiles, so every status is that of the minute the tab comes back.
+  - Not once the position is half an hour old: by then the person has moved, and the tab locates again as on any later visit. For a position from the device the dot follows the device as before, and the list is ranked again at the first fix that is far enough from the old one.
+  - Leaving the results forgets them: the way back to the first window, the search box, "Päivitä sijainti". A search that ended in no results is not kept.
+  - This keeps the position on the device, which the app did not do before: section 7.6 says exactly what, and the footer's sentence says "palvelimelle" since (provisional, Janne's to word).
 - **Links that leave the app open in a tab of their own** (Janne, 26 Nov 2026): the route in Google Maps or Apple Maps, a pharmacy's website, OpenStreetMap's note form, a medicine search, a source, the map's credits. The results stay as they were in the tab the person comes back to. Each such link says so to a screen reader after its own name ("avautuu uuteen välilehteen"), sends no referrer and gives the new tab no way back to ours. Phone numbers and email addresses are not pages and open as they did.
 - On a phone the scene is the whole screen, the strips behind the status bar and behind the browser's own bar included: the upper one is the sky's upper colour and the lower one the street's. Those strips are Safari's to colour, from what lies fixed at that edge of the page (from 6 px up) or else from the body's background, so the scene pins its two end colours there (`DESIGN-LOG.md`, 25 Nov 2026). The map views do the same with the map's ground colour and the sheet's. Neither is pulled past its ends.
 
@@ -201,7 +207,7 @@ The results footer always says when the data was fetched ("Tiedot: OpenStreetMap
 Section 7.7.
 
 ### What the app sends
-A short text page, linked from the footer sentence "Sijaintiasi ei tallenneta.": every request the app makes, what it carries and who receives it, and what the device keeps for offline use (section 7.6).
+A short text page, linked from the footer sentence "Sijaintiasi ei tallenneta palvelimelle.": every request the app makes, what it carries and who receives it, and what the device keeps for offline use (section 7.6).
 
 ### The data
 A short page, linked from the data date in the results footer: per country the number of pharmacies, the share with opening hours, the parse rate and the date and time of the country's last successful fetch, read from `index.json` (section 7.2). Above the table: when the last run was; a country that run could not refresh says so in its row. The page also says what a low share with hours means for the results (section 5, "Lähin auki nyt" card). The pipeline's quality is the core of the app, so it is shown, not claimed.
@@ -555,8 +561,15 @@ Every request the app makes:
 
 Rules:
 
-- No accounts, cookies, analytics or local storage of location.
-- The device keeps one mark in the browser's local storage, `located-before`: that "show pharmacies near me" has worked here before, so that a later visit skips the first window (section 5). One character. It holds no position, no time and nothing about the search, it is never sent anywhere, and clearing the site's data removes it. A browser test reads the whole of the storage after a search and finds that mark alone.
+- No accounts, cookies or analytics, and no position is kept on any server.
+- **The one place a position is kept is the tab's own session storage** (Janne's decision of 26 Nov 2026, so that results come back when a tab is loaded again; section 5, "First visit"). Two keys:
+  - `last-search`: the position the last search was made for (the device's, as exact as the device gave it, or the searched place with its name), the time it was fixed, and the walking times that came, by pharmacy;
+  - `last-detail`: the OpenStreetMap id of the pharmacy whose details are open.
+  - It is written when results are on screen and removed when the user leaves them. The browser drops it when the tab is closed. A search older than half an hour is not used and is removed when the tab is next loaded.
+  - It is never sent anywhere: it is read on the device to rank the same tiles again. Other tabs and other sites can't read it. Someone who holds the unlocked device with the tab still open can, as they can read the map on the screen.
+  - What is read back is treated as untrusted text: anything of another shape is no search at all.
+  - So the footer no longer says "Sijaintiasi ei tallenneta." without more. It says "Sijaintiasi ei tallenneta palvelimelle." / "Your location is not saved on a server." (provisional: the sentence is Janne's to word).
+- The device keeps one mark in the browser's local storage, `located-before`: that "show pharmacies near me" has worked here before, so that a later visit skips the first window (section 5). One character. It holds no position, no time and nothing about the search, it is never sent anywhere, and clearing the site's data removes it. A browser test reads the whole of the storage after a search and finds that mark alone in local storage, and in the tab's session storage only the keys of the next rule.
 - The locale lives in the URL.
 - Tile requests name squares, never coordinates.
 - Walking requests carry the exact position but go through our server: the user's IP isn't forwarded, the position is in the request body, and nothing is logged. Nothing about the device is kept for the budget either: it is counted per endpoint, not per user. The route takes requests from our own pages only.
@@ -572,7 +585,7 @@ Rules:
   - Nothing of ours logs it, counts it or looks it up: the app does not know whether the name is a medicine.
   - A service whose address takes no name gets no field: the app does not ask for what it can't pass on.
   - Live stock, if a service ever agrees to it (section 7.9), has to keep the first claim's shape: asked from the device, straight to the service. A lookup through our server would break this rule and needs a new decision.
-- Footer: "Your location is only used for this search and isn't saved."
+- Footer: "Sijaintiasi ei tallenneta palvelimelle." / "Your location is not saved on a server." (provisional, 26 Nov 2026; until then "Sijaintiasi ei tallenneta.")
 - The results footer also carries one small line, "Hätätilanteessa soita 112" (a `tel:` link). It is prominent in the nothing-open, none-found, not-covered, error and offline states. National advice lines are added only after they are verified in M6.
 
 Checked, not promised:

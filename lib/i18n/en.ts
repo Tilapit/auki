@@ -5,7 +5,7 @@ import type { Dictionary } from './index';
 const en: Dictionary = {
   meta: {
     title: `${BRAND}: the nearest open pharmacy`,
-    description: 'Find the nearest open pharmacy on a map and in a list. Your location is not saved.',
+    description: 'Find the nearest open pharmacy on a map and in a list. Your location is not saved on a server.',
   },
   app: {
     name: BRAND,
@@ -24,7 +24,7 @@ const en: Dictionary = {
   footer: {
     project: 'A job application project by Janne Lappi.',
     notTreat: 'Not affiliated with Treat Health.',
-    privacy: 'Your location is not saved.',
+    privacy: 'Your location is not saved on a server.',
     emergency: 'In an emergency, call {number}.',
     walking: 'Distances are walking routes.',
     straight: 'Distances are straight lines.',

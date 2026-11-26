@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLivePosition, type Fix } from '@/hooks/useLivePosition';
 import { useNow } from '@/hooks/useNow';
 import { routesFrom } from '@/hooks/useRouteLine';
@@ -8,6 +8,7 @@ import { distanceMeters } from '@/lib/geo';
 import { noneShownOpen, staysOpen, toPharmacy, toScene } from '@/lib/live';
 import { areaLayer, type Bounds } from '@/lib/map/area';
 import { sceneAt } from '@/lib/scene';
+import { readLastDetail, saveLastDetail } from '@/lib/session';
 import type { MapView } from '@/lib/state';
 import type { TilePharmacy } from '@/lib/tiles';
 import { ProblemView } from './ProblemView';
@@ -75,6 +76,14 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
     [area, position, now, deviceZone],
   );
 
+  // A tab that is loaded again opens on the pharmacy whose details it showed (lib/session.ts).
+  // Read once, when the results arrive: a new search has none, because leaving the results forgot it.
+  const [detailBefore] = useState(() => {
+    const id = readLastDetail();
+    const known = id && (scene.pharmacies.some((pharmacy) => pharmacy.id === id) || scene.farOpen?.id === id || findInArea(id));
+    return known ? id : undefined;
+  });
+
   // Routes from this position, each asked for once: selecting the same pharmacy again costs nothing.
   // A new position, from a new search or after a walk, starts again.
   const routeFor = useMemo(() => routesFrom(position), [position]);
@@ -103,6 +112,8 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
       findInArea={findInArea}
       onArea={onArea}
       routeFor={routeFor}
+      detailId={detailBefore}
+      onDetail={saveLastDetail}
     />
   );
 }
