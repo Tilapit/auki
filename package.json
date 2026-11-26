@@ -20,6 +20,7 @@
     "lighthouse": "lhci autorun && node scripts/budget-summary.mjs",
     "data": "TZ=UTC node --env-file-if-exists=.env.local pipeline/run.ts",
     "data:serve": "node pipeline/serve.ts",
+    "db:push": "node --env-file-if-exists=.env.local scripts/db-push.mjs",
     "data:corpus": "TZ=UTC node pipeline/corpus.ts",
     "vectors": "TZ=UTC node tests/vectors/make.ts",
     "walking:check": "node --env-file-if-exists=.env.local scripts/walking-check.ts"
