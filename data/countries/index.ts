@@ -9,13 +9,14 @@
  */
 
 import type { Locale } from '../../lib/i18n';
+import { date } from '../../lib/format.ts';
 import type { CardPhrases, CardVariant } from '../../lib/types';
 import { EXCHANGE, ePrescription, type EPrescription, type Note } from './eprescription.ts';
 import { HERE, hereOf, type Here } from './here.ts';
 import { HOMES, OTHER, homeOf, inEea } from './homes.ts';
 import { paper, type PaperStatus } from './paper.ts';
 import { cardFor } from './phrases.ts';
-import type { SourceId } from './sources.ts';
+import { SOURCES, type Source, type SourceId } from './sources.ts';
 
 export { EXCHANGE, NO_FOREIGN, NOT_ABROAD, ePrescription } from './eprescription.ts';
 export type { Note } from './eprescription.ts';
@@ -45,7 +46,7 @@ export interface Guide {
 /** How a home country outside the list stands in a sentence. */
 const ELSEWHERE: Text = { fi: 'EU:n ja Eta-alueen ulkopuolella', en: 'outside the EU and the EEA' };
 
-function electronic(status: EPrescription['status'], from: Text, to: Text): Text {
+function electronic(status: Exclude<EPrescription['status'], 'notListed'>, from: Text, to: Text): Text {
   switch (status) {
     case 'works':
       return { fi: `${from.fi} kirjoitettu sähköinen resepti käy ${to.fi}.`, en: `An e-prescription written ${from.en} can be used ${to.en}.` };
@@ -53,8 +54,6 @@ function electronic(status: EPrescription['status'], from: Text, to: Text): Text
       return { fi: `Toisessa maassa kirjoitettu sähköinen resepti ei käy ${to.fi}.`, en: `An e-prescription written in another country cannot be used ${to.en}.` };
     case 'notAbroad':
       return { fi: `${from.fi} kirjoitettu sähköinen resepti ei käy ulkomailla.`, en: `An e-prescription written ${from.en} cannot be used abroad.` };
-    case 'notListed':
-      return { fi: `${from.fi} kirjoitettu sähköinen resepti ei käy ${to.fi}.`, en: `An e-prescription written ${from.en} cannot be used ${to.en}.` };
     case 'disagree':
       return {
         fi: `Maiden omat sivut kertovat eri tavoin, käykö ${from.fi} kirjoitettu sähköinen resepti ${to.fi}.`,
@@ -68,23 +67,58 @@ function electronic(status: EPrescription['status'], from: Text, to: Text): Text
   }
 }
 
-/** Why a pair that no list has is said not to work: whose list it is missing from. */
-function missing(home: string, here: string, from: Text, to: Text, sources: SourceId[]): Note[] {
+/** Whose page a source is: its label up to the colon, "TEHIK (Viro)". */
+const publisher = (source: SourceId, locale: Locale): string => SOURCES[source].label[locale].split(': ')[0];
+
+/** "TEHIK (Viro), luettu 26.11.2026": whose list it is, with the page's own date where it shows one and the day it was read where it shows none. */
+function listOf(source: SourceId): Text {
+  const { updated, checked }: Source = SOURCES[source];
+  return {
+    fi: `${publisher(source, 'fi')}, ${updated ? `päivitetty ${date('fi', updated)}` : `luettu ${date('fi', checked)}`}`,
+    en: `${publisher(source, 'en')}, ${updated ? `updated ${date('en', updated)}` : `read ${date('en', checked)}`}`,
+  };
+}
+
+/** How a country stands as the last word of an English sentence: "Germany", "the Netherlands". */
+const theCountry = (inCountry: Text): string => inCountry.en.replace(/^in /, '');
+
+/**
+ * A pair that a list of partners leaves out. Nobody has said that the e-prescription is
+ * refused: a list was read and the country is not on it. So the answer is not "ei käy". It
+ * says which list the country is missing from, whose list that is and its date, and where the
+ * EU's rule covers the pair, that a paper prescription is the way that works.
+ */
+function notListed(home: string, here: string, names: { home?: Text; here: Text }, from: Text, to: Text, sources: SourceId[], onPaper: boolean): Text {
   const own = EXCHANGE[home] && !EXCHANGE[home].dated;
   const theirs = EXCHANGE[here] && !EXCHANGE[here].dated;
-  const text: Text =
+  const lists = sources.map(listOf);
+  const found: Text =
     own && theirs
-      ? { fi: 'Kumpikaan maa ei mainitse toista omassa luettelossaan.', en: 'Neither country’s own list includes the other.' }
+      ? {
+          // Both lists, and this direction only: the other way round the same two countries may well be listed.
+          fi: `Kummankaan maan luettelossa ei mainita, että ${from.fi} kirjoitettu sähköinen resepti kävisi ${to.fi}.`,
+          en: `Neither country’s list says that an e-prescription written ${from.en} can be used ${to.en}.`,
+        }
       : theirs
-        ? {
-            fi: `Luettelossa maista, joiden sähköiset reseptit käyvät ${to.fi}, ei ole tätä maata.`,
-            en: `The list of countries whose e-prescriptions are dispensed ${to.en} does not include this one.`,
-          }
+        ? names.home
+          ? {
+              fi: `${names.home.fi} ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät ${to.fi}.`,
+              en: `The list of countries whose e-prescriptions are dispensed ${to.en} does not include ${theCountry(from)}.`,
+            }
+          : {
+              fi: `Niiden maiden luettelossa, joiden sähköiset reseptit käyvät ${to.fi}, ei ole maita EU:n ja Eta-alueen ulkopuolelta.`,
+              en: `The list of countries whose e-prescriptions are dispensed ${to.en} has none from outside the EU and the EEA.`,
+            }
         : {
-            fi: `Luettelossa maista, joissa ${from.fi} kirjoitettu sähköinen resepti käy, ei ole tätä maata.`,
-            en: `The list of countries where an e-prescription written ${from.en} can be used does not include this one.`,
+            fi: `${names.here.fi} ei ole niiden maiden luettelossa, joissa ${from.fi} kirjoitettu sähköinen resepti käy.`,
+            en: `The list of countries where an e-prescription written ${from.en} can be used does not include ${theCountry(to)}.`,
           };
-  return [{ text, source: sources[0] }];
+  const whose: Text = {
+    fi: `${lists.length > 1 ? 'Luettelot' : 'Luettelo'}: ${lists.map((list) => list.fi).join('; ')}.`,
+    en: `${lists.length > 1 ? 'Lists' : 'List'}: ${lists.map((list) => list.en).join('; ')}.`,
+  };
+  const way: Text | undefined = onPaper ? { fi: 'Paperinen resepti käy EU:n säännön nojalla.', en: 'A paper prescription works under the EU’s rule.' } : undefined;
+  return { fi: [found.fi, whose.fi, way?.fi].filter(Boolean).join(' '), en: [found.en, whose.en, way?.en].filter(Boolean).join(' ') };
 }
 
 function onPaper(status: PaperStatus, home: string, here: string, from: Text, to: Text): Text {
@@ -135,8 +169,11 @@ export function guideFor(home: string | undefined, here: string | undefined): Gu
     here: place.code,
     ePrescription: {
       status: electronicFacts.status,
-      text: electronic(electronicFacts.status, from, to),
-      notes: electronicFacts.status === 'notListed' ? missing(code, place.code, from, to, electronicFacts.sources) : electronicFacts.notes,
+      text:
+        electronicFacts.status === 'notListed'
+          ? notListed(code, place.code, { home: known?.name, here: homeOf(place.code)!.name }, from, to, electronicFacts.sources, paperFacts.status === 'recognised')
+          : electronic(electronicFacts.status, from, to),
+      notes: electronicFacts.notes,
       sources: electronicFacts.sources,
     },
     paper: { status: paperFacts.status, text: onPaper(paperFacts.status, code, place.code, from, to), notes: paperFacts.notes, sources: paperFacts.sources },

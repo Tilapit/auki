@@ -58,7 +58,10 @@ test('at home the footer has a way to the banner, for someone whose phone sugges
   await expect(banner(page)).not.toContainText('sähköinen resepti');
   await expect(ask).toHaveCount(0);
   await home(page).selectOption({ label: 'Saksa' });
-  await expect(banner(page)).toContainText('Saksassa kirjoitettu sähköinen resepti ei käy Suomessa.');
+  // Not on Finland's list: said as that, with whose list it is, and never as a flat "ei käy".
+  await expect(banner(page)).toContainText('Saksa ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Suomessa. Luettelo: Kanta, päivitetty');
+  await expect(banner(page)).toContainText('Paperinen resepti käy EU:n säännön nojalla.');
+  await expect(banner(page)).not.toContainText('sähköinen resepti ei käy');
   await expect(banner(page)).toContainText('Saksassa kirjoitettu paperinen resepti kelpaa Suomessa, kun siinä on vaaditut tiedot.');
 });
 
@@ -143,16 +146,19 @@ test('a visitor in Finland: the banner is there, for the country the phone sugge
   await expect(counter(page)).not.toContainText('Käännös tarkistamatta');
 });
 
-test('a prescription from Germany in Latvia: not on Latvia’s list, which the details say; the card has paper lines only', async ({ page }) => {
+test('a prescription from Germany in Latvia: not on Latvia’s list, which the answer says with the list’s owner and date; the card has paper lines only', async ({ page }) => {
   await reads(page, ['de-DE', 'de', 'en']);
   await start(page, inCountry('LV'));
   await expect(home(page)).toHaveValue('DE');
-  await expect(banner(page)).toContainText('Saksassa kirjoitettu sähköinen resepti ei käy Latviassa.');
+  await expect(banner(page)).toContainText('Saksa ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa. Luettelo: eveseliba.gov.lv (Latvia), ');
+  // The way that works is named in the same answer: the paper prescription, under the EU's rule.
+  await expect(banner(page)).toContainText('Paperinen resepti käy EU:n säännön nojalla.');
+  await expect(banner(page)).not.toContainText('sähköinen resepti ei käy');
   await expect(banner(page)).toContainText('Saksassa kirjoitettu paperinen resepti kelpaa Latviassa, kun siinä on vaaditut tiedot.');
   // The trip's result is Latvia's, and it says whose prescription it was made with.
   await expect(banner(page)).toContainText('Suomalaisella reseptillä. Kokeiltu Riiassa 11/2026');
   await banner(page).getByRole('button', { name: 'Lisätiedot ja lähteet' }).click();
-  await expect(banner(page)).toContainText('Luettelossa maista, joiden sähköiset reseptit käyvät Latviassa, ei ole tätä maata.');
+  await expect(banner(page).getByRole('link', { name: /^eveseliba\.gov\.lv \(Latvia\)/ })).toHaveCount(1);
   await expect(banner(page).getByRole('link', { name: /^Kanta/ })).toHaveCount(0);
 
   await cardButton(page).click();
@@ -169,7 +175,9 @@ test('the country can be changed in the banner, and the choice is kept on the de
   expect(await page.evaluate((key) => localStorage.getItem(key), HOME_KEY)).toBeNull();
 
   await home(page).selectOption({ label: 'Sveitsi' });
-  await expect(banner(page)).toContainText('Sveitsissä kirjoitettu sähköinen resepti ei käy Latviassa.');
+  await expect(banner(page)).toContainText('Sveitsi ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa.');
+  // Switzerland is outside the EU's rule: nothing points to paper as the way that works.
+  await expect(banner(page)).not.toContainText('Paperinen resepti käy EU:n säännön nojalla.');
   await expect(banner(page)).toContainText('EU-maiden ei tarvitse hyväksyä Sveitsissä kirjoitettuja reseptejä.');
   expect(await page.evaluate((key) => localStorage.getItem(key), HOME_KEY)).toBe('CH');
 
@@ -201,7 +209,8 @@ test('a phone that suggests no country: the banner asks, in English, and answers
   await expect(page.getByRole('button', { name: /^Show at the counter/ })).toHaveCount(0);
 
   await select.selectOption({ label: 'United Kingdom' });
-  await expect(section).toContainText('An e-prescription written in the United Kingdom cannot be used in Latvia.');
+  await expect(section).toContainText('The list of countries whose e-prescriptions are dispensed in Latvia does not include the United Kingdom. List: eveseliba.gov.lv (Latvia), ');
+  await expect(section).not.toContainText('A paper prescription works under the EU’s rule.');
   await expect(section).toContainText('No official statement was found on whether a prescription written in the United Kingdom is accepted in Latvia.');
   await expect(section).toContainText('With a prescription from Finland. Tried in Riga, 11/2026');
   await expect(page.getByRole('button', { name: 'Show at the counter: the card in Latvian' }).first()).toBeVisible();

@@ -966,7 +966,7 @@ Entry format:
     2. another typeface for figures only;
     3. keeping the zero as the typeface has it. PLAN.md section 6 chose this typeface for its "distinct I/l/1 and O/0".
   - The card, the list's rows and the markers keep their tabular figures: there the minutes stand in a column down the list and change in place, and a marker must not change its width when a minute passes.
-- Status: the row is done. The figures are provisional: the monospace look is gone from the details, the slashed zero is not, and which of the three ways to take is Janne's (a change to the typeface is his by `CLAUDE.md`).
+- Status: decided. Janne, 26 Nov 2026 (evening): the third way. The zero stays as the typeface has it, slash and all, and the typeface is not copied or changed. The figures in a pharmacy's details stay the ordinary ones.
 
 ## 2026-11-26: A tab that is loaded again shows the results it had, and what that does to the footer's sentence (provisional)
 - Where: `lib/session.ts`, `hooks/usePharmacySearch.ts` (the arrival, the search, what is kept and forgotten), `components/MapStage.tsx` (the open pharmacy); `lib/i18n/` (`footer.privacy`, `meta.description`); `tests/e2e/session.spec.ts`
@@ -981,7 +981,7 @@ Entry format:
   - Other wordings considered: "Sijaintiasi käytetään vain tähän hakuun." (says less, promises nothing about keeping); "Sijaintiasi ei tallenneta palvelimelle. Välilehti muistaa viimeisen haun, kunnes suljet sen." (the whole truth, and long for a line that is meant to be quiet).
   - The other way out: keep the old sentence and don't keep the position. A tab that is loaded again then locates anew, as a later visit does since today: the results come back a second or two later, Safari may ask again, and the walking times are asked for again.
   - The iOS app keeps nothing and its sentence stays as it was.
-- Status: provisional, and not merged: the privacy claims are Janne's (`CLAUDE.md`). The pull request waits for his word on the sentence.
+- Status: decided. Janne, 26 Nov 2026 (evening): merged as it is, with "Sijaintiasi ei tallenneta palvelimelle." / "Your location is not saved on a server."
 
 ## 2026-11-25: Abroad: the banner's third line is what happened at the counter (provisional)
 - Where: `CountryBanner`, `data/countries/guides.ts`; `/dev/states`, "riga" and "abroad" (every country's banner and card lines on one page)
@@ -1023,3 +1023,15 @@ Entry format:
   - Seventeen translations are drafts, as in #17, and rewritten for this: none has had a native reader.
   - At home the banner is not shown, so its control would be out of reach for someone whose phone suggests the wrong country (a German in Finland who reads their phone in Finnish). The results footer has one line for that, "Resepti toisesta maasta?", in the footer's own size: it brings the banner up with the keyboard on the control. A line in the footer, and not in the card, because at home it is for very few.
   - The home country, once picked, is kept on the device: the second thing the app keeps there (PLAN.md 7.6).
+
+## 2026-11-26: A pair that a list leaves out is not a "no" (Janne's decision; the wording provisional)
+- Where: `data/countries/index.ts` (`notListed`), the "Resepti kotimaasta?" banner; `/dev/states`, "abroad" (every pair's sentence on one page)
+- Change: 238 of the 672 pairs are ones where a country's list of partners was read and the other country is not on it. The banner said of them "Saksassa kirjoitettu sähköinen resepti ei käy Latviassa.", in the same words as where an authority says so, and the reason was behind "Lisätiedot ja lähteet". Janne, 26 Nov: it must not read as a flat no; say whose list it is and its date, and point to the paper prescription under the EU's rule as the way that works.
+  - The answer is now three short sentences: what the list leaves out, whose list it is with its date, and the way that works. "Saksa ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa. Luettelo: eveseliba.gov.lv (Latvia), luettu 26.11.2026. Paperinen resepti käy EU:n säännön nojalla."
+  - The date is the page's own where it shows one ("päivitetty 5.8.2026") and the day it was read where it shows none ("luettu 26.11.2026"): the same two cases as in the list of sources.
+  - Whose list: the publisher as the list of sources names it, up to the colon of its label. A unit test holds every such label to that form.
+  - Three kinds of list, three sentences. The list of the country one is in: "Saksa ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa." The home country's list: "Italia ei ole niiden maiden luettelossa, joissa Suomessa kirjoitettu sähköinen resepti käy." Both, where neither has the pair: "Kummankaan maan luettelossa ei mainita, että Tšekissä kirjoitettu sähköinen resepti kävisi Portugalissa." The last is about one direction on purpose: Portugal's prescriptions are dispensed in Czechia.
+  - The pointer to paper is there only where the EU's rule covers the pair (a paper answer of "kelpaa"). A prescription from Switzerland, the United Kingdom or outside Europe gets the first two sentences and no pointer, because the paper answer below it is not a yes.
+  - The note that used to explain the list behind the button is gone: the answer says it. Where an authority says in words that pharmacies take no e-prescription from abroad (Sweden, Denmark, Norway, Germany, Switzerland) the answer is still "ei käy", with that authority's sentence in the details.
+  - The names are in the nominative and the verb in the singular for "Alankomaat" too ("Alankomaat ei ole … luettelossa"), which Finnish allows for a country's name in the plural.
+- Status: the rule is Janne's. The wording is provisional: the answer is two to three lines longer on a phone than the sentence it replaces.

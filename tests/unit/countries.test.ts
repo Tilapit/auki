@@ -23,6 +23,7 @@ import {
   type SourceId,
 } from '@/data/countries';
 import { COUNTRY_CODES } from '@/lib/countries';
+import { date } from '@/lib/format';
 import { kamppi, resultOf, HERE as POSITION, MONDAY_EVENING } from '@/lib/fixtures/tiles';
 import { suggestedHome } from '@/lib/home';
 import { toScene } from '@/lib/live';
@@ -173,6 +174,46 @@ describe('electronic prescriptions, pair by pair', () => {
       // And nothing is claimed either way where no page speaks: the answer is that nothing was found.
       if (!EXCHANGE[home] && !EXCHANGE[here] && !NO_FOREIGN[here] && !NOT_ABROAD[home]) expect(guide.ePrescription.status, key(home, here)).toBe('unknown');
     }
+  });
+
+  it('a pair that a list leaves out is never a flat no: it says whose list, its date, and points to paper where the EU’s rule holds', () => {
+    const left = guides.filter(({ guide }) => guide.ePrescription.status === 'notListed');
+    expect(left.length).toBeGreaterThan(0);
+    for (const { home, here, guide } of left) {
+      const { text, sources } = guide.ePrescription;
+      // Nobody said it is refused, so the app does not say so either.
+      expect(text.fi, key(home, here)).not.toMatch(/ei käy|ei kelpaa/);
+      expect(text.en, key(home, here)).not.toMatch(/cannot be used|does not work|is not accepted/);
+      // Whose list: every page the answer was read from, by its publisher, with the page's date or the day it was read.
+      expect(text.fi, key(home, here)).toMatch(sources.length > 1 ? / Luettelot: / : / Luettelo: /);
+      for (const id of sources) {
+        const source: Source = SOURCES[id];
+        const dated = source.updated ? `päivitetty ${date('fi', source.updated)}` : `luettu ${date('fi', source.checked)}`;
+        expect(text.fi, key(home, here)).toContain(`${source.label.fi.split(': ')[0]}, ${dated}`);
+        expect(text.en, key(home, here)).toContain(`${source.label.en.split(': ')[0]}, ${source.updated ? 'updated' : 'read'} ${date('en', source.updated ?? source.checked)}`);
+      }
+      // The way that works, only where the EU's rule covers the pair.
+      const covered = guide.paper.status === 'recognised';
+      expect(text.fi.endsWith('Paperinen resepti käy EU:n säännön nojalla.'), key(home, here)).toBe(covered);
+      expect(text.en.endsWith('A paper prescription works under the EU’s rule.'), key(home, here)).toBe(covered);
+      // The explanation is the answer itself now, not a note behind the button.
+      expect(guide.ePrescription.notes, key(home, here)).toEqual([]);
+    }
+    // One of each kind, word for word.
+    expect(guideFor('DE', 'LV')!.ePrescription.text.fi).toMatch(/^Saksa ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa\. Luettelo: eveseliba\.gov\.lv \(Latvia\), /);
+    expect(guideFor('FI', 'IT')!.ePrescription.text.fi).toMatch(/^Italia ei ole niiden maiden luettelossa, joissa Suomessa kirjoitettu sähköinen resepti käy\. Luettelo: Kanta, /);
+    // Both lists were read, and the sentence is about this direction alone: Portugal's prescriptions are dispensed in Czechia.
+    expect(guideFor('CZ', 'PT')!.ePrescription.text.fi).toMatch(/^Kummankaan maan luettelossa ei mainita, että Tšekissä kirjoitettu sähköinen resepti kävisi Portugalissa\. Luettelot: /);
+    expect(guideFor('PT', 'CZ')!.ePrescription.status).toBe('works');
+    expect(guideFor(OTHER, 'EE')!.ePrescription.text.en).toMatch(/^The list of countries whose e-prescriptions are dispensed in Estonia has none from outside the EU and the EEA\. List: TEHIK \(Estonia\), /);
+  });
+
+  it('every list a country can be missing from names its publisher before a colon, and has only EU and EEA countries on it', () => {
+    for (const [country, page] of Object.entries(EXCHANGE)) {
+      for (const locale of ['fi', 'en'] as const) expect((SOURCES[page.source] as Source).label[locale], country).toMatch(/^[^:]+: \S/);
+      for (const other of [...page.inbound, ...page.outbound]) expect(HOMES.find((entry) => entry.code === other)?.union, `${country}: ${other}`).toMatch(/^(eu|eea)$/);
+    }
+    for (const locale of ['fi', 'en'] as const) expect((SOURCES.kantaForeign as Source).label[locale]).toMatch(/^[^:]+: \S/);
   });
 
   it('says of every pair what was found, in one of six ways', () => {
