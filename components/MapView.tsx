@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { NO_AREA, type AreaLayer, type Bounds } from '@/lib/map/area';
 import { boxOf, cameraOf, edgeChip, fit, MAP_PIXEL_RATIO, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Box, type Camera, type Insets, type Project } from '@/lib/map/camera';
 import { crowded, declutter, hasRoom, signScale, targetOf } from '@/lib/map/declutter';
+import { easingOf, glideOf, LEAD_UP_TO_MS, speedAt, type Sample } from '@/lib/map/glide';
 import { AREA_ICON, AREA_LAYER, AREA_SOURCE, ROUTE_SOURCE, buildStyle, paletteFor, routeData, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 import { MAP_CREDITS, OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { MAP_TILES_URL } from '@/lib/requests';
@@ -68,6 +69,8 @@ interface Props {
   routeFor?: RouteFor;
   /** /dev/map only: another limit for the map's device pixels per CSS pixel, to compare on a phone. */
   pixels?: number;
+  /** /dev/map only: the map under a finger as MapLibre has it, its own glide after a flick and its own direction for the one-finger zoom, to compare on a phone. */
+  plainTouch?: boolean;
 }
 
 interface Frame {
@@ -141,7 +144,7 @@ const sameOverlay = (a: Overlay, b: Overlay): boolean =>
  * element it listens on: the markers, the edge chips and the credit. A drag or a pinch that
  * begins on any of them then moves the map like any other, and a press is still a press.
  */
-export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, keepSelected, onPick, onView, routeTo, routeFor, pixels = MAP_PIXEL_RATIO }: Props) {
+export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, keepSelected, onPick, onView, routeTo, routeFor, pixels = MAP_PIXEL_RATIO, plainTouch = false }: Props) {
   const i18n = useI18n();
   const { t, locale } = i18n;
 
@@ -441,11 +444,66 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         });
         created.touchZoomRotate.disableRotation();
         created.keyboard.disableRotation();
+        // One finger zooms as in Apple Maps: two taps, the second one held, then up for closer and
+        // down for farther. MapLibre has it the other way round and no setting for it. Its handler
+        // takes a rate, and the rate's sign is the direction. The handler is not part of MapLibre's
+        // public face: if it is ever renamed this does nothing, and the touch test says so.
+        if (!plainTouch) (created.touchZoomRotate as unknown as { _tapDragZoom?: { setZoomRate(rate: number): void } })._tapDragZoom?.setZoomRate(-1);
         if (frame) created.setPadding(cameraPadding(frame));
         const live = created;
 
         live.on('move', place);
         live.on('resize', place);
+
+        // After a flick the map goes on as a list does on an iPhone: at the finger's speed at first,
+        // then slower and slower (lib/map/glide.ts). MapLibre begins a glide of its own right after
+        // `dragend`, which starts at half the finger's speed and is over in half a second: ours
+        // takes its place. One finger only, and not a mouse, whose drags end as MapLibre ends them.
+        // The finger's speed is read from the touches themselves, their own places and times: what
+        // the map has drawn meanwhile says how fast the device is, not how fast the finger was.
+        let trail: Sample[] = [];
+        let pinched = false;
+        let gliding = false;
+        const touched = (event: TouchEvent) => {
+          const [finger] = event.touches;
+          if (event.touches.length !== 1) {
+            pinched = true;
+            trail = [];
+            return;
+          }
+          if (event.type === 'touchstart') {
+            pinched = false;
+            trail = [];
+            // A finger laid on the gliding map stops it there, before it has moved at all.
+            if (gliding) live.stop();
+          }
+          if (pinched) return;
+          trail.push({ t: event.timeStamp, x: finger.clientX, y: finger.clientY });
+          if (trail.length > 24) trail.shift();
+        };
+        const surface = live.getCanvasContainer();
+        surface.addEventListener('touchstart', touched, { capture: true, passive: true });
+        surface.addEventListener('touchmove', touched, { capture: true, passive: true });
+        live.on('dragend', (event) => {
+          const lifted = event.originalEvent;
+          // The last finger has lifted, and no second one was down on the way: a pinch ends as MapLibre ends it.
+          if (!lifted || !('touches' in lifted) || lifted.touches.length > 0 || pinched) return;
+          // Who has asked for less motion gets none here: the map stays where the finger left it.
+          if (plainTouch || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          const glide = glideOf(speedAt(trail, lifted.timeStamp));
+          if (!glide) return;
+          // The map last moved with the finger a frame ago and is first drawn gliding a frame from now.
+          const stoodSince = trail[trail.length - 1].t;
+          queueMicrotask(() => {
+            if (map.current !== live) return;
+            const lead = Math.min(Math.max(performance.now() - stoodSince, 0) + 16, LEAD_UP_TO_MS);
+            live.panBy([-glide.x, -glide.y], { duration: glide.duration, easing: easingOf(glide.duration, lead) }, { byHand: true });
+            gliding = true;
+          });
+        });
+        live.on('moveend', () => {
+          gliding = false;
+        });
 
         // The area layer's signs are drawn when the map first needs one.
         live.setMissingStyleImageResolver((id) => {

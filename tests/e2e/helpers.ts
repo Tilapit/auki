@@ -259,6 +259,34 @@ export async function touchscreen(page: Page) {
       await page.waitForTimeout(30);
       await send('touchEnd', []);
     },
+    /**
+     * A flick: the finger travels from one place to the other and lifts without slowing. All of
+     * its touches go out at once, so they bear times a millisecond or so apart on any machine:
+     * the fastest flick there is, which the map counts as its fastest (lib/map/glide.ts).
+     * A flick with a speed of its own can't be sent from here. A touch bears the time it was
+     * sent at, whatever time it is given, and sent one by one a step takes thirty milliseconds
+     * on a Mac and over a hundred in CI, which is a finger that stops and starts. Chromium's own
+     * synthesizeScrollGesture makes a true flick on a Mac and moves nothing in CI's Linux.
+     */
+    async flick(from: Finger, to: Finger, steps = 6) {
+      const sent = [send('touchStart', [from])];
+      for (let step = 1; step <= steps; step++) sent.push(send('touchMove', [between(from, to, step / steps)]));
+      sent.push(send('touchEnd', []));
+      await Promise.all(sent);
+    },
+    /** A finger laid on the screen and left there. `slide` moves it, `lift` takes it off. */
+    async hold(at: Finger) {
+      await send('touchStart', [at]);
+    },
+    async slide(from: Finger, to: Finger, steps = 12) {
+      for (let step = 1; step <= steps; step++) {
+        await send('touchMove', [between(from, to, step / steps)]);
+        await page.waitForTimeout(16);
+      }
+    },
+    async lift() {
+      await send('touchEnd', []);
+    },
     /** A tap as a thumb makes it: the finger rolls a few pixels between touching and lifting. */
     async roll(from: Finger, to: Finger) {
       await send('touchStart', [from]);

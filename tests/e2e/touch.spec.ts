@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { kamppi } from '@/lib/fixtures/tiles';
 import { expect, test } from './fixtures';
+import { FASTEST_PX_S, KEEP_PER_MS } from '@/lib/map/glide';
 import { hasWebGL, open, startRunning, touchscreen, world } from './helpers';
 
 /**
@@ -28,6 +29,58 @@ async function placeOf(pin: Locator) {
 async function centreOf(target: Locator) {
   const box = (await target.boundingBox())!;
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+interface Followed {
+  t: number;
+  x: number;
+  y: number;
+  event?: string;
+  /** For a touch: where the finger was, and the touch's own time. */
+  finger?: number;
+  touched?: number;
+}
+
+/** Starts a record in the page of where the dot is on every frame, and of every touch: where the finger was, and its own time. */
+async function follow(page: Page) {
+  await page.evaluate(() => {
+    const log: { t: number; x: number; y: number; event?: string; finger?: number; touched?: number }[] = [];
+    (window as unknown as { followed: typeof log }).followed = log;
+    const pin = [...document.querySelectorAll<HTMLElement>('[data-pin="you-are-here"]')].pop()!;
+    const at = () => {
+      const [x, y] = (pin.style.transform.match(/-?[\d.]+/g) ?? []).map(Number);
+      return { x, y };
+    };
+    const tick = () => {
+      log.push({ t: performance.now(), ...at() });
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    for (const event of ['touchstart', 'touchmove', 'touchend'])
+      document.addEventListener(event, (touch) => log.push({ t: performance.now(), ...at(), event, finger: (touch as TouchEvent).touches[0]?.clientX, touched: touch.timeStamp }), { capture: true, passive: true });
+  });
+}
+
+/**
+ * What `follow` recorded of a flick: the finger's speed when it lifted, in px a second, as the
+ * map itself reckons and caps it (lib/map/glide.ts), and how far beyond the place the finger
+ * left it the dot was after a time.
+ */
+async function afterLifting(page: Page) {
+  const log = await page.evaluate(() => (window as unknown as { followed: Followed[] }).followed);
+  const began = log.findLast((entry) => entry.event === 'touchstart')!;
+  const lifted = log.findLast((entry) => entry.event === 'touchend')!;
+  const touches = log.filter((entry) => entry.event && entry.event !== 'touchend' && entry.t >= began.t);
+  const last = touches[touches.length - 1];
+  const first = touches.find((entry) => last.touched! - entry.touched! <= 100)!;
+  const speed = first === last ? 0 : Math.min(Math.abs(last.finger! - first.finger!) / (Math.max(last.touched! - first.touched!, 1) / 1000), FASTEST_PX_S);
+  // Where the finger left the dot: where it was when the finger came down, and the finger's own way.
+  const left = began.x + (last.finger! - began.finger!);
+  const drawn = log.filter((entry) => !entry.event);
+  const beyond = (ms: number) => drawn.findLast((entry) => entry.t <= lifted.t + ms)!.x - left;
+  // Every frame drawn after the lifting: how long after, and how far beyond that place the dot was on it.
+  const frames = drawn.filter((entry) => entry.t > lifted.t).map((entry) => ({ after: entry.t - lifted.t, beyond: entry.x - left }));
+  return { speed, beyond, frames };
 }
 
 /** The results with the real map under them, drawn and at rest. */
@@ -163,6 +216,127 @@ test.describe('with a finger', () => {
     await screen.tap({ x: 150, y: 300 }, { x: 250, y: 320 });
     await expect.poll(() => zoom(page)).toBeCloseTo(before, 1);
     expect(await pageScale(page)).toBe(1);
+  });
+
+  // Janne, 25 Nov 2026: the map should feel as Apple Maps does on an iPhone. MapLibre's own glide
+  // after a flick starts at about half the finger's speed and is over in half a second.
+  test('a flick sends the map on as a list goes on under a thumb: at the finger’s speed at first, half its speed in pixels in all', async ({ page }) => {
+    await live(page);
+    const screen = await touchscreen(page);
+    await follow(page);
+    await screen.flick({ x: 60, y: 300 }, { x: 340, y: 300 });
+    await page.waitForTimeout(3800);
+    const { speed, beyond, frames } = await afterLifting(page);
+    // A flick it was: the fastest the map counts, on any machine.
+    expect(speed).toBeGreaterThan(1000);
+
+    // How far a list has gone on a time after it was let go at that speed (lib/map/glide.ts).
+    const decay = -Math.log(KEEP_PER_MS) * 1000;
+    const list = (ms: number) => (speed / decay) * (1 - Math.exp((-decay * Math.max(ms, 0)) / 1000));
+    // The finger's own way is drawn within a frame or two of the lifting, on a slow machine a little later.
+    const caughtUp = frames.findIndex((frame) => frame.beyond >= 0);
+    expect(caughtUp).toBeGreaterThanOrEqual(0);
+    expect(frames[caughtUp].after).toBeLessThan(900);
+    // From then on every frame is on the list's curve, at its own time: no hitch at letting go, no
+    // surge, and never faster than before. A frame may show the map as it stood one frame earlier,
+    // and a test machine may draw one only every few tenths of a second: so not below the curve of
+    // the frame before, and not above its own. (MapLibre's own glide is under it from the start.)
+    let checked = 0;
+    for (let index = caughtUp + 1; index < frames.length && frames[index].after <= 2600; index++) {
+      const frame = frames[index];
+      expect(frame.beyond, `${Math.round(frame.after)} ms after lifting`).toBeGreaterThanOrEqual(0.8 * list(frames[index - 1].after) - 20);
+      expect(frame.beyond, `${Math.round(frame.after)} ms after lifting`).toBeLessThanOrEqual(1.15 * list(frame.after + 70) + 20);
+      expect(frame.beyond).toBeGreaterThanOrEqual(frames[index - 1].beyond);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(3);
+    // And it comes to rest half as many pixels on as its speed was in pixels a second. (MapLibre's own: a thirteenth.)
+    expect(beyond(3400) / speed).toBeGreaterThan(0.4);
+    expect(beyond(3400) / speed).toBeLessThan(0.6);
+    expect(beyond(3400)).toBe(beyond(3700));
+    expect(await pageScale(page)).toBe(1);
+  });
+
+  test('a finger laid on the gliding map stops it there', async ({ page }) => {
+    await live(page);
+    const screen = await touchscreen(page);
+    await screen.flick({ x: 60, y: 300 }, { x: 340, y: 300 });
+    await page.waitForTimeout(120);
+    const gliding = await placeOf(dot(page));
+    await expect.poll(async () => (await placeOf(dot(page))).x).toBeGreaterThan(gliding.x + 10);
+
+    // Somewhere on the map's ground, so that lifting the finger again opens nothing.
+    const ground = await page.evaluate(() => [{ x: 40, y: 140 }, { x: 350, y: 140 }, { x: 40, y: 600 }, { x: 350, y: 600 }, { x: 200, y: 200 }].find((point) => document.elementFromPoint(point.x, point.y)?.tagName === 'CANVAS'));
+    expect(ground).toBeDefined();
+    await screen.hold(ground!);
+    await page.waitForTimeout(60);
+    const held = await placeOf(dot(page));
+    await page.waitForTimeout(400);
+    expect(await placeOf(dot(page))).toEqual(held);
+    await screen.lift();
+    await page.waitForTimeout(300);
+    expect(await placeOf(dot(page))).toEqual(held);
+  });
+
+  test('whoever has asked for less motion: the map stays where the finger left it', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await live(page);
+    const screen = await touchscreen(page);
+    await follow(page);
+    await screen.flick({ x: 60, y: 300 }, { x: 340, y: 300 });
+    await page.waitForTimeout(900);
+    const { speed, beyond } = await afterLifting(page);
+    expect(speed).toBeGreaterThan(1000);
+    // Where the finger left it, to the pixel, and nothing after. (A glide would be some sixteen hundred pixels.)
+    expect(Math.abs(beyond(900))).toBeLessThanOrEqual(2);
+    expect(beyond(900)).toBe(beyond(500));
+  });
+
+  test('a pinch zooms around the fingers: the place between them stays between them', async ({ page }) => {
+    await live(page);
+    const screen = await touchscreen(page);
+    // The dot is that place: the map fills the phone's screen, so its place on the map is its place on the screen.
+    const between = await placeOf(dot(page));
+    const before = await zoom(page);
+    await screen.pinch(
+      [{ x: between.x - 40, y: between.y - 30 }, { x: between.x + 40, y: between.y + 30 }],
+      [{ x: between.x - 110, y: between.y - 82 }, { x: between.x + 110, y: between.y + 82 }],
+    );
+    await expect.poll(() => zoom(page)).toBeGreaterThan(before + 1);
+    await page.waitForTimeout(500);
+    const after = await placeOf(dot(page));
+    expect(Math.abs(after.x - between.x)).toBeLessThanOrEqual(3);
+    expect(Math.abs(after.y - between.y)).toBeLessThanOrEqual(3);
+    expect(await pageScale(page)).toBe(1);
+  });
+
+  // Apple's guide to Maps on an iPhone: double-tap, leave the finger on the screen after the second
+  // tap, then drag up to zoom in or down to zoom out. MapLibre has it the other way round.
+  test('two taps and a drag zoom with one finger, as in Apple Maps: up for closer, down for farther', async ({ page }) => {
+    await live(page);
+    const screen = await touchscreen(page);
+    const ground = { x: 300, y: 330 };
+    const before = await zoom(page);
+
+    await screen.tap(ground);
+    await page.waitForTimeout(90);
+    await screen.hold(ground);
+    await screen.slide(ground, { x: ground.x, y: ground.y - 120 });
+    await screen.lift();
+    await expect.poll(() => zoom(page)).toBeGreaterThan(before + 0.5);
+    expect(await pageScale(page)).toBe(1);
+
+    await page.waitForTimeout(700);
+    const closer = await zoom(page);
+    await screen.tap(ground);
+    await page.waitForTimeout(90);
+    await screen.hold(ground);
+    await screen.slide(ground, { x: ground.x, y: ground.y + 120 });
+    await screen.lift();
+    await expect.poll(() => zoom(page)).toBeLessThan(closer - 0.5);
+    expect(await pageScale(page)).toBe(1);
+    // It was the map that was pressed, twice: no pharmacy has opened.
+    await expect(page.getByRole('dialog')).toBeHidden();
   });
 
   test('moving the map costs little: positions are written, nothing is rendered again', async ({ page }, testInfo) => {

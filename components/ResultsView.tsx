@@ -77,6 +77,8 @@ export interface ResultsOptions {
   medicineReview?: boolean;
   /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
   mapPixels?: number;
+  /** /dev/map only: the map under a finger as MapLibre has it, to compare with ours on a phone. */
+  mapPlainTouch?: boolean;
 }
 
 const DESKTOP = '(min-width: 900px)';
@@ -531,6 +533,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           routeTo={routeTo}
           routeFor={options.routeFor}
           pixels={options.mapPixels}
+          plainTouch={options.mapPlainTouch}
         />
       }
       detailOpen={!!detail}
