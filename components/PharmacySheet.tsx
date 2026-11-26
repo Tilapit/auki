@@ -14,6 +14,7 @@ import { cx } from './cx';
 import { Icon } from './Icon';
 import { Measure } from './Measure';
 import { MedicineLine } from './MedicineDialog';
+import { ExternalLink, NEW_TAB, NewTabNote } from './NewTab';
 import { OpenStatus } from './OpenStatus';
 import styles from './PharmacySheet.module.css';
 
@@ -58,9 +59,9 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
   const email = pharmacy.email && emailAddress(pharmacy.email);
   const website = pharmacy.website && websiteHost(pharmacy.website);
   const fix = (
-    <a href={osmNoteUrl(pharmacy.lat, pharmacy.lon)} aria-label={t.sheet.fixLabel(name)}>
+    <ExternalLink href={osmNoteUrl(pharmacy.lat, pharmacy.lon)} aria-label={t.sheet.fixLabel(name)}>
       {t.sheet.fix}
-    </a>
+    </ExternalLink>
   );
 
   return (
@@ -138,7 +139,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
             <>
               <dt>{t.sheet.website}</dt>
               <dd>
-                <a href={pharmacy.website}>{website}</a>
+                <ExternalLink href={pharmacy.website}>{website}</ExternalLink>
               </dd>
             </>
           )}
@@ -154,11 +155,14 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
           icon={walk ? 'walk' : 'directions'}
           trailing="external"
           href={googleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)}
+          {...NEW_TAB}
         >
           {t.sheet.google}
+          <NewTabNote />
         </Button>
-        <Button size="block" icon={walk ? 'walk' : 'directions'} trailing="external" href={appleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)}>
+        <Button size="block" icon={walk ? 'walk' : 'directions'} trailing="external" href={appleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)} {...NEW_TAB}>
           {t.sheet.apple}
+          <NewTabNote />
         </Button>
         {pharmacy.phone && (
           <Button size="block" icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(name)}>

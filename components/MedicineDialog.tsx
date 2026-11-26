@@ -6,6 +6,7 @@ import { rich } from '@/lib/i18n/rich';
 import { MEDICINE_MAX_LENGTH, type StockProvider } from '@/lib/stock/provider';
 import { Button, IconButton } from './Button';
 import { cx } from './cx';
+import { NEW_TAB, NewTabNote } from './NewTab';
 import styles from './MedicineDialog.module.css';
 
 /**
@@ -128,8 +129,9 @@ export function MedicineDialog({ provider, open, onClose, initialValue = '', chi
           </div>
         )}
 
-        <Button variant="primary" size="block" trailing="external" href={handoff.url} target="_blank" rel="noopener noreferrer" data-handoff={handoff.withMedicine ? 'medicine' : 'plain'}>
+        <Button variant="primary" size="block" trailing="external" href={handoff.url} {...NEW_TAB} data-handoff={handoff.withMedicine ? 'medicine' : 'plain'}>
           {copy.open}
+          <NewTabNote />
         </Button>
 
         <div className={styles.notes}>

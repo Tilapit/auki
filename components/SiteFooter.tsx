@@ -4,6 +4,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { cx } from './cx';
+import { ExternalLink } from './NewTab';
 import styles from './SiteFooter.module.css';
 
 interface Props {
@@ -46,7 +47,7 @@ export function SiteFooter({ variant, distance, credit, emergency, dataFrom }: P
       </p>
       {credit && (
         <p className={styles.credit}>
-          {rich(t.footer.data, { osm: <a href={OSM_COPYRIGHT_URL}>{t.footer.osm}</a> })}
+          {rich(t.footer.data, { osm: <ExternalLink href={OSM_COPYRIGHT_URL}>{t.footer.osm}</ExternalLink> })}
         </p>
       )}
     </footer>

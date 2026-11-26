@@ -14,6 +14,7 @@ const en: Dictionary = {
     otherLanguageLabel: 'FI: Suomeksi',
     back: 'Back',
     close: 'Close',
+    newTab: '(opens in a new tab)',
     fallbackName: 'Pharmacy',
   },
   notFound: {

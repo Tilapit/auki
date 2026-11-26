@@ -935,3 +935,19 @@ Entry format:
   - What it costs: Apple Maps names the destination by its address or as a dropped pin, not by the pharmacy's name.
   - The button was not pressed in the Simulator: Apple's Maps app, once opened there, puts its own questions over every later screenshot (`ios/README.md`). It has to be tried on a phone.
 - Status: done. The hand-off itself is not yet tried on a real iPhone.
+
+
+## 2026-11-26: The first window is for a first visit, and links that leave the app open in a tab of their own
+- Where: `lib/geolocation.ts` (`locatesOnArrival`, `rememberLocated`), `hooks/usePharmacySearch.ts`; `components/NewTab.tsx` and every link to another site; `tests/e2e/flow.spec.ts`
+- Change: Janne's decision of 26 Nov. Two things that sent people back to the start:
+  - **The first window came on every visit in Safari.** The app went straight to the map only where the browser said permission was given, and Safari says "prompt" for a site it lets through. After the first "Näytä apteekit lähelläni" that brings a position the app now leaves a mark of its own on the device, and a later visit asks for the position on arrival: the window opens on its status line and gives way to the map. The browser then asks or doesn't, as it sees fit.
+  - **A hand-off took the tab.** The route in a map app, a pharmacy's website, the note form, a source and the map's credits opened in the app's own tab, and coming back began from the first window. They open in a tab of their own now, as the medicine search already did.
+- Why: The window is an introduction, and a person needs it once. And the answer someone left for a map app should be there when they come back.
+  - The mark is `located-before` in the browser's local storage: one character, no position, no time. It is the first thing the app keeps on the device, so PLAN.md 7.6 and the README say so, and a browser test reads the whole of the storage after a search and finds that mark alone.
+  - Only a position that came leaves it. Someone who refused, or searched by a place name, has not asked for this, and gets the window again.
+  - A browser that says the site is blocked is believed, and the window keeps its button: asking would fail at once and land the person on the place search with an error they did not cause today.
+  - Considered and dropped: leaving the mark when the button is pressed. A person who then refuses would be asked again on every visit.
+  - A link that opens a new tab says so to a screen reader, after its own words, so its name still begins with what it shows (WCAG 2.5.3): "Reitti Google Mapsissa (avautuu uuteen välilehteen)". Nothing changes for the eye: the buttons already carry the mark of a link that leaves the app, and the text links name where they lead.
+  - Phone numbers and email addresses open as before: they are not pages, and a new tab for them would be an empty one.
+- Status: done. Not tried on a real iPhone: whether Safari asks again on a later visit is Safari's to decide, and the app can't see it.
+  - The other half of Janne's note, the last results coming back from the tab's own storage after a reload, is a pull request of its own: it keeps the position in the tab, which changes what the footer's "Sijaintiasi ei tallenneta." may say.

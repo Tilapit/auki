@@ -5,6 +5,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import type { CountryInfo } from '@/lib/types';
 import { Icon } from './Icon';
+import { ExternalLink } from './NewTab';
 import styles from './CountryBanner.module.css';
 
 /**
@@ -29,9 +30,9 @@ export function CountryBanner({ country }: { country: CountryInfo }) {
         <p className={styles.source}>
           {rich(t.banner.source, {
             source: (
-              <a href={country.source.url} hrefLang="en">
+              <ExternalLink href={country.source.url} hrefLang="en">
                 {country.source.label}
-              </a>
+              </ExternalLink>
             ),
             date: f.date(country.source.checked),
           })}

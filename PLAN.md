@@ -45,7 +45,7 @@ Findings from Treat's research trip of 3–13 November 2026: three people, 20 co
 2. **Render once, never jump.** The list appears complete and doesn't reorder under the user's eyes.
 3. **Honest about uncertainty.** "Hours not listed", "Hours unclear", "Hours may be out of date", "Not field-tested", "Unreviewed translation" are first-class states.
 4. **Your language on screen, theirs on the counter card.**
-5. **Nothing stored on a server, almost nothing sent.** No accounts, no analytics, no cookies. Finding pharmacies sends no position at all: the browser works out which data tiles it needs and fetches those. The position leaves the device in one request only, for walking times, through our server. The device keeps the app and the last area's tiles so that it works offline, and nothing else. Section 7.6 lists every request, and a test fails the build if that list stops being true.
+5. **Nothing stored on a server, almost nothing sent.** No accounts, no analytics, no cookies. Finding pharmacies sends no position at all: the browser works out which data tiles it needs and fetches those. The position leaves the device in one request only, for walking times, through our server. The device keeps the app and the last area's tiles so that it works offline, one mark that location has worked here before (section 5, "First visit"), and nothing else. Section 7.6 lists every request, and a test fails the build if that list stops being true.
 6. **Route, don't resolve.** No medical advice. Link to 112, national advice lines and Kanta.
 7. **Fast.** Pharmacy data is static files on a CDN, fetched by tile. No hours parser and no UI kit in the browser. The map (MapLibre) is the one heavy dependency: load it after the first paint, and the list works without it. Budgets for initial JavaScript and mobile LCP are enforced in CI (section 12).
 8. **Ask only when it matters.** No onboarding questions. Prescription details are asked abroad, when the user opens them.
@@ -57,7 +57,7 @@ Findings from Treat's research trip of 3–13 November 2026: three people, 20 co
 Decided with Janne on 19–22 Nov: keep v1 small and do it well.
 
 **v1:**
-- First visit: one window, no questions (section 5). Returning users with location permission go straight to the map.
+- First visit: one window, no questions (section 5). It is for a person's first visit: after the first "Näytä apteekit lähelläni" that worked, later visits go straight to locating and the map (Janne, 26 Nov 2026).
 - Location → nearby pharmacies → map and list, sorted by walking distance (straight-line fallback, labelled).
 - Opening hours: open now, closes soon, opens next, 24 hours, missing, unparseable, out of date (data older than 7 days is never shown as open).
 - "Lähin auki nyt" card with "ehditkö" only when it tells something (section 5), and the next open pharmacy.
@@ -100,6 +100,12 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 - Primary button "Näytä apteekit lähelläni" / "Show pharmacies near me" → the browser's location prompt → results. Secondary text button "Hae paikan nimellä" / "Search by place name".
 - Nothing else on this window, apart from the footer line kept small and quiet. Phone: both actions sit in a dark band at the bottom that continues the street, with the footer line under them; desktop: left-aligned text block, buttons inline, footer on the street.
 - While locating, the button gives way to a status line of the same size; nothing else moves.
+- **Only on a first visit** (Janne, 26 Nov 2026). After the first "Näytä apteekit lähelläni" that brought a position, a later visit asks for the position on arrival: the window opens on its status line and gives way to the map.
+  - The browser's own word is not enough for this: Safari answers "prompt" for a site it lets through, so its users met the first window on every visit. The app keeps a mark of its own on the device (`located-before` in the browser's local storage): one character, no position and no time (section 7.6).
+  - The mark is left only by a position that came. A refusal, a timeout or a search by place name leaves none, and the next visit is a first visit.
+  - A browser that says the site is blocked is believed: the first window with its button, since asking would only fail. Without the mark and without permission, the button, as before.
+  - The first window is one step back from the map, with place search on it.
+- **Links that leave the app open in a tab of their own** (Janne, 26 Nov 2026): the route in Google Maps or Apple Maps, a pharmacy's website, OpenStreetMap's note form, a medicine search, a source, the map's credits. The results stay as they were in the tab the person comes back to. Each such link says so to a screen reader after its own name ("avautuu uuteen välilehteen"), sends no referrer and gives the new tab no way back to ours. Phone numbers and email addresses are not pages and open as they did.
 - On a phone the scene is the whole screen, the strips behind the status bar and behind the browser's own bar included: the upper one is the sky's upper colour and the lower one the street's. Those strips are Safari's to colour, from what lies fixed at that edge of the page (from 6 px up) or else from the body's background, so the scene pins its two end colours there (`DESIGN-LOG.md`, 25 Nov 2026). The map views do the same with the map's ground colour and the sheet's. Neither is pulled past its ends.
 
 ### Results: map first
@@ -412,7 +418,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 
 ### 7.1 Data flow
 
-1. **Page:** prerendered static shell per locale (`/fi`, `/en`; `/` redirects by `Accept-Language`). The client checks geolocation support, HTTPS and permission state (Permissions API where supported). If permission is already granted, search starts; otherwise wait for the button.
+1. **Page:** prerendered static shell per locale (`/fi`, `/en`; `/` redirects by `Accept-Language`). The client checks geolocation support, HTTPS and permission state (Permissions API where supported). If permission is already granted, search starts; on a later visit, after a "show pharmacies near me" that worked, it starts as well, unless the browser says the site is blocked (section 5, "First visit"); otherwise wait for the button.
 2. **Locate:** `getCurrentPosition` with low accuracy, `maximumAge` 5 min, `timeout` 10 s. The timeout doesn't count the time spent on the permission prompt, so an ignored prompt never calls back: after 8 s, show "waiting for permission" with the place-search option. If accuracy is worse than about 1 km, show "Your location is approximate" with place search.
 3. **Tiles:** from the position the client works out which tiles it needs (section 7.2) and fetches them in parallel from our own origin, together with `index.json`. The requests name squares of 20 to 30 km. The position stays on the device.
    - Candidates: the nearest 20 pharmacies in a straight line within 10 km. If there are none, the nearest five within 50 km. If there are none there either: "None found".
@@ -543,12 +549,13 @@ Every request the app makes:
 | `POST /api/walking` | Once the pharmacies are known; again when the list is ranked after a walk of about 300 m, at most once in two minutes; again for the route line to a selected pharmacy | The position to about a metre (the device's, or the searched place's) and up to 20 pharmacy positions, in the request's body | Our server, which asks openrouteservice. openrouteservice sees our server, not the user |
 | `GET /api/geocode?q=` | Submitting a place search | The text typed | Our server, which asks Nominatim |
 | Map tiles and glyphs | While the map is visible | Which map squares are on screen (1 to 2 km across at the closest zoom), IP address | The map tile host (OpenFreeMap), the only third party |
-| Links the user taps: Google Maps, Apple Maps, phone, a pharmacy's email or website, OpenStreetMap's note form, a country's duty-pharmacy lookup, Kanta, the map's credits | On tap | The pharmacy's position or nothing. Never the user's position. No referrer | Whoever the link names |
+| Links the user taps: Google Maps, Apple Maps, phone, a pharmacy's email or website, OpenStreetMap's note form, a country's duty-pharmacy lookup, Kanta, the map's credits | On tap, in a tab of its own | The pharmacy's position or nothing. Never the user's position. No referrer, and the new tab can't reach back to ours | Whoever the link names |
 | A country's own medicine stock search (section 7.9), opened by the user from the medicine dialog | On tap | The medicine's name as the user typed it, in the link's address, where the service takes one; otherwise nothing. Never the position, never a pharmacy. No referrer, and the new tab can't reach back to ours | The service the link names. Never our host |
 
 Rules:
 
 - No accounts, cookies, analytics or local storage of location.
+- The device keeps one mark in the browser's local storage, `located-before`: that "show pharmacies near me" has worked here before, so that a later visit skips the first window (section 5). One character. It holds no position, no time and nothing about the search, it is never sent anywhere, and clearing the site's data removes it. A browser test reads the whole of the storage after a search and finds that mark alone.
 - The locale lives in the URL.
 - Tile requests name squares, never coordinates.
 - Walking requests carry the exact position but go through our server: the user's IP isn't forwarded, the position is in the request body, and nothing is logged. Nothing about the device is kept for the budget either: it is counted per endpoint, not per user. The route takes requests from our own pages only.
@@ -741,7 +748,8 @@ Everything else (ET, LT, NO, SV, HR, PT, ES, IT, EL, HU, MT, SL, SK and the miss
 
 ## 9. Accessibility
 
-- Location is requested only from a button press.
+- On a first visit location is requested only from a button press. On a later visit, after that button has once brought a position, it is asked for on arrival (section 5, "First visit"): the person has asked for it here before, and the status line that stands in the button's place says what is happening, to the eye and to a screen reader.
+- A link that opens in a new tab says so in its name, after the words it shows: "Reitti Google Mapsissa (avautuu uuteen välilehteen)".
 - The list is the accessible equivalent of the map. Map markers are buttons named like the rows ("Töölön apteekki, closes soon 21:00, 3 min walk"); street labels are hidden from screen readers; the map region has a label. Tab order: list before map. The map's own signs for the pharmacies beyond the list's ten are drawn on its canvas and are not controls: such a pharmacy is reached by searching its place, which makes it one of the ten.
 - The phone's sheet: its handle is a button whose name says what a press does at each place, with `aria-expanded`. At the card the list is out of reach of the keyboard and screen readers until it is opened, so nothing focused is ever off screen; a card control under the screen's edge opens the sheet when it takes focus; opening the list from "Kaikki 8 apteekkia" moves focus to its first row. The results announcement sits outside everything the sheet hides.
 - Zooming the page with two fingers works everywhere except on the map itself, where two fingers zoom the map.
