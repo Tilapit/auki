@@ -51,8 +51,15 @@ export const EVERYWHERE: Note[] = [
   {
     source: 'yourEurope',
     text: {
-      fi: 'Apteekki noudattaa oman maansa sääntöjä, esimerkiksi aika- ja annosrajoja. Lääkettä ei välttämättä ole myynnissä siinä maassa, tai sillä on eri nimi.',
+      fi: 'Apteekki noudattaa oman maansa sääntöjä, esimerkiksi aika- ja annosrajoja. Lääkettä ei välttämättä ole myynnissä siinä maassa, tai sillä voi olla eri nimi.',
       en: 'The pharmacy applies its own country’s rules, such as time or dosage limits. The medicine may not be on sale in that country, or may have another name.',
+    },
+  },
+  {
+    source: 'directive',
+    text: {
+      fi: 'Sääntö ei koske lääkkeitä, jotka edellyttävät erityistä lääkemääräystä (direktiivin 11 artiklan 6 kohta).',
+      en: 'The rule does not cover medicines that need a special medical prescription (Article 11(6) of the directive).',
     },
   },
 ];
@@ -62,15 +69,15 @@ const HERE_NOTES: Record<string, Note> = {
   FI: {
     source: 'euHealthcareFi',
     text: {
-      fi: 'Suomessa lääkkeellä on oltava myyntilupa. Huumausaineiksi luokiteltavia ja tiettyjä keskushermostoon vaikuttavia lääkkeitä ei voi ostaa toisessa maassa kirjoitetulla reseptillä. Apteekki voi kieltäytyä, jos se epäilee reseptin aitoutta.',
-      en: 'In Finland the medicine has to be licensed for sale there. Medicines classified as narcotics and certain medicines that affect the central nervous system cannot be bought with a prescription written in another country. A pharmacy may decline if it doubts that the prescription is genuine.',
+      fi: 'Suomessa lääkkeellä on oltava myyntilupa. Huumausaineiksi luokiteltavia, tiettyjä keskushermostoon vaikuttavia ja säilytettävää lääkemääräystä vaativia lääkkeitä ei voi ostaa toisessa maassa kirjoitetulla reseptillä. Apteekki voi kieltäytyä, jos se epäilee reseptin aitoutta.',
+      en: 'In Finland the medicine has to be licensed for sale there. Medicines classified as narcotics, certain medicines that affect the central nervous system and medicines whose prescription the pharmacy has to keep cannot be bought with a prescription written in another country. A pharmacy may decline if it doubts that the prescription is genuine.',
     },
   },
   SE: {
     source: 'ehalsomyndigheten',
     text: {
-      fi: 'Ruotsissa käy vain rajat ylittävää käyttöä varten kirjoitettu paperinen resepti. Sähköpostilla saatu ja itse tulostettu resepti ei kelpaa. Huumausaineiksi luokiteltuja lääkkeitä ei toimiteta toisen maan reseptillä.',
-      en: 'In Sweden it has to be a paper prescription written for cross-border use. A prescription you received by email and printed yourself is not valid. Medicines classified as narcotics are not dispensed on a prescription from another country.',
+      fi: 'Ruotsissa käy vain rajat ylittävää käyttöä varten kirjoitettu paperinen resepti. Sähköpostilla saatu ja itse tulostettu resepti ei kelpaa. Huumausaineiksi tai kielletyiksi aineiksi luokiteltuja lääkkeitä ei toimiteta toisen maan reseptillä.',
+      en: 'In Sweden it has to be a paper prescription written for cross-border use. A prescription you received by email and printed yourself is not valid. Medicines classified as narcotics or banned substances are not dispensed on a prescription from another country.',
     },
   },
   NO: {
@@ -90,8 +97,8 @@ const HERE_NOTES: Record<string, Note> = {
   DE: {
     source: 'euPatienten',
     text: {
-      fi: 'Saksan kansallisen yhteyspisteen mukaan toisessa jäsenmaassa kirjoitetun reseptin lunastaminen Saksassa on periaatteessa mahdollista. Lääkettä ei aina ole Saksassa saatavana samassa muodossa tai samalla nimellä.',
-      en: 'Germany’s national contact point says redeeming a prescription written in another member state is possible in principle in Germany. The medicine is not always available there in the same form or under the same name.',
+      fi: 'Saksan kansallisen yhteyspisteen mukaan toisessa jäsenmaassa kirjoitetun reseptin lunastaminen Saksassa on periaatteessa mahdollista, mutta yhteyspiste ei toistaiseksi suosittele sitä: lääkettä ei aina ole Saksassa saatavana samassa muodossa tai samalla nimellä.',
+      en: 'Germany’s national contact point says redeeming a prescription written in another member state is possible in principle in Germany, and that for the time being it advises against it: the medicine is not always available there in the same form or under the same name.',
     },
   },
 };
@@ -108,7 +115,9 @@ const SWISS: Note = {
 export function paper(home: string, here: string): Paper {
   if (inEea(home) && inEea(here)) {
     const local = HERE_NOTES[here];
-    return { status: 'recognised', sources: ['yourEurope', 'directive', ...(local ? [local.source] : [])], notes: [...(local ? [local] : []), ...EVERYWHERE] };
+    // That the rule also holds in Iceland, Liechtenstein and Norway is said in words on Your Europe's page of questions.
+    const beyondEu = unionOf(home) === 'eea' || unionOf(here) === 'eea';
+    return { status: 'recognised', sources: ['yourEurope', ...(beyondEu ? (['yourEuropeFaq'] as const) : []), 'directive', ...(local ? [local.source] : [])], notes: [...(local ? [local] : []), ...EVERYWHERE] };
   }
   if (here === 'FI') {
     // Finland names the countries it takes paper prescriptions from: the EU, the EEA and Switzerland, and no other.

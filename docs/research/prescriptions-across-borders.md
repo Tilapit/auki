@@ -2,7 +2,7 @@
 
 The evidence behind PLAN.md section 8 and `data/countries/`: for a prescription written in one country and a pharmacy in another, what works. Everything here was read on **26 Nov 2026**, by four research passes of the day run of that date, each told to quote and not to fill gaps from memory. The app shows only what a page read that day says, with the page named and dated (`data/countries/sources.ts`), and says plainly where nothing was found.
 
-Read this file as the record of what the pages said on that day. It has not been checked by a second reader: before the pull request that brought it is merged, the claims it backs are to be reviewed against the pages themselves.
+Read this file as the record of what the pages said on that day. It has had a second reading the same day (below), by readers of the same kind as the first. Before the pull request that brought it is merged, a person should read the claims against the pages themselves.
 
 ## What the app takes from it
 
@@ -24,6 +24,25 @@ Read this file as the record of what the pages said on that day. It has not been
 - **Info Norden** could not be read (403 to automated requests), so nothing about a Nordic arrangement is shown. The Finnish, Swedish, Danish and Norwegian national pages read that day mention none.
 - **EUR-Lex** answered automated requests with an empty page. The directive and the EEA decision were read from the Publications Office's copies of the same documents.
 - **The Finnish and English versions of two Finnish pages differ**: the Finnish says "certain" medicines that affect the central nervous system, the English drops the word. The app follows the Finnish.
+
+## The second reading, 26 Nov 2026
+
+The same afternoon two more readers, who had not seen the first reading's notes, were given the data files and the page addresses and told to check every list and every sentence against the pages as they read that day. Fourteen plus ten pages, all read.
+
+- **The lists of `eprescription.ts` all matched their pages exactly**: both directions, for all ten countries. Latvia's two images had been replaced on 24 Nov 2026 and say the same.
+- **Seven sentences said less than their page, and were corrected:**
+  - Finland, to its own people (Kanta): the note now says that not every medicine can be bought abroad, with narcotics and most medicines that mainly affect the central nervous system as examples, and points to Kanta's list.
+  - Finland, to visitors (Kanta): the four groups that can't be bought are named.
+  - Finland, paper prescriptions (EU-healthcare.fi): the third excluded group, medicines whose prescription the pharmacy has to keep.
+  - Sweden: "narcotics or banned substances", where the note said narcotics.
+  - Germany: the contact point goes on to say that for the time being it advises against it.
+  - Lithuania: until 3 January 2027 it sends no prescriptions abroad for inhaled medicines, powders, or liquid and semi-solid forms.
+  - Greece: the person is also asked for their AMKA number.
+- **Two said slightly more, and were corrected:** Portugal's pharmacies "will be marked" with a sticker, not "carry" one; Switzerland's own e-prescription is "at present" the only recognised one.
+- **The directive's own exception was missing** and is now said for every pair the rule covers: Article 11(6), medicines that need a special medical prescription. Which medicines that is in each country was not read.
+- **A source was missing**: that the rule holds in Iceland, Liechtenstein and Norway is said in words on Your Europe's page of questions, which those pairs now name.
+- **Left as it is, and worth knowing:** Your Europe's sentence on Switzerland speaks of "EU countries". The app applies it to Iceland, Liechtenstein and Norway too, which are not obliged either by anything that was read, and to the United Kingdom's and other countries' prescriptions in Switzerland.
+- Every date in `sources.ts` matched its page.
 
 ## Every pair: the electronic prescription
 
@@ -118,7 +137,7 @@ Rows: the country the prescription is from. Columns: the country of the pharmacy
 
 ## Not done, for whoever continues
 
-1. A second reader for every list in `data/countries/eprescription.ts`, against the page it names.
+1. A person's reading of the claims, against the pages.
 2. Croatia: the later HZZO notice about services added since 2022 (https://hzzo.hr/novosti/prekogranicne-usluge-e-recepta-obavijest-o-novim-uslugama-hr-ep-pl-ep-b-i-cz-ep-hr-ep-b), and a current list if one exists.
 3. Spain: the map page, for the two directions (https://www.sanidad.gob.es/areas/saludDigital/recetaElectronicaUE/mapaRecetaUE.htm).
 4. Austria's and Cyprus's own pages.

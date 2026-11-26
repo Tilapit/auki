@@ -49,12 +49,12 @@ export const EXCHANGE: Record<string, ExchangePage> = {
     outbound: EIGHT,
     inbound: EIGHT,
     forOwn: {
-      fi: 'Ota mukaan passi tai henkilökortti ja asioi itse. Resepti ei käy ulkomailla, jos lääke on määrätty ajalle (esimerkiksi ”2 vuoden annos”) eikä pakkauksina tai kokonaismääränä, tai jos reseptillä on luovutuskielto.',
-      en: 'Bring your passport or identity card, and go yourself. The prescription does not work abroad if the medicine is prescribed for a period of time (“2-year dose”) and not as packages or a total amount, or if you have set a denial of consent on it.',
+      fi: 'Ota mukaan passi tai henkilökortti ja asioi itse. Resepti ei käy ulkomailla, jos lääke on määrätty ajalle (esimerkiksi ”2 vuoden annos”) eikä pakkauksina tai kokonaismääränä, tai jos reseptillä on luovutuskielto. Kaikkia lääkkeitä ei voi ostaa ulkomailta: ei esimerkiksi huumausaineita eikä useimpia pääasiassa keskushermostoon vaikuttavia lääkkeitä. Koko luettelo on Kannan sivulla.',
+      en: 'Bring your passport or identity card, and go yourself. The prescription does not work abroad if the medicine is prescribed for a period of time (“2-year dose”) and not as packages or a total amount, or if you have set a denial of consent on it. Not every medicine can be bought abroad: not narcotics, for example, nor most medicines that mainly affect the central nervous system. Kanta’s page has the whole list.',
     },
     forVisitors: {
-      fi: 'Resepti käy jokaisessa Suomen apteekissa. Asioi itse ja ota mukaan passi tai kuvallinen henkilökortti. Jos kotimaasi vaatii suostumuksen reseptitietojen luovuttamiseen, anna se ennen apteekkiin menoa.',
-      en: 'Any pharmacy in Finland can dispense it. Go in person with your passport or a photo identity card. If your country asks for consent before prescription data is shared, give it before you go to the pharmacy.',
+      fi: 'Resepti käy jokaisessa Suomen apteekissa. Asioi itse ja ota mukaan passi tai kuvallinen henkilökortti. Jos kotimaasi vaatii suostumuksen reseptitietojen luovuttamiseen, anna se ennen apteekkiin menoa. Huumausaineita, tiettyjä pääasiassa keskushermostoon vaikuttavia lääkkeitä, apteekissa valmistettavia lääkkeitä ja useita valmisteita sisältäviä pakkauksia ei voi ostaa.',
+      en: 'Any pharmacy in Finland can dispense it. Go in person with your passport or a photo identity card. If your country asks for consent before prescription data is shared, give it before you go to the pharmacy. Narcotics, certain medicines that mainly affect the central nervous system, medicines prepared at the pharmacy and packages that hold several preparations cannot be bought.',
     },
   },
   EE: {
@@ -94,8 +94,8 @@ export const EXCHANGE: Record<string, ExchangePage> = {
       en: 'First authorise the sharing of your health data in the Autorizações service of the SNS 24 portal. At the pharmacy you need your Citizen Card (Cartão de Cidadão) and the prescription’s ID and PIN.',
     },
     forVisitors: {
-      fi: 'Vain palveluun liittyneissä apteekeissa: ne on merkitty tarralla, joka kertoo, minkä maiden reseptit käyvät.',
-      en: 'Only at pharmacies that have joined the service: they carry a sticker that names the countries whose prescriptions they take.',
+      fi: 'Vain palveluun liittyneissä apteekeissa: ne merkitään tarralla, joka kertoo, minkä maiden reseptit käyvät.',
+      en: 'Only at pharmacies that have joined the service: they are to be marked with a sticker that names the countries whose prescriptions they take.',
     },
   },
   HR: {
@@ -127,8 +127,8 @@ export const EXCHANGE: Record<string, ExchangePage> = {
     outbound: ['LV', 'PL', 'ES', 'GR', 'PT', 'EE', 'CZ', 'FI', 'HR', 'CY'],
     inbound: ['LV', 'PL', 'ES', 'GR', 'PT', 'EE', 'CZ', 'FI', 'HR', 'CY'],
     forOwn: {
-      fi: 'Näytä apteekissa passi tai henkilökortti. Koko määrätty määrä on ostettava kerralla.',
-      en: 'Show your passport or identity card at the pharmacy. The whole prescribed quantity has to be bought at once.',
+      fi: 'Näytä apteekissa passi tai henkilökortti. Koko määrätty määrä on ostettava kerralla. Liettua ei 3.1.2027 asti välitä toiseen maahan reseptejä, joilla on määrätty inhaloitavia lääkkeitä, jauheita tai nestemäisiä ja puolikiinteitä lääkemuotoja.',
+      en: 'Show your passport or identity card at the pharmacy. The whole prescribed quantity has to be bought at once. Until 3 January 2027 Lithuania does not send prescriptions for inhaled medicines, powders, or liquid and semi-solid forms to another country.',
     },
   },
   GR: {
@@ -136,8 +136,8 @@ export const EXCHANGE: Record<string, ExchangePage> = {
     outbound: ['ES', 'PL', 'EE', 'LT', 'CZ', 'CY', 'LV'],
     inbound: ['ES', 'PL', 'EE', 'LT', 'CZ', 'CY', 'PT', 'LV'],
     forOwn: {
-      fi: 'Näytä apteekissa henkilökortti tai passi. Kauppanimellä kirjoitettu resepti ei käy toisessa maassa.',
-      en: 'Show your identity card or passport at the pharmacy. A prescription written by brand name cannot be used in another country.',
+      fi: 'Kerro apteekissa AMKA-numerosi ja näytä henkilökortti tai passi. Kauppanimellä kirjoitettu resepti ei käy toisessa maassa.',
+      en: 'Give your AMKA number at the pharmacy and show your identity card or passport. A prescription written by brand name cannot be used in another country.',
     },
     forVisitors: {
       fi: 'Resepti käy kaikissa Kreikan apteekeissa.',
@@ -185,8 +185,8 @@ export const NO_FOREIGN: Record<string, Note> = {
   CH: {
     source: 'swissPositionPaper',
     text: {
-      fi: 'Sveitsin apteekkien ohjeen mukaan ainoa hyväksytty sähköinen resepti on Sveitsin oma.',
-      en: 'By the Swiss guidance for pharmacies, the only recognised electronic prescription is Switzerland’s own.',
+      fi: 'Sveitsin apteekkien ohjeen mukaan ainoa hyväksytty sähköinen resepti on toistaiseksi Sveitsin oma.',
+      en: 'By the Swiss guidance for pharmacies, the only recognised electronic prescription is at present Switzerland’s own.',
     },
   },
 };
