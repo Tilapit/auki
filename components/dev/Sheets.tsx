@@ -14,6 +14,7 @@ import { CrossGlyph } from '../CrossGlyph';
 import { MapMarker, YouAreHere } from '../MapMarker';
 import { NearestOpenCard } from '../NearestOpenCard';
 import { OpenStatus } from '../OpenStatus';
+import { SiteFooter } from '../SiteFooter';
 import styles from './Sheets.module.css';
 
 /*
@@ -283,6 +284,10 @@ export function AbroadSheet() {
           <PairTexts home={home} here={here} />
         </Block>
       ))}
+      {/* In the results this line is under the list, below what a screenshot of a view holds. */}
+      <Block title="At home the banner is not shown: the results footer's last line but one brings it up">
+        <SiteFooter variant="panel" distance="walking" emergency onPrescription={() => undefined} />
+      </Block>
     </Sheet>
   );
 }
