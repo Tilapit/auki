@@ -273,7 +273,7 @@ A second answer in the same forum, on prescriptions from another EU or EEA count
 What was done with it:
 
 - **Sweden's e-prescription abroad is a "no" in its own authority's words**, as Norway's and Denmark's are: `NOT_ABROAD.SE`, source `lakemedelsverket` (the first forum answer, 2026-04-14, which has the sentence and a current date). The note also gives the agency's way out: ask a pharmacy to print the prescription on paper before the journey. Norway says the opposite of its own (a printout is not enough), so the two notes are not interchangeable.
-- Sixteen pairs change: Sweden to Finland, Estonia, Latvia, Lithuania, Poland, Czechia, Portugal, Spain, Greece and Austria from "not on the list" to "no (home)"; Sweden to Croatia, Hungary, Italy, Malta, Slovenia and Slovakia from "nothing found" to "no (home)". Sweden to Germany, Switzerland, Denmark and Norway stay "no (here)".
+- Sixteen pairs change: Sweden to Finland, Estonia, Latvia, Lithuania, Poland, Czechia, Portugal, Spain and Greece from "not on the list" to "no (home)"; Sweden to Austria, Croatia, Hungary, Italy, Malta, Slovenia and Slovakia from "nothing found" to "no (home)". Sweden to Germany, Switzerland, Denmark and Norway stay "no (here)".
 - It agrees with every list that was read: none has Sweden. A unit test holds that, so that a list which one day names Sweden sends somebody back to this page.
 - **A paper prescription from outside the EEA is a "no" in Sweden**, in the agency's words on "Recept inom EES" (`lakemedelsverketEea`, 2024-12-27). Three pairs: from the United Kingdom and from elsewhere outside the EU and the EEA, which said that nothing was found, and from Switzerland, which said that pharmacies are not obliged. The page is two years old; it is a statement and not a list, and the app uses older statements than that (Norway's of 2023).
 - Not used: the sentence on territories (the app asks for a country, not a territory); what the agency says of a Swedish paper prescription abroad beyond the EU's rule (the app has no note from the home country's side for paper).
@@ -366,10 +366,23 @@ What was done with it:
 - Czechia to Austria and Spain to Austria: "yes" as before, now on both countries' word.
 - **Latvia to Austria is told two ways now**, as Austria to Latvia already was: Latvia's page has Austria in both columns (N5), and neither of Austria's two lists has Latvia. The app says that the pages disagree and names both, for each direction. It was "yes" on Latvia's word alone. Which page is behind is not known: Latvia's is two months newer, and its text links to Austria's page for visitors.
 - **Twenty pairs to Austria go from "nothing found" to "not on the list"** (Austria's): from Belgium, Bulgaria, Switzerland, Cyprus, Germany, France, the United Kingdom, Croatia, Hungary, Ireland, Iceland, Italy, Liechtenstein, Luxembourg, Malta, the Netherlands, Romania, Slovenia, Slovakia and from elsewhere. Sweden to Austria would be the twenty-first; it is "no (home)" after N3. Estonia, Finland, Greece, Lithuania, Poland and Portugal to Austria were "not on the list" by their own pages and are so by both now.
-- **Only some pharmacies:** where the pair works (from Czechia and Spain), the answer now carries a note from the page for visitors (`gesundheitAtVisitors`, 2026-10-29): only at pharmacies that have joined the service, which Austria's health portal lists, 45 of them. The number is the page's on that day, and it grows: taking part is a pharmacy's choice until 2029.
+- **Which pharmacies:** where the pair works (from Czechia and Spain), the answer now carries a note from the page for visitors (`gesundheitAtVisitors`, 2026-10-29): Austria's health portal lists the pharmacies that offer the service, and there are 45. The page gives no total: the number is a count of its list on that day, and it grows, since taking part is a pharmacy's choice until 2029. The note does not say "only", because the page for visitors does not; that word is in the questions for pharmacies and in the notice ("one of the participating pharmacies").
 - A weakness to know: the list of whose e-prescriptions are taken is on a page written for pharmacies, under a heading that asks exactly that question, with its own date. The pages for patients still name no country.
 
 Counts after the night reading: works 95 → 94, disagree 1 → 2, not on the list 244 → 255, not here 160, not abroad 32 → 48, nothing found 140 → 113. On paper: three pairs to Sweden from "nothing found" or "not obliged" to "no".
+
+### N7. A second reader for the pages that change the data
+
+After the changes were made, a reader who had not seen these notes was given the six claims that change the data and their addresses, and told to fetch each page and look for what would make the claim wrong. Fetched at 00.13 on 27 Nov 2026 (Helsinki time), every page answered.
+
+- Austria's page for health professionals: two countries under the heading, Czechia and Spain, "Stand: September 2026.", "Letzte Aktualisierung: 21. September 2026"; no other country anywhere in the page, Latvia not among them. Confirmed.
+- Austria's page for visitors: 45 pharmacies, counted two ways (lines with a postcode; 19 towns with one pharmacy and 26 pharmacies in seven towns with several). "Letzte Aktualisierung: 29. Oktober 2026". Confirmed.
+- Austria's country overview: Czechia and Spain, "Letzte Aktualisierung: 19. August 2026". Confirmed.
+- Läkemedelsverket's answer: the sentence word for word, signed, with `datetime="2026-04-14T12:59:23…"` after "Uppdaterad"; the visible text is "14 apr", without a year. Confirmed.
+- Läkemedelsverket's page "Recept inom EES": both sentences, and "changed": "2024-12-27" in its metadata. Confirmed; the date the page shows was seen in a browser by the first reader only.
+- Latvia's page: the sentence with the eleven countries, and the English image with Austria in both columns and Portugal in one; the image's Last-Modified is 24 Nov 2026. Confirmed.
+- Of the three new sentences in the app, it found one that said more than its page: the note on Austria's pharmacies began "Only at pharmacies that have joined the service", and the page for visitors says neither "only" nor how many. The note was reworded to what the page does.
+- Not checked by the second reader: the PDF and the Word file, Latvia's Latvian image, the eHealth agency's pages.
 
 ## Every pair: the electronic prescription
 

@@ -156,11 +156,11 @@ describe('electronic prescriptions, pair by pair', () => {
       'Ranska ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Itävallassa. Luettelo: gesundheit.gv.at (Itävalta), päivitetty 21.9.2026. Paperinen resepti käy EU:n säännön nojalla.',
     );
     expect(ePrescription('FI', 'AT')).toMatchObject({ status: 'notListed', sources: ['kantaAbroad', 'gesundheitAtProfessionals'] });
-    // Only some pharmacies there take part: said from Austria's page for visitors, which lists them and names no country.
+    // Which pharmacies there: Austria's page for visitors lists those that offer the service, and names no country. The note says no more than that.
     for (const home of ['CZ', 'ES']) {
       const visitors = ePrescription(home, 'AT').notes.at(-1)!;
       expect(visitors.source, home).toBe('gesundheitAtVisitors');
-      expect(visitors.text.fi, home).toContain('45\u00A0apteekkia');
+      expect(visitors.text).toEqual({ fi: 'Itävallan terveysportaali gesundheit.gv.at luettelee apteekit, jotka tarjoavat palvelua. Niitä on 45.', en: 'Austria’s health portal gesundheit.gv.at lists the pharmacies that offer the service. There are 45.' });
     }
   });
 

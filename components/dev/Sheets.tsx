@@ -255,7 +255,7 @@ const VISITORS: { home: string; here: string; what: string }[] = [
   { home: 'AT', here: 'LV', what: 'Austria to Latvia: the two pages disagree (Latvia lists Austria; Austria’s own list is Czechia and Spain)' },
   { home: 'AT', here: 'HU', what: 'Austria to Hungary: not on Austria’s own list, and Hungary publishes none' },
   { home: 'LV', here: 'AT', what: 'Latvia to Austria: the two pages disagree the other way round too (Latvia names Austria; Austria’s list of whose prescriptions it takes is Czechia and Spain)' },
-  { home: 'ES', here: 'AT', what: 'Spain to Austria: on both countries’ pages, and only at the pharmacies Austria’s page lists' },
+  { home: 'ES', here: 'AT', what: 'Spain to Austria: on both countries’ pages; Austria’s page lists the pharmacies that offer the service' },
   { home: 'FR', here: 'AT', what: 'France to Austria: not on Austria’s list of whose prescriptions its pharmacies take' },
   { home: 'FR', here: 'IT', what: 'France to Italy: nothing official found for the electronic prescription' },
   { home: 'NO', here: 'EE', what: 'Norway to Estonia: Norway says its prescription needs paper abroad' },

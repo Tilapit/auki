@@ -266,13 +266,13 @@ test('a prescription from Latvia in Austria: the two countries’ pages disagree
   await expect(banner(page).getByRole('listitem').filter({ hasText: 'gesundheit.gv.at (Itävalta): EU-resepti, tietoa terveydenhuollon ammattilaisille' })).toContainText('Sivu päivitetty 21.9.2026, luettu 26.11.2026.');
 });
 
-test('a prescription from Spain in Austria: both pages have the pair, and the answer says that only some pharmacies take part', async ({ page }) => {
+test('a prescription from Spain in Austria: both pages have the pair, and the answer says where the pharmacies that offer the service are listed', async ({ page }) => {
   await reads(page, ['es-ES', 'es', 'en']);
   await start(page, inCountry('AT'));
   await expect(home(page)).toHaveValue('ES');
   await expect(banner(page)).toContainText('Espanjassa kirjoitettu sähköinen resepti käy Itävallassa.');
   await banner(page).getByRole('button', { name: 'Lisätiedot ja lähteet' }).click();
-  await expect(banner(page)).toContainText('Vain palveluun liittyneissä apteekeissa: Itävallan terveysportaali gesundheit.gv.at luettelee ne, 45 apteekkia.');
+  await expect(banner(page)).toContainText('Itävallan terveysportaali gesundheit.gv.at luettelee apteekit, jotka tarjoavat palvelua. Niitä on 45.');
   await expect(banner(page).getByRole('link', { name: /^gesundheit\.gv\.at \(Itävalta\): tietoa Itävaltaan matkustaville potilaille/ })).toHaveAttribute('href', SOURCES.gesundheitAtVisitors.url.fi);
 });
 

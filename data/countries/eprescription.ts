@@ -117,7 +117,8 @@ export const EXCHANGE: Record<string, ExchangePage> = {
   AT: {
     // Three pages of Austria's health portal. Where its own e-prescriptions are dispensed: the country overview (August 2026).
     // Whose its pharmacies retrieve: the page for health professionals (September 2026). Both name Czechia and Spain, and no other.
-    // Which pharmacies: the page for patients travelling to Austria (October 2026), which lists them and names no country.
+    // Which pharmacies: the page for patients travelling to Austria (October 2026), which lists those that offer the service and names no country.
+    // The page gives no total and does not say "only": the note says what it does, with the count of its list on that day.
     source: 'gesundheitAt',
     forOwnSource: 'gesundheitAtSteps',
     forVisitorsSource: 'gesundheitAtVisitors',
@@ -128,8 +129,8 @@ export const EXCHANGE: Record<string, ExchangePage> = {
       en: 'First give your one-time consent (Opt-In) in Austria’s health portal with ID Austria, or in writing. At the pharmacy you identify yourself with an Austrian passport or identity card, or with a one-time code made with ID Austria. The service does not cover free-text prescriptions, medicines prepared at the pharmacy or addictive substances (Suchtmittel). Abroad the prescription is treated as a private one: you first pay for the medicine yourself.',
     },
     forVisitors: {
-      fi: 'Vain palveluun liittyneissä apteekeissa: Itävallan terveysportaali gesundheit.gv.at luettelee ne, 45\u00A0apteekkia.',
-      en: 'Only at pharmacies that have joined the service: Austria’s health portal gesundheit.gv.at lists them, 45 pharmacies.',
+      fi: 'Itävallan terveysportaali gesundheit.gv.at luettelee apteekit, jotka tarjoavat palvelua. Niitä on 45.',
+      en: 'Austria’s health portal gesundheit.gv.at lists the pharmacies that offer the service. There are 45.',
     },
   },
   CZ: {
