@@ -11,14 +11,14 @@
 import type { Locale } from '../../lib/i18n';
 import { date } from '../../lib/format.ts';
 import type { CardPhrases, CardVariant } from '../../lib/types';
-import { EXCHANGE, ePrescription, type EPrescription, type Note } from './eprescription.ts';
+import { EXCHANGE, OUTBOUND_ONLY, ePrescription, type EPrescription, type Note } from './eprescription.ts';
 import { HERE, hereOf, type Here } from './here.ts';
 import { HOMES, OTHER, homeOf, inEea } from './homes.ts';
 import { paper, type PaperStatus } from './paper.ts';
 import { cardFor } from './phrases.ts';
 import { SOURCES, type Source, type SourceId } from './sources.ts';
 
-export { EXCHANGE, NO_FOREIGN, NOT_ABROAD, ePrescription } from './eprescription.ts';
+export { EXCHANGE, NO_FOREIGN, NOT_ABROAD, OUTBOUND_ONLY, ePrescription } from './eprescription.ts';
 export type { Note } from './eprescription.ts';
 export { HERE, hereOf } from './here.ts';
 export { HOMES, OTHER, homeFromLanguages, homeOf, homesFor, inEea } from './homes.ts';
@@ -89,7 +89,8 @@ const theCountry = (inCountry: Text): string => inCountry.en.replace(/^in /, '')
  * EU's rule covers the pair, that a paper prescription is the way that works.
  */
 function notListed(home: string, here: string, names: { home?: Text; here: Text }, from: Text, to: Text, sources: SourceId[], onPaper: boolean): Text {
-  const own = EXCHANGE[home] && !EXCHANGE[home].dated;
+  // The home country's list of where its e-prescriptions are dispensed, read as current: also Austria's, which has that list and no other.
+  const own = (EXCHANGE[home] && !EXCHANGE[home].dated) || OUTBOUND_ONLY[home] !== undefined;
   const theirs = EXCHANGE[here] && !EXCHANGE[here].dated;
   const lists = sources.map(listOf);
   const found: Text =

@@ -235,6 +235,15 @@ describe('electronic prescriptions, pair by pair', () => {
       for (const other of [...page.inbound, ...page.outbound]) expect(HOMES.find((entry) => entry.code === other)?.union, `${country}: ${other}`).toMatch(/^(eu|eea)$/);
     }
     for (const locale of ['fi', 'en'] as const) expect((SOURCES.kantaForeign as Source).label[locale]).toMatch(/^[^:]+: \S/);
+    for (const [country, page] of Object.entries(OUTBOUND_ONLY)) {
+      for (const locale of ['fi', 'en'] as const) expect((SOURCES[page.source] as Source).label[locale], country).toMatch(/^[^:]+: \S/);
+    }
+    // Austria has a list of its own and Poland has one: neither has the pair, and the sentence says "neither", with both lists named.
+    const both = guideFor('AT', 'PL')!.ePrescription;
+    expect(both.status).toBe('notListed');
+    expect(both.text.fi).toMatch(/^Kummankaan maan luettelossa ei mainita, että Itävallassa kirjoitettu sähköinen resepti kävisi Puolassa\. Luettelot: gesundheit\.gv\.at \(Itävalta\), päivitetty 19\.8\.2026; pacjent\.gov\.pl \(Puola\), /);
+    // Austria's list alone, where the other country publishes none.
+    expect(guideFor('AT', 'HU')!.ePrescription.text.fi).toMatch(/^Unkari ei ole niiden maiden luettelossa, joissa Itävallassa kirjoitettu sähköinen resepti käy\. Luettelo: gesundheit\.gv\.at \(Itävalta\), päivitetty 19\.8\.2026\. Paperinen resepti käy EU:n säännön nojalla\.$/);
   });
 
   it('says of every pair what was found, in one of six ways', () => {
