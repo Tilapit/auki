@@ -260,12 +260,18 @@ export async function touchscreen(page: Page) {
       await send('touchEnd', []);
     },
     /**
-     * A flick: the finger travels `by` at `speed` px a second and lifts without slowing. Chromium
-     * makes the touches itself, a frame apart, which steps sent from here can't be: each takes
-     * some fifty milliseconds to arrive.
+     * A flick: the finger travels from one place to the other and lifts without slowing. The
+     * steps go out one after another with no wait between them, each as soon as the page has
+     * taken the one before: about a frame apart. (With a wait between them, as in `drag`, a step
+     * takes some fifty milliseconds, and the map takes that for a finger that had stopped.
+     * Chromium's own synthesizeScrollGesture makes a truer flick on a Mac and moves nothing
+     * in CI's Linux.) How fast it was is for the test to read from the page.
      */
-    async flick(from: Finger, by: Finger, speed: number) {
-      await devtools.send('Input.synthesizeScrollGesture', { x: Math.round(from.x), y: Math.round(from.y), xDistance: Math.round(by.x), yDistance: Math.round(by.y), speed, gestureSourceType: 'touch', preventFling: false });
+    async flick(from: Finger, to: Finger, steps = 10) {
+      await send('touchStart', [from]);
+      for (let step = 1; step < steps; step++) await send('touchMove', [between(from, to, step / steps)]);
+      // The last step and the lifting go out together: the finger lifts while it moves, however long an answer takes to come back here.
+      await Promise.all([send('touchMove', [to]), send('touchEnd', [])]);
     },
     /** A finger laid on the screen and left there. `slide` moves it, `lift` takes it off. */
     async hold(at: Finger) {

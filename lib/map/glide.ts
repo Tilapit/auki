@@ -21,8 +21,10 @@ export const GLIDE_FROM_PX_S = 100;
 export const FASTEST_PX_S = 3200;
 /** The glide ends when the map has slowed to this: slower can't be seen. */
 export const STOP_AT_PX_S = 12;
-/** How far back from the moment of letting go the finger's speed is measured, in ms. */
-export const MEASURED_OVER_MS = 90;
+/** Over how long a stretch of its last movement the finger's speed is measured, in ms. */
+export const MEASURED_OVER_MS = 100;
+/** A finger that had not moved the map for this long when it lifted had stopped: no glide. */
+export const STOPPED_AFTER_MS = 70;
 
 export interface Sample {
   /** When, in ms. */
@@ -41,17 +43,18 @@ export interface Glide {
 }
 
 /**
- * The speed of the map's content at the moment of letting go, in px per second, from where
- * it was over the last MEASURED_OVER_MS. Measured up to `now` and not up to the last move:
- * a finger that held still before lifting has no speed.
+ * The speed of the map's content when the finger lifted at `now`, in px per second: the speed
+ * of its last MEASURED_OVER_MS of movement, as a touch screen itself reckons a flick. The
+ * time between the last movement and the lifting is not counted into it: touches arrive a
+ * frame or three apart, and that gap would make every flick look slower than it was. A finger
+ * that held still for longer than STOPPED_AFTER_MS before lifting has no speed at all.
  */
 export function speedAt(samples: readonly Sample[], now: number): { x: number; y: number } | undefined {
-  const recent = samples.filter((sample) => now - sample.t <= MEASURED_OVER_MS);
-  if (recent.length < 2) return undefined;
-  const first = recent[0];
-  const last = recent[recent.length - 1];
-  const seconds = (now - first.t) / 1000;
-  if (seconds <= 0) return undefined;
+  const last = samples[samples.length - 1];
+  if (!last || now - last.t > STOPPED_AFTER_MS) return undefined;
+  const first = samples.find((sample) => last.t - sample.t <= MEASURED_OVER_MS);
+  if (!first || first === last) return undefined;
+  const seconds = (last.t - first.t) / 1000;
   return { x: (last.x - first.x) / seconds, y: (last.y - first.y) / seconds };
 }
 

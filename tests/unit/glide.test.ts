@@ -20,10 +20,28 @@ describe('the speed at letting go', () => {
     expect(speed.y).toBe(0);
   });
 
-  it('is measured up to the moment of letting go: a finger that then held still for a moment has less, and after a tenth of a second none', () => {
+  it('does not count the gap between the last movement and the lifting: touches come a frame or three apart', () => {
     const samples = moving(1500, 1000);
-    expect(speedAt(samples, 1040)!.x).toBeLessThan(1000);
-    expect(speedAt(samples, 1100)).toBeUndefined();
+    expect(speedAt(samples, 1016)!.x).toBeCloseTo(1500, -1);
+    expect(speedAt(samples, 1050)!.x).toBeCloseTo(1500, -1);
+  });
+
+  it('is none for a finger that had stopped before it lifted', () => {
+    const samples = moving(1500, 1000);
+    expect(speedAt(samples, 1070)).toBeDefined();
+    expect(speedAt(samples, 1071)).toBeUndefined();
+    expect(speedAt(samples, 1500)).toBeUndefined();
+  });
+
+  it('is the speed of the last tenth of a second: a finger that slowed down before lifting has the slower speed', () => {
+    // Fast until 900 ms, then slowly for a tenth of a second.
+    const fast = moving(2000, 900, 700);
+    const slow = moving(300, 1000, 900).map((sample) => ({ ...sample, x: sample.x + fast[fast.length - 1].x }));
+    expect(speedAt([...fast, ...slow.slice(1)], 1010)!.x).toBeLessThan(600);
+  });
+
+  it('goes by touches that come slowly too: two of them fifty milliseconds apart are a speed', () => {
+    expect(speedAt([{ t: 900, x: 0, y: 0 }, { t: 950, x: 30, y: 0 }, { t: 1000, x: 60, y: 0 }], 1020)!.x).toBeCloseTo(600);
   });
 
   it('needs two places to go by', () => {
