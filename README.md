@@ -30,7 +30,7 @@ In CI the same things are measured on every push, against a build and with fixtu
 - **Medicine availability, as a hand-off.** Where a country has a stock search of its own that may be linked to (Finland, Germany, Austria, Norway), the card and every pharmacy's details open it, with the medicine's name in the link where the service's address takes one. The app says where to check, never that a pharmacy has a medicine, and the name never reaches the app's server. The research is in [`docs/research/medicine-availability.md`](docs/research/medicine-availability.md).
 - **A data page** with the pipeline's numbers per country, and when each was last fetched.
 - **Finnish and English**, light and dark, phone and desktop.
-- **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. Its time logic passes the same test cases as the web's (`tests/vectors/`). No pharmacy details, walking times or route yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
+- **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. A pharmacy has a sheet of its own with the week's opening hours, the call and the route handed off to Apple Maps. Its time logic passes the same test cases as the web's (`tests/vectors/`). No walking times and no route line on its own map yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
 
 Every view and state can be seen from fixtures, without a network, at `/dev/states` in a development build.
 
@@ -138,8 +138,8 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 This file describes what is in `main`. Open on 26 Nov 2026, and not described above:
 
-- [#13](https://github.com/Tilapit/auki/pull/13), the iOS app's basics: a pharmacy's sheet with its hours, the call and the route.
-- [#17](https://github.com/Tilapit/auki/pull/17), milestone M6 cut down: the abroad banner with the field result, and the counter card, in the live app.
+- [#21](https://github.com/Tilapit/auki/pull/21): a tab that is loaded again shows the results it had, from its own session storage. It keeps the position on the device, so it waits for the wording of the footer's sentence about the position.
+- [#23](https://github.com/Tilapit/auki/pull/23): "Prescription from home?" for anyone in any covered country: what works for a prescription from one country at a pharmacy in another, from official sources, and the counter card in the pharmacy's language, in the live app. It replaces #17 and waits for a review of its claims.
 
 ## Run it
 
