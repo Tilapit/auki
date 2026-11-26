@@ -28,7 +28,7 @@ import { PharmacySheet } from './PharmacySheet';
 import { ResultsNotice } from './ResultsNotice';
 import { ResultsShell, type SheetState } from './ResultsShell';
 import { MapView } from './MapView';
-import { MedicineDialog, MedicineLine } from './MedicineDialog';
+import { MedicineDialog, MedicineRow } from './MedicineDialog';
 import styles from './ResultsView.module.css';
 
 export interface ResultsOptions {
@@ -179,7 +179,13 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const cardProvider = offered ? providerFor((unlisted?.lead ?? nearestOpen ?? firstToOpen ?? scene.pharmacies[0])?.country) : undefined;
   const openMedicine = cardProvider && (() => setMedicineFor(cardProvider.country));
   // In the card it is styled by the card: next to "Ei varastossa?" where that line is, else a section of its own.
-  const medicineLine = openMedicine && <MedicineLine className={cardStyles.medicine} onOpen={openMedicine} />;
+  // The service's own address, as the row names it under its title: "apteekki.fi".
+  const siteOf = (country: string | undefined) => {
+    const provider = offered ? providerFor(country) : undefined;
+    return provider && t.medicine.services[provider.id as keyof typeof t.medicine.services].site;
+  };
+  const cardSite = siteOf(cardProvider?.country);
+  const medicineLine = openMedicine && cardSite && <MedicineRow className={cardStyles.medicine} onOpen={openMedicine} site={cardSite} />;
 
   // The details take the list's place: in the desktop's panel, and in the phone's sheet. Not a
   // modal: the map above them stays usable, as it does around the results.
@@ -521,7 +527,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               </NothingOpenCard>
             )}
 
-            {lineAlone && openMedicine && <MedicineLine onOpen={openMedicine} />}
+            {lineAlone && openMedicine && cardSite && <MedicineRow onOpen={openMedicine} site={cardSite} />}
           </div>
         ) : undefined
       }
@@ -581,6 +587,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               country={country}
               onShowCard={() => setCounterOpen(true)}
               onMedicine={offered && providerFor(detail.country) ? () => setMedicineFor(detail.country) : undefined}
+              medicineSite={siteOf(detail.country)}
               onClose={close}
               onSelect={select}
             />

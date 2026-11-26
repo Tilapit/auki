@@ -304,10 +304,15 @@ test.describe('a marker without room to press', () => {
     await expect(chip(page, 'meness-brivibas')).toBeVisible();
     await expect(pin(page, 'meness-brivibas').getByRole('button', { includeHidden: true })).toBeHidden();
     await expect(page.getByRole('button', { name: /^Mēness aptieka, .*auki ympäri vuorokauden/ })).toHaveCount(0);
-    // Helsinki: the nearest one stands whole just above the sheet. It is its marker, and has no chip.
-    await open(page, 'helsinki-half');
+    // Helsinki, the sheet at its lowest: the nearest one stands whole above it. It is its marker, and has no chip.
+    await open(page, 'helsinki-peek');
     await expect(pin(page, 'toolon').getByRole('button')).toBeVisible();
     await expect(chip(page, 'toolon')).toHaveCount(0);
+    // With the sheet at the card, which the medicine row made taller (26 Nov 2026), the sheet's edge
+    // runs through that marker: then it is the other way round, the chip and no marker.
+    await open(page, 'helsinki-half');
+    await expect(chip(page, 'toolon')).toBeVisible();
+    await expect(pin(page, 'toolon').getByRole('button', { includeHidden: true })).toBeHidden();
   });
 
   test('half under the sheet it is taken off the map, and is back when the sheet is lower', async ({ page }) => {
