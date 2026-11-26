@@ -11,14 +11,14 @@
 import type { Locale } from '../../lib/i18n';
 import { date } from '../../lib/format.ts';
 import type { CardPhrases, CardVariant } from '../../lib/types';
-import { EXCHANGE, OUTBOUND_ONLY, ePrescription, type EPrescription, type Note } from './eprescription.ts';
+import { EXCHANGE, ePrescription, type EPrescription, type Note } from './eprescription.ts';
 import { HERE, hereOf, type Here } from './here.ts';
 import { HOMES, OTHER, homeOf, inEea } from './homes.ts';
 import { paper, type PaperStatus } from './paper.ts';
 import { cardFor } from './phrases.ts';
 import { SOURCES, type Source, type SourceId } from './sources.ts';
 
-export { EXCHANGE, NO_FOREIGN, NOT_ABROAD, OUTBOUND_ONLY, ePrescription } from './eprescription.ts';
+export { EXCHANGE, NO_FOREIGN, NOT_ABROAD, ePrescription } from './eprescription.ts';
 export type { Note } from './eprescription.ts';
 export { HERE, hereOf } from './here.ts';
 export { HOMES, OTHER, homeFromLanguages, homeOf, homesFor, inEea } from './homes.ts';
@@ -89,8 +89,8 @@ const theCountry = (inCountry: Text): string => inCountry.en.replace(/^in /, '')
  * EU's rule covers the pair, that a paper prescription is the way that works.
  */
 function notListed(home: string, here: string, names: { home?: Text; here: Text }, from: Text, to: Text, sources: SourceId[], onPaper: boolean): Text {
-  // The home country's list of where its e-prescriptions are dispensed, read as current: also Austria's, which has that list and no other.
-  const own = (EXCHANGE[home] && !EXCHANGE[home].dated) || OUTBOUND_ONLY[home] !== undefined;
+  // The home country's list of where its e-prescriptions are dispensed, read as current.
+  const own = EXCHANGE[home] && !EXCHANGE[home].dated;
   const theirs = EXCHANGE[here] && !EXCHANGE[here].dated;
   const lists = sources.map(listOf);
   const found: Text =
@@ -133,7 +133,10 @@ function onPaper(status: PaperStatus, home: string, here: string, from: Text, to
         ? { fi: 'Sveitsin apteekkien ei tarvitse hyväksyä muissa maissa kirjoitettuja reseptejä.', en: 'Pharmacies in Switzerland are not obliged to accept prescriptions written in other countries.' }
         : { fi: 'EU-maiden ei tarvitse hyväksyä Sveitsissä kirjoitettuja reseptejä.', en: 'EU countries are not obliged to recognise prescriptions written in Switzerland.' };
     case 'refused':
-      return { fi: 'EU- ja Eta-maiden sekä Sveitsin ulkopuolella kirjoitettu resepti ei käy Suomessa.', en: 'A prescription written outside the EU, the EEA and Switzerland is not accepted in Finland.' };
+      // Each in the words of the country's own authority: Sweden's speaks of the EEA, Finland's also takes Swiss prescriptions.
+      return here === 'SE'
+        ? { fi: 'EU- ja Eta-maiden ulkopuolella kirjoitettu resepti ei käy Ruotsissa.', en: 'A prescription written outside the EU and the EEA is not accepted in Sweden.' }
+        : { fi: 'EU- ja Eta-maiden sekä Sveitsin ulkopuolella kirjoitettu resepti ei käy Suomessa.', en: 'A prescription written outside the EU, the EEA and Switzerland is not accepted in Finland.' };
     case 'unknown':
       return {
         fi: `EU:n sääntö toisessa maassa kirjoitetuista resepteistä koskee EU- ja Eta-maiden reseptejä. Virallista tietoa siitä, käykö ${from.fi} kirjoitettu resepti ${to.fi}, ei löytynyt.`,

@@ -22,7 +22,6 @@ import {
   type Source,
   type SourceId,
 } from '@/data/countries';
-import { OUTBOUND_ONLY } from '@/data/countries/eprescription';
 import { COUNTRY_CODES } from '@/lib/countries';
 import { date } from '@/lib/format';
 import { kamppi, resultOf, HERE as POSITION, MONDAY_EVENING } from '@/lib/fixtures/tiles';
@@ -130,23 +129,53 @@ describe('electronic prescriptions, pair by pair', () => {
     for (const home of eight) expect(guideFor(home, 'FI')!.ePrescription.sources, home).toContain('kantaForeign');
   });
 
-  it('two current pages disagree about one pair today, and the app says so', () => {
-    // Austria's page (August 2026) names Czechia and Spain as where its e-prescriptions are dispensed. Latvia's (November 2026) takes Austria's.
+  it('two countries’ current pages disagree today, about both directions between them, and the app says so', () => {
+    // Austria's pages name Czechia and Spain alone, as where its e-prescriptions are dispensed (August 2026) and as whose its pharmacies retrieve (September 2026).
+    // Latvia's page (its images replaced on 24 November 2026, read three times) has Austria both ways.
     // When another pair joins this list, this fails first, so that somebody reads both pages again.
-    expect(guides.filter(({ guide }) => guide.ePrescription.status === 'disagree').map(({ home, here }) => key(home, here))).toEqual(['AT to LV']);
+    expect(guides.filter(({ guide }) => guide.ePrescription.status === 'disagree').map(({ home, here }) => key(home, here))).toEqual(['AT to LV', 'LV to AT']);
     expect(ePrescription('AT', 'LV').sources).toEqual(['gesundheitAt', 'eveseliba']);
+    expect(ePrescription('LV', 'AT').sources).toEqual(['eveseliba', 'gesundheitAtProfessionals']);
+    // Neither side's instructions are shown under an answer that says the pages disagree.
+    expect(ePrescription('LV', 'AT').notes).toEqual([]);
   });
 
-  it('Austria’s page is read for where its own are dispensed, and for nothing about who it takes', () => {
-    expect(OUTBOUND_ONLY.AT.outbound).toEqual(['CZ', 'ES']);
-    expect(EXCHANGE.AT).toBeUndefined();
+  it('Austria’s two lists are on two pages of its health portal, and both name Czechia and Spain alone', () => {
+    expect(EXCHANGE.AT.outbound).toEqual(['CZ', 'ES']);
+    expect(EXCHANGE.AT.inbound).toEqual(['CZ', 'ES']);
     expect(ePrescription('AT', 'CZ')).toMatchObject({ status: 'works', sources: ['gesundheitAt', 'epreskripce'] });
     expect(ePrescription('AT', 'CZ').notes[0].source).toBe('gesundheitAtSteps');
     // A country with no page of its own: Austria's list is the one it is missing from.
     expect(ePrescription('AT', 'HU')).toMatchObject({ status: 'notListed', sources: ['gesundheitAt'] });
-    // To Austria: its page names pharmacies and no country, so only the other country's page speaks.
-    expect(ePrescription('CZ', 'AT')).toMatchObject({ status: 'works', sources: ['epreskripce'] });
-    expect(ePrescription('FR', 'AT').status).toBe('unknown');
+    // To Austria: whose e-prescriptions its pharmacies retrieve is on the page for health professionals, and both countries' pages have the pair.
+    expect(ePrescription('CZ', 'AT')).toMatchObject({ status: 'works', sources: ['epreskripce', 'gesundheitAtProfessionals'] });
+    expect(ePrescription('ES', 'AT')).toMatchObject({ status: 'works', sources: ['sanidad', 'gesundheitAtProfessionals'] });
+    // A country that list leaves out is missing from Austria's list: no longer "nothing found".
+    expect(ePrescription('FR', 'AT')).toMatchObject({ status: 'notListed', sources: ['gesundheitAtProfessionals'] });
+    expect(guideFor('FR', 'AT')!.ePrescription.text.fi).toBe(
+      'Ranska ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Itävallassa. Luettelo: gesundheit.gv.at (Itävalta), päivitetty 21.9.2026. Paperinen resepti käy EU:n säännön nojalla.',
+    );
+    expect(ePrescription('FI', 'AT')).toMatchObject({ status: 'notListed', sources: ['kantaAbroad', 'gesundheitAtProfessionals'] });
+    // Only some pharmacies there take part: said from Austria's page for visitors, which lists them and names no country.
+    for (const home of ['CZ', 'ES']) {
+      const visitors = ePrescription(home, 'AT').notes.at(-1)!;
+      expect(visitors.source, home).toBe('gesundheitAtVisitors');
+      expect(visitors.text.fi, home).toContain('45\u00A0apteekkia');
+    }
+  });
+
+  it('Sweden’s own agency says its e-prescription cannot be used abroad, as Norway’s and Denmark’s do', () => {
+    expect(Object.keys(NOT_ABROAD).sort()).toEqual(['DK', 'NO', 'SE']);
+    // Läkemedelsverket's answer, updated 14.4.2026: electronic prescriptions cannot at present be used outside Sweden.
+    for (const here of ['FI', 'EE', 'AT', 'HR', 'IT']) expect(ePrescription('SE', here), here).toMatchObject({ status: 'notAbroad', sources: ['lakemedelsverket'] });
+    const answer = guideFor('SE', 'FI')!.ePrescription;
+    expect(answer.text.fi).toBe('Ruotsissa kirjoitettu sähköinen resepti ei käy ulkomailla.');
+    expect(answer.notes).toHaveLength(1);
+    expect(answer.notes[0].text.fi).toContain('Apteekkia voi pyytää tulostamaan sen paperille ennen matkaa.');
+    // Where the country one is in takes none from abroad, that is still the answer.
+    expect(ePrescription('SE', 'NO')).toMatchObject({ status: 'notHere', sources: ['helsedirektoratetMyHealth'] });
+    // No list that was read has Sweden, Norway or Denmark on it. If one ever does, that pair is said to work, and the country's own page has to be read again.
+    for (const [country, page] of Object.entries(EXCHANGE)) for (const home of Object.keys(NOT_ABROAD)) expect(page.inbound, `${country}: ${home}`).not.toContain(home);
   });
 
   it('the pairs that work one way only are one way only', () => {
@@ -172,9 +201,11 @@ describe('electronic prescriptions, pair by pair', () => {
     expect(ePrescription('CY', 'HR')).toMatchObject({ status: 'works', sources: ['hzzo'] });
     // What it asks of its own people is from its notice of 30.6.2025, not from the page with the lists.
     expect(ePrescription('HR', 'EE').notes[0].source).toBe('hzzoNotice');
-    // Czechia says no in so many words: that stands. And with no other page to go by, nothing is claimed.
+    // Czechia says no in so many words: that stands. To Austria it is Austria's list alone that is read for what it leaves out.
     expect(ePrescription('HR', 'CZ')).toMatchObject({ status: 'notListed', sources: ['epreskripce'] });
-    expect(ePrescription('HR', 'AT').status).toBe('unknown');
+    expect(ePrescription('HR', 'AT')).toMatchObject({ status: 'notListed', sources: ['gesundheitAtProfessionals'] });
+    // And with no other page to go by, nothing is claimed.
+    expect(ePrescription('HR', 'HU').status).toBe('unknown');
     expect(ePrescription('DE', 'HR').status).toBe('unknown');
   });
 
@@ -193,7 +224,7 @@ describe('electronic prescriptions, pair by pair', () => {
       const taken = EXCHANGE[here]?.inbound.includes(home) ?? false;
       if (guide.ePrescription.status === 'works') expect(sent || taken, key(home, here)).toBe(true);
       // And nothing is claimed either way where no page speaks: the answer is that nothing was found.
-      if (!EXCHANGE[home] && !OUTBOUND_ONLY[home] && !EXCHANGE[here] && !NO_FOREIGN[here] && !NOT_ABROAD[home]) expect(guide.ePrescription.status, key(home, here)).toBe('unknown');
+      if (!EXCHANGE[home] && !EXCHANGE[here] && !NO_FOREIGN[here] && !NOT_ABROAD[home]) expect(guide.ePrescription.status, key(home, here)).toBe('unknown');
     }
   });
 
@@ -234,10 +265,8 @@ describe('electronic prescriptions, pair by pair', () => {
       for (const locale of ['fi', 'en'] as const) expect((SOURCES[page.source] as Source).label[locale], country).toMatch(/^[^:]+: \S/);
       for (const other of [...page.inbound, ...page.outbound]) expect(HOMES.find((entry) => entry.code === other)?.union, `${country}: ${other}`).toMatch(/^(eu|eea)$/);
     }
-    for (const locale of ['fi', 'en'] as const) expect((SOURCES.kantaForeign as Source).label[locale]).toMatch(/^[^:]+: \S/);
-    for (const [country, page] of Object.entries(OUTBOUND_ONLY)) {
-      for (const locale of ['fi', 'en'] as const) expect((SOURCES[page.source] as Source).label[locale], country).toMatch(/^[^:]+: \S/);
-    }
+    // The two lists that are on a page of their own: Finland's and Austria's of whose e-prescriptions they dispense.
+    for (const id of ['kantaForeign', 'gesundheitAtProfessionals'] as const) for (const locale of ['fi', 'en'] as const) expect((SOURCES[id] as Source).label[locale], id).toMatch(/^[^:]+: \S/);
     // Austria has a list of its own and Poland has one: neither has the pair, and the sentence says "neither", with both lists named.
     const both = guideFor('AT', 'PL')!.ePrescription;
     expect(both.status).toBe('notListed');
@@ -251,7 +280,7 @@ describe('electronic prescriptions, pair by pair', () => {
     for (const { guide } of guides) counts[guide.ePrescription.status] = (counts[guide.ePrescription.status] ?? 0) + 1;
     // 33 countries one can be from, 21 one can be in, less the 21 pairs at home.
     expect(pairs).toHaveLength(33 * 21 - 21);
-    expect(counts).toEqual({ works: 95, disagree: 1, notListed: 244, notHere: 160, notAbroad: 32, unknown: 140 });
+    expect(counts).toEqual({ works: 94, disagree: 2, notListed: 255, notHere: 160, notAbroad: 48, unknown: 113 });
   });
 });
 
@@ -271,13 +300,23 @@ describe('paper prescriptions', () => {
     expect(paper('DE', 'CH')).toMatchObject({ status: 'notObliged', sources: ['yourEuropeFaq', 'swissPositionPaper'] });
     expect(paper('CH', 'DE')).toMatchObject({ status: 'notObliged', sources: ['yourEuropeFaq'] });
     expect(paper('CH', 'FI')).toMatchObject({ status: 'accepted', sources: ['kantaForeign', 'euHealthcareFi'] });
+    // Sweden's agency speaks of the EEA, and Switzerland is outside it: there the answer is a no in the agency's words.
+    expect(paper('CH', 'SE')).toMatchObject({ status: 'refused', sources: ['lakemedelsverketEea'] });
+    expect(paper('SE', 'CH')).toMatchObject({ status: 'notObliged', sources: ['yourEuropeFaq', 'swissPositionPaper'] });
   });
 
-  it('from outside the EU, the EEA and Switzerland: Finland says no, and of the rest nothing was found', () => {
+  it('from outside the EU, the EEA and Switzerland: Finland and Sweden say no, and of the rest nothing was found', () => {
     for (const home of ['GB', OTHER]) {
       expect(paper(home, 'FI'), home).toMatchObject({ status: 'refused', sources: ['euHealthcareFi'] });
-      for (const here of ['LV', 'DE', 'ES', 'SE']) expect(paper(home, here).status, key(home, here)).toBe('unknown');
+      // Läkemedelsverket, updated 27.12.2024: a Swedish pharmacy may not dispense a prescription issued in a country outside the EEA.
+      expect(paper(home, 'SE'), home).toMatchObject({ status: 'refused', sources: ['lakemedelsverketEea'] });
+      for (const here of ['LV', 'DE', 'ES', 'NO']) expect(paper(home, here).status, key(home, here)).toBe('unknown');
     }
+    expect(guides.filter(({ guide }) => guide.paper.status === 'refused').map(({ home, here }) => key(home, here)).sort()).toEqual(['CH to SE', 'GB to FI', 'GB to SE', `${OTHER} to FI`, `${OTHER} to SE`].sort());
+    expect(guideFor('GB', 'SE')!.paper.text).toEqual({ fi: 'EU- ja Eta-maiden ulkopuolella kirjoitettu resepti ei käy Ruotsissa.', en: 'A prescription written outside the EU and the EEA is not accepted in Sweden.' });
+    expect(guideFor('GB', 'FI')!.paper.text.fi).toBe('EU- ja Eta-maiden sekä Sveitsin ulkopuolella kirjoitettu resepti ei käy Suomessa.');
+    // Inside the EEA the EU's rule holds in Sweden as everywhere, with what Sweden's eHealth agency adds.
+    expect(paper('NO', 'SE')).toMatchObject({ status: 'recognised' });
   });
 
   it('lists what the prescription has to show, as Your Europe does: four things', () => {
