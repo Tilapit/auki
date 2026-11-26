@@ -33,7 +33,7 @@ In CI the same things are measured on every push, against a build and with fixtu
 - **Visitors' reports.** A row in a pharmacy's details offers to tell how a visit went: one screen of chips, no text, always skippable, never asked. Anonymous, and shown for a pharmacy only once it has three, as counts with the days they came (`PLAN.md` section 7.10).
 - **A data page** with the pipeline's numbers per country, and when each was last fetched.
 - **Finnish and English**, light and dark, phone and desktop.
-- **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. Its time logic passes the same test cases as the web's (`tests/vectors/`). No pharmacy details, walking times or route yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
+- **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. A pharmacy has a sheet of its own with the week's opening hours, the call and the route handed off to Apple Maps. Its time logic passes the same test cases as the web's (`tests/vectors/`). No walking times and no route line on its own map yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
 
 Every view and state can be seen from fixtures, without a network, at `/dev/states` in a development build.
 
@@ -84,7 +84,7 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 
 ## Privacy
 
-- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps two things. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
+- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps three things. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. The country of the prescription, once it has been picked in the "Resepti kotimaasta?" banner: two letters, read on the device and never sent. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
 - The position: one request, to the app's own server, as above. Checked by a test on every push.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.
@@ -142,7 +142,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 This file describes what is in `main`. Open on 26 Nov 2026, and not described above:
 
-- [#13](https://github.com/Tilapit/auki/pull/13), the iOS app's basics: a pharmacy's sheet with its hours, the call and the route.
+- [#25](https://github.com/Tilapit/auki/pull/25): visitors' reports. A row in a pharmacy's details offers to tell how a visit went, on one screen of chips with no text; anonymous, kept behind the app's own server, and shown for a pharmacy only once it has three. It waits for a review.
 
 ## Run it
 
