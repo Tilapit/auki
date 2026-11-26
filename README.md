@@ -84,12 +84,12 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 
 ## Privacy
 
-- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps three things. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. The country of the prescription, once it has been picked in the "Resepti kotimaasta?" banner: two letters, read on the device and never sent. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
+- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps four things: the three here, and one for the visitors' reports, below. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. The country of the prescription, once it has been picked in the "Resepti kotimaasta?" banner: two letters, read on the device and never sent. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
 - The position: one request, to the app's own server, as above. Checked by a test on every push.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.
 - A visitor's report: sent only when the user presses "Lähetä", and it carries the pharmacy, its country and the chips pressed, to the letter. Stored with the day and nothing else: no account, no position, no medicine, no text, no time of day, no IP address. Shown for a pharmacy only once it has three, as counts with the days. The database is behind the app's own server, with row-level security on and no policy; the browser never talks to it. Checked by a third test, and by a unit test that reads the table's columns from the migration.
-- For the reports the device keeps one more thing: today's date and the ids of the pharmacies whose row was answered or passed over today, so that the same visit is not asked about twice. Never sent, and empty again the next day.
+- For the reports the device keeps the fourth thing: today's date and the ids of the pharmacies whose row was answered or passed over today, so that the same visit is not asked about twice. Never sent, and empty again the next day.
 
 ## Accessibility
 
@@ -140,9 +140,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 ## Open pull requests
 
-This file describes what is in `main`. Open on 26 Nov 2026, and not described above:
-
-- [#25](https://github.com/Tilapit/auki/pull/25): visitors' reports. A row in a pharmacy's details offers to tell how a visit went, on one screen of chips with no text; anonymous, kept behind the app's own server, and shown for a pharmacy only once it has three. It waits for a review.
+This file describes what is in `main`. On 26 Nov 2026 no pull request is open that is not described above.
 
 ## Run it
 
