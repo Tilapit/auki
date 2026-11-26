@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { helsinki } from '@/lib/fixtures/helsinki';
 import { FIVE_REPORTS, fixedReports } from '@/lib/fixtures/reports';
-import { ResultsView } from '../ResultsView';
+import { ResultsView } from './Results';
 
 export type ReportViewState = 'row' | 'summary' | 'open' | 'failed' | 'thanks';
 

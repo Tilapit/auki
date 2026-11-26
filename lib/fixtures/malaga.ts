@@ -69,7 +69,8 @@ const SPAIN = { country: 'ES', share: Math.round((RUN_OF_23_NOV.ES[1] / RUN_OF_2
 function scene(pharmacies: TilePharmacy[], now: number): Scene {
   const candidates = pharmacies.map((p) => ({ pharmacy: p, meters: distanceMeters(CENTRE, p) })).sort((a, b) => a.meters - b.meters);
   const result: SearchResult = { candidates, missing: [], hoursListed: SPAIN };
-  return toScene({ position: HERE, result, now, deviceZone: ZONE });
+  // Fixtures name the prescription's country themselves: the live app takes it from the device.
+  return { ...toScene({ position: HERE, result, now, deviceZone: ZONE }), home: 'FI' };
 }
 
 /** The proposal's case: the only pharmacy known to be open is 1.9 km away, past seven whose hours aren't known. */

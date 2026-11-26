@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
 import { ReportView } from '@/components/dev/ReportView';
-import { CardCase, ComponentSheet } from '@/components/dev/Sheets';
+import { ResultsView } from '@/components/dev/Results';
+import { AbroadPairsSheet, AbroadSheet, CardCase, ComponentSheet } from '@/components/dev/Sheets';
 import { StockExample } from '@/components/dev/StockExample';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
 import { ProblemView } from '@/components/ProblemView';
 import { ProgressView } from '@/components/ProgressView';
-import { ResultsView } from '@/components/ResultsView';
 import { SearchingView } from '@/components/SearchingView';
 import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/helsinki';
 import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
@@ -16,6 +16,7 @@ import { EXAMPLE_MEDICINE } from '@/lib/fixtures/stock';
 import { stress } from '@/lib/fixtures/stress';
 import { HERE, MONDAY_EVENING, NINE_DAYS_LATER, daily, farOpen, indexOf, kamppi, kamppiClosed, resultOf, walkedResultOf, weekly } from '@/lib/fixtures/tiles';
 import { toScene } from '@/lib/live';
+import type { Scene } from '@/lib/types';
 import type { SearchResult } from '@/lib/live';
 import { distanceMeters } from '@/lib/geo';
 import { sceneAt } from '@/lib/scene';
@@ -26,7 +27,8 @@ const at = (iso: string): SkyAt => ({ at: iso, zone: 'Europe/Helsinki' });
 const TWILIGHT = at('2026-11-19T14:10:00Z');
 
 /** A scene as the live app builds it, from tile data at a fixed instant. */
-const fromTiles = (result: SearchResult, now = MONDAY_EVENING) => toScene({ position: HERE, result, now, deviceZone: 'Europe/Helsinki' });
+// A view here never asks the device for anything: the prescription's country is Finland's, as the canvas boards have it.
+const fromTiles = (result: SearchResult, now = MONDAY_EVENING): Scene => ({ ...toScene({ position: HERE, result, now, deviceZone: 'Europe/Helsinki' }), home: 'FI' });
 const far = { pharmacy: farOpen, meters: distanceMeters(HERE, farOpen) };
 /** Monday 20.57: the nearest open pharmacy closes at 21, three minutes' walk away. */
 const TOO_LATE = MONDAY_EVENING + 16 * 60;
@@ -95,8 +97,18 @@ export const renderers: Record<string, () => ReactNode> = {
   'report-failed': () => <ReportView state="failed" />,
   'report-thanks': () => <ReportView state="thanks" />,
   'sheet-far': () => <ResultsView scene={rigaFarOpen} sheet="peek" detailId="meness-marupe" />,
-  counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" />,
-  'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" />,
+  counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" counterAwake />,
+  'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" counterAwake />,
+  // Where a Finnish e-prescription can't be used the card has no lines for one: Germany's, on the Riga fixture's pharmacies.
+  'counter-doctor': () => <ResultsView scene={{ ...riga, here: 'DE' }} sheet="expanded" counter="doctorSends" counterAwake={false} />,
+  'counter-one': () => <ResultsView scene={{ ...riga, here: 'MT' }} sheet="expanded" counter="paper" counterAwake />,
+  // Anyone in any covered country: a visitor's prescription, in Latvia and in Finland.
+  'counter-visitor': () => <ResultsView scene={{ ...helsinki, here: 'FI' }} home="EE" sheet="expanded" counter="ePrescription" counterAwake />,
+  'abroad-visitor': () => <ResultsView scene={riga} home="DE" sheet="expanded" />,
+  'abroad-finland': () => <ResultsView scene={{ ...helsinki, here: 'FI' }} home="EE" sheet="expanded" bannerOpen />,
+  'abroad-ask': () => <ResultsView scene={riga} home={null} sheet="expanded" />,
+  abroad: () => <AbroadSheet />,
+  'abroad-pairs': () => <AbroadPairsSheet />,
 
   'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
   'tiles-half': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="half" />,

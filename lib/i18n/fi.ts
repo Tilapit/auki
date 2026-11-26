@@ -46,6 +46,8 @@ const fi = {
     // A Finnish date ends in a full stop of its own ("22.11."): no second one after it.
     fetched: 'Tiedot: OpenStreetMap, haettu {date} {about}',
     aboutData: 'Tietoa aineistosta',
+    /** At home the prescription banner is not shown: this brings it up, for a prescription from another country. */
+    prescription: 'Resepti toisesta maasta?',
   },
   first: {
     headline: 'Löydä lähin auki oleva apteekki',
@@ -244,15 +246,34 @@ const fi = {
     fixLabel: (name: string) => `Korjaa OpenStreetMapissa: ${name}`,
     backToList: 'Takaisin listaan',
   },
+  /**
+   * The prescription banner (PLAN.md section 8). What it says of a pair of countries is in
+   * data/countries/: here only its own words. It never names a medicine.
+   */
   banner: {
-    title: 'Resepti Suomesta?',
-    source: 'Lähde: {source}, tarkistettu {date}.',
+    title: 'Resepti kotimaasta?',
+    home: 'Reseptin maa',
+    choose: 'Valitse maa',
+    other: 'Muu maa',
+    ask: 'Valitse maa, jossa reseptisi on kirjoitettu, niin näet, käykö se täällä.',
+    electronic: 'Sähköinen resepti',
+    paper: 'Paperinen resepti',
+    /** The research trip was made with prescriptions from Finland: every line of it is shown under these words. */
+    field: 'Suomalaisella reseptillä.',
+    pharmacist: 'Jos ensimmäinen vastaus on ei, pyydä farmaseuttia.',
+    more: 'Lisätiedot ja lähteet',
+    required: 'Paperisessa reseptissä pitää olla vähintään:',
+    sources: 'Lähteet',
+    pageDated: 'Sivu päivitetty {updated}, luettu {checked}.',
+    pageRead: 'Luettu {checked}.',
+    read: 'Viralliset lähteet luettu {date}.',
   },
   counter: {
     title: 'Näytä tämä apteekissa',
     format: 'Reseptin muoto',
     ePrescription: 'E-resepti',
     paper: 'Paperiresepti',
+    doctorSends: 'Lääkäri lähettää',
     ifNotFound: 'Jos myyjä ei löydä reseptiä',
     ifRefused: 'Jos myyjä ei hyväksy reseptiä',
     unreviewed: 'Käännös tarkistamatta',
