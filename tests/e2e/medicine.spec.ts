@@ -33,10 +33,10 @@ test('a medicine\'s name goes to the country\'s own service in the link the user
   });
   await start(page, world(kamppi));
 
-  // One line in the card. It asks nothing until it is pressed.
-  await expect(card(page)).toContainText('Etsitkö tiettyä lääkettä?');
+  // A row of its own in the card, named as the dialog it opens and saying where the check is made. It asks nothing until it is pressed.
+  await expect(card(page).getByRole('button', { name: 'Tarkista lääkkeen saatavuus apteekki.fi' })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Lääkkeen nimi' })).toHaveCount(0);
-  await card(page).getByRole('button', { name: 'Tarkista saatavuus' }).click();
+  await card(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ }).click();
   const dialog = medicine(page);
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('heading', { level: 2 })).toBeFocused();
@@ -89,7 +89,7 @@ test('a medicine\'s name goes to the country\'s own service in the link the user
   // The name does not outlive the dialog.
   await dialog.getByRole('button', { name: 'Sulje' }).click();
   await expect(dialog).toBeHidden();
-  await card(page).getByRole('button', { name: 'Tarkista saatavuus' }).click();
+  await card(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ }).click();
   await expect(field).toHaveValue('');
   await expect(link).toHaveAttribute('href', SEARCH);
 });
@@ -99,7 +99,7 @@ test('a pharmacy\'s details offer the same check, and Escape closes it without c
   await page.getByRole('button', { name: 'Yliopiston apteekki', exact: true }).click();
   const sheet = page.getByRole('dialog').filter({ has: page.getByRole('heading', { level: 2, name: 'Yliopiston apteekki' }) });
   await expect(sheet).toBeVisible();
-  const open = sheet.getByRole('button', { name: 'Tarkista saatavuus' });
+  const open = sheet.getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ });
   // From the keyboard, where it matters that focus comes back. (Safari does not focus a button that is clicked.)
   await open.focus();
   await page.keyboard.press('Enter');
@@ -116,7 +116,7 @@ test('a service whose address takes no name is never asked for one', async ({ pa
   // The same pharmacies as if they stood in Austria, where the stock lookup lives in the Chamber's app.
   const austrian = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, country: 'AT' }));
   await start(page, world(austrian));
-  await card(page).getByRole('button', { name: 'Tarkista saatavuus' }).click();
+  await card(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ }).click();
   const dialog = medicine(page);
   await expect(dialog).toContainText('ApoApp');
   await expect(dialog.getByRole('textbox')).toHaveCount(0);
@@ -129,8 +129,8 @@ test('in a country without a stock search of its own, nothing is offered', async
   const latvian = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, country: 'LV' }));
   await start(page, world(latvian));
   await expect(card(page).getByRole('heading', { level: 3 }).first()).toHaveText('Kampin apteekki');
-  await expect(page.getByText('Etsitkö tiettyä lääkettä?')).toHaveCount(0);
+  await expect(page.getByText('Tarkista lääkkeen saatavuus')).toHaveCount(0);
   await page.getByRole('button', { name: 'Yliopiston apteekki', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
-  await expect(page.getByRole('button', { name: 'Tarkista saatavuus' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ })).toHaveCount(0);
 });

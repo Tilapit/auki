@@ -222,8 +222,6 @@ const en: Dictionary = {
     awake: 'The screen stays on.',
   },
   medicine: {
-    ask: 'Looking for a specific medicine?',
-    check: 'Check availability',
     title: "Check a medicine's availability",
     label: 'Name of the medicine',
     sent: "The name goes from your device straight to {site} when you open the link. It is not sent to this app's server and is not saved.",

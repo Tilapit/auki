@@ -264,8 +264,6 @@ const fi = {
    */
   medicine: {
     /** The entry line, under the card and in a pharmacy's details: a question, then the button. */
-    ask: 'Etsitkö tiettyä lääkettä?',
-    check: 'Tarkista saatavuus',
     title: 'Tarkista lääkkeen saatavuus',
     label: 'Lääkkeen nimi',
     /** Under the link, when its address carries the name. "{site}" is the host, as the address bar will show it. */
