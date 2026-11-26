@@ -1,0 +1,2532 @@
+{
+ "about": "The week in the pharmacy sheet: the coming seven local days from the intervals a tile carries, today first, equal days grouped (lib/week.ts). days are weekdays, 0 for Monday to 6 for Sunday, in that order; the lines are in the order of their first weekday. hours.kind is open (ranges of wall-clock times \"HH:mm\" on the pharmacy's own clock; a closing at midnight is \"24:00\"), closed, allDay or unknown. Only days the window covers whole are listed. Hours that are not parsed intervals give no lines.",
+ "cases": [
+  {
+   "name": "the same hours every day are one line, and a closing at midnight is 24:00",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795471200
+     },
+     {
+      "from": 1795500000,
+      "to": 1795557600
+     },
+     {
+      "from": 1795586400,
+      "to": 1795644000
+     },
+     {
+      "from": 1795672800,
+      "to": 1795730400
+     },
+     {
+      "from": 1795759200,
+      "to": 1795816800
+     },
+     {
+      "from": 1795845600,
+      "to": 1795903200
+     },
+     {
+      "from": 1795932000,
+      "to": 1795989600
+     },
+     {
+      "from": 1796018400,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795459260,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "24:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "weekdays and the weekend, seen on a Monday",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795852800,
+      "to": 1795881600
+     },
+     {
+      "from": 1795939200,
+      "to": 1795968000
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795428000,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "10:00",
+        "to": "18:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "weekdays and the weekend, seen on a Tuesday: the groups still start from Monday",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795852800,
+      "to": 1795881600
+     },
+     {
+      "from": 1795939200,
+      "to": 1795968000
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795514400,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "10:00",
+        "to": "18:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "a day that differs stands apart: closed on Thursday and Sunday, shorter on Saturday",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795849200,
+      "to": 1795870800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795428000,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      4
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      3,
+      6
+     ],
+     "hours": {
+      "kind": "closed"
+     }
+    },
+    {
+     "days": [
+      5
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "09:00",
+        "to": "15:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "a lunch break is two ranges on one day",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795428000
+     },
+     {
+      "from": 1795431600,
+      "to": 1795446000
+     },
+     {
+      "from": 1795500000,
+      "to": 1795514400
+     },
+     {
+      "from": 1795518000,
+      "to": 1795532400
+     },
+     {
+      "from": 1795586400,
+      "to": 1795600800
+     },
+     {
+      "from": 1795604400,
+      "to": 1795618800
+     },
+     {
+      "from": 1795672800,
+      "to": 1795687200
+     },
+     {
+      "from": 1795690800,
+      "to": 1795705200
+     },
+     {
+      "from": 1795759200,
+      "to": 1795773600
+     },
+     {
+      "from": 1795777200,
+      "to": 1795791600
+     },
+     {
+      "from": 1795845600,
+      "to": 1795860000
+     },
+     {
+      "from": 1795863600,
+      "to": 1795878000
+     },
+     {
+      "from": 1795932000,
+      "to": 1795946400
+     },
+     {
+      "from": 1795950000,
+      "to": 1795964400
+     },
+     {
+      "from": 1796018400,
+      "to": 1796032800
+     },
+     {
+      "from": 1796036400,
+      "to": 1796050800
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795417200,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "12:00"
+       },
+       {
+        "from": "13:00",
+        "to": "17:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "an opening past midnight belongs to the day it begins on",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795449600,
+      "to": 1795478400
+     },
+     {
+      "from": 1795536000,
+      "to": 1795564800
+     },
+     {
+      "from": 1795622400,
+      "to": 1795651200
+     },
+     {
+      "from": 1795708800,
+      "to": 1795737600
+     },
+     {
+      "from": 1795795200,
+      "to": 1795824000
+     },
+     {
+      "from": 1795881600,
+      "to": 1795910400
+     },
+     {
+      "from": 1795968000,
+      "to": 1795996800
+     },
+     {
+      "from": 1796054400,
+      "to": 1796083200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795453200,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "around the clock",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795384800,
+      "to": 1796076000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795482000,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "an opening of several days is cut at midnight",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795442400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795528800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795615200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795701600
+     },
+     {
+      "from": 1795759200,
+      "to": 1796018400
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795514400,
+   "lines": [
+    {
+     "days": [
+      0
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "00:00",
+        "to": "08:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      1,
+      2,
+      3
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "16:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      4
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "24:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "openings that touch are one opening",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795428000
+     },
+     {
+      "from": 1795428000,
+      "to": 1795449600
+     },
+     {
+      "from": 1795500000,
+      "to": 1795514400
+     },
+     {
+      "from": 1795514400,
+      "to": 1795536000
+     },
+     {
+      "from": 1795586400,
+      "to": 1795600800
+     },
+     {
+      "from": 1795600800,
+      "to": 1795622400
+     },
+     {
+      "from": 1795672800,
+      "to": 1795687200
+     },
+     {
+      "from": 1795687200,
+      "to": 1795708800
+     },
+     {
+      "from": 1795759200,
+      "to": 1795773600
+     },
+     {
+      "from": 1795773600,
+      "to": 1795795200
+     },
+     {
+      "from": 1795845600,
+      "to": 1795860000
+     },
+     {
+      "from": 1795860000,
+      "to": 1795881600
+     },
+     {
+      "from": 1795932000,
+      "to": 1795946400
+     },
+     {
+      "from": 1795946400,
+      "to": 1795968000
+     },
+     {
+      "from": 1796018400,
+      "to": 1796032800
+     },
+     {
+      "from": 1796032800,
+      "to": 1796054400
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795417200,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "18:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "openings that touch, given out of order",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1796018400,
+      "to": 1796032800
+     },
+     {
+      "from": 1796032800,
+      "to": 1796054400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795946400
+     },
+     {
+      "from": 1795946400,
+      "to": 1795968000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795860000
+     },
+     {
+      "from": 1795860000,
+      "to": 1795881600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795773600
+     },
+     {
+      "from": 1795773600,
+      "to": 1795795200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795687200
+     },
+     {
+      "from": 1795687200,
+      "to": 1795708800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795600800
+     },
+     {
+      "from": 1795600800,
+      "to": 1795622400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795514400
+     },
+     {
+      "from": 1795514400,
+      "to": 1795536000
+     },
+     {
+      "from": 1795413600,
+      "to": 1795428000
+     },
+     {
+      "from": 1795428000,
+      "to": 1795449600
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795417200,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "18:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "a day with a stretch the data calls unknown is unknown, not closed",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": [
+     {
+      "from": 1795644000,
+      "to": 1795730400
+     }
+    ]
+   },
+   "now": 1795428000,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      3
+     ],
+     "hours": {
+      "kind": "unknown"
+     }
+    }
+   ]
+  },
+  {
+   "name": "only the days the data covers: on Thursday it knows five",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795687200,
+   "lines": [
+    {
+     "days": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "the last day the window holds whole",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1796075940,
+   "lines": [
+    {
+     "days": [
+      0
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "past the window: nothing",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1796076000,
+   "lines": []
+  },
+  {
+   "name": "before the window: nothing",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795413600,
+      "to": 1795460400
+     },
+     {
+      "from": 1795500000,
+      "to": 1795546800
+     },
+     {
+      "from": 1795586400,
+      "to": 1795633200
+     },
+     {
+      "from": 1795672800,
+      "to": 1795719600
+     },
+     {
+      "from": 1795759200,
+      "to": 1795806000
+     },
+     {
+      "from": 1795845600,
+      "to": 1795892400
+     },
+     {
+      "from": 1795932000,
+      "to": 1795978800
+     },
+     {
+      "from": 1796018400,
+      "to": 1796065200
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795384740,
+   "lines": []
+  },
+  {
+   "name": "never open in the window: every day closed",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [],
+    "unknown": []
+   },
+   "now": 1795428000,
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "closed"
+     }
+    }
+   ]
+  },
+  {
+   "name": "an opening that began the evening before and runs past noon is not a tail: the day starts at 0:00",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1795543200,
+      "to": 1795608000
+     }
+    ],
+    "unknown": []
+   },
+   "now": 1795428000,
+   "lines": [
+    {
+     "days": [
+      0,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "closed"
+     }
+    },
+    {
+     "days": [
+      1
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "20:00",
+        "to": "24:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      2
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "00:00",
+        "to": "14:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "hours missing",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "missing"
+   },
+   "now": 1795428000,
+   "lines": []
+  },
+  {
+   "name": "hours that could not be read",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "unparseable",
+    "raw": "by appointment"
+   },
+   "now": 1795428000,
+   "lines": []
+  },
+  {
+   "name": "hours that are uncertain",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1795384800,
+   "windowUntil": 1796076000,
+   "hours": {
+    "kind": "uncertain",
+    "raw": "Mo-Fr 08:00-18:00; PH off"
+   },
+   "now": 1795428000,
+   "lines": []
+  },
+  {
+   "name": "Europe/Helsinki, the week of the clock change of 2026-10: 8 to 21 every day",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1792616400,
+   "windowUntil": 1793311200,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792645200,
+      "to": 1792692000
+     },
+     {
+      "from": 1792731600,
+      "to": 1792778400
+     },
+     {
+      "from": 1792818000,
+      "to": 1792864800
+     },
+     {
+      "from": 1792908000,
+      "to": 1792954800
+     },
+     {
+      "from": 1792994400,
+      "to": 1793041200
+     },
+     {
+      "from": 1793080800,
+      "to": 1793127600
+     },
+     {
+      "from": 1793167200,
+      "to": 1793214000
+     },
+     {
+      "from": 1793253600,
+      "to": 1793300400
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Helsinki, the week of the clock change of 2026-10: around the clock",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1792616400,
+   "windowUntil": 1793311200,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792616400,
+      "to": 1793311200
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Helsinki, the week of the clock change of 2026-10: 18 to 2 every night",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1792616400,
+   "windowUntil": 1793311200,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792681200,
+      "to": 1792710000
+     },
+     {
+      "from": 1792767600,
+      "to": 1792796400
+     },
+     {
+      "from": 1792854000,
+      "to": 1792882800
+     },
+     {
+      "from": 1792944000,
+      "to": 1792972800
+     },
+     {
+      "from": 1793030400,
+      "to": 1793059200
+     },
+     {
+      "from": 1793116800,
+      "to": 1793145600
+     },
+     {
+      "from": 1793203200,
+      "to": 1793232000
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Helsinki, the week of the clock change of 2027-03: 8 to 21 every day",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1805925600,
+   "windowUntil": 1806613200,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805954400,
+      "to": 1806001200
+     },
+     {
+      "from": 1806040800,
+      "to": 1806087600
+     },
+     {
+      "from": 1806127200,
+      "to": 1806174000
+     },
+     {
+      "from": 1806210000,
+      "to": 1806256800
+     },
+     {
+      "from": 1806296400,
+      "to": 1806343200
+     },
+     {
+      "from": 1806382800,
+      "to": 1806429600
+     },
+     {
+      "from": 1806469200,
+      "to": 1806516000
+     },
+     {
+      "from": 1806555600,
+      "to": 1806602400
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Helsinki, the week of the clock change of 2027-03: around the clock",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1805925600,
+   "windowUntil": 1806613200,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805925600,
+      "to": 1806613200
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Helsinki, the week of the clock change of 2027-03: 18 to 2 every night",
+   "zone": "Europe/Helsinki",
+   "windowFrom": 1805925600,
+   "windowUntil": 1806613200,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805990400,
+      "to": 1806019200
+     },
+     {
+      "from": 1806076800,
+      "to": 1806105600
+     },
+     {
+      "from": 1806163200,
+      "to": 1806192000
+     },
+     {
+      "from": 1806246000,
+      "to": 1806274800
+     },
+     {
+      "from": 1806332400,
+      "to": 1806361200
+     },
+     {
+      "from": 1806418800,
+      "to": 1806447600
+     },
+     {
+      "from": 1806505200,
+      "to": 1806534000
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Berlin, the week of the clock change of 2026-10: 8 to 21 every day",
+   "zone": "Europe/Berlin",
+   "windowFrom": 1792620000,
+   "windowUntil": 1793314800,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792648800,
+      "to": 1792695600
+     },
+     {
+      "from": 1792735200,
+      "to": 1792782000
+     },
+     {
+      "from": 1792821600,
+      "to": 1792868400
+     },
+     {
+      "from": 1792911600,
+      "to": 1792958400
+     },
+     {
+      "from": 1792998000,
+      "to": 1793044800
+     },
+     {
+      "from": 1793084400,
+      "to": 1793131200
+     },
+     {
+      "from": 1793170800,
+      "to": 1793217600
+     },
+     {
+      "from": 1793257200,
+      "to": 1793304000
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Berlin, the week of the clock change of 2026-10: around the clock",
+   "zone": "Europe/Berlin",
+   "windowFrom": 1792620000,
+   "windowUntil": 1793314800,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792620000,
+      "to": 1793314800
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Berlin, the week of the clock change of 2026-10: 18 to 2 every night",
+   "zone": "Europe/Berlin",
+   "windowFrom": 1792620000,
+   "windowUntil": 1793314800,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792684800,
+      "to": 1792713600
+     },
+     {
+      "from": 1792771200,
+      "to": 1792800000
+     },
+     {
+      "from": 1792857600,
+      "to": 1792886400
+     },
+     {
+      "from": 1792947600,
+      "to": 1792976400
+     },
+     {
+      "from": 1793034000,
+      "to": 1793062800
+     },
+     {
+      "from": 1793120400,
+      "to": 1793149200
+     },
+     {
+      "from": 1793206800,
+      "to": 1793235600
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Berlin, the week of the clock change of 2027-03: 8 to 21 every day",
+   "zone": "Europe/Berlin",
+   "windowFrom": 1805929200,
+   "windowUntil": 1806616800,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805958000,
+      "to": 1806004800
+     },
+     {
+      "from": 1806044400,
+      "to": 1806091200
+     },
+     {
+      "from": 1806130800,
+      "to": 1806177600
+     },
+     {
+      "from": 1806213600,
+      "to": 1806260400
+     },
+     {
+      "from": 1806300000,
+      "to": 1806346800
+     },
+     {
+      "from": 1806386400,
+      "to": 1806433200
+     },
+     {
+      "from": 1806472800,
+      "to": 1806519600
+     },
+     {
+      "from": 1806559200,
+      "to": 1806606000
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Berlin, the week of the clock change of 2027-03: around the clock",
+   "zone": "Europe/Berlin",
+   "windowFrom": 1805929200,
+   "windowUntil": 1806616800,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805929200,
+      "to": 1806616800
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Berlin, the week of the clock change of 2027-03: 18 to 2 every night",
+   "zone": "Europe/Berlin",
+   "windowFrom": 1805929200,
+   "windowUntil": 1806616800,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805994000,
+      "to": 1806022800
+     },
+     {
+      "from": 1806080400,
+      "to": 1806109200
+     },
+     {
+      "from": 1806166800,
+      "to": 1806195600
+     },
+     {
+      "from": 1806249600,
+      "to": 1806278400
+     },
+     {
+      "from": 1806336000,
+      "to": 1806364800
+     },
+     {
+      "from": 1806422400,
+      "to": 1806451200
+     },
+     {
+      "from": 1806508800,
+      "to": 1806537600
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    },
+    {
+     "days": [
+      5
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "03:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Lisbon, the week of the clock change of 2026-10: 8 to 21 every day",
+   "zone": "Europe/Lisbon",
+   "windowFrom": 1792623600,
+   "windowUntil": 1793318400,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792652400,
+      "to": 1792699200
+     },
+     {
+      "from": 1792738800,
+      "to": 1792785600
+     },
+     {
+      "from": 1792825200,
+      "to": 1792872000
+     },
+     {
+      "from": 1792915200,
+      "to": 1792962000
+     },
+     {
+      "from": 1793001600,
+      "to": 1793048400
+     },
+     {
+      "from": 1793088000,
+      "to": 1793134800
+     },
+     {
+      "from": 1793174400,
+      "to": 1793221200
+     },
+     {
+      "from": 1793260800,
+      "to": 1793307600
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Lisbon, the week of the clock change of 2026-10: around the clock",
+   "zone": "Europe/Lisbon",
+   "windowFrom": 1792623600,
+   "windowUntil": 1793318400,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792623600,
+      "to": 1793318400
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Lisbon, the week of the clock change of 2026-10: 18 to 2 every night",
+   "zone": "Europe/Lisbon",
+   "windowFrom": 1792623600,
+   "windowUntil": 1793318400,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792688400,
+      "to": 1792717200
+     },
+     {
+      "from": 1792774800,
+      "to": 1792803600
+     },
+     {
+      "from": 1792861200,
+      "to": 1792893600
+     },
+     {
+      "from": 1792951200,
+      "to": 1792980000
+     },
+     {
+      "from": 1793037600,
+      "to": 1793066400
+     },
+     {
+      "from": 1793124000,
+      "to": 1793152800
+     },
+     {
+      "from": 1793210400,
+      "to": 1793239200
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Lisbon, the week of the clock change of 2027-03: 8 to 21 every day",
+   "zone": "Europe/Lisbon",
+   "windowFrom": 1805932800,
+   "windowUntil": 1806620400,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805961600,
+      "to": 1806008400
+     },
+     {
+      "from": 1806048000,
+      "to": 1806094800
+     },
+     {
+      "from": 1806134400,
+      "to": 1806181200
+     },
+     {
+      "from": 1806217200,
+      "to": 1806264000
+     },
+     {
+      "from": 1806303600,
+      "to": 1806350400
+     },
+     {
+      "from": 1806390000,
+      "to": 1806436800
+     },
+     {
+      "from": 1806476400,
+      "to": 1806523200
+     },
+     {
+      "from": 1806562800,
+      "to": 1806609600
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Lisbon, the week of the clock change of 2027-03: around the clock",
+   "zone": "Europe/Lisbon",
+   "windowFrom": 1805932800,
+   "windowUntil": 1806620400,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805932800,
+      "to": 1806620400
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Europe/Lisbon, the week of the clock change of 2027-03: 18 to 2 every night",
+   "zone": "Europe/Lisbon",
+   "windowFrom": 1805932800,
+   "windowUntil": 1806620400,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805997600,
+      "to": 1806026400
+     },
+     {
+      "from": 1806084000,
+      "to": 1806112800
+     },
+     {
+      "from": 1806170400,
+      "to": 1806195600
+     },
+     {
+      "from": 1806253200,
+      "to": 1806282000
+     },
+     {
+      "from": 1806339600,
+      "to": 1806368400
+     },
+     {
+      "from": 1806426000,
+      "to": 1806454800
+     },
+     {
+      "from": 1806512400,
+      "to": 1806541200
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Atlantic/Azores, the week of the clock change of 2026-10: 8 to 21 every day",
+   "zone": "Atlantic/Azores",
+   "windowFrom": 1792627200,
+   "windowUntil": 1793322000,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792656000,
+      "to": 1792702800
+     },
+     {
+      "from": 1792742400,
+      "to": 1792789200
+     },
+     {
+      "from": 1792828800,
+      "to": 1792875600
+     },
+     {
+      "from": 1792918800,
+      "to": 1792965600
+     },
+     {
+      "from": 1793005200,
+      "to": 1793052000
+     },
+     {
+      "from": 1793091600,
+      "to": 1793138400
+     },
+     {
+      "from": 1793178000,
+      "to": 1793224800
+     },
+     {
+      "from": 1793264400,
+      "to": 1793311200
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Atlantic/Azores, the week of the clock change of 2026-10: around the clock",
+   "zone": "Atlantic/Azores",
+   "windowFrom": 1792627200,
+   "windowUntil": 1793322000,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792627200,
+      "to": 1793322000
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Atlantic/Azores, the week of the clock change of 2026-10: 18 to 2 every night",
+   "zone": "Atlantic/Azores",
+   "windowFrom": 1792627200,
+   "windowUntil": 1793322000,
+   "now": 1792663200,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1792692000,
+      "to": 1792720800
+     },
+     {
+      "from": 1792778400,
+      "to": 1792807200
+     },
+     {
+      "from": 1792864800,
+      "to": 1792897200
+     },
+     {
+      "from": 1792954800,
+      "to": 1792983600
+     },
+     {
+      "from": 1793041200,
+      "to": 1793070000
+     },
+     {
+      "from": 1793127600,
+      "to": 1793156400
+     },
+     {
+      "from": 1793214000,
+      "to": 1793242800
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Atlantic/Azores, the week of the clock change of 2027-03: 8 to 21 every day",
+   "zone": "Atlantic/Azores",
+   "windowFrom": 1805936400,
+   "windowUntil": 1806624000,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805965200,
+      "to": 1806012000
+     },
+     {
+      "from": 1806051600,
+      "to": 1806098400
+     },
+     {
+      "from": 1806138000,
+      "to": 1806184800
+     },
+     {
+      "from": 1806220800,
+      "to": 1806267600
+     },
+     {
+      "from": 1806307200,
+      "to": 1806354000
+     },
+     {
+      "from": 1806393600,
+      "to": 1806440400
+     },
+     {
+      "from": 1806480000,
+      "to": 1806526800
+     },
+     {
+      "from": 1806566400,
+      "to": 1806613200
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "08:00",
+        "to": "21:00"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "Atlantic/Azores, the week of the clock change of 2027-03: around the clock",
+   "zone": "Atlantic/Azores",
+   "windowFrom": 1805936400,
+   "windowUntil": 1806624000,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1805936400,
+      "to": 1806624000
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "allDay"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Atlantic/Azores, the week of the clock change of 2027-03: 18 to 2 every night",
+   "zone": "Atlantic/Azores",
+   "windowFrom": 1805936400,
+   "windowUntil": 1806624000,
+   "now": 1805968800,
+   "hours": {
+    "kind": "parsed",
+    "open": [
+     {
+      "from": 1806001200,
+      "to": 1806030000
+     },
+     {
+      "from": 1806087600,
+      "to": 1806116400
+     },
+     {
+      "from": 1806174000,
+      "to": 1806199200
+     },
+     {
+      "from": 1806256800,
+      "to": 1806285600
+     },
+     {
+      "from": 1806343200,
+      "to": 1806372000
+     },
+     {
+      "from": 1806429600,
+      "to": 1806458400
+     },
+     {
+      "from": 1806516000,
+      "to": 1806544800
+     }
+    ],
+    "unknown": []
+   },
+   "lines": [
+    {
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "hours": {
+      "kind": "open",
+      "ranges": [
+       {
+        "from": "18:00",
+        "to": "02:00"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

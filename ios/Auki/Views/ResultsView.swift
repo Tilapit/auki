@@ -13,6 +13,10 @@ struct ResultsView: View {
     @State private var camera: MapCameraPosition = .automatic
     @State private var detent: PresentationDetent = ResultsView.startDetent
     @State private var sheetShown = true
+    /// Where the pharmacy's own sheet rests: half the screen, or all of it.
+    @State private var detailDetent: PresentationDetent = ResultsView.startDetailDetent
+    /// The pharmacy the sheet was last opened for: it outlives the selection by the moment the sheet takes to slide away.
+    @State private var lastPickedID: String?
     /// A pharmacy picked on the map: the list scrolls to its row. One picked in the list is already in view.
     @State private var pickedOnMap: String?
 
@@ -20,13 +24,17 @@ struct ResultsView: View {
 
     var body: some View {
         let listing = model.listing(at: now)
+        let picked = listing.all.first { $0.id == model.selectedID }
+        // On its way down the sheet still shows the pharmacy it was opened for.
+        let shown = picked ?? listing.all.first { $0.id == lastPickedID }
         GeometryReader { geometry in
             PharmacyMap(listing: listing, now: now, camera: $camera) { row in
                 select(row)
                 pickedOnMap = row.id
             }
-                // What the sheet covers is not map to look at: framing and the map's own buttons stay above it.
-                .safeAreaPadding(.bottom, detent == Self.peek ? 168 : geometry.size.height * 0.5)
+                // What a sheet covers is not map to look at: framing and the map's own buttons stay above it.
+                // A pharmacy's sheet opens at half the screen, whatever place the results are at under it.
+                .safeAreaPadding(.bottom, picked == nil && detent == Self.peek ? 168 : geometry.size.height * 0.5)
         }
         .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $sheetShown) {
@@ -36,10 +44,30 @@ struct ResultsView: View {
                 .presentationDragIndicator(.visible)
                 .presentationBackground(Palette.sheet)
                 .interactiveDismissDisabled()
+                // The picked pharmacy's sheet lies over the results, as a place card does in Apple's
+                // Maps. Half the screen first, so the map and the picked marker show above it; a pull
+                // down closes it and the results are there again; and the system scrolls its content
+                // only once it is fully up. Up to half the screen the map behind it can still be used.
+                .sheet(isPresented: Binding(get: { picked != nil }, set: { if !$0 { model.selectedID = nil } })) {
+                    if let shown {
+                        PharmacySheet(row: shown, now: now, onShowOnMap: { showOnMap(shown) }, onClose: { model.selectedID = nil })
+                            .presentationDetents([.medium, .large], selection: $detailDetent)
+                            // A finger on the content moves the sheet first: the content scrolls only once the sheet is fully up.
+                            .presentationContentInteraction(.resizes)
+                            .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+                            .presentationDragIndicator(.visible)
+                            .presentationBackground(Palette.sheet)
+                    }
+                }
         }
         .onAppear { frame(listing) }
         .onChange(of: model.searchedAt) { frame(model.listing(at: now)) }
-        .onChange(of: model.selectedID) { show(model.selectedID) }
+        .onChange(of: model.selectedID) { old, new in
+            // A sheet that opens starts at half the screen. One that is already up stays where it is.
+            if old == nil { detailDetent = Self.startDetailDetent }
+            if let new { lastPickedID = new }
+            show(new)
+        }
         // Back from the background: what was on screen may be hours old. Read the clock at once.
         .onChange(of: scenePhase) { if scenePhase == .active { now = AppClock.now() } }
         .task {
@@ -51,10 +79,18 @@ struct ResultsView: View {
         }
     }
 
-    /// A pharmacy picked from the list or the map. The sheet steps aside so the map can show it.
+    /// A pharmacy picked from the card, the list or the map: its sheet opens, and the map shows it above the sheet.
+    /// The results step down to half the screen, so they don't stand taller than the sheet over them.
     private func select(_ row: Row) {
         if detent == .large { detent = .medium }
         if model.selectedID == row.id { show(row.id) } else { model.selectedID = row.id }
+    }
+
+    /// "Näytä kartalla" in a pharmacy's sheet: the sheet comes down to half the screen, and the map
+    /// moves back to the pharmacy if it has been moved away.
+    private func showOnMap(_ row: Row) {
+        detailDetent = .medium
+        show(row.id)
     }
 
     /// The map moves to hold the picked pharmacy and the position.
@@ -88,6 +124,13 @@ struct ResultsView: View {
         #endif
         return .medium
     }
+
+    private static var startDetailDetent: PresentationDetent {
+        #if DEBUG
+        if DebugOptions.value("detail") == "large" { return .large }
+        #endif
+        return .medium
+    }
 }
 
 /// The map: Apple's, with the pharmacies as the app's own markers and the device's position as the system draws it.
@@ -113,6 +156,7 @@ private struct PharmacyMap: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(row.pharmacy.name ?? texts.fallbackName), \(texts.status(row.status, zone: row.pharmacy.zone, now: now)), \(texts.straight(row.meters))")
                     .accessibilityAddTraits(row.id == model.selectedID ? .isSelected : [])
+                    .accessibilityIdentifier(row.id == model.selectedID ? "marker-picked" : "marker")
                 }
                 .annotationTitles(row.id == model.selectedID ? .automatic : .hidden)
             }

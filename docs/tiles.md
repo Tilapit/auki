@@ -242,6 +242,11 @@ format and not in the vectors, and both apps follow them. The web's code is the 
 If a later version of the vectors takes these in, the first two are the ones worth it: they
 decide what a user sees at night.
 
+The iOS app's pharmacy sheet (25 Nov 2026) needed nothing more of the format either: the
+phone number, the email, the website, the wheelchair tag with its note and the check date
+were already in the rows. The week it lists is in the vectors (`week.json`). The links it
+makes are the web's (`lib/maps.ts`), compared in the iOS tests with the web's own cases.
+
 ## Test vectors
 
 `tests/vectors/`, written by `npm run vectors` from a fixed seed:
@@ -254,6 +259,7 @@ decide what a user sees at night.
 | `search.json` | The nearest pharmacies through tiles, and how many tiles that took |
 | `tile-file.json` | A tile as stored, and as read |
 | `ehditko.json` | Ehditkö from a status, a walking time and an instant: the timeline from 60 minutes before closing, too late at closing time, and when the slack is tight (PLAN.md 7.1, step 10) |
+| `week.json` | The week in a pharmacy's sheet: the coming seven local days from a tile's intervals, equal days grouped, an opening past midnight on the day it begins, only the days the window covers whole. The weeks of the clock changes in four zones among them |
 
 Compare distances to within 0.5 %; everything else exactly.
 
