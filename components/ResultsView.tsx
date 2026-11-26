@@ -65,6 +65,8 @@ export interface ResultsOptions {
   onArea?: (bounds: Bounds) => void;
   /** Where the walking route to a pharmacy comes from. Without it no route is drawn: /dev/states calls no service. */
   routeFor?: RouteFor;
+  /** Told which pharmacy's details are open, and when none is: the tab keeps it (lib/session.ts). */
+  onDetail?: (id: string | undefined) => void;
   /**
    * Medicine availability (provisional, DESIGN-LOG.md 25 Nov 2026). false leaves it out, for the
    * comparison in /dev/states. A country code starts with that country's dialog open.
@@ -98,6 +100,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const nothingOpen = !unlisted && !nearestOpen && !!firstToOpen;
   const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (options.detailId || (nothingOpen && !classic) ? 'half' : 'peek'));
   const [detailId, setDetailId] = useState(options.detailId);
+  const { onDetail } = options;
+  useEffect(() => onDetail?.(detailId), [onDetail, detailId]);
   /** Where the phone's sheet was before a pharmacy's details took it over: closed, it goes back there. */
   const sheetBefore = useRef<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
   /** How much of the details the phone's sheet shows at its middle height: down to the first route button. */

@@ -11,7 +11,7 @@ import { BRAND } from '../brand';
 const fi = {
   meta: {
     title: `${BRAND}: lähin auki oleva apteekki`,
-    description: 'Löydä lähin auki oleva apteekki kartalta ja listalta. Sijaintiasi ei tallenneta.',
+    description: 'Löydä lähin auki oleva apteekki kartalta ja listalta. Sijaintiasi ei tallenneta palvelimelle.',
   },
   app: {
     name: BRAND,
@@ -35,7 +35,8 @@ const fi = {
   footer: {
     project: 'Janne Lapin työhakemusprojekti.',
     notTreat: 'Ei Treat Healthin palvelu.',
-    privacy: 'Sijaintiasi ei tallenneta.',
+    // Not "ei tallenneta" alone: the tab itself keeps its last search until it is closed (lib/session.ts).
+    privacy: 'Sijaintiasi ei tallenneta palvelimelle.',
     emergency: 'Hätätilanteessa soita {number}.',
     walking: 'Etäisyydet ovat kävelyreittejä.',
     straight: 'Etäisyydet ovat linnuntietä.',
