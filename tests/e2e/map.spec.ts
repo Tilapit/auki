@@ -48,6 +48,9 @@ test('a marker opens the same pharmacy as its row, and a row marks its marker', 
   await marker(page, /^Yliopiston apteekki/).click();
   const sheet = page.getByRole('dialog');
   await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
+  // The details take the list's place in the panel: the card and the rows are not under them.
+  await expect(card(page)).toBeHidden();
+  await expect(page.locator('ol > li').first()).toBeHidden();
   await expect(marker(page, /^Yliopiston apteekki/)).toHaveAttribute('aria-pressed', 'true');
   await expect(marker(page, /^Kampin apteekki/)).toHaveAttribute('aria-pressed', 'false');
   await page.keyboard.press('Escape');
@@ -192,6 +195,70 @@ test('an open pharmacy off the map gets a chip on the edge, and the chip brings 
   await expect(chip).toBeVisible();
   await chip.click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
+});
+
+// Janne's iPhone, 25 Nov 2026: from afar six or seven capsules lay on top of each other and on
+// the dot, and at country zoom the nearest one still sat large over southern Finland.
+test('from afar the markers do not pile up: one stays in full, clear of the dot, and the rest are the map’s small signs', async ({ page }) => {
+  await start(page, world(kamppi));
+  const pins = page.locator('[data-pin]:not([data-pin="you-are-here"])');
+  const signs = page.locator('[data-pin][data-small]');
+  const zoomOut = page.getByRole('button', { name: 'Loitonna' });
+  const zoomIn = page.getByRole('button', { name: 'Lähennä' });
+  const step = async (button: typeof zoomOut) => {
+    await button.click();
+    await page.clock.runFor(400);
+  };
+  /** Whether two of the things on the map lie on top of each other, by what is drawn of them. */
+  const overlapping = () =>
+    page.evaluate(() => {
+      const boxes = [...document.querySelectorAll<HTMLElement>('[data-pin]:not([data-small]) [data-full], [data-pin="you-are-here"] span span')]
+        .filter((element) => getComputedStyle(element).opacity === '1')
+        .map((element) => element.getBoundingClientRect());
+      return boxes.some((a, i) => boxes.some((b, j) => i < j && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top));
+    });
+
+  // As the results frame it, every marker is in full.
+  await expect(pins).toHaveCount(6);
+  await expect(signs).toHaveCount(0);
+  expect(await overlapping()).toBe(false);
+
+  // Three levels out the neighbourhood is a thumb wide.
+  for (let presses = 0; presses < 3; presses++) await step(zoomOut);
+  await expect.poll(async () => signs.count()).toBeGreaterThan(2);
+  // The card's pharmacy is still in full, with its distance, and nothing in full lies on anything else in full or on the dot.
+  const first = marker(page, /^Kampin apteekki/);
+  await expect(first.locator('[data-full]')).toBeVisible();
+  await expect(first).toContainText(/\d/);
+  expect(await overlapping()).toBe(false);
+  // A sign is still a button with the pharmacy's name, and opens it. (One that nothing in full lies over.)
+  const free = await page.evaluate(() => {
+    const pin = [...document.querySelectorAll<HTMLElement>('[data-pin][data-small]')].find((element) => {
+      const box = element.querySelector('button')!.getBoundingClientRect();
+      return element.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2));
+    });
+    return pin?.dataset.pin;
+  });
+  expect(free).toBeDefined();
+  const sign = page.locator(`[data-pin="${free}"]`).getByRole('button');
+  await expect(sign.locator('[data-full]')).toBeHidden();
+  await expect(sign).toHaveAccessibleName(/apteekki/i);
+  await sign.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
+
+  // Where the map shows a region, every marker is a sign: no time sits over a whole town.
+  let out = 3;
+  while ((await signs.count()) < 6 && out < 10) {
+    await step(zoomOut);
+    out++;
+  }
+  await expect(signs).toHaveCount(6);
+  // And closer again they come back.
+  for (; out > 0; out--) await step(zoomIn);
+  await expect(signs).toHaveCount(0);
+  expect(await overlapping()).toBe(false);
 });
 
 test('the map draws itself only after the results, on real code and a faked host', async ({ page, mapTiles }) => {

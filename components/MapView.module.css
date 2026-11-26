@@ -43,6 +43,24 @@
 }
 
 /*
+ * Phone: the map reaches the screen's upper edge, and the strip behind the status bar is
+ * Safari's to colour. It takes the colour of what lies fixed at that edge, from 6 px up
+ * (measured in the iOS 27.2 Simulator), so the map's own ground colour lies there, 8 px of it:
+ * the strip and the map then read as one. The lower strip follows the body's background,
+ * which is the sheet's colour while a map view is on screen (ResultsShell.module.css).
+ */
+.edge8 {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  height: 8px;
+  background: var(--map-land);
+  pointer-events: none;
+}
+
+/*
  * MapLibre's canvas. Its own stylesheet is mostly for controls, popups and markers that the
  * app doesn't use, so the few rules the canvas needs are here instead.
  */
@@ -88,7 +106,11 @@
   touch-action: none;
 }
 
-/* The markers lie over the canvas. Only the markers themselves take the pointer: between them the map is dragged. */
+/*
+ * What lies on the map: the markers, the edge chips and the credit. Once MapLibre is drawing,
+ * this layer is moved into the element it listens on. Only those things themselves take the
+ * pointer: between them the map is dragged, and a drag that begins on one of them moves the map too.
+ */
 .pins {
   position: absolute;
   inset: 0;
@@ -139,11 +161,17 @@
   display: none;
 }
 
+/* The dot is never under a marker: a marker that would cover it is a sign, or stands clear of it (lib/map/declutter.ts). */
+.pin[data-small] {
+  z-index: 0;
+}
+
 .edge {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 4;
+  /* Over every marker, the selected one included. */
+  z-index: 5;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -157,6 +185,7 @@
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
+  pointer-events: auto;
   /* Shown once the script has put it on the edge. */
   visibility: hidden;
 }
@@ -202,7 +231,8 @@
   position: absolute;
   bottom: calc(var(--map-pad, 0px) + 8px);
   left: 8px;
-  z-index: 2;
+  /* Over the markers, under the chips. */
+  z-index: 4;
   display: flex;
   flex-wrap: wrap;
   gap: 0 8px;
@@ -211,6 +241,7 @@
   border-radius: 8px;
   background: var(--float);
   font-size: 0.75rem;
+  pointer-events: auto;
 }
 
 .attribution a {
@@ -224,6 +255,10 @@
 }
 
 @media (min-width: 900px) {
+  .edge8 {
+    display: none;
+  }
+
   /* On a desktop screen a layer of its own would cost the markers' text its sharpest rendering, and a mouse doesn't need it. */
   .pin {
     will-change: auto;
@@ -254,6 +289,11 @@
     bottom: calc(100% - 1px);
     left: auto;
     transform: none;
+  }
+
+  /* From afar the selected pharmacy is a sign like the rest, and a name beside it would be the only text on the region. */
+  [data-small] .name {
+    display: none;
   }
 
   .edge {

@@ -49,6 +49,14 @@ export const NO_INSETS: Insets = { top: 0, right: 0, bottom: 0, left: 0 };
 
 export const MIN_ZOOM = 5;
 export const MAX_ZOOM = 18;
+/**
+ * The most device pixels the map draws per CSS pixel. A phone's screen has three: the map
+ * would fill 2.25 times the pixels of a 2x one on every frame of a pan, for streets that look
+ * the same in motion. Measured on real tiles with a software renderer, CPU four times slower:
+ * a frame every 50 ms at 3x, every 33 ms at 2x (DESIGN-LOG.md, 25 Nov 2026). The markers and
+ * everything else on the page are not the map's canvas: they stay at the screen's own sharpness.
+ */
+export const MAP_PIXEL_RATIO = 2;
 
 const clampZoom = (zoom: number): number => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
 

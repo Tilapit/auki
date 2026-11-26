@@ -137,40 +137,28 @@
   gap: 18px;
 }
 
-/* Phone: pharmacy details as a modal bottom sheet over the map. */
+/*
+ * Pharmacy details: not a layer of their own. They take the list's place, in the desktop's
+ * panel and in the phone's sheet, which then rests at the middle with the map above it.
+ */
 .detail {
-  position: fixed;
-  inset: auto 0 0;
+  position: static;
   width: auto;
   max-width: none;
-  max-height: calc(100dvh - 24px);
   margin: 0;
-  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  padding: 0;
   border: 0;
-  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
-  background: var(--sheet);
+  background: transparent;
   color: var(--ink);
-  box-shadow: var(--shadow-dialog);
-  overflow-y: auto;
 }
 
-.detail::backdrop {
-  background: rgb(7 20 39 / 0.4);
+/* Between the details going away and the dialog saying it has closed, it takes no room: the list under it is already back in its place. */
+.detail:empty {
+  display: none;
 }
 
 @media (min-width: 900px) {
   .content {
     gap: 16px;
-  }
-
-  /* Desktop: the details take the list's place in the panel. */
-  .detail[open] {
-    position: static;
-    max-height: none;
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    overflow: visible;
   }
 }

@@ -259,5 +259,15 @@ export async function touchscreen(page: Page) {
       await page.waitForTimeout(30);
       await send('touchEnd', []);
     },
+    /** A tap as a thumb makes it: the finger rolls a few pixels between touching and lifting. */
+    async roll(from: Finger, to: Finger) {
+      await send('touchStart', [from]);
+      for (let step = 1; step <= 4; step++) {
+        await page.waitForTimeout(16);
+        await send('touchMove', [between(from, to, step / 4)]);
+      }
+      await page.waitForTimeout(30);
+      await send('touchEnd', []);
+    },
   };
 }

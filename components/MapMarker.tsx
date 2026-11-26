@@ -20,6 +20,11 @@ interface Props {
 /**
  * A pharmacy on the map. Open or closing: a capsule with the cross and the walking time.
  * Closed: a small unlit disc without a time. Hours unknown: a dashed cross.
+ *
+ * Each also holds the small sign the map itself draws for the pharmacies beyond the list
+ * (mapSigns.ts). The map shows that in the marker's stead where markers would lie on top of
+ * each other, by setting data-small on the element around it (lib/map/declutter.ts). The full
+ * form keeps its box meanwhile (data-full), so that the map knows the room it would take.
  */
 export function MapMarker({ pharmacy, distance, label, selected, onSelect }: Props) {
   const i18n = useI18n();
@@ -34,15 +39,16 @@ export function MapMarker({ pharmacy, distance, label, selected, onSelect }: Pro
       onClick={() => onSelect?.(pharmacy)}
     >
       {lit ? (
-        <span data-lit className={cx(styles.capsule, 'tnum')}>
+        <span data-lit data-full className={cx(styles.capsule, 'tnum')}>
           <CrossGlyph state="mono" size={selected ? 17 : 15} />
           {travel(i18n, pharmacy, distance).primary.short}
         </span>
       ) : (
-        <span className={styles.disc}>
+        <span data-full className={styles.disc}>
           <CrossGlyph state={glyph} size={selected ? 17 : 14} stroke={2.2} />
         </span>
       )}
+      <span className={styles.sign}>{lit ? <CrossGlyph state="mono" size={11} /> : <CrossGlyph state={glyph} size={10} stroke={2.6} />}</span>
     </button>
   );
 }
