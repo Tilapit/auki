@@ -1006,5 +1006,5 @@ Entry format:
 - Status: provisional, and not merged: Janne reads the claims first, and they have had one reader.
   - Weak spots, each named in the research file: Spain's list does not split the two directions; Greece's table is icons; Austria's and Cyprus's own pages were not read; Switzerland rests on a pharmacists' position paper; Germany on gematik and the national contact point.
   - Seventeen translations are drafts, as in #17, and rewritten for this: none has had a native reader.
-  - Not built: a way to the control for someone at home whose phone suggests the wrong country. The banner is not shown at home.
+  - At home the banner is not shown, so its control would be out of reach for someone whose phone suggests the wrong country (a German in Finland who reads their phone in Finnish). The results footer has one line for that, "Resepti toisesta maasta?", in the footer's own size: it brings the banner up with the keyboard on the control. A line in the footer, and not in the card, because at home it is for very few.
   - The home country, once picked, is kept on the device: the second thing the app keeps there (PLAN.md 7.6).

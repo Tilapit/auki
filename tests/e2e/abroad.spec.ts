@@ -46,6 +46,28 @@ test('at home there is no banner and no counter card', async ({ page }) => {
   await expect(page.getByRole('button', { name: /^Näytä apteekissa: apteekkikortti / })).toHaveCount(0);
 });
 
+test('at home the footer has a way to the banner, for someone whose phone suggests the wrong country', async ({ page }) => {
+  await start(page, inCountry('FI'));
+  await expect(page.getByRole('heading', { name: 'Resepti kotimaasta?' })).toHaveCount(0);
+  const ask = page.getByRole('button', { name: 'Resepti toisesta maasta?' });
+  await ask.click();
+  // The banner comes up with the keyboard on its control, and claims nothing yet: the country is still the pharmacy's own.
+  await expect(home(page)).toBeFocused();
+  await expect(home(page)).toHaveValue('FI');
+  await expect(banner(page)).toContainText('Valitse maa, jossa reseptisi on kirjoitettu, niin näet, käykö se täällä.');
+  await expect(banner(page)).not.toContainText('sähköinen resepti');
+  await expect(ask).toHaveCount(0);
+  await home(page).selectOption({ label: 'Saksa' });
+  await expect(banner(page)).toContainText('Saksassa kirjoitettu sähköinen resepti ei käy Suomessa.');
+  await expect(banner(page)).toContainText('Saksassa kirjoitettu paperinen resepti kelpaa Suomessa, kun siinä on vaaditut tiedot.');
+});
+
+test('abroad the footer has no such line: the banner is there already', async ({ page }) => {
+  await start(page, inCountry('LV'));
+  await expect(banner(page)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Resepti toisesta maasta?' })).toHaveCount(0);
+});
+
 test('a prescription from Finland in Latvia: both answers, what was met in Riga, and the sources with their dates', async ({ page }) => {
   await start(page, inCountry('LV'));
   await expect(home(page)).toHaveValue('FI');

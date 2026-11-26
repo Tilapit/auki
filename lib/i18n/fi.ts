@@ -45,6 +45,8 @@ const fi = {
     // A Finnish date ends in a full stop of its own ("22.11."): no second one after it.
     fetched: 'Tiedot: OpenStreetMap, haettu {date} {about}',
     aboutData: 'Tietoa aineistosta',
+    /** At home the prescription banner is not shown: this brings it up, for a prescription from another country. */
+    prescription: 'Resepti toisesta maasta?',
   },
   first: {
     headline: 'Löydä lähin auki oleva apteekki',

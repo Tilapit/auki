@@ -17,13 +17,18 @@ interface Props {
   emergency?: boolean;
   /** Results say when their data was fetched from OpenStreetMap (epoch seconds), and link to the data page. */
   dataFrom?: number;
+  /**
+   * At home the prescription banner is not shown, so its control is not there either. This line
+   * brings the banner up for someone whose phone suggests the wrong country (PLAN.md section 5).
+   */
+  onPrescription?: () => void;
 }
 
 /**
  * The footer every screen carries: the privacy line and the not-affiliated line.
  * Rendered by each view, not the layout, because it sits in a different place in each one.
  */
-export function SiteFooter({ variant, distance, credit, emergency, dataFrom }: Props) {
+export function SiteFooter({ variant, distance, credit, emergency, dataFrom, onPrescription }: Props) {
   const { t, f, locale } = useI18n();
   return (
     <footer className={cx(styles.footer, styles[variant])}>
@@ -40,6 +45,13 @@ export function SiteFooter({ variant, distance, credit, emergency, dataFrom }: P
             // A plain link: the footer is on the first window too, and the router's link would add to its JavaScript.
             about: <a href={`/${locale}/data`}>{t.footer.aboutData}</a>,
           })}
+        </p>
+      )}
+      {onPrescription && (
+        <p>
+          <button type="button" className={styles.ask} onClick={onPrescription}>
+            {t.footer.prescription}
+          </button>
         </p>
       )}
       <p className={styles.project}>

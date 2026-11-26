@@ -171,8 +171,11 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const here = hereOf(scene.here);
   const guide = useMemo(() => guideFor(home, here?.code), [home, here]);
   const country = guide && { code: guide.here, inLanguage: guide.inLanguage };
-  // One surface: the banner is a section of the card. Not at home, where there is nothing to say.
-  const banner = here && home !== here.code && <CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} />;
+  // One surface: the banner is a section of the card. Not at home, where there is nothing to say,
+  // unless it is asked for from the footer: the phone's suggestion can be wrong at home too.
+  const atHome = !!here && home === here.code;
+  const [asked, setAsked] = useState(false);
+  const banner = here && (!atHome || asked) && <CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={asked} />;
   // Where to check a medicine's stock: the service of the country the card's pharmacy is in
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
@@ -535,6 +538,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       onRefresh={options.onRefresh}
       onPlace={options.onSearch ?? NO_ACTION}
       dataFrom={scene.dataFrom}
+      onPrescription={atHome && !asked ? () => setAsked(true) : undefined}
       focusTitle={options.focusTitle}
       distance={scene.distance}
       mapLabel={t.map.label}

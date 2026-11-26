@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { OTHER, REQUIRED, SOURCES, guideFor, homeOf, homesFor, type Guide, type Note, type Source, type SourceId } from '@/data/countries';
 import { useHome } from '@/lib/home';
 import { useI18n } from '@/lib/i18n/context';
@@ -17,6 +17,8 @@ interface Props {
   guide: Guide | undefined;
   /** /dev/states only: the details open from the start. */
   open?: boolean;
+  /** The banner was asked for from the footer: the keyboard goes to its control, which also brings it into view. */
+  takeFocus?: boolean;
 }
 
 /**
@@ -32,10 +34,14 @@ interface Props {
  * - Behind one button: the conditions, what a paper prescription has to show, and every
  *   source with the date of its page and the day it was read.
  */
-export function CountryBanner({ home, onHome, guide, open = false }: Props) {
+export function CountryBanner({ home, onHome, guide, open = false, takeFocus = false }: Props) {
   const { t, f, locale } = useI18n();
   const id = useId();
   const [more, setMore] = useState(open);
+  const select = useRef<HTMLSelectElement>(null);
+  useEffect(() => {
+    if (takeFocus) select.current?.focus();
+  }, [takeFocus]);
   const known = home === OTHER || homeOf(home) !== undefined;
   const notes: Note[] = guide ? [...guide.ePrescription.notes, ...guide.paper.notes] : [];
   const sources: SourceId[] = guide ? [...new Set([...guide.ePrescription.sources, ...guide.paper.sources, ...notes.map((note) => note.source)])] : [];
@@ -53,7 +59,7 @@ export function CountryBanner({ home, onHome, guide, open = false }: Props) {
 
         <p className={styles.home}>
           <label htmlFor={`${id}-home`}>{t.banner.home}</label>
-          <select id={`${id}-home`} className={styles.select} value={known ? home : ''} onChange={(event) => onHome(event.target.value)}>
+          <select ref={select} id={`${id}-home`} className={styles.select} value={known ? home : ''} onChange={(event) => onHome(event.target.value)}>
             {!known && (
               <option value="" disabled>
                 {t.banner.choose}

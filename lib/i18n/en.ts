@@ -32,6 +32,7 @@ const en: Dictionary = {
     osm: '© OpenStreetMap contributors',
     fetched: 'Data: OpenStreetMap, fetched {date}. {about}',
     aboutData: 'About the data',
+    prescription: 'A prescription from another country?',
   },
   first: {
     headline: 'Find the nearest open pharmacy',
