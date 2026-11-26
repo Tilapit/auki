@@ -140,9 +140,9 @@
   text-underline-offset: 3px;
 }
 
-/* Under "Ei varastossa?" the way to a medicine's stock search is the second line of the same thought. */
-.next + .medicine {
-  margin-top: -8px;
+/* The way to a medicine's stock search: a row of its own, with a rule under it as well as above. */
+.medicine {
+  border-bottom: 1px solid var(--hair-2);
 }
 
 .footnote {

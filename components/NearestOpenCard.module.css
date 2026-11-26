@@ -274,20 +274,12 @@
 }
 
 /*
- * The way to a medicine's stock search (the line comes from ResultsView, as the card's last
- * child). Under "Ei varastossa?" it is the second line of the same thought: no rule between
- * them, and it starts where that text starts. Anywhere else it is a section of its own.
+ * The way to a medicine's stock search: a row of its own, the card's last section (the row
+ * comes from ResultsView, as the card's last child, with its own rule above it). The card's
+ * gap would stand twice around a row that has its own padding: it gives half back.
  */
 .medicine {
-  padding-top: 14px;
-  border-top: 1px solid var(--hair-2);
-}
-
-.next + .medicine {
-  margin-top: -10px;
-  padding-top: 0;
-  padding-left: 28px;
-  border-top: 0;
+  margin: -6px 0;
 }
 
 .next + .coverage {
