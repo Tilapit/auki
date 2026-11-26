@@ -22,8 +22,9 @@ export interface Home {
   inCountry: Record<Locale, string>;
 }
 
-/** A home country the list does not have: outside the EU, the EEA, Switzerland and the United Kingdom. */
-export const OTHER = 'XX';
+// The codes alone, and the country a browser suggests, are in codes.ts: the first load needs
+// them, and not this file.
+export { OTHER, homeFromLanguages } from './codes.ts';
 
 const home = (code: string, union: Union, fi: string, inFi: string, en: string, inEn = `in ${en}`): Home => ({ code, union, name: { fi, en }, inCountry: { fi: inFi, en: inEn } });
 
@@ -76,28 +77,4 @@ export const inEea = (code: string | undefined): boolean => ['eu', 'eea'].includ
 /** The list as a reader of `locale` picks from it: by name, in that language's own order. */
 export function homesFor(locale: Locale): Home[] {
   return [...HOMES].sort((a, b) => a.name[locale].localeCompare(b.name[locale], locale));
-}
-
-/**
- * The home country a browser suggests, from its languages and their regions (`navigator.languages`),
- * most preferred first. No question is asked for it, and it is a guess the banner shows and lets
- * the user change.
- *
- * - A language with a region the list knows gives that country: "de-AT" is Austria.
- * - A language without a region gives the country it is most used in: "fi" is Finland, "sv" Sweden.
- * - English is passed over while another language is there: many who are not British read their
- *   phone in "en-GB". English alone gives its region: the United Kingdom, Ireland, Malta.
- * - Nothing the list knows: undefined. The banner then asks.
- */
-export function homeFromLanguages(languages: readonly string[]): string | undefined {
-  const regions = languages.flatMap((tag) => {
-    try {
-      const locale = new Intl.Locale(tag);
-      const region = locale.region ?? locale.maximize().region;
-      return region && BY_CODE.has(region) ? [{ english: locale.language === 'en', region }] : [];
-    } catch {
-      return [];
-    }
-  });
-  return (regions.find((entry) => !entry.english) ?? regions[0])?.region;
 }

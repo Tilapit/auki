@@ -6,7 +6,7 @@ import { helsinki } from '@/lib/fixtures/helsinki';
 import { distanceMeters } from '@/lib/geo';
 import { riga } from '@/lib/fixtures/riga';
 import type { Pharmacy, Scene } from '@/lib/types';
-import { ResultsView } from '../ResultsView';
+import { ResultsView } from './Results';
 
 const SCENES: Record<MapPreviewView['city'], Scene> = { helsinki, riga };
 

@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
+import { ResultsView } from '@/components/dev/Results';
 import { AbroadSheet, CardCase, ComponentSheet } from '@/components/dev/Sheets';
 import { StockExample } from '@/components/dev/StockExample';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
 import { ProblemView } from '@/components/ProblemView';
 import { ProgressView } from '@/components/ProgressView';
-import { ResultsView } from '@/components/ResultsView';
 import { SearchingView } from '@/components/SearchingView';
 import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/helsinki';
 import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';

@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { SOURCES } from '@/data/countries';
 import { kamppi, MONDAY_EVENING } from '@/lib/fixtures/tiles';
 import { HOME_KEY } from '@/lib/home';
 import type { TilePharmacy } from '@/lib/tiles';
@@ -271,4 +272,48 @@ test('a browser that can’t keep the screen awake shows the card without that l
   await cardButton(page).click();
   await expect(counter(page)).toContainText('Käännös tarkistamatta');
   await expect(counter(page)).not.toContainText('Näyttö pysyy päällä.');
+});
+
+/**
+ * The guidance is not part of the first load (lib/guidance.ts): its sentences, its sources and
+ * the card's lines travel in a file of their own, fetched when a prescription's country is not
+ * the pharmacy's. Which file that is has no name to test by, so every script the page fetches
+ * is read for an address that only the guidance has: one of its sources.
+ */
+function guidanceFetched(page: Page) {
+  const marker = SOURCES.tehik.url.fi;
+  // From the moment a script is asked for, so that one still on its way is waited for and read.
+  const scripts: Promise<string>[] = [];
+  page.on('request', (request) => {
+    if (request.resourceType() !== 'script') return;
+    scripts.push(
+      request
+        .response()
+        .then((response) => response?.text() ?? '')
+        .catch(() => ''),
+    );
+  });
+  return async () => (await Promise.all(scripts)).filter((body) => body.includes(marker)).length;
+}
+
+test('at home none of the guidance is fetched, until the banner is asked for from the footer', async ({ page }) => {
+  const fetched = guidanceFetched(page);
+  await start(page, inCountry('FI'));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
+  // Abroad the file is asked for as the results appear (the next test). Here half a second of
+  // real time is given for a request that should never come; the page's own clock stands still.
+  await page.waitForTimeout(500);
+  expect(await fetched()).toBe(0);
+
+  await page.getByRole('button', { name: 'Resepti toisesta maasta?' }).click();
+  await expect(home(page)).toBeFocused();
+  expect(await fetched()).toBe(1);
+});
+
+test('abroad the guidance is fetched once, and the banner and the card’s button are there when it has come', async ({ page }) => {
+  const fetched = guidanceFetched(page);
+  await start(page, inCountry('LV'));
+  await expect(banner(page)).toContainText('Suomessa kirjoitettu sähköinen resepti käy Latviassa.');
+  await expect(cardButton(page)).toBeVisible();
+  expect(await fetched()).toBe(1);
 });
