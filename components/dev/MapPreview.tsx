@@ -23,7 +23,7 @@ const SCENES: Record<MapPreviewView['city'], Scene> = { helsinki, riga };
  * The route line to the selected pharmacy is invented too: two corners between the dot and
  * the marker, to judge the line's colour and weight in each light. It follows no street.
  */
-export function MapPreview({ view, zoom, sheet = 'peek' }: { view: MapPreviewView; zoom?: number; sheet?: 'peek' | 'expanded' }) {
+export function MapPreview({ view, zoom, sheet = 'peek', pixels, plainTouch }: { view: MapPreviewView; zoom?: number; sheet?: 'peek' | 'expanded'; pixels?: number; plainTouch?: boolean }) {
   const at = MAP_MOMENTS.find((moment) => moment.id === view.moment)!.at;
   const scene = useMemo(() => {
     const fixture = SCENES[view.city];
@@ -41,5 +41,5 @@ export function MapPreview({ view, zoom, sheet = 'peek' }: { view: MapPreviewVie
     return { id, name: null, lat, lon, status, straightMeters: Math.round(distanceMeters(scene.user, { lat, lon })) };
   };
   const routeFor = useMemo(() => async (pharmacy: Pharmacy) => inventedRoute(scene.user, pharmacy), [scene.user]);
-  return <ResultsView scene={scene} sheet={sheet} basemap now={Math.floor(Date.parse(at) / 1000)} reveal area={area} findInArea={findInArea} routeFor={routeFor} />;
+  return <ResultsView scene={scene} sheet={sheet} basemap now={Math.floor(Date.parse(at) / 1000)} reveal area={area} findInArea={findInArea} routeFor={routeFor} mapPixels={pixels} mapPlainTouch={plainTouch} />;
 }

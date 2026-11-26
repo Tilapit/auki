@@ -6,7 +6,9 @@ import { useRouteLine, type RouteFor } from '@/hooks/useRouteLine';
 import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { NO_AREA, type AreaLayer, type Bounds } from '@/lib/map/area';
-import { boxOf, cameraOf, edgeChip, fit, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Camera, type Insets, type Project } from '@/lib/map/camera';
+import { boxOf, cameraOf, edgeChip, fit, MAP_PIXEL_RATIO, MAX_ZOOM, metersPerPixel, MIN_ZOOM, projector, spread, type Box, type Camera, type Insets, type Project } from '@/lib/map/camera';
+import { crowded, declutter, hasRoom, signScale, targetOf } from '@/lib/map/declutter';
+import { easingOf, glideOf, LEAD_UP_TO_MS, speedAt, type Sample } from '@/lib/map/glide';
 import { AREA_ICON, AREA_LAYER, AREA_SOURCE, ROUTE_SOURCE, buildStyle, paletteFor, routeData, styleChanges, styleKey, type MapTheme } from '@/lib/map/style';
 import { MAP_CREDITS, OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { MAP_TILES_URL } from '@/lib/requests';
@@ -50,6 +52,11 @@ interface Props {
   area?: AreaLayer;
   /** A pharmacy picked from that layer, while it is the selected one: it gets a marker like the scene's own. */
   extra?: Pharmacy;
+  /**
+   * The selected pharmacy's details are open: when the phone's sheet grows over its marker, the
+   * map moves so that the marker is in view again above the sheet.
+   */
+  keepSelected?: boolean;
   /** One of the layer's signs was pressed: its pharmacy's id. */
   onPick?: (id: string) => void;
   /** The map was moved by hand: what it shows now, for loading the squares that came into view. */
@@ -60,6 +67,10 @@ interface Props {
    */
   routeTo?: Pharmacy;
   routeFor?: RouteFor;
+  /** /dev/map only: another limit for the map's device pixels per CSS pixel, to compare on a phone. */
+  pixels?: number;
+  /** /dev/map only: the map under a finger as MapLibre has it, its own glide after a flick and its own direction for the one-finger zoom, to compare on a phone. */
+  plainTouch?: boolean;
 }
 
 interface Frame {
@@ -89,12 +100,20 @@ const YOU = 'you-are-here';
 const TILES = 'tiles';
 const ORDER: GlyphState[] = ['closed', 'unknown', 'soon', 'open'];
 const NO_OVERLAY: Overlay = { chips: [], nameAbove: false };
+/** A marker's room before it has been measured: about a capsule with a time. */
+const UNMEASURED = { width: 78, height: 30 };
 /** At most this many chips: the nearest open ones that are off the map. */
 const CHIPS = 3;
+/** A chip's room before it has been measured: the arrow, the cross and a time. */
+const CHIP_UNMEASURED = { width: 112, height: 44 };
 /** A press this near a sign of the area layer counts as a press on it: the signs are 20 px, a fingertip is 44. */
 const PICK_WITHIN_PX = 18;
-/** A press that travelled farther than this was a drag of the map, not a press on the marker it began on. */
-const DRAG_FROM_PX = 6;
+/**
+ * A press that travelled farther than this was a drag of the map, not a press on what it began
+ * on. A mouse is exact. A thumb rolls: browsers themselves still call a touch that has moved
+ * this far a tap, and a tap the browser has made a click of is not ours to throw away.
+ */
+const DRAG_FROM_PX = { mouse: 6, finger: 12 };
 /** The click a mouse makes when it lets go after such a drag comes within this time of letting go. */
 const CLICK_AFTER_DRAG_MS = 400;
 /** Rough sizes, for deciding whether a name fits beside its marker: half a marker's width, a letter, the plate's padding. */
@@ -121,10 +140,11 @@ const sameOverlay = (a: Overlay, b: Overlay): boolean =>
  * markers, the edge chips and the list go on working, and the map says what is missing.
  *
  * Touch: the whole map is the map's to handle (touch-action: none, so a pinch never zooms
- * the page), and once MapLibre is drawing, the markers live inside the element it listens
- * on. A drag or a pinch that begins on a marker then moves the map like any other.
+ * the page), and once MapLibre is drawing, everything that lies on the map lives inside the
+ * element it listens on: the markers, the edge chips and the credit. A drag or a pinch that
+ * begins on any of them then moves the map like any other, and a press is still a press.
  */
-export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, onPick, onView, routeTo, routeFor }: Props) {
+export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelect, userOnly, basemap = false, now, you, reveal, area, extra, keepSelected, onPick, onView, routeTo, routeFor, pixels = MAP_PIXEL_RATIO, plainTouch = false }: Props) {
   const i18n = useI18n();
   const { t, locale } = i18n;
 
@@ -135,9 +155,14 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const padProbe = useRef<HTMLSpanElement>(null);
   const themeProbe = useRef<HTMLSpanElement>(null);
   const map = useRef<MapLibreMap | null>(null);
-  /** Where the press on a marker began, and when it ended if it had become a drag of the map: the events' own clock. */
+  /** Where the press on a marker, a chip or the credit began, and when it ended if it had become a drag of the map: the events' own clock. */
   const pressed = useRef<{ x: number; y: number } | null>(null);
   const dragEnded = useRef<number | null>(null);
+  /** How much room each marker takes when drawn in full, measured after every render, and which are signs right now. */
+  const sizes = useRef(new Map<string, { width: number; height: number }>());
+  const signs = useRef(new Set<string>());
+  /** What else lies on the map, in its own pixels, measured with the markers: the credit, the zoom buttons, and each chip's size. */
+  const lying = useRef<{ credit: Box[]; controls: Box[]; chips: Map<string, { width: number; height: number }> }>({ credit: [], controls: [], chips: new Map() });
 
   const [frame, setFrame] = useState<Frame>();
   const [theme, setTheme] = useState<MapTheme>('light');
@@ -173,7 +198,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const route = useRouteLine(routeFor, mode === 'live' && !userOnly ? routeTo : undefined);
 
   // What the handlers below read: always the latest, without being set up again.
-  const current = { all, lit, here, frame, camera, framing, selectedId, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, route, onPick, onView };
+  const current = { all, lit, here, frame, camera, framing, selectedId, nearestOpenId, keepSelected, accuracy: you?.accuracy, approximate: scene.user.approximate, look: { theme, locale, sun }, area, route, onPick, onView };
   const latest = useRef(current);
   useLayoutEffect(() => {
     latest.current = current;
@@ -181,7 +206,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
 
   /** Puts every marker, the dot and the chips where the current camera says they are. */
   const place = useCallback(() => {
-    const { all, lit, here, frame, camera, selectedId, accuracy, approximate } = latest.current;
+    const { all, lit, here, frame, camera, selectedId, nearestOpenId, accuracy, approximate } = latest.current;
     if (!frame) return;
     const live = map.current;
     const project: Project = live
@@ -189,33 +214,92 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
       : projector(camera, frame, cameraPadding(frame));
     const zoom = live ? live.getZoom() : camera.zoom;
 
-    const places = new Map<string, { lat: number; lon: number }>(all.map((pharmacy) => [pharmacy.id, pharmacy]));
-    places.set(YOU, here);
+    // Whole pixels: a marker's text is then drawn the same way every time, and stays sharp.
+    const whole = (lat: number, lon: number) => {
+      const point = project(lat, lon);
+      return { x: Math.round(point.x), y: Math.round(point.y) };
+    };
+    const dot = whole(here.lat, here.lon);
+    const points = new Map(all.map((pharmacy) => [pharmacy.id, whole(pharmacy.lat, pharmacy.lon)]));
+    // Where markers would lie on top of each other or on the dot, the one that matters most is
+    // drawn in full and the others as signs: the selected pharmacy, then the nearest open one,
+    // the other open ones from the nearest, then the rest.
+    const rank = (id: string, index: number) => (id === selectedId ? -3 : id === nearestOpenId ? -2 : lit.some((pharmacy) => pharmacy.id === id) ? -1 : 0) * all.length + index;
+    const order = all
+      .map((pharmacy, index) => ({ id: pharmacy.id, rank: rank(pharmacy.id, index), ...points.get(pharmacy.id)!, ...(sizes.current.get(pharmacy.id) ?? UNMEASURED), small: signs.current.has(pharmacy.id) }))
+      .sort((a, b) => a.rank - b.rank);
+    // A marker that the bar, the sheet, the credit or the map's edge hides too much of, or leaves
+    // no room to press, is not drawn (lib/map/declutter.ts). The one the keyboard is on stays as
+    // it is until the keyboard has left it: focus is never taken from under it.
+    const { small, shift, away } = declutter(order, dot, zoom, { clear: boxOf(frame, cameraPadding(frame)), fixed: lying.current.credit });
+    signs.current = small;
+    const focused = pins.current?.contains(document.activeElement) ? document.activeElement?.closest<HTMLElement>('[data-pin]')?.dataset.pin : undefined;
+    // A marker that is a sign is the size of the map's own signs at this zoom.
+    const scale = signScale(zoom).toFixed(2);
+    if (root.current && root.current.dataset.signScale !== scale) {
+      root.current.dataset.signScale = scale;
+      root.current.style.setProperty('--sign-scale', scale);
+    }
+
+    // An open pharmacy the map does not show gets a chip on the edge, on the line towards it: the
+    // nearest ones. A chip keeps off the first marker, the answer; any other marker it lies on
+    // is no button while it does.
+    const box = boxOf(frame, chipInsets(frame));
+    const first = order[0];
+    const nudge = (id: string) => (shift && id === first?.id ? shift : undefined);
+    const centre = (id: string) => {
+      const at = points.get(id)!;
+      return { x: at.x + (nudge(id)?.x ?? 0), y: at.y + (nudge(id)?.y ?? 0) };
+    };
+    const shown = order.filter((marker) => !away.has(marker.id) || marker.id === focused);
+    const targets = shown.map((marker) => ({ id: marker.id, small: small.has(marker.id), ...targetOf(centre(marker.id), marker, small.has(marker.id)) }));
+    const off = lit.flatMap((pharmacy) => {
+      const chip = away.has(pharmacy.id) && pharmacy.id !== focused ? edgeChip(project(pharmacy.lat, pharmacy.lon), box, undefined, true) : undefined;
+      return chip ? [{ ...chip, id: pharmacy.id }] : [];
+    }).slice(0, CHIPS);
+    const boxesOf = (placed: typeof off) =>
+      placed.map((chip) => {
+        const { width, height } = lying.current.chips.get(chip.id) ?? CHIP_UNMEASURED;
+        return { left: chip.x - width / 2, top: chip.y - height / 2, right: chip.x + width / 2, bottom: chip.y + height / 2 };
+      });
+    let chips = spread(off, box);
+    // Only when a chip would take the answer's room does it move further along its edge.
+    const answer = first && targets[0]?.id === first.id ? targets[0] : undefined;
+    if (answer && !hasRoom(answer, [...lying.current.controls, ...boxesOf(chips)])) chips = spread(off, box, undefined, [answer]);
+    const chipBoxes = boxesOf(chips);
+    const still = crowded(targets, [...lying.current.controls, ...chipBoxes]);
+
     for (const element of root.current?.querySelectorAll<HTMLElement>('[data-pin]') ?? []) {
-      const at = places.get(element.dataset.pin ?? '');
-      if (!at) continue;
-      // Whole pixels: a marker's text is then drawn the same way every time, and stays sharp.
-      const point = project(at.lat, at.lon);
-      element.style.transform = `translate(${Math.round(point.x)}px, ${Math.round(point.y)}px)`;
-      // The halo is the accuracy the device reports, in the map's own scale, and never smaller than the canvas's 64 px.
-      if (element.dataset.pin === YOU) {
+      const id = element.dataset.pin ?? '';
+      if (id === YOU) {
+        element.style.transform = `translate(${dot.x}px, ${dot.y}px)`;
+        // The halo is the accuracy the device reports, in the map's own scale, and never smaller than the canvas's 64 px.
         const radius = accuracy !== undefined ? accuracy / metersPerPixel(here.lat, zoom) : approximate ? 95 : 32;
         const halo = `${Math.round(Math.min(Math.max(radius, 32), 600) * 2)}px`;
         if (element.dataset.halo !== halo) {
           element.dataset.halo = halo;
           element.style.setProperty('--halo', halo);
         }
+        continue;
       }
+      const at = points.get(id);
+      if (!at) continue;
+      // The first in that order stands just clear of the dot when it would have covered it.
+      const to = centre(id);
+      element.style.transform = `translate(${to.x}px, ${to.y}px)`;
+      if (small.has(id) !== (element.dataset.small !== undefined)) {
+        if (small.has(id)) element.dataset.small = '';
+        else delete element.dataset.small;
+      }
+      if (id === focused) continue;
+      if (away.has(id) !== (element.dataset.away !== undefined)) {
+        if (away.has(id)) element.dataset.away = '';
+        else delete element.dataset.away;
+      }
+      // Drawn, and no button: it takes no press and no focus, and a screen reader passes it by.
+      if (still.has(id) !== element.inert) element.inert = still.has(id);
     }
 
-    const box = boxOf(frame, chipInsets(frame));
-    const chips = spread(
-      lit.flatMap((pharmacy) => {
-        const chip = edgeChip(project(pharmacy.lat, pharmacy.lon), box);
-        return chip ? [{ ...chip, id: pharmacy.id }] : [];
-      }).slice(0, CHIPS),
-      box,
-    );
     // A chip that is already there moves with the map; one that has just come in is placed after it is rendered.
     for (const chip of chips) {
       const element = root.current?.querySelector<HTMLElement>(`[data-chip="${CSS.escape(chip.id)}"]`);
@@ -276,8 +360,29 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     return () => query.removeEventListener('change', read);
   }, []);
 
-  // After every render the markers are where they belong, before the browser paints.
-  useLayoutEffect(place);
+  // After every render the markers are where they belong, before the browser paints. Their
+  // sizes are read here and only here: a pan or a pinch then reads nothing from the page.
+  useLayoutEffect(() => {
+    const measured = new Map<string, { width: number; height: number }>();
+    for (const element of root.current?.querySelectorAll<HTMLElement>('[data-pin]') ?? []) {
+      const full = element.querySelector<HTMLElement>('[data-full]');
+      if (full && full.offsetWidth > 0) measured.set(element.dataset.pin ?? '', { width: full.offsetWidth, height: full.offsetHeight });
+    }
+    sizes.current = measured;
+    // What else lies on the map: where the credit and the zoom buttons are, and how large each chip is.
+    const frameBox = root.current?.getBoundingClientRect();
+    const boxesOf = (selector: string): Box[] =>
+      [...(root.current?.querySelectorAll<HTMLElement>(selector) ?? [])].flatMap((element) => {
+        const box = element.getBoundingClientRect();
+        return frameBox && box.width > 0 ? [{ left: box.left - frameBox.left, top: box.top - frameBox.top, right: box.right - frameBox.left, bottom: box.bottom - frameBox.top }] : [];
+      });
+    lying.current = {
+      credit: boxesOf('[data-credit]'),
+      controls: boxesOf('[data-controls] button'),
+      chips: new Map([...(root.current?.querySelectorAll<HTMLElement>('[data-chip]') ?? [])].map((chip) => [chip.dataset.chip ?? '', { width: chip.offsetWidth, height: chip.offsetHeight }])),
+    };
+    place();
+  });
 
   // A new framing from the scene moves the real map too.
   const framed = useRef(framing);
@@ -326,6 +431,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           zoom: camera.zoom,
           minZoom: MIN_ZOOM,
           maxZoom: MAX_ZOOM,
+          pixelRatio: Math.min(window.devicePixelRatio || 1, pixels),
           // Top-down, north up: no tilting and no turning (decided in the spike, S1).
           maxPitch: 0,
           dragRotate: false,
@@ -338,11 +444,66 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         });
         created.touchZoomRotate.disableRotation();
         created.keyboard.disableRotation();
+        // One finger zooms as in Apple Maps: two taps, the second one held, then up for closer and
+        // down for farther. MapLibre has it the other way round and no setting for it. Its handler
+        // takes a rate, and the rate's sign is the direction. The handler is not part of MapLibre's
+        // public face: if it is ever renamed this does nothing, and the touch test says so.
+        if (!plainTouch) (created.touchZoomRotate as unknown as { _tapDragZoom?: { setZoomRate(rate: number): void } })._tapDragZoom?.setZoomRate(-1);
         if (frame) created.setPadding(cameraPadding(frame));
         const live = created;
 
         live.on('move', place);
         live.on('resize', place);
+
+        // After a flick the map goes on as a list does on an iPhone: at the finger's speed at first,
+        // then slower and slower (lib/map/glide.ts). MapLibre begins a glide of its own right after
+        // `dragend`, which starts at half the finger's speed and is over in half a second: ours
+        // takes its place. One finger only, and not a mouse, whose drags end as MapLibre ends them.
+        // The finger's speed is read from the touches themselves, their own places and times: what
+        // the map has drawn meanwhile says how fast the device is, not how fast the finger was.
+        let trail: Sample[] = [];
+        let pinched = false;
+        let gliding = false;
+        const touched = (event: TouchEvent) => {
+          const [finger] = event.touches;
+          if (event.touches.length !== 1) {
+            pinched = true;
+            trail = [];
+            return;
+          }
+          if (event.type === 'touchstart') {
+            pinched = false;
+            trail = [];
+            // A finger laid on the gliding map stops it there, before it has moved at all.
+            if (gliding) live.stop();
+          }
+          if (pinched) return;
+          trail.push({ t: event.timeStamp, x: finger.clientX, y: finger.clientY });
+          if (trail.length > 24) trail.shift();
+        };
+        const surface = live.getCanvasContainer();
+        surface.addEventListener('touchstart', touched, { capture: true, passive: true });
+        surface.addEventListener('touchmove', touched, { capture: true, passive: true });
+        live.on('dragend', (event) => {
+          const lifted = event.originalEvent;
+          // The last finger has lifted, and no second one was down on the way: a pinch ends as MapLibre ends it.
+          if (!lifted || !('touches' in lifted) || lifted.touches.length > 0 || pinched) return;
+          // Who has asked for less motion gets none here: the map stays where the finger left it.
+          if (plainTouch || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          const glide = glideOf(speedAt(trail, lifted.timeStamp));
+          if (!glide) return;
+          // The map last moved with the finger a frame ago and is first drawn gliding a frame from now.
+          const stoodSince = trail[trail.length - 1].t;
+          queueMicrotask(() => {
+            if (map.current !== live) return;
+            const lead = Math.min(Math.max(performance.now() - stoodSince, 0) + 16, LEAD_UP_TO_MS);
+            live.panBy([-glide.x, -glide.y], { duration: glide.duration, easing: easingOf(glide.duration, lead) }, { byHand: true });
+            gliding = true;
+          });
+        });
+        live.on('moveend', () => {
+          gliding = false;
+        });
 
         // The area layer's signs are drawn when the map first needs one.
         live.setMissingStyleImageResolver((id) => {
@@ -365,8 +526,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           return nearest?.id;
         };
         live.on('click', (event) => {
-          // A press on one of the app's own markers is that marker's: it has its own handler.
-          if ((event.originalEvent.target as Element | null)?.closest?.('[data-pin]')) return;
+          // A press on one of the app's own markers, chips or links is its own: each has its handler.
+          if ((event.originalEvent.target as Element | null)?.closest?.('[data-on-map]')) return;
           const id = signAt(event.point);
           if (id !== undefined) latest.current.onPick?.(id);
         });
@@ -389,8 +550,9 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
           latest.current.onView?.({ north: bounds.getNorth(), south: bounds.getSouth(), west: bounds.getWest(), east: bounds.getEast() });
         });
 
-        // The markers move into the element MapLibre listens on, so a drag or a pinch that begins
-        // on one of them reaches the map. Being moved would play their switching-on again: it has been played.
+        // What lies on the map moves into the element MapLibre listens on, so a drag or a pinch that
+        // begins on a marker, a chip or the credit reaches the map. Being moved would play the
+        // markers' switching-on again: it has been played.
         if (layer) {
           for (const capsule of layer.querySelectorAll<HTMLElement>('[data-lit]')) capsule.style.animation = 'none';
           live.getCanvasContainer().appendChild(layer);
@@ -489,33 +651,48 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     give();
   }, [route, routeId, mode]);
 
-  // The sheet opened or closed, or the layout changed: keep the camera's centre in the part of the map that shows.
+  /**
+   * Where the camera has to go for the selected pharmacy to be in view in the part of the map
+   * that the bar and the sheet leave free: nowhere when it already is, otherwise far enough to
+   * show it together with the dot. Worked out for the frame as it is now, sheet included.
+   */
+  const showSelected = useCallback((): Camera | undefined => {
+    const { all, here, frame, camera, selectedId } = latest.current;
+    const target = all.find((pharmacy) => pharmacy.id === selectedId);
+    if (!target || !frame) return undefined;
+    const live = map.current;
+    // The camera as it is, under the frame's own padding: the real map may still be easing to that padding.
+    const centre = live?.getCenter();
+    const zoom = live ? live.getZoom() : camera.zoom;
+    const now: Camera = centre ? { lat: centre.lat, lon: centre.lng, zoom } : camera;
+    const point = projector(now, frame, cameraPadding(frame))(target.lat, target.lon);
+    const box = boxOf(frame, chipInsets(frame));
+    if (point.x >= box.left && point.x <= box.right && point.y >= box.top && point.y <= box.bottom) return undefined;
+    return fit([here, target], frame, { ...chipInsets(frame), bottom: Math.max(chipInsets(frame).bottom, frame.pad) }, { maxZoom: zoom });
+  }, []);
+
+  // The sheet opened or closed, or the layout changed: keep the camera's centre in the part of the
+  // map that shows. With a pharmacy's details open, its marker stays in view above the sheet too.
   const pad = frame?.pad;
   useEffect(() => {
-    const frame = latest.current.frame;
-    if (mode !== 'live' || !frame) return;
-    map.current?.easeTo({ padding: cameraPadding(frame), duration: 200 });
-  }, [pad, desktop, mode]);
+    const { frame, framing, keepSelected } = latest.current;
+    if (!frame) return;
+    const next = keepSelected ? showSelected() : undefined;
+    if (mode === 'live') map.current?.easeTo({ ...(next ? { center: [next.lon, next.lat], zoom: next.zoom } : {}), padding: cameraPadding(frame), duration: next ? 300 : 200 });
+    else if (next) setMoved({ framing, camera: next });
+  }, [pad, desktop, mode, showSelected]);
 
   // A pharmacy picked in the list comes into view on the map, together with the dot.
   const picked = useRef(selectedId);
   useEffect(() => {
     if (picked.current === selectedId) return;
     picked.current = selectedId;
-    const { all, here, frame, camera, framing } = latest.current;
-    const target = all.find((pharmacy) => pharmacy.id === selectedId);
-    if (!target || !frame) return;
-    const live = map.current;
-    const project: Project = live ? (lat, lon) => live.project([lon, lat]) : projector(camera, frame, cameraPadding(frame));
-    const point = project(target.lat, target.lon);
-    const box = boxOf(frame, chipInsets(frame));
-    if (point.x >= box.left && point.x <= box.right && point.y >= box.top && point.y <= box.bottom) return;
-    const zoom = live ? live.getZoom() : camera.zoom;
-    const next = fit([here, target], frame, { ...chipInsets(frame), bottom: Math.max(chipInsets(frame).bottom, frame.pad) }, { maxZoom: zoom });
-    if (!next) return;
-    if (live) live.easeTo({ center: [next.lon, next.lat], zoom: next.zoom, padding: cameraPadding(frame), duration: 400 });
+    const { frame, framing } = latest.current;
+    const next = showSelected();
+    if (!next || !frame) return;
+    if (map.current) map.current.easeTo({ center: [next.lon, next.lat], zoom: next.zoom, padding: cameraPadding(frame), duration: 400 });
     else setMoved({ framing, camera: next });
-  }, [selectedId]);
+  }, [selectedId, showSelected]);
 
   const zoomBy = (step: number) => {
     if (map.current) map.current.easeTo({ zoom: map.current.getZoom() + step, duration: 200 }, { byHand: true });
@@ -525,6 +702,25 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
     const zoom = cameraOf(view).zoom;
     if (map.current && frame) map.current.easeTo({ center: [here.lon, here.lat], zoom: Math.max(map.current.getZoom(), zoom), padding: cameraPadding(frame), duration: 400 }, { byHand: true });
     else setMoved({ framing, camera: { lat: here.lat, lon: here.lon, zoom } });
+  };
+
+  // The keyboard reaches every marker, wherever the map has been moved to. One that takes its
+  // focus where it can't be seen, under the bar, the sheet, a chip or a control, or beyond the
+  // map's edge, is brought to the middle of what shows: nothing focused is out of sight
+  // (PLAN.md section 9). Only the keyboard's focus does this, and only then is anything
+  // measured: a press selects the marker, and a selected one is framed already.
+  const focusIntoView = (focused: Element) => {
+    const id = focused.closest<HTMLElement>('[data-pin]')?.dataset.pin;
+    if (id === undefined || !focused.matches(':focus-visible')) return;
+    const { all, frame, camera, framing } = latest.current;
+    const target = all.find((pharmacy) => pharmacy.id === id);
+    if (!target || !frame) return;
+    const at = focused.getBoundingClientRect();
+    const hit = document.elementFromPoint(at.left + at.width / 2, at.top + at.height / 2);
+    if (hit && focused.contains(hit)) return;
+    const live = map.current;
+    if (live) live.easeTo({ center: [target.lon, target.lat], padding: cameraPadding(frame), duration: 300 });
+    else setMoved({ framing, camera: { lat: target.lat, lon: target.lon, zoom: camera.zoom } });
   };
 
   const markerLabel = (pharmacy: Pharmacy) => {
@@ -538,16 +734,19 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
   const ground = live ? ({ '--map-land': paletteFor(theme, sun?.altitude).land } as CSSProperties) : undefined;
 
   return (
-    <div ref={root} className={styles.map} data-map="pending" data-basemap={mode} data-reveal={reveal || undefined} style={ground}>
+    <div ref={root} className={styles.map} data-map="pending" data-basemap={mode} data-reveal={reveal || undefined} style={ground} onFocus={(event) => focusIntoView(event.target)}>
       <span ref={padProbe} aria-hidden="true" className={styles.padProbe} />
       <span ref={themeProbe} aria-hidden="true" className={styles.themeProbe} />
       <span ref={colourProbe} aria-hidden="true" className={styles.colourProbe} />
+      {/* Phone: the map's ground colour at the screen's upper edge, for the strip behind the status bar (see DuskScene). */}
+      <span aria-hidden="true" className={styles.edge8} />
       {basemap && <div ref={base} className={styles.base} />}
 
       <div
         ref={pins}
+        data-on-map
         className={styles.pins}
-        // A mouse drag that begins on a marker moves the map and ends on the same marker: the click that
+        // A drag that begins on a marker moves the map and ends on the same marker: the click that
         // follows is not a press on it. Only that click: one from the keyboard or a screen reader comes
         // without a drag before it, and one long after a drag is its own.
         onPointerDownCapture={(event) => {
@@ -556,7 +755,8 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         onPointerUpCapture={(event) => {
           const from = pressed.current;
           pressed.current = null;
-          dragEnded.current = from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > DRAG_FROM_PX ? event.timeStamp : null;
+          const far = event.pointerType === 'mouse' ? DRAG_FROM_PX.mouse : DRAG_FROM_PX.finger;
+          dragEnded.current = from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > far ? event.timeStamp : null;
         }}
         onPointerCancelCapture={() => {
           pressed.current = null;
@@ -565,7 +765,10 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         onClickCapture={(event) => {
           const ended = dragEnded.current;
           dragEnded.current = null;
-          if (ended !== null && event.timeStamp - ended < CLICK_AFTER_DRAG_MS) event.stopPropagation();
+          if (ended === null || event.timeStamp - ended >= CLICK_AFTER_DRAG_MS) return;
+          // Neither the marker's press nor the credit's link is followed.
+          event.preventDefault();
+          event.stopPropagation();
         }}
       >
         <span data-pin={YOU} className={cx(styles.pin, styles.haloPin)}>
@@ -589,30 +792,40 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         <span data-pin={YOU} className={cx(styles.pin, styles.youPin)}>
           <YouDot />
         </span>
-      </div>
 
-      {/* An open pharmacy outside the view gets a chip on the edge, on the line towards it. */}
-      {overlay.chips.map((chip) => {
-        const pharmacy = all.find((candidate) => candidate.id === chip.id);
-        if (!pharmacy) return null;
-        const way = travel(i18n, pharmacy, scene.distance);
-        return (
-          <button
-            key={chip.id}
-            type="button"
-            data-chip={chip.id}
-            className={cx(styles.edge, 'tnum')}
-            aria-label={(pharmacy.id === nearestOpenId ? t.map.edgeNearest : t.map.edge)(fullName(i18n, pharmacy, needsStreet.has(pharmacy.id)), way.primary.long, t.map.directions[chip.side])}
-            onClick={() => onSelect?.(pharmacy)}
-          >
-            <span data-arrow className={styles.arrow}>
-              <Icon name="arrowUp" size={16} />
-            </span>
-            <CrossGlyph state="open" size={15} />
-            {way.primary.short}
-          </button>
-        );
-      })}
+        {/* An open pharmacy the map does not show gets a chip on the edge, on the line towards it. */}
+        {overlay.chips.map((chip) => {
+          const pharmacy = all.find((candidate) => candidate.id === chip.id);
+          if (!pharmacy) return null;
+          const way = travel(i18n, pharmacy, scene.distance);
+          return (
+            <button
+              key={chip.id}
+              type="button"
+              data-chip={chip.id}
+              className={cx(styles.edge, 'tnum')}
+              aria-label={(pharmacy.id === nearestOpenId ? t.map.edgeNearest : t.map.edge)(fullName(i18n, pharmacy, needsStreet.has(pharmacy.id)), way.primary.long, t.map.directions[chip.side])}
+              onClick={() => onSelect?.(pharmacy)}
+            >
+              <span data-arrow className={styles.arrow}>
+                <Icon name="arrowUp" size={16} />
+              </span>
+              <CrossGlyph state="open" size={15} />
+              {way.primary.short}
+            </button>
+          );
+        })}
+
+        {/* The credit lies on the map like a marker: a finger that lands on it can still move the map. */}
+        <p data-credit className={styles.attribution}>
+          {live && MAP_CREDITS.map((credit) => (
+            <a key={credit.url} href={credit.url} draggable={false}>
+              {credit.label}
+            </a>
+          ))}
+          <a href={OSM_COPYRIGHT_URL} draggable={false}>{t.map.attribution}</a>
+        </p>
+      </div>
 
       {!userOnly && (
         <ul className={styles.legend} aria-label={t.map.legend}>
@@ -631,7 +844,7 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
         </ul>
       )}
 
-      <div className={styles.controls}>
+      <div data-controls className={styles.controls}>
         <div className={styles.zoom}>
           <button type="button" aria-label={t.map.zoomIn} className={styles.control} onClick={() => zoomBy(1)}>
             <Icon name="plus" />
@@ -648,14 +861,6 @@ export function MapView({ scene, needsStreet, selectedId, nearestOpenId, onSelec
 
       {(mode === 'failed' || (live && tilesMissing)) && <p className={styles.missing}>{t.map.failed}</p>}
 
-      <p className={styles.attribution}>
-        {live && MAP_CREDITS.map((credit) => (
-          <a key={credit.url} href={credit.url}>
-            {credit.label}
-          </a>
-        ))}
-        <a href={OSM_COPYRIGHT_URL}>{t.map.attribution}</a>
-      </p>
     </div>
   );
 }

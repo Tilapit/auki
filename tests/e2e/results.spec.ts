@@ -87,7 +87,7 @@ test('most nearby pharmacies without hours: the nearest leads with the call firs
   const actions = card.locator('a[href^="tel:"], button');
   await expect(actions.first()).toHaveAttribute('href', 'tel:+35891234501');
   await expect(actions.first()).toHaveAccessibleName('Soita: Kampin apteekki');
-  await expect(actions.nth(1)).toHaveAccessibleName('Kävelyreitti: Kampin apteekki');
+  await expect(actions.nth(1)).toHaveAccessibleName('Reitti kävellen: Kampin apteekki');
   // The one known to be open is kept, as a line; and the card says how well the country's hours are covered.
   await expect(card).toContainText('Lähin, jonka tiedetään olevan auki: Jumbon apteekki, 14,0 km, auki ympäri vuorokauden.');
   await expect(card).toContainText('Suomi: aukioloajat on merkitty 79 %:lle apteekeista.');
@@ -107,7 +107,7 @@ test('no pharmacy known to be open and most hours missing: says so, without clai
   // Without a phone number the route leads, and the text says why.
   await expect(card).toContainText('Lähimmän puhelinnumeroa ei ole merkitty, joten sen aukiolo selviää vain paikan päällä.');
   await expect(card.locator('a[href^="tel:"]', { hasText: 'Soita' })).toHaveCount(0);
-  await expect(card.getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' })).toBeVisible();
+  await expect(card.getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' })).toBeVisible();
   await expect(card.getByRole('link', { name: '112' })).toBeVisible();
 });
 

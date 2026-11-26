@@ -10,6 +10,46 @@
   --focus: #ffffff;
 }
 
+/*
+ * The scene's two end colours, pinned to the screen's edges: what Safari colours the strip
+ * behind the status bar and the one behind its own bar from. Each is the colour of what
+ * lies under it, so on the page itself they can't be seen.
+ */
+.edgeTop,
+.edgeBottom {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 4;
+  /* Safari takes a strip's colour only from 6 px up (measured in the iOS 27.2 Simulator: 2 and 4 px are passed over). */
+  height: 8px;
+  pointer-events: none;
+}
+
+.edgeTop {
+  top: 0;
+  background: var(--sky-1);
+}
+
+.edgeBottom {
+  bottom: 0;
+  background: var(--navy);
+}
+
+/*
+ * Behind the scene the page is the street's colour, not the paper's: it is what shows where
+ * the browser has nothing fixed to go by. And the page is not pulled past its ends: above the
+ * sky there is no more sky.
+ */
+:global(html):has(.scene) {
+  background: var(--navy);
+  overscroll-behavior-y: none;
+}
+
+:global(html):has(.scene) :global(body) {
+  background: var(--navy);
+}
+
 .top {
   position: absolute;
   inset: 0 0 auto;
@@ -86,6 +126,12 @@
 }
 
 @media (min-width: 900px) {
+  /* A desktop browser has no strips of the page's colour around the page. */
+  .edgeTop,
+  .edgeBottom {
+    display: none;
+  }
+
   .top {
     padding: 22px max(5vw, 20px);
   }

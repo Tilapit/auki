@@ -739,6 +739,45 @@ Entry format:
 - Why: Janne's item 3: a clear seam, shown, never live. Even here the claim is the service's: its name and the time are part of every answer, and "Ei tietoa" is a level of its own, because a pharmacy the service has no line to is not a pharmacy that is out of stock. The marks differ in shape because status is never told by colour alone (PLAN.md section 9).
 - Status: example only. To decide when a service agrees to an API: where the answer shows (in the dialog as here, or on the list's rows), and how the service's pharmacies are matched to OpenStreetMap's.
 
+## 2026-11-25: Accessibility pass (M7): a control's name contains what it shows
+- Where: `lib/travel.ts`, `components/Measure.tsx`, `lib/i18n/` (`card.routeLabel`, `card.directionsLabel`, `card.showAtCounterLabel`, `app.otherLanguageLabel`, `data.home`), `components/DataPage.tsx`
+- Change: Found by axe (rule `label-content-name-mismatch`, WCAG 2.5.3 Label in Name, level A): 506 controls whose name did not contain the text on them. Their names now do:
+  - A marker or an edge chip that shows "3 min" or "130 m" is named "…, 3 min kävellen" and "…, 130 m linnuntietä". Until now "…, 3 minuuttia kävellen".
+  - A button that shows "Reitti": "Reitti kävellen: Kampin apteekki" (was "Kävelyreitti: Kampin apteekki"); English "Route on foot to …" and "Route to …" (were "Walking directions to …", "Directions to …").
+  - "Näytä apteekissa": "Näytä apteekissa: apteekkikortti latviaksi" (was "Näytä apteekkikortti latviaksi").
+  - The round language link that shows "EN": "EN: In English" (was "Vaihda kieli: English", Finnish words in a link marked as English). On the English page "FI: Suomeksi".
+  - The wordmark on the data page, which is a link: the app's name as it shows, then ": takaisin apteekkihakuun".
+- Why: Someone who uses the phone by voice says what they see on a control to press it, and the name is what the system listens for. A name that starts with the visible word also reads in the order the eye takes it.
+  - The full words stay where text is read and is not a control's name: the rows of the list, the card and the announcement of the results still say "3 minuuttia kävellen". `travel()` gives both forms (`long` for a name, `spoken` for reading).
+  - PLAN.md section 9 had "Walking directions to …" as its example of a specific name: updated.
+- Status: done. For the VoiceOver pass: listen to a marker's name and hear how "3 min" and "130 m" are read in Finnish and in English.
+
+## 2026-11-25: Accessibility pass (M7): the keyboard on the map
+- Where: `components/MapView.tsx` (`focusIntoView`), `components/MapView.module.css`, `components/ResultsShell.tsx`
+- Change: Found by the keyboard run (`tests/e2e/keyboard.spec.ts`), which asks that whatever has the focus can be seen:
+  - With the phone's list open, the map under it is inert. Until now Tab went on from the list's last row to ten markers under the sheet.
+  - A marker that takes the keyboard's focus where it can't be seen (under the bar or the sheet, under a chip or a control, beyond the map's edge) comes to the middle of the part of the map that shows. Only the keyboard's focus does this: a press selects the marker, and a selected one is framed already.
+  - Where markers lie on one another, the one with the keyboard's focus is drawn in front.
+  - The map is no longer something a browser can scroll (`overflow: clip`). Chromium scrolled the map's own box to a focused marker beyond its edge, and the zoom buttons and every marker went with it: the map stood 800 px to the left until the page was loaded again.
+- Why: PLAN.md section 9, "nothing focused is ever off screen", held for the sheet and not for the map. The fixes are the smallest that make it hold: nothing is taken out of the tab order that can be seen, and nothing moves for a mouse or a finger.
+- Status: done
+
+## 2026-11-25: Accessibility pass (M7): 320 px, credit links, review sheets
+- Where: `components/ResultsShell.module.css` (the phone's bar), `components/MapView.module.css` (`.attribution a`), `components/dev/Sheets.tsx`, `lib/dev/viewList.ts`
+- Change:
+  - At 320 px wide the two lines of the phone's bar wrap, and the bar grows by a line when it must. Found by the reflow run (`tests/e2e/reflow.spec.ts`): "Aukioloaikoja ei tiedetä", "Ei yhtään auki klo 23.40" and "Aukiolotiedot vanhentuneet" ended in an ellipsis there. From 360 px up nothing changes.
+  - The map's credit links are 24 px tall to press and still 18 px tall to look at (WCAG 2.5.8).
+  - The two review sheets of `/dev/states` have an `h1`. "Lähin auki nyt: the ehditkö cases" is now eight views of one card each: the card is a landmark with a name, and one page with eight of them had eight landmarks by one name (axe, `landmark-unique`). No page of the app has two.
+- Why: 320 px is a small iPhone with Display Zoom on, and a desktop window at 400 %. An ellipsis there hid the one line that says whether anything is open.
+- Status: done. Seen, not changed: a place name too long for the bar ends in an ellipsis at every width from 360 px up, as designed in M1 ("the name from the search, however long").
+
+## 2026-11-25: Accessibility pass (M7): what axe still reports, and why it is left failing
+- Where: `tests/e2e/axe.spec.ts`; the phone views `helsinki-half`, `riga-peek`, `riga-half`, `far-open-peek`, `far-open-half`, `nothing-open-half`, `stress-half`, `hours-half`
+- Change: None. In these eight views axe reports `target-size` (WCAG 2.5.8) for 20 map markers: each lies partly under another control, the bar's buttons, the sheet's handle, an edge chip or the credit, so that less than 24 by 24 px of it can be pressed.
+- Why: A marker stands where its pharmacy is, and the bar and the sheet lie over the map's edges: some marker is always half under one of them, on any map. The criterion excepts this twice: a target whose position is essential (its own example is pins on a map), and one whose function another control on the page offers at full size (every marker's pharmacy is a row of the list, which map.spec.ts holds). axe can know neither. Making a half-covered marker impossible to press would lose touches, which is what the phone test of 25 Nov was about.
+  - By the night-run rule the test is not changed to pass: no rule is off and no view is left out, so these eight tests fail in CI.
+- Status: superseded on 26 Nov 2026 ("A marker is a button only where a finger has room for it", at the end). No exception is recorded: the finding was right, and the markers changed.
+
 ## 2026-11-25: iOS (I1): the map with a sheet over it, in three places (provisional)
 - Where: `ios/Auki/Views/ResultsView.swift`, `ResultsSheet.swift`
 - Change: New: the canvas has no iOS board. The map fills the screen and a system sheet lies over its lower part, with the three places the web's phone sheet has: a row (the heading and the pharmacy that leads), half the screen (the card and the start of the list), the whole screen (the list). It can't be dismissed. The map stays usable behind it up to the half place, and what the sheet covers counts as off the map: framing, Apple's attribution and the map's own button stay above it.
@@ -767,6 +806,93 @@ Entry format:
   - With an approximate position (the user's own choice in the system's question) the sheet starts with the web's notice, "Sijaintisi on likimääräinen. Etäisyydet voivat heittää.", without the web's link to place search, which I1 doesn't have.
 - Why: One voice on both platforms. The location question says what the app does and not more: it does not say the position never leaves the phone, because Apple's map is told which part of the map is on screen, as the map tile host is on the web.
 - Status: provisional, waiting for Janne: the wording of the location question, which is a privacy statement
+
+## 2026-11-25: The phone: a thumb's tap, and a map that can be dragged from anywhere on it
+- Where: `MapView` (the markers' layer), `ResultsShell` (the sheet's drag, its handle, its row, the bar); `tests/e2e/touch.spec.ts`, `tests/e2e/sheet.spec.ts`
+- Change: Janne's iPhone, 25 Nov: "sometimes a touch doesn't register". Found with real touch input in Chromium and with the browser's own hit test in WebKit, and each fixed:
+  - A tap whose finger travelled 7 to 12 px is still a click by the browser's own rule, and the app threw it away as a drag at 6 px: on a marker, and on every button of the sheet below the open list, where the whole sheet is its own handle. A finger now has 12 px, and on the sheet only when the sheet ends where it began; a mouse keeps 6 px.
+  - The credit line, 334 px of the screen's 390 and 22 px tall, lies right above the sheet, where a thumb starts a drag. It and the edge chips were outside the element MapLibre listens on: a drag that began on them moved nothing. They are now in the markers' layer, which is moved into that element.
+  - The handle's invisible strip above the sheet's edge, 12 px tall for a 44 px target, was as wide as the screen: a drag that began there pulled the sheet. It is 88 px wide now, around the handle.
+  - A tap on the sheet's row beside its button did nothing. It raises the sheet to the card. The handle stays the control with a name, for the keyboard and screen readers.
+  - The 8 px gap between the bar's two controls took touches. It is the map's now.
+- Why: Each of these was a touch that landed on the screen and did nothing. Not found: any listener of ours that isn't passive (MapLibre's own `touchmove` and `wheel` are, and have to be), or anything that runs per frame at rest (no frame was asked for in two seconds).
+- Status: done. Not checkable here: how far a finger may travel on an iPhone before Safari stops calling it a tap. The app no longer has an opinion below 12 px.
+
+## 2026-11-25: The pharmacy's details on the phone: a place card, not a modal
+- Where: `ResultsView`, `ResultsShell`, `PharmacySheet`; `/dev/states`, "sheet", "walking-sheet" and the rest with a pharmacy open
+- Change: By Janne's finding of 25 Nov (a 38 s recording: the details opened at full height, the map was gone, a drag down did not close them). They now take the list's place in the bottom sheet, as they always did in the desktop's panel, and are not a modal dialog any more.
+  - The sheet opens at a middle height: down to the first route button, and never more than 60 % of the screen. Short details leave more of the map.
+  - The map moves so that the pharmacy's marker is in view above the sheet, together with the dot.
+  - A drag takes the sheet fully up, or down to the row, where the details close. The close button and Escape bring back what the sheet showed before: the row, the card, or the list where it was scrolled.
+  - At the middle nothing in them scrolls. Fully up they scroll, and from their top a pull down takes the sheet down. The open list now does the same.
+  - The handle reads "Näytä lisää" at the middle and "Näytä vähemmän" fully up.
+  - Focus goes to the pharmacy's name when they open, and back to what opened them when they close: remembered by the app, because a dialog that is no modal is not handed focus back by the browser, and Safari gives a pressed button none to begin with.
+- Why: Apple Maps' place card is what the hand expects of a sheet over a map. The map and the marker are half of the answer ("where is it?") and were hidden by the other half.
+  - Not a modal, because a modal makes the map above it dead: a touch there would do nothing, or only close the sheet. The results sheet has never been one either.
+  - The middle height follows the content, as the card's does, so that the route button is in view without a drag where it fits.
+  - Considered and not taken: a fixed half screen (cuts the route button off on a pharmacy with many lines of hours); reordering the details so that the buttons come first (the canvas's order is name, status, facts, buttons, and this was a change of behaviour, not of layout).
+- Status: done, by Janne's request. Provisional within it: the middle height's rule, and that the close button returns to the list while a drag down returns to the row.
+
+## 2026-11-25: Markers from afar: one in full, the rest as the map's small signs
+- Where: `lib/map/declutter.ts`, `MapMarker`, `MapView`; `/dev/map` with `?z=12`
+- Change: By Janne's finding of 25 Nov (six or seven capsules on top of each other around Kamppi at zooms 12 to 14, covering the dot; at country zoom the nearest still large over southern Finland). On every frame the map now decides which markers are drawn in full:
+  - In order: the selected pharmacy, the nearest open one, the other open ones from the nearest, then the rest. One that would overlap the dot or anything already placed is drawn as the small sign the map itself draws for the pharmacies beyond the list, in that layer's size for the zoom. It stays a button with the pharmacy's name.
+  - The first is always in full while the map shows streets or a region, and stands just clear of the dot, the shorter way, when it would have covered it. The dot is never under a marker.
+  - Below zoom 11 only the first is in full. Below zoom 8, a country, it is a sign too.
+  - A sign needs 6 px more room to come back in full than it took to become one, so a slow pinch doesn't make it flicker.
+- Why: A pile of capsules says less than one capsule and five signs. The signs are the map's existing second level, so nothing new had to be designed. Sizes are measured once per render; a pan or a pinch reads nothing from the page.
+  - The app's own framings never go below zoom 8, so the answer is always in full in a view the app chose; only a pinch gets to where it is a sign.
+  - Seen, not changed: a sign may lie partly under the first capsule after that has stepped off the dot.
+- Status: done, by Janne's request. Provisional within it: the two zoom limits (11 and 8).
+
+## 2026-11-25: The map draws two device pixels per CSS pixel, not three (provisional)
+- Where: `MAP_PIXEL_RATIO` in `lib/map/camera.ts`, the `pixelRatio` MapLibre is made with; `/dev/map/…?px=3` shows it as it was
+- Change: On a phone with three device pixels to one, the map's canvas is 780 px wide for 390, not 1170. The markers, the sheet and every text of the page are not the canvas and stay at the screen's own sharpness.
+- Why: Janne's recording of 25 Nov: the map changed on 40 to 50 of 60 frames a second in pans and pinches, with single gaps of 50 to 65 ms. Measured here on real tiles in the live flow at Kamppi, CPU four times slower:
+  - No frame had 50 ms of script in it, ours or MapLibre's (Chromium's long-animation-frame entries: none). Our own work is 0.7 ms a frame, a GPS fix costs 5.6 ms, and nothing runs per frame at rest.
+  - What a frame costs is drawing, per pixel. The same pans and pinches on a 3x screen: a frame every 50 ms and 263 gaps over 50 ms before; every 33 ms and 63 gaps now.
+  - That was a software renderer, not a phone's GPU: it shows where the cost is, not what the phone gains. The phone has to confirm it.
+- Status: provisional, waiting for Janne's phone. If the map looks soft at rest, the next step is three at rest and two while it moves.
+
+## 2026-11-25: The phone's screen edges: the scene's own colours behind the status bar and the browser's bar
+- Where: `DuskScene` (first window, place search), `MapView` and `ResultsShell` (map views); checked in the iOS 27.2 Simulator's Safari
+- Change: Janne's iPhone, 25 Nov: dark bands above and below the first window. With test pages in the Simulator: Safari colours both strips from the body's background, unless something fixed lies at that edge of the page and is at least 6 px tall, whose colour then wins. `theme-color` is not read.
+  - The dusk scenes pin the sky's upper colour to the top edge and the street's to the bottom, 8 px each and the colour of what is already there, and the body behind them is the street's colour. `theme-color` follows the sky's upper colour while a scene shows, for browsers that still go by it.
+  - The map views pin the map's ground colour to the top, and the body behind them is the sheet's colour.
+  - Neither is pulled past its ends (`overscroll-behavior`): above the sky there is no more sky.
+- Why: One picture from edge to edge, at every sky. Before: `#071427` above a sky of `#143266` and under a street of `#0b1b31`. After: the strip and the page's first row are the same colour at night, at golden hour and by day, and so are the last row and the lower strip.
+- Status: done. The 8 px strips can't be seen on the page; if a later Safari reads the edges some other way, they are the thing to revisit.
+
+## 2026-11-26: A marker is a button only where a finger has room for it
+- Where: `lib/map/declutter.ts` (`declutter`'s `away`, `crowded`, `hasRoom`), `place()` in `components/MapView.tsx`, `spread` in `lib/map/camera.ts`; the phone views `riga-peek`, `riga-half`, `helsinki-half`, `far-open-peek`, `far-open-half`, `nothing-open-half`, `stress-half`, `hours-half`, `sheet-far`, `sheet-sparse`, `walking-sheet-unknown`
+- Change: axe's `target-size` (WCAG 2.5.8) failed on map markers in eight phone views on 25 Nov, and in twelve views once the small signs of the iPhone findings were in: a strip of 44 by 1 px of a marker above the sheet, half a marker under the bar with its own chip lying on it, a disc cut by the screen's edge, signs four pixels apart. A marker still stands where its pharmacy is. What changed is which markers are offered to press, worked out by the same pure code that decides full or sign, on every frame:
+  - The bar, the sheet, the credit or the map's edge leaves less than 24 by 24 px of its button, or hides more of what is drawn of it than its outer quarter: it is not drawn. Its pharmacy is in the list. An open one gets its edge chip, and a chip comes only then: a pharmacy is on the map as its marker or as its chip, never as both. Before, the chip came 40 px before the sheet reached the marker, and lay on it.
+  - The quarter came from looking at the first version, which went by the 24 px alone: in `walking-half` the open pharmacy's capsule stood with its lower half under the sheet, 28 px of its button free, and its chip gone. A capsule is 30 px tall with its time in the middle 15; what is hidden beyond its padding is the text.
+  - An edge chip, a zoom button or the markers that matter more leave it no room: it is drawn where it is and is no button (`inert`: no press, no focus, passed by a screen reader), like the signs the map itself draws for the pharmacies beyond the list. Capsules and discs come before signs, each kind in the order that decides full or sign, and one is a button only if that takes the room of none before it. A press on a pile goes to the sign on top.
+  - A chip that would take the room of the answer's marker moves on along its edge.
+  - The marker the keyboard is on stays as it is until the keyboard has left it.
+  - With the phone's list fully open the map is inert and a strip of it shows above the list: no chip is drawn there, where its upper edge used to show. And no chip is given where the map can't hold one whole.
+  - The map asks for 25 px where the criterion asks for 24. It counts in whole pixels and a browser lays out in fractions; the first failures showed only in CI's Linux, by a few pixels.
+- Why: The finding was right: half a marker under the sheet is nothing a finger can aim at, and a sliver that opens a pharmacy is how the wrong one gets opened. The exception WCAG allows for pins on a map would have recorded the problem, not removed it. Nothing is lost that could be used: every pharmacy is a row of the list, an open one off the map has its chip, and a sign in a pile becomes a button as soon as a pinch gives it room.
+  - Considered and dropped: hiding the signs of a pile that have no room. Nine pharmacies in seventy pixels would have shown as three, and the map's own layer of signs beyond the list would have gone on showing all of its own.
+  - Considered and dropped: moving chips off every marker. A chip would walk the edge away from the line to its pharmacy; only the answer's marker is worth that.
+  - Seen, not changed: a marker that stands whole above the sheet can lie partly under the credit line (`helsinki-half`). It has its room above it.
+  - Seen, not changed: the phone's bar is counted as the strip down to 64 px, as the camera's framing counts it. A phone that lays the bar lower (a safe area at the top) would need that number measured.
+- Status: done. It changes the look of the phone views named above, where a half-covered marker is gone or a chip is gone from a marker that shows; the baselines are new.
+
+## 2026-11-26: The map under a finger: the glide after a flick, and which way one finger zooms (provisional)
+- Where: `lib/map/glide.ts`, the map's making in `components/MapView.tsx`; `/dev/map/…?touch=maplibre` shows it as it was; `node scripts/map-feel.ts` measures both
+- Change: By Janne's note of 25 Nov: the map's feel, close to Apple Maps on an iPhone. Each gesture on his list was tried with real touches in Chromium, the CPU four times slower. A pinch keeps the place between the fingers where it is, two taps come closer, a tap with two fingers goes back out, and the page never scrolls or zooms: those were as they should be, and each has its test now. Two were not:
+  - **After a flick** MapLibre's own glide starts at about half the finger's speed, which shows as a hitch at letting go, and is over within half a second. The map now leaves at the finger's speed and loses the same share of it every millisecond: 0.998, the rate of a list on an iPhone, which MapLibre's own maps on iOS use too. Measured on `/dev/map`, two runs as MapLibre has it and three as it is now, how far the map went on after the finger lifted: 14 to 19 px and 240 to 296 px after a slow flick, 58 to 102 px and 558 to 617 px at 1,000 to 1,400 px/s, 86 to 221 px and 912 to 1,213 px at about 2,000 px/s; at rest after 0.2 to 0.7 s before and 1.8 to 2.6 s now.
+  - The finger's speed is that of its last tenth of a second of movement, read from the touches themselves, their own places and times, as a touch screen itself reckons a flick. What the map has drawn meanwhile is not asked: a device that draws slowly would otherwise seem to have a slow finger. The gap between the last movement and the lifting is not counted in; a finger that had held still for more than 70 ms before lifting has stopped, and nothing glides.
+  - The glide begins as far into itself as the map stood still between the finger's last frame and its own first one, so that the map is where it would have been. A finger laid on the gliding map stops it there. Slower than 100 px/s at lifting there is no glide, and none is longer than that of 3,200 px/s.
+  - Only for one finger: after a pinch the map ends as MapLibre ends it, a mouse keeps MapLibre's short glide, and whoever has asked the device for less motion gets none.
+  - **Two taps and a drag** zoomed in when the finger went down. Apple's guide to Maps on an iPhone says up to zoom in and down to zoom out, and so it is now. MapLibre has no setting for the direction; its handler takes a rate, and the rate has the other sign. That handler is not part of MapLibre's public face: if it is renamed the direction goes back, and `tests/e2e/touch.spec.ts` fails.
+- Why: A map that stops dead under a thumb feels broken on a phone, and one that zooms the wrong way is unlearned every time. The numbers of a list are the ones a thumb already knows.
+  - Frames while the map moves are as even as before: one every 27 to 33 ms on a software renderer with the CPU four times slower, at most one over 50 ms in a flick, with either glide. A longer glide costs more frames, not slower ones.
+  - Tiles around the view are not fetched ahead. A flick brought two or three new map squares into view, the last of them there 0.4 to 1.3 s after the finger lifted, later the faster the flick. Fetching the squares next to the view beforehand would close that, and would tell the map tile host more than "which map squares are on screen" (PLAN.md 7.6): that is a change to what the app says it sends, and Janne's to decide.
+- Status: provisional, waiting for Janne's phone. The rate (0.998), the slowest flick that glides (100 px/s) and the fastest that counts (3,200 px/s) are the three numbers to turn if it feels wrong.
+  - In tests a flick is all of its touches sent at once: on any machine that is the fastest flick the map counts, and the tests hold the glide of that one. A flick with a speed of its own can't be sent from a test: a touch bears the time it was sent at, and sent one by one a step takes thirty milliseconds here and over a hundred in CI, which the map rightly takes for a finger that stops and starts. Chromium's own synthesized flick is truer, and `scripts/map-feel.ts` measures with it on a Mac, but in CI's Linux it moved nothing. CI also draws a gliding map only every few tenths of a second, so the test holds each drawn frame to the list's curve at that frame's own time. Three failed CI runs went into finding this out; the second of them is what moved the app's reckoning from frames to touches.
 
 ## 2026-11-25: iOS: a pharmacy's sheet over the results, as a place card in Apple's Maps (provisional)
 - Where: `ios/Auki/Views/PharmacySheet.swift`, `ResultsView.swift`; `design/ios-basics/`

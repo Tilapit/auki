@@ -19,6 +19,21 @@
   --map-pad: var(--peek-visible);
 }
 
+/*
+ * Phone: behind a map view the page is the sheet's colour. Nothing of it shows on the page,
+ * which the map and the sheet fill; it is what Safari colours the strip behind its own bar
+ * from, under the sheet. And the page is not pulled past its ends: it has nothing to scroll.
+ */
+@media (max-width: 899.98px) {
+  :global(html):has(.shell) {
+    overscroll-behavior: none;
+  }
+
+  :global(html):has(.shell) :global(body) {
+    background: var(--sheet);
+  }
+}
+
 /* The open list covers the map: the camera stays where the card left it. */
 .shell[data-sheet='half'],
 .shell[data-sheet='expanded'] {
@@ -27,6 +42,20 @@
 
 .shell[data-sheet='static'] {
   --map-pad: var(--static-pad, 300px);
+}
+
+/*
+ * A pharmacy's details in the sheet (Apple Maps' place card): at the middle the sheet shows
+ * them down to the first route button, and never more than 60 % of the screen, so the map and
+ * the selected marker stay in view above it.
+ */
+.shell[data-detail] {
+  --half-visible: min(60dvh, var(--sheet-height), calc(var(--detail-fold, 380px) + 26px + env(safe-area-inset-bottom)));
+}
+
+/* The details take the list's place, on the phone as on the desktop. */
+[data-detail] .full {
+  display: none;
 }
 
 /* The sheet as it was: two places, a tall collapsed answer, and an open list that leaves the upper half of the map. */
@@ -73,6 +102,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Only its two controls take the pointer: the gap between them is the map's. */
+  pointer-events: none;
+}
+
+.bar > * {
+  pointer-events: auto;
 }
 
 .barMain {
@@ -147,6 +182,27 @@
   stroke-width: 2.1;
 }
 
+/*
+ * A screen 320 px wide, or a wider one zoomed far in: the bar's two lines wrap instead of
+ * ending in an ellipsis, and the bar grows by a line when it must. Nothing is cut off there
+ * that the usual width shows in full (WCAG 1.4.10).
+ */
+@media (max-width: 359.98px) {
+  .barMain {
+    height: auto;
+    min-height: 52px;
+    padding-block: 6px;
+  }
+
+  .barPlace,
+  .barUpdated {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
 /* Desktop says the same in words under the title. On the phone the bar does it. */
 .elsewhere {
   display: none;
@@ -205,10 +261,14 @@
   touch-action: none;
 }
 
-/* 44 px target around the small handle. */
+/*
+ * 44 px target around the small handle, 88 px wide. It reaches 12 px above the sheet's edge,
+ * over the map: only around the handle, so that beside it a finger that lands right above the
+ * sheet moves the map and not the sheet.
+ */
 .grabber::after {
   position: absolute;
-  inset: -12px 0 -6px;
+  inset: -12px calc(50% - 44px) -6px;
   content: '';
 }
 
@@ -491,7 +551,7 @@
     display: none;
   }
 
-  /* The pharmacy details take the list's place. */
+  /* The pharmacy details take the list's place (after the rule above, which shows the list at every place of the sheet). */
   [data-detail] .full {
     display: none;
   }

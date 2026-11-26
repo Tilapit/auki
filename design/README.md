@@ -42,6 +42,12 @@ Screenshots for the pull request "The map and the sheet on the phone": the sheet
 
 Screenshots for the pull request "M5: walking times, ehditkö and the route line". From `/dev/states`, built from tile data with walking times through the live code: the row, the card with the timeline, the list in walking order, too late with the next open one (`walking.jpg`), the same in dark and the pharmacy sheet with its links (`dark-and-sheet.jpg`), and two desktop cases (`desktop.jpg`). From `/dev/map`, on real map tiles: the route line by day, at dusk and at night (`route-desktop.jpg`, `route-phone.jpg`). The route in these is invented, two corners between the dot and the marker: there was no openrouteservice key on the day.
 
+## M7, the accessibility pass, 25 Nov 2026 (`m7/`)
+
+Screenshots for the pull request "M7". From `/dev/states`, in Chromium. The phone's bar at 320 px wide, before and after its two lines were allowed to wrap, in three views and both themes (`bar-320.jpg`; "before" is the old rule put back by a style sheet on the same build). The keyboard on the map at the desktop size: Tab to a marker beyond the map's edge, where Chromium used to scroll the whole map out of place, and the same press now; and a marker in focus drawn in front of those that lie on it (`keyboard-desktop.jpg`). On the phone, a marker that was under the sheet when Tab came to it (`keyboard-phone.jpg`). The review sheets with their heading, and two of the eight card cases, one to a page (`review-sheets.jpg`).
+
+Added on 26 Nov: the map's markers before and after a marker became a button only where a finger has room for it, in four phone views, light and dark (`markers.jpg`, `markers-dark.jpg`). These are CI's own baseline images at 1×, before and after, cut to the map. The two keyboard images are of 25 Nov: since the 26th a marker beyond the map's edge or under the sheet is not drawn and takes no focus, so the upper half of `keyboard-desktop.jpg` and all of `keyboard-phone.jpg` show a state that is no longer reached. The lower half of `keyboard-desktop.jpg`, the marker in focus in front of those that lie on it, still holds.
+
 ## Medicine availability, 25 Nov 2026 (`medicine/`)
 
 Screenshots for the pull request "Medicine availability: a hand-off to each country's own stock search". All from `/dev/states`: the card without and with the line, the pharmacy sheet with it, and the line under the out-of-date notice (`line.jpg`); Finland's dialog empty, with an invented name typed, and in dark, with the card in dark (`dialog.jpg`); Germany, Austria, Norway and Sweden, the last of which is not in the live app (`countries.jpg`); the dialog on the desktop in both themes (`desktop.jpg`); and the seam for live stock on example data, labelled as such (`stock.jpg`). No medicine is named: "Esimerkkivalmiste" is an invented name.
@@ -49,6 +55,10 @@ Screenshots for the pull request "Medicine availability: a hand-off to each coun
 ## The iOS app, I1, 25 Nov 2026 (`ios-i1/`)
 
 Screenshots for the pull request "I1: the iOS app". From the iOS Simulator (iPhone 17, iOS 27.2), with a position set in Kamppi, Helsinki, and the real pharmacies of the data host as fetched from OpenStreetMap on 24 Nov. The app's clock was set with its debug launch argument: Wednesday 25 Nov at 20.41, and the night after at 2.30. The first window, the results, a pharmacy picked with the sheet at its lowest place, and the list (`light.jpg`); the same in the dark, with the night when nothing nearby is open (`dark.jpg`); that night by day, English, location denied, and the largest text size (`states.jpg`); and the system's location question with the app's sentence in it (`question.jpg`). The map under the markers is Apple's.
+
+## The iPhone findings, 25 Nov 2026 (`iphone/`)
+
+Screenshots for the pull request "The iPhone findings of 25 Nov". The pharmacy's details in the phone's sheet at their middle height and fully up, from `/dev/states`, and once in Safari itself (`sheet.jpg`). The live flow at an invented position in Kamppi with the real pharmacies of the data host, zoomed out step by step, production before and this branch after; the last one is the fixture at country zoom (`markers.jpg`). From the iOS 27.2 Simulator's Safari (iPhone 18 Pro): the first window with the strips behind the status bar and behind Safari's own bar, production before and this branch after at four skies (`edges.jpg`), and the same for a map view on real map tiles (`edges-map.jpg`).
 
 ## The iOS app's basics, 25 Nov 2026 (`ios-basics/`)
 

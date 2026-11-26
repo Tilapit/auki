@@ -49,6 +49,14 @@ export const NO_INSETS: Insets = { top: 0, right: 0, bottom: 0, left: 0 };
 
 export const MIN_ZOOM = 5;
 export const MAX_ZOOM = 18;
+/**
+ * The most device pixels the map draws per CSS pixel. A phone's screen has three: the map
+ * would fill 2.25 times the pixels of a 2x one on every frame of a pan, for streets that look
+ * the same in motion. Measured on real tiles with a software renderer, CPU four times slower:
+ * a frame every 50 ms at 3x, every 33 ms at 2x (DESIGN-LOG.md, 25 Nov 2026). The markers and
+ * everything else on the page are not the map's canvas: they stay at the screen's own sharpness.
+ */
+export const MAP_PIXEL_RATIO = 2;
 
 const clampZoom = (zoom: number): number => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
 
@@ -138,12 +146,21 @@ const SIDES: Compass[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
  * The chip for a place outside the box, or undefined when the place is inside it. The chip
  * sits where the line from the middle of the box to the place leaves the box, pulled in by
  * half its own size so that it stays whole.
+ *
+ * With `always`, also for a place just inside the box: the map has taken its marker off
+ * because the bar, the sheet or the edge hid too much of it (lib/map/declutter.ts), and the
+ * chip stands on the same line, at the edge.
+ *
+ * No chip where the box can't hold one whole: with the phone's list fully open the map is a
+ * strip under the bar, and half a chip there says nothing.
  */
-export function edgeChip(point: Point, box: Box, half: Size = { width: 44, height: 22 }): EdgeChip | undefined {
-  if (isInside(point, box)) return undefined;
+export function edgeChip(point: Point, box: Box, half: Size = { width: 44, height: 22 }, always = false): EdgeChip | undefined {
+  if (box.right - box.left < 2 * half.width || box.bottom - box.top < 2 * half.height) return undefined;
+  if (!always && isInside(point, box)) return undefined;
   const middle = centreOf(box);
   const dx = point.x - middle.x;
   const dy = point.y - middle.y;
+  if (dx === 0 && dy === 0) return undefined;
   const reachX = Math.max((box.right - box.left) / 2 - half.width, 1);
   const reachY = Math.max((box.bottom - box.top) / 2 - half.height, 1);
   // How far along the line the inner box ends: the nearer of its vertical and horizontal sides.
@@ -159,13 +176,16 @@ export function edgeChip(point: Point, box: Box, half: Size = { width: 44, heigh
 
 /**
  * Chips that would lie on top of each other are moved apart along the edge they are on.
- * The first ones keep their place, so the caller puts the most important first.
+ * The first ones keep their place, so the caller puts the most important first. A chip also
+ * moves off anything in `keep`: the marker of the pharmacy the map is showing as its answer.
  */
-export function spread<T extends EdgeChip>(chips: T[], box: Box, size: Size = { width: 92, height: 40 }): T[] {
+export function spread<T extends EdgeChip>(chips: T[], box: Box, size: Size = { width: 92, height: 40 }, keep: readonly Box[] = []): T[] {
   const placed: T[] = [];
   for (const chip of chips) {
     let { x, y } = chip;
-    const overlaps = () => placed.some((other) => Math.abs(other.x - x) < size.width && Math.abs(other.y - y) < size.height);
+    const overlaps = () =>
+      placed.some((other) => Math.abs(other.x - x) < size.width && Math.abs(other.y - y) < size.height) ||
+      keep.some((kept) => x - size.width / 2 < kept.right && x + size.width / 2 > kept.left && y - size.height / 2 < kept.bottom && y + size.height / 2 > kept.top);
     const middle = centreOf(box);
     // On a side edge the chip slides down or up; on the top or bottom edge it slides sideways.
     const vertical = Math.abs(x - middle.x) / Math.max(box.right - box.left, 1) > Math.abs(y - middle.y) / Math.max(box.bottom - box.top, 1);

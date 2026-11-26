@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 import { farOpen, kamppi, kamppiClosed } from '@/lib/fixtures/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
 import { expect, test } from './fixtures';
-import { start, world } from './helpers';
+import { settle, start, world } from './helpers';
 
 /**
  * The phone's bottom sheet (PLAN.md section 5). It rests in three places: on one row, so
@@ -88,7 +88,7 @@ test('at its lowest the sheet is one row: the nearest open pharmacy, how far, it
   await expect(page.getByRole('heading', { name: 'Lähin auki nyt', level: 2 })).toHaveCount(1);
 
   // The row's one button is the route: it opens the pharmacy, where the map apps are.
-  await answer.getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' }).click();
+  await answer.getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
 });
 
@@ -205,11 +205,11 @@ test('below the open list the whole sheet is the handle, and a drag by a button 
   await expectAt(page, 'peek');
   await rest(handle(page));
   // By the route button: the sheet moves, and the pharmacy's own sheet does not open.
-  await drag(page, await rest(row(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' })), -(low - middle) * 0.7);
+  await drag(page, await rest(row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' })), -(low - middle) * 0.7);
   await expectAt(page, 'half');
   await expect(page.getByRole('dialog')).toBeHidden();
   // The same by the card's route button, a short way: the mouse lets go over the button it pressed, and that is still not a press.
-  const route = card(page).getByRole('button', { name: 'Kävelyreitti: Kampin apteekki' });
+  const route = card(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
   await drag(page, await rest(route), 40);
   await expectAt(page, 'half');
   await rest(handle(page));
@@ -329,6 +329,180 @@ test('nothing open: the sheet starts at the card, with 112 in view, and the row 
   await expect(answer.getByRole('button', { name: /reitti/i })).toHaveCount(0);
 });
 
+/**
+ * A finger on the screen, through Chromium's DevTools: down at a point, moved by `by` pixels
+ * (up when negative) a frame at a time, held still, lifted. Where it is lifted decides.
+ */
+async function finger(page: Page, from: { x: number; y: number }, by: number) {
+  const devtools = await page.context().newCDPSession(page);
+  const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', y?: number) =>
+    devtools.send('Input.dispatchTouchEvent', { type, touchPoints: y === undefined ? [] : [{ x: Math.round(from.x), y: Math.round(y) }] });
+  await touch('touchStart', from.y);
+  for (let step = 1; step <= 8; step++) {
+    await page.clock.runFor(16);
+    await touch('touchMove', from.y + (by * step) / 8);
+  }
+  await page.clock.runFor(200);
+  await touch('touchMove', from.y + by + Math.sign(by));
+  await touch('touchEnd');
+  await devtools.detach();
+}
+
+/**
+ * A pharmacy's details in the phone's sheet (Janne's iPhone, 25 Nov 2026: they opened at full
+ * height, the map was gone, and a drag down did not close them). They behave like a place card
+ * in Apple Maps: open at a middle height with the map and the marker in view above them, down
+ * to the row they close, and their content scrolls only when the sheet is fully up.
+ */
+test.describe('a pharmacy’s details in the sheet', () => {
+  test.use({ hasTouch: true });
+
+  const details = (page: Page) => page.getByRole('dialog');
+  const route = (page: Page) => row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
+  const scrolled = (page: Page) => handle(page).evaluate((element) => element.nextElementSibling!.scrollTop);
+
+  test('they open at a middle height: the map and the pharmacy’s marker stay in view above them, and the map still moves', async ({ page }) => {
+    await start(page, world(kamppi));
+    await expectAt(page, 'peek');
+    await route(page).click();
+    await expect(details(page).getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
+    await expect(details(page).getByRole('heading', { level: 2 })).toBeFocused();
+    // The handle now says what a press does to the details.
+    await expect(handle(page)).toHaveAccessibleName('Näytä lisää');
+    const top = (await rest(handle(page))).y - 13;
+    // Never more than 60 % of the screen, and down to the first route button.
+    expect(top).toBeGreaterThanOrEqual(SCREEN * 0.4 - 1);
+    await expect(details(page).getByRole('link', { name: 'Reitti Google Mapsissa' })).toBeInViewport({ ratio: 1 });
+    // The marker of the pharmacy is on the map above the sheet, clear of the bar.
+    await settle(page);
+    const marker = (await page.getByRole('region', { name: /^Kartta/ }).getByRole('button', { name: /^Kampin apteekki/ }).boundingBox())!;
+    expect(marker.y + marker.height / 2).toBeLessThan(top);
+    expect(marker.y + marker.height / 2).toBeGreaterThan(76);
+    // Nothing lies over the map: another marker can be pressed, and the details are that pharmacy's.
+    await page.getByRole('region', { name: /^Kartta/ }).getByRole('button', { name: /^Yliopiston apteekki/ }).click();
+    await expect(details(page).getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
+    await expect(handle(page)).toHaveAccessibleName('Näytä lisää');
+  });
+
+  test('the close button and Escape bring back what the sheet showed before: the row, or the list where it was', async ({ page }) => {
+    // A short screen, so that the list of six is longer than the open sheet.
+    await page.setViewportSize({ width: 390, height: 560 });
+    await start(page, world(kamppi));
+    await route(page).click();
+    await expect(details(page)).toBeVisible();
+    await details(page).getByRole('button', { name: 'Sulje' }).click();
+    await expect(details(page)).toBeHidden();
+    await expectAt(page, 'peek');
+    // Focus is back on what opened them.
+    await expect(route(page)).toBeFocused();
+
+    // From the open list, scrolled: the details come at the middle, and the list comes back as it was.
+    await handle(page).click();
+    await handle(page).click();
+    await expectAt(page, 'expanded');
+    await rest(handle(page));
+    const last = rows(page).last();
+    await last.scrollIntoViewIfNeeded();
+    // Where the list stands at the moment its row is pressed: the press itself may still bring the row a little further in.
+    await handle(page).evaluate((element) => {
+      const scroller = element.nextElementSibling!;
+      document.addEventListener('click', () => ((window as unknown as { pressedAt: number }).pressedAt = scroller.scrollTop), { capture: true, once: true });
+    });
+    await last.click();
+    const before = await page.evaluate(() => (window as unknown as { pressedAt: number }).pressedAt);
+    expect(before).toBeGreaterThan(0);
+    await expect(details(page)).toBeVisible();
+    await expect(handle(page)).toHaveAccessibleName('Näytä lisää');
+    await page.keyboard.press('Escape');
+    await expect(details(page)).toBeHidden();
+    await expectAt(page, 'expanded');
+    await expect.poll(() => scrolled(page)).toBe(before);
+  });
+
+  test('the handle takes them fully up and back to the middle', async ({ page }) => {
+    await start(page, world(kamppi));
+    await route(page).click();
+    const middle = (await rest(handle(page))).y;
+    await handle(page).click();
+    await expect(handle(page)).toHaveAccessibleName('Näytä vähemmän');
+    const high = (await rest(handle(page))).y;
+    expect(high).toBeLessThan(middle - 100);
+    await expect(details(page)).toBeVisible();
+    await handle(page).click();
+    await expect(handle(page)).toHaveAccessibleName('Näytä lisää');
+    expect(Math.abs((await rest(handle(page))).y - middle)).toBeLessThan(2);
+  });
+
+  test('a finger drags them down to the row, and that closes them; up, and they are fully open', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Playwright moves a finger across the screen only through Chromium DevTools.');
+    await start(page, world(kamppi));
+    const low = (await rest(handle(page))).y;
+    await route(page).click();
+    await expect(details(page)).toBeVisible();
+    const middle = (await rest(handle(page))).y;
+
+    // A short way down and it comes back: still the details, still at the middle.
+    await finger(page, await rest(details(page).getByRole('heading', { level: 2 })), (low - middle) * 0.3);
+    await expect(details(page)).toBeVisible();
+    expect(Math.abs((await rest(handle(page))).y - middle)).toBeLessThan(2);
+    // Most of the way down, by the details themselves: the row is back, and the details are closed.
+    await finger(page, await rest(details(page).getByRole('heading', { level: 2 })), (low - middle) * 0.7);
+    await expect(details(page)).toBeHidden();
+    await expectAt(page, 'peek');
+    expect(Math.abs((await rest(handle(page))).y - low)).toBeLessThan(2);
+
+    // Up from the middle: fully open.
+    await route(page).click();
+    await rest(handle(page));
+    await finger(page, await rest(details(page).getByRole('heading', { level: 2 })), -(middle - 101) * 0.7);
+    await expect(handle(page)).toHaveAccessibleName('Näytä vähemmän');
+    await expect(details(page)).toBeVisible();
+    expect(await page.evaluate(() => [window.scrollY, window.visualViewport?.scale])).toEqual([0, 1]);
+  });
+
+  test('at the middle nothing in them scrolls; fully up they scroll, and from their top a pull down takes the sheet down', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Playwright moves a finger across the screen only through Chromium DevTools.');
+    await start(page, world(kamppi));
+    await route(page).click();
+    await expect(details(page)).toBeVisible();
+    const middle = (await rest(handle(page))).y;
+    await handle(page).click();
+    const high = (await rest(handle(page))).y;
+    const text = details(page).getByText('Aukioloajat');
+
+    // Fully up: a finger that moves up scrolls the content, and the sheet stays.
+    await finger(page, await rest(text), -160);
+    expect(await scrolled(page)).toBeGreaterThan(20);
+    expect(Math.abs((await rest(handle(page))).y - high)).toBeLessThan(2);
+    // Not at its top: a long pull down scrolls it back to its top and no further, and the sheet still stays.
+    await finger(page, { x: 195, y: 300 }, (middle - high) * 0.7);
+    expect(await scrolled(page)).toBe(0);
+    expect(Math.abs((await rest(handle(page))).y - high)).toBeLessThan(2);
+    // (The test's finger is faster than any thumb: the browser lets the content glide on for a moment, and that glide is its own.)
+    await page.waitForTimeout(700);
+    // At its top: the same pull takes the sheet down to the middle, and nothing has been scrolled or stretched.
+    await finger(page, { x: 195, y: 300 }, (middle - high) * 0.7);
+    await expect(handle(page)).toHaveAccessibleName('Näytä lisää');
+    expect(Math.abs((await rest(handle(page))).y - middle)).toBeLessThan(2);
+    expect(await scrolled(page)).toBe(0);
+    await expect(details(page)).toBeVisible();
+    expect(await page.evaluate(() => [window.scrollY, window.visualViewport?.scale])).toEqual([0, 1]);
+  });
+
+  test('the open list does the same: from its top a pull down takes the sheet to the card', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Playwright moves a finger across the screen only through Chromium DevTools.');
+    await start(page, world(kamppi));
+    await handle(page).click();
+    const middle = (await rest(handle(page))).y;
+    await handle(page).click();
+    const high = (await rest(handle(page))).y;
+    await expectAt(page, 'expanded');
+    await finger(page, await rest(rows(page).first()), (middle - high) * 0.7);
+    await expectAt(page, 'half');
+    expect(Math.abs((await rest(handle(page))).y - middle)).toBeLessThan(2);
+  });
+});
+
 test.describe('with a finger', () => {
   test.use({ hasTouch: true });
 
@@ -338,6 +512,61 @@ test.describe('with a finger', () => {
     const at = await rest(handle(page));
     await page.touchscreen.tap(at.x, at.y);
     await expectAt(page, 'half');
+  });
+
+  test('a tap on the row, beside its button, raises the sheet to the card', async ({ page }) => {
+    await start(page, world(kamppi));
+    await expectAt(page, 'peek');
+    const name = await rest(row(page).getByRole('heading', { level: 3 }));
+    await page.touchscreen.tap(name.x, name.y);
+    await expectAt(page, 'half');
+    await expect(page.getByRole('dialog')).toBeHidden();
+    // At the card a tap on its text does nothing: only the lowest sheet is one big handle.
+    const title = await rest(card(page).getByRole('heading', { level: 3 }));
+    await page.touchscreen.tap(title.x, title.y);
+    await expectAt(page, 'half');
+  });
+
+  // Janne's iPhone, 25 Nov 2026: "sometimes a touch doesn't register". Below the open list the
+  // whole sheet is its handle, so every button on it is pressed through the sheet's own drag.
+  test('a tap by a thumb that rolls a few pixels still presses the button under it, and the sheet stays', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Playwright moves a finger across the screen only through Chromium DevTools.');
+    await start(page, world(kamppi));
+    await expectAt(page, 'peek');
+    const devtools = await page.context().newCDPSession(page);
+    const roll = async (from: { x: number; y: number }, by: number) => {
+      const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', y?: number) =>
+        devtools.send('Input.dispatchTouchEvent', { type, touchPoints: y === undefined ? [] : [{ x: Math.round(from.x), y: Math.round(y) }] });
+      await touch('touchStart', from.y);
+      for (let step = 1; step <= 4; step++) {
+        await page.clock.runFor(16);
+        await touch('touchMove', from.y + (by * step) / 4);
+      }
+      await page.clock.runFor(30);
+      await touch('touchEnd');
+    };
+    const route = row(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' });
+    for (const by of [-9, 10]) {
+      await roll(await rest(route), by);
+      await expect(page.getByRole('dialog').getByRole('heading', { level: 2 }), `rolled ${by}`).toHaveText('Kampin apteekki');
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toBeHidden();
+      // The roll itself moved nothing: closed, the details leave the sheet at the row it was on.
+      await expectAt(page, 'peek');
+      await rest(handle(page));
+    }
+    // Thrown upwards from the same button, however short the way: that is the sheet's, and no press.
+    const from = await rest(route);
+    const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', y?: number) =>
+      devtools.send('Input.dispatchTouchEvent', { type, touchPoints: y === undefined ? [] : [{ x: Math.round(from.x), y: Math.round(y) }] });
+    await touch('touchStart', from.y);
+    await page.clock.runFor(8);
+    await touch('touchMove', from.y - 6);
+    await page.clock.runFor(8);
+    await touch('touchMove', from.y - 12);
+    await touch('touchEnd');
+    await expectAt(page, 'half');
+    await expect(page.getByRole('dialog')).toBeHidden();
   });
 
   test('a finger drags the sheet from the row to the card and on to the list', async ({ page, browserName }) => {
@@ -351,32 +580,18 @@ test.describe('with a finger', () => {
     await handle(page).click();
     await expectAt(page, 'peek');
 
-    const devtools = await page.context().newCDPSession(page);
-    const finger = async (from: { x: number; y: number }, by: number) => {
-      const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', y?: number) =>
-        devtools.send('Input.dispatchTouchEvent', { type, touchPoints: y === undefined ? [] : [{ x: Math.round(from.x), y: Math.round(y) }] });
-      await touch('touchStart', from.y);
-      for (let step = 1; step <= 8; step++) {
-        await page.clock.runFor(16);
-        await touch('touchMove', from.y + (by * step) / 8);
-      }
-      // Held still, then lifted: where it is lifted decides.
-      await page.clock.runFor(200);
-      await touch('touchMove', from.y + by + Math.sign(by));
-      await touch('touchEnd');
-    };
-
     // By the row itself, not only by the handle: below the open list the whole sheet takes the finger.
-    await finger(await rest(row(page).getByRole('heading', { level: 3 })), -(low - middle) * 0.7);
+    await finger(page, await rest(row(page).getByRole('heading', { level: 3 })), -(low - middle) * 0.7);
     await expectAt(page, 'half');
     expect(Math.abs((await rest(handle(page))).y - middle)).toBeLessThan(2);
-    await finger(await rest(handle(page)), -(middle - high) * 0.7);
+    await finger(page, await rest(handle(page)), -(middle - high) * 0.7);
     await expectAt(page, 'expanded');
     await expect(rows(page).first()).toBeInViewport();
-    // Open, the list is the list's: a finger on it scrolls, and the sheet stays.
-    await finger(await rest(rows(page).first()), 120);
+    // Open, the list is the list's: a finger that moves up on it scrolls it, and the sheet stays.
+    await finger(page, await rest(rows(page).first()), -120);
     await expectAt(page, 'expanded');
-    await finger(await rest(handle(page)), low - high + 40);
+    expect(Math.abs((await rest(handle(page))).y - high)).toBeLessThan(2);
+    await finger(page, await rest(handle(page)), low - high + 40);
     await expectAt(page, 'peek');
     // The page itself was never scrolled or zoomed by any of it.
     expect(await page.evaluate(() => [window.scrollY, window.visualViewport?.scale])).toEqual([0, 1]);

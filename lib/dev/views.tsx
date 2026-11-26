@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
-import { CardCases, ComponentSheet } from '@/components/dev/Sheets';
+import { CardCase, ComponentSheet } from '@/components/dev/Sheets';
 import { StockExample } from '@/components/dev/StockExample';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
@@ -120,7 +120,14 @@ export const renderers: Record<string, () => ReactNode> = {
   error: () => <ProblemView kind="error" scene={helsinki} />,
 
   components: () => <ComponentSheet />,
-  'card-cases': () => <CardCases />,
+  'card-timeline': () => <CardCase id="timeline" />,
+  'card-tight': () => <CardCase id="tight" />,
+  'card-tight-far': () => <CardCase id="tight-far" />,
+  'card-late': () => <CardCase id="late" />,
+  'card-later': () => <CardCase id="later" />,
+  'card-abroad': () => <CardCase id="abroad" />,
+  'card-long': () => <CardCase id="long" />,
+  'card-straight': () => <CardCase id="straight" />,
 
   // Medicine availability (provisional): the dialog per country, and the seam on example data.
   'medicine-fi': () => <ResultsView scene={helsinki} sheet="peek" medicine="FI" />,
