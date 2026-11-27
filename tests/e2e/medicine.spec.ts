@@ -112,6 +112,18 @@ test('a pharmacy\'s details offer the same check, and Escape closes it without c
   await expect(open).toBeFocused();
 });
 
+test('pressed with a mouse where a pressed button gets no focus, as in Safari on a Mac: closed, the check gives the keyboard back to its button all the same', async ({ page }) => {
+  await start(page, world(kamppi));
+  const open = card(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ });
+  // Safari's way, in any browser: the press leaves the focus where it was.
+  await open.evaluate((button) => button.addEventListener('mousedown', (event) => event.preventDefault()));
+  await open.click();
+  await expect(medicine(page)).toBeVisible();
+  await medicine(page).getByRole('button', { name: 'Sulje' }).click();
+  await expect(medicine(page)).toBeHidden();
+  await expect(open).toBeFocused();
+});
+
 test('a service whose address takes no name is never asked for one', async ({ page }) => {
   // The same pharmacies as if they stood in Austria, where the stock lookup lives in the Chamber's app.
   const austrian = kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, country: 'AT' }));

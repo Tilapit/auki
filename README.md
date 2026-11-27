@@ -25,15 +25,15 @@ A job application project by Janne Lappi for Treat Health. Not a Treat product, 
 
 | | Number | Where it is from |
 |---|---|---|
-| Time to first result on a throttled phone | **2.8 s** | The live site, 26 Nov 2026 |
-| Opening hours read | **99.9 %** | The night's data run, 25 Nov 2026 |
-| Initial JavaScript | **174 KB** | The live site, 25 Nov 2026 |
+| Time to first result on a throttled phone | **2.6 s** | The live site, 27 Nov 2026 |
+| Opening hours read | **99.9 %** | The published data, 27 Nov 2026 |
+| Initial JavaScript | **179 KB** | The live site, 27 Nov 2026 |
 
-- **2.8 s** is from navigation to the first rendered result: Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from an invented position at Kamppi in Helsinki. Median of five runs (2.7 to 3.6 s): `node scripts/first-result-live.ts`. The list was by walking time in every run.
-- **99.9 %**: of the 38,089 pharmacies that have opening hours in OpenStreetMap in the 21 countries covered that night, 38,067 were read into open intervals. From the data host's [`index.json`](https://auki-data.vercel.app/tiles/v1/index.json); the same numbers per country are on the app's [data page](https://auki.vercel.app/fi/data).
-- **174 KB**: the scripts of `/fi` as they travel, compressed by the host, in Lighthouse, median of three runs. The same runs give a mobile LCP of 0.91 s. Nearly all of it is React and the Next.js runtime.
+- **2.6 s** is from navigation to the first rendered result: Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from an invented position at Kamppi in Helsinki. Median of five runs (2.6 to 3.5 s): `node scripts/first-result-live.ts`. The list was by walking time in every run. The server that asks for the walking times has run in Frankfurt since that day; it was in Washington, and a first request after a quiet hour could come back too late for the list.
+- **99.9 %**: of the 53,377 pharmacies that have opening hours in OpenStreetMap in the 31 countries covered, 53,349 were read into open intervals, and 28 were not. From the data host's [`index.json`](https://auki-data.vercel.app/tiles/v1/index.json); the same numbers per country are on the app's [data page](https://auki.vercel.app/fi/data).
+- **179 KB**: the scripts of `/fi` as they travel, compressed by the host, in Lighthouse, median of three runs (178.5 KB; it was 174 KB on 25 Nov, and the budget is 185 KB). The same runs give a mobile LCP of 0.92 s. Nearly all of it is React and the Next.js runtime.
 
-The number that limits the app is a fourth one: **43.6 %** of the 122,483 pharmacies in the 31 covered countries have opening hours in OpenStreetMap at all. The countries are those of the EU and the EEA, and Switzerland; France and the Netherlands mean their European parts. The number is a sum of two runs of 27 Nov 2026: the published run for the 21 countries covered until that day (89,991 pharmacies, 42.3 % with hours) and a local run for the ten that joined (32,492 pharmacies, 47.0 %), whose data is not published yet. It is 97 % in Luxembourg, 95 % in Norway, 92 % in Iceland, 82 % in Germany and 79 % in Finland, and 27 % in Ireland, 26 % in Romania, 23 % in Italy, 18 % in Spain, 10 % in Cyprus and 7 % in Greece. Where the hours are missing the app says "hours not listed" and never guesses.
+The number that limits the app is a fourth one: **43.6 %** of the 122,482 pharmacies in the 31 covered countries have opening hours in OpenStreetMap at all. The countries are those of the EU and the EEA, and Switzerland; France and the Netherlands mean their European parts. The number is from the data as published on 27 Nov 2026, the same `index.json`. It is 97 % in Luxembourg, 95 % in Norway, 92 % in Iceland, 82 % in Germany and 79 % in Finland, and 27 % in Ireland, 26 % in Romania, 23 % in Italy, 18 % in Spain, 10 % in Cyprus and 7 % in Greece. Where the hours are missing the app says "hours not listed" and never guesses.
 
 In CI the same things are measured on every push, against a build and with fixtures, so that a change can't make them worse unnoticed. On `main` on 27 Nov 2026: time to first result 3.1 s on GitHub's runner, with a tile of 1,826 pharmacies, the weight of central Paris's, the heaviest real one (limit 5 s; with central Barcelona's 1,272, the heaviest until that day, the same runner measured 3.1 s too, and one Mac 0.08 s less); initial JavaScript 180.1 KB (budget 185 KB); mobile LCP 0.91 s (budget 2.5 s).
 
