@@ -223,21 +223,32 @@ function PairTexts({ home, here }: { home: string; here: string }) {
           {text}
         </p>
       ))}
-      {Object.entries(card.variants).map(([variant, lines]) => (
-        <p key={variant} lang={card.lang} className={styles.lines}>
+      {card ? (
+        <>
+          {Object.entries(card.variants).map(([variant, lines]) => (
+            <p key={variant} lang={card.lang} className={styles.lines}>
+              <span lang="en" className={styles.caption}>
+                card, {variant}
+                {card.reviewed ? '' : ' (unreviewed)'}
+              </span>
+              {lines.local.join(' ')}
+            </p>
+          ))}
+          <p lang={card.lang} className={styles.lines}>
+            <span lang="en" className={styles.caption}>
+              card, pharmacist
+            </span>
+            {card.pharmacist.local}
+          </p>
+        </>
+      ) : (
+        <p className={styles.lines}>
           <span lang="en" className={styles.caption}>
-            card, {variant}
-            {card.reviewed ? '' : ' (unreviewed)'}
+            card
           </span>
-          {lines.local.join(' ')}
+          <span lang="en">none: the paper answer is a no, and nothing else is offered</span>
         </p>
-      ))}
-      <p lang={card.lang} className={styles.lines}>
-        <span lang="en" className={styles.caption}>
-          card, pharmacist
-        </span>
-        {card.pharmacist.local}
-      </p>
+      )}
     </>
   );
 }

@@ -823,6 +823,7 @@ Since 26 Nov 2026 the card is for a prescription from any country, so its lines 
 - the doctor sends it: "Hello. My doctor can send the prescription straight to you by email or fax." · "Would that work? Which address or number should they use?"
 - The country's name is the browser's own for the card's language (`Intl.DisplayNames`), standing by itself after a colon, so that no sentence needs it in another case.
 - Nineteen languages, Finnish among them for visitors to Finland. Seventeen are drafts with `reviewed: false`; Finnish and English are the app's own.
+- No paper line where the paper answer is a no (Janne, 27 Nov 2026): where the country's own authority says a paper prescription from there is not accepted. That is a prescription from outside the EU and the EEA in Finland or Sweden, and one from Switzerland in Sweden. Nothing else is left for the card to ask in those pairs, so there is no card and "Näytä apteekissa" is not offered; the banner still answers. "Not obliged" and "nothing found" are not a no and keep the line.
 
 The lines as first planned, for a prescription from Finland:
 
