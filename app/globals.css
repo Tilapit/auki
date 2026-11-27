@@ -234,12 +234,19 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Reduced motion: no transition at all, not a very short one. A duration on every element,
+ * however short, makes every change of every property a transition, and an inherited one then
+ * goes down the tree a frame per level: when the map showed its markers, a marker's disc was
+ * drawn first and its cross two frames later. Nothing in the app waits for a transition to end.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
   }
 }

@@ -406,7 +406,7 @@ The shape differs for each state, so colour is never the only signal, and the st
 
 - One orchestrated moment: when results render, the crosses of open pharmacies switch on in order, on the map and in the list, 30 ms apart, each 180 ms (opacity plus glow). It shows the answer, which ones are open, rather than decorating.
 - Expand/collapse and dialog open: 200 ms, user-triggered only.
-- `prefers-reduced-motion`: no stagger, no glow animation.
+- `prefers-reduced-motion`: no stagger, no glow animation, and no transition at all: every transition's duration and delay is zero. Not a very short duration on every element, which was there until 27 Nov 2026: that makes every change a transition, and a change of an inherited property then goes down the page a level a frame (a marker's disc was drawn a few frames before its cross).
 
 ### Copy
 
@@ -483,7 +483,8 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
    - Responses are `no-store` and nothing is logged. The position is in the body, never in the address.
    - The input is validated: at most 20 destinations, all within 50 km; a body over 4 KB or of another shape is refused without calling anyone.
    - Only our own pages may ask: a request a browser marks as coming from another site (`Sec-Fetch-Site`) is refused, so nobody else's page can spend the budget through its visitors.
-   - **The budget.** The free plan allows Matrix 500 requests a day and 40 a minute, and Directions 2,000 a day and 40 a minute (checked on the account page on 24 Nov 2026). The server keeps its own count at nine tenths of each (36 a minute; 450 and 1,800 a day), per endpoint. The count lives in memory, per server instance, so it is a floor of the real use: the tenth is the room for a second instance or a restart, and openrouteservice's own 429 is what holds when that isn't enough.
+   - **Where it runs.** In Frankfurt (`regions` in `vercel.json`, for every function of the project; a unit test holds it to `FUNCTION_REGION`). The second and a half of step 5 covers the whole way: the browser to the function, the function's start when it is a cold one, its way to openrouteservice in Heidelberg, and back. From Vercel's default region, Washington, a cold start did not fit: on 27 Nov 2026 the first request after a deploy took 1,659 ms as seen from Helsinki (the next two 906 and 719 ms), the function answered 200 with the walking times, and the list had already been shown by straight line.
+   - **The budget.** The free plan allows Matrix 500 requests a day and 40 a minute, and Directions 2,000 a day and 40 a minute (checked on the account page on 24 Nov 2026; on 27 Nov 2026 a Matrix answer's own headers said `x-ratelimit-limit: 500`, 485 remaining, and a reset at 08:32:30 UTC the next morning). The server keeps its own count at nine tenths of each (36 a minute; 450 and 1,800 a day), per endpoint. The count lives in memory, per server instance, so it is a floor of the real use: the tenth is the room for a second instance or a restart, and openrouteservice's own 429 is what holds when that isn't enough.
    - **Pauses.** After a 429 the endpoint is not asked for a minute, then for twice as long each time it repeats, up to an hour (longer if the answer names a `Retry-After`). After three failures in a row (no answer in 1.3 s, a network error, a 5xx) it is not asked for half a minute, then for twice as long each time the next try fails too, up to ten minutes. A refused key (401, 403) is not tried again for ten minutes. No request is ever repeated.
    - **The fallback.** Whenever the server doesn't ask (no key, over budget, pausing) it answers 503 at once, and the list is shown by straight line without waiting. So a service that is down costs the first few users a second and a half each, and the rest nothing.
    - The device does its part: one request per search, and after a walk not sooner than two minutes after the last one (step 11).
@@ -936,6 +937,7 @@ Everything else (ET, LT, NO, SV, HR, PT, ES, IT, EL, HU, MT, SL, SK and the miss
 ```
 proxy.ts                      "/" → /fi or /en by Accept-Language (Next 16 name for middleware); no cookies
 next.config.ts                security headers (section 7.6); /tiles/* rewrite to the data host
+vercel.json                   where the functions run: Frankfurt (section 7.1, step 4)
 app/
   [locale]/layout.tsx         lang, metadata, inline sky script (the footer is rendered by each view)
   [locale]/page.tsx           static shell, mounts <PharmacyFinder /> (M0: <FirstVisit />)

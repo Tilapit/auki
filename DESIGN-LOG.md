@@ -1182,6 +1182,13 @@ Entry format:
   - A second card language for Belgium and Luxembourg.
   - Iceland's medicine dialog: it rests on my reading of the agency's two pages, and is Janne's to read before it is relied on.
 
+## 2026-11-27: Reduced motion is no transition, not a very short one
+- Where: `app/globals.css` (the `prefers-reduced-motion: reduce` rule); `tests/e2e/map.spec.ts`; PLAN.md section 6, "Motion"; five visual baselines
+- Change: With reduced motion asked for, every transition now has a duration and a delay of zero. Until today the rule gave every element a duration of 0.01 ms, the usual reset.
+- Why: A duration on every element, however short, makes every change of every property a transition. A property that is inherited (visibility, colour) then changes a level of the page a frame: the map showed its markers, and a marker's disc was drawn a few frames before its cross. Someone who has asked for less motion got a flicker nobody else gets. It is also what drew `sheet-far` in two ways in the visual comparison, which asks for reduced motion: whether a screenshot caught the frame in between decided how the browser redrew the edges next to a late cross (faint pixels, under the comparison's threshold, and enough to change the file).
+- Measured in CI's Linux image on this Mac: of six baseline runs of `sheet-far` three came out one way and three the other; with the change eight of eight are the same file. The whole suite in Chromium, made twice: four views varied between runs before, none after.
+- Not changed: the comparison's threshold, and what anyone without the setting sees. Nothing in the app waits for a transition to end.
+
 ## 2026-11-27: "Reitti" opens the device's own map app
 - Where: `mapAppFor` and `directionsUrl` in `lib/maps.ts`; `hooks/useMapApp.ts`; `components/PharmacySheet.tsx`; `lib/i18n/` (`sheet.appleIn`); PLAN.md section 5; `tests/e2e/walking.spec.ts`, `tests/unit/lib.test.ts`
 - Change: On an iPhone, an iPad and a Mac the route button says "Reitti" with "Apple Kartoissa" under it and opens Apple Maps; the row further down is "Reitti Google Mapsissa". Everywhere else it is as before: Google Maps on the button, Apple Maps in the row. Walking directions in both, and no way of travel named when the pharmacy is too far to walk to, as before.

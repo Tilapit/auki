@@ -11,6 +11,9 @@ import type { Line, Walk } from '../walking.ts';
  *
  * The free plan sets the budget (checked on the account page on 24 Nov 2026):
  * Matrix 500 requests a day and 40 a minute, Directions 2,000 a day and 40 a minute.
+ * The service says the same of itself: a Matrix answer of 27 Nov 2026 carried
+ * `x-ratelimit-limit: 500`, `x-ratelimit-remaining: 485` and an `x-ratelimit-reset` of
+ * 08:32:30 UTC the next morning. So its day is not cut at midnight.
  * We keep our own count under those, stop asking for a while when openrouteservice says
  * we are over or keeps failing, and never ask the same thing twice. Whenever we don't ask,
  * the answer is "unavailable" at once, and the app shows straight-line distances.
@@ -62,6 +65,17 @@ const ROUTE_URL = `${ORS_URL}/directions/foot-walking/geojson`;
  * instead of being cut off by a browser that has already stopped listening.
  */
 export const MATRIX_TIMEOUT_MS = 1300;
+
+/**
+ * Where Vercel runs this: Frankfurt, set in vercel.json for every function of the project.
+ * The list's second and a half holds the whole way: the browser to the function, the
+ * function's start if it is a cold one, its way to openrouteservice in Heidelberg, and back.
+ * Vercel's default is Washington, and from there a cold start did not fit: on 27 Nov 2026 the
+ * first request after a deploy took 1,659 ms as seen from Helsinki (the next two 906 and
+ * 719 ms), the function answered 200, and the list had already gone on with straight lines.
+ * Everyone this app serves is in Europe, and so are the services its routes ask.
+ */
+export const FUNCTION_REGION = 'fra1';
 /** The route line is drawn when it comes: nothing waits for it. */
 export const ROUTE_TIMEOUT_MS = 4000;
 
@@ -135,7 +149,8 @@ export class Gate {
     if (now < this.pausedUntil) return 'paused';
     this.recent = this.recent.filter((at) => now - at < MINUTE_MS);
     if (this.recent.length >= this.limit.perMinute) return 'budget';
-    // The day turns at midnight UTC. When theirs turns is not documented: their 429 covers the difference.
+    // The day turns at midnight UTC. Theirs turned at 08:32:30 UTC when a header was read on 27 Nov 2026,
+    // and whether that hour is fixed is not documented: their 429 covers the difference.
     const day = Math.floor(now / DAY_MS);
     if (day !== this.day) {
       this.day = day;

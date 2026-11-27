@@ -1,5 +1,6 @@
+import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Gate, MATRIX_TIMEOUT_MS, OWN_LIMITS, PLAN_LIMITS, readRequest, resetWalking, walking, type Deps } from '@/lib/server/routing';
+import { FUNCTION_REGION, Gate, MATRIX_TIMEOUT_MS, OWN_LIMITS, PLAN_LIMITS, readRequest, resetWalking, walking, type Deps } from '@/lib/server/routing';
 import { MAX_DESTINATIONS, WALKING_WAIT_MS } from '@/lib/walking';
 
 /** Kamppi, and places around it: none of these is anyone's position. */
@@ -92,6 +93,14 @@ describe('walking times', () => {
     });
     await expect(walking({ from: HERE, to: THREE }, deps)).resolves.toEqual({ status: 'unavailable', reason: 'upstream' });
     expect(MATRIX_TIMEOUT_MS).toBeLessThan(WALKING_WAIT_MS);
+  });
+
+  it('runs in Frankfurt: vercel.json puts every function where the module says', () => {
+    const config = JSON.parse(readFileSync('vercel.json', 'utf8')) as { regions?: string[]; functions?: Record<string, unknown> };
+    expect(FUNCTION_REGION).toBe('fra1');
+    expect(config.regions).toEqual([FUNCTION_REGION]);
+    // No function has a region of its own: one left in Washington would be slow again.
+    expect(JSON.stringify(config.functions ?? {})).not.toContain('regions');
   });
 });
 
