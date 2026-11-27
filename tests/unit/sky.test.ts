@@ -25,6 +25,13 @@ describe('sun altitude', () => {
     const iso = '2026-06-21T10:20:00Z';
     expect(at(iso, 'America/New_York').altitude).toBe(at(iso).altitude);
   });
+
+  it('has a place for the zone of every covered country that has one of its own: Cyprus and Liechtenstein too', () => {
+    const iso = '2026-06-21T10:20:00Z';
+    for (const zone of ['Asia/Nicosia', 'Europe/Nicosia', 'Europe/Vaduz', 'Europe/Sofia', 'Atlantic/Reykjavik']) expect(at(iso, zone).altitude, zone).not.toBe(at(iso).altitude);
+    // Nicosia is far south of Helsinki: at the same moment in June the sun stands higher there.
+    expect(at(iso, 'Asia/Nicosia').altitude).toBeGreaterThan(at(iso).altitude + 10);
+  });
 });
 
 describe('looks', () => {

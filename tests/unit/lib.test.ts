@@ -211,12 +211,31 @@ describe('cityName', () => {
     expect(cityName('Lisboa', 'fi')).toBe('Lissabon');
     expect(cityName('Lisboa', 'en')).toBe('Lisbon');
     expect(cityName('Praha', 'en')).toBe('Prague');
+    expect(cityName('Bruxelles', 'fi')).toBe('Bryssel');
+    expect(cityName('Brussel', 'en')).toBe('Brussels');
+    expect(cityName('Den Haag', 'en')).toBe('The Hague');
+    expect(cityName("'s-Gravenhage", 'fi')).toBe('Haag');
+    expect(cityName('București', 'fi')).toBe('Bukarest');
+    expect(cityName('Paris', 'fi')).toBe('Pariisi');
+    expect(cityName('Reykjavík', 'fi')).toBe('Reykjavik');
+  });
+
+  it('gives a city written in another alphabet its name in both languages', () => {
+    expect(cityName('София', 'fi')).toBe('Sofia');
+    expect(cityName('София', 'en')).toBe('Sofia');
+    expect(cityName('Λευκωσία', 'fi')).toBe('Nikosia');
+    expect(cityName('Λευκωσία', 'en')).toBe('Nicosia');
+    // Capitals carry no accent in Greek.
+    expect(cityName('ΛΕΜΕΣΟΣ', 'en')).toBe('Limassol');
   });
 
   it('keeps the OpenStreetMap spelling where the language uses the local name, and for everything else', () => {
     expect(cityName('Stockholm', 'en')).toBe('Stockholm');
     expect(cityName('Praha', 'fi')).toBe('Praha');
     expect(cityName('München', 'fi')).toBe('München');
+    expect(cityName('Paris', 'en')).toBe('Paris');
+    expect(cityName('Antwerpen', 'fi')).toBe('Antwerpen');
+    expect(cityName('Luxembourg', 'en')).toBe('Luxembourg');
     expect(cityName('Helsinki', 'en')).toBe('Helsinki');
     expect(cityName('Mārupe', 'fi')).toBe('Mārupe');
     expect(cityName('Jelgava', 'en')).toBe('Jelgava');

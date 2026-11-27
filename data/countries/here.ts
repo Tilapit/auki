@@ -7,7 +7,8 @@
  * with its sample size, month and city. It was made with prescriptions from Finland, and the
  * app says so wherever it shows a line: it is what a few pharmacies did on one day, never a
  * rule, and never about a prescription from another country. Never a pharmacy's name, never a
- * person's. Samples are one to six pharmacies a city.
+ * person's. Samples are one to six pharmacies a city. A country the trip did not go to has no
+ * `field`, and the app shows no such line there.
  *
  * `doctorSends`: on the trip a prescription sent straight to the pharmacy by email or fax was
  * accepted there at least once, so the counter card offers the question.
@@ -243,6 +244,68 @@ export const HERE: Here[] = [
       fi: 'Kokeiltu Bratislavassa 11/2026, 6 apteekkia: useampi hyväksyi sähköpostilla lähetetyn reseptin, ja osa vaati paperisen.',
       en: 'Tried in Bratislava, 11/2026, 6 pharmacies: several accepted a prescription sent by email, and some required the paper one.',
     },
+  },
+  // The rest of the EU and the EEA. The trip did not go to these: no `field` and no `doctorSends`.
+  // The names are those of homes.ts, and a unit test keeps them so.
+  {
+    code: 'BE',
+    inCountry: { fi: 'Belgiassa', en: 'in Belgium' },
+    inLanguage: { fi: 'ranskaksi', en: 'in French' },
+    language: 'fr',
+  },
+  {
+    code: 'BG',
+    inCountry: { fi: 'Bulgariassa', en: 'in Bulgaria' },
+    inLanguage: { fi: 'bulgariaksi', en: 'in Bulgarian' },
+    language: 'bg',
+  },
+  {
+    code: 'CY',
+    inCountry: { fi: 'Kyproksella', en: 'in Cyprus' },
+    inLanguage: { fi: 'kreikaksi', en: 'in Greek' },
+    language: 'el',
+  },
+  {
+    code: 'FR',
+    inCountry: { fi: 'Ranskassa', en: 'in France' },
+    inLanguage: { fi: 'ranskaksi', en: 'in French' },
+    language: 'fr',
+  },
+  {
+    code: 'IE',
+    inCountry: { fi: 'Irlannissa', en: 'in Ireland' },
+    inLanguage: { fi: 'englanniksi', en: 'in English' },
+    language: 'en',
+  },
+  {
+    code: 'LU',
+    inCountry: { fi: 'Luxemburgissa', en: 'in Luxembourg' },
+    inLanguage: { fi: 'ranskaksi', en: 'in French' },
+    language: 'fr',
+  },
+  {
+    code: 'NL',
+    inCountry: { fi: 'Alankomaissa', en: 'in the Netherlands' },
+    inLanguage: { fi: 'hollanniksi', en: 'in Dutch' },
+    language: 'nl',
+  },
+  {
+    code: 'RO',
+    inCountry: { fi: 'Romaniassa', en: 'in Romania' },
+    inLanguage: { fi: 'romaniaksi', en: 'in Romanian' },
+    language: 'ro',
+  },
+  {
+    code: 'IS',
+    inCountry: { fi: 'Islannissa', en: 'in Iceland' },
+    inLanguage: { fi: 'islanniksi', en: 'in Icelandic' },
+    language: 'is',
+  },
+  {
+    code: 'LI',
+    inCountry: { fi: 'Liechtensteinissa', en: 'in Liechtenstein' },
+    inLanguage: { fi: 'saksaksi', en: 'in German' },
+    language: 'de',
   },
 ];
 

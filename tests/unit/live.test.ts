@@ -231,7 +231,7 @@ describe('the states after the position is known', () => {
     const p = where(searching);
     expect(reducer(searching, { type: 'found', position: p, result }).view).toBe('results');
     expect(reducer(searching, { type: 'noneFound', position: p }).view).toBe('none');
-    expect(reducer(searching, { type: 'notCovered', position: p, country: 'FR' })).toMatchObject({ view: 'notCovered', country: 'FR' });
+    expect(reducer(searching, { type: 'notCovered', position: p, country: 'GB' })).toMatchObject({ view: 'notCovered', country: 'GB' });
     expect(reducer(searching, { type: 'searchFailed', position: p, offline: true })).toMatchObject({ view: 'failed', offline: true });
   });
 

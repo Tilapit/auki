@@ -86,6 +86,9 @@ function listOf(source: SourceId): Text {
 /** How a country stands as the last word of an English sentence: "Germany", "the Netherlands". */
 const theCountry = (inCountry: Text): string => inCountry.en.replace(/^in /, '');
 
+/** "Alankomaat" is a plural in Finnish, and so is its verb: "Alankomaat eivät ole luettelossa". */
+const isNot = (code: string): string => (code === 'NL' ? 'eivät ole' : 'ei ole');
+
 /**
  * A pair that a list of partners leaves out. Nobody has said that the e-prescription is
  * refused: a list was read and the country is not on it. So the answer is not "ei käy". It
@@ -107,7 +110,7 @@ function notListed(home: string, here: string, names: { home?: Text; here: Text 
       : theirs
         ? names.home
           ? {
-              fi: `${names.home.fi} ei ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät ${to.fi}.`,
+              fi: `${names.home.fi} ${isNot(home)} niiden maiden luettelossa, joiden sähköiset reseptit käyvät ${to.fi}.`,
               en: `The list of countries whose e-prescriptions are dispensed ${to.en} does not include ${theCountry(from)}.`,
             }
           : {
@@ -115,7 +118,7 @@ function notListed(home: string, here: string, names: { home?: Text; here: Text 
               en: `The list of countries whose e-prescriptions are dispensed ${to.en} has none from outside the EU and the EEA.`,
             }
         : {
-            fi: `${names.here.fi} ei ole niiden maiden luettelossa, joissa ${from.fi} kirjoitettu sähköinen resepti käy.`,
+            fi: `${names.here.fi} ${isNot(here)} niiden maiden luettelossa, joissa ${from.fi} kirjoitettu sähköinen resepti käy.`,
             en: `The list of countries where an e-prescription written ${from.en} can be used does not include ${theCountry(to)}.`,
           };
   const whose: Text = {

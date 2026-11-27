@@ -250,6 +250,56 @@ export const PHRASES: Record<string, LanguagePhrases> = {
     doctorSends: ['Dobrý deň! Môj lekár vám môže poslať recept priamo e-mailom alebo faxom.', 'Je to možné? Na akú adresu alebo číslo?'],
     pharmacist: 'Mohol by mi pomôcť lekárnik?',
   },
+  // French for France, Belgium and Luxembourg. French sets a space before a colon, a question mark
+  // and an exclamation mark: a non-breaking one here, the colon's in the word for "country", so
+  // that no line starts with the mark.
+  fr: {
+    lang: 'fr',
+    reviewed: false,
+    country: 'Pays ',
+    paper: [
+      'Bonjour ! Voici l’original d’une ordonnance établie par un médecin d’un autre pays de l’Union européenne ou de l’Espace économique européen.',
+      'Bonjour ! Voici l’original d’une ordonnance établie par un médecin d’un autre pays.',
+      'Pouvez-vous délivrer le médicament prescrit ?',
+    ],
+    pharmacist: 'Est-ce qu’un pharmacien ou une pharmacienne pourrait m’aider ?',
+  },
+  nl: {
+    lang: 'nl',
+    reviewed: false,
+    country: 'Land',
+    paper: ['Goedendag! Dit is een origineel recept van een arts uit een ander EU- of EER-land.', 'Goedendag! Dit is een origineel recept van een arts uit een ander land.', 'Kunt u het geneesmiddel op dit recept afleveren?'],
+    pharmacist: 'Zou een apotheker mij kunnen helpen?',
+  },
+  bg: {
+    lang: 'bg',
+    reviewed: false,
+    country: 'Държава',
+    paper: [
+      'Добър ден! Това е оригинална рецепта от лекар в друга държава от Европейския съюз или от Европейското икономическо пространство.',
+      'Добър ден! Това е оригинална рецепта от лекар в друга държава.',
+      'Можете ли да изпълните рецептата?',
+    ],
+    pharmacist: 'Може ли да ми помогне фармацевт?',
+  },
+  ro: {
+    lang: 'ro',
+    reviewed: false,
+    country: 'Țara',
+    paper: [
+      'Bună ziua! Aceasta este o rețetă în original, prescrisă de un medic din altă țară din Uniunea Europeană sau din Spațiul Economic European.',
+      'Bună ziua! Aceasta este o rețetă în original, prescrisă de un medic din altă țară.',
+      'Puteți elibera medicamentul pe baza acestei rețete?',
+    ],
+    pharmacist: 'M-ar putea ajuta un farmacist?',
+  },
+  is: {
+    lang: 'is',
+    reviewed: false,
+    country: 'Land',
+    paper: ['Góðan dag! Þetta er frumrit lyfseðils frá lækni í öðru ESB- eða EES-ríki.', 'Góðan dag! Þetta er frumrit lyfseðils frá lækni í öðru landi.', 'Getið þið afgreitt lyfseðilinn?'],
+    pharmacist: 'Gæti lyfjafræðingur aðstoðað mig?',
+  },
 };
 
 /** A country's name in a language, as the Unicode consortium has it. Undefined for a code that is no country. */

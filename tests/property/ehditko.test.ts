@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { TIMELINE_WITHIN_SECONDS, arrival, arrivesInTime, ehditko, isTightSlack } from '@/lib/ehditko';
 import { hoursStatus } from '@/lib/hoursStatus';
 import type { Hours } from '@/lib/tiles';
-import { wallAt } from '@/lib/zone';
+import { offsetAt, wallAt } from '@/lib/zone';
 import { COUNTRIES } from '@/pipeline/countries';
 import type { Country } from '@/pipeline/countries';
 import { computeHours, windowFor } from '@/pipeline/hours';
@@ -84,6 +84,13 @@ describe('daylight-saving changes', () => {
   // The EU changes its clocks at 01:00 UTC on the last Sunday of March and of October.
   const CHANGES = [utc('2026-10-25T01:00:00Z'), utc('2027-03-28T01:00:00Z'), utc('2027-10-31T01:00:00Z')];
 
+  /** Does the zone's clock move at that moment? Iceland keeps one time all year. */
+  const changesAt = (zone: string, change: number): boolean => offsetAt(change - 3600, zone) !== offsetAt(change + 3600, zone);
+
+  it('every covered zone changes its clocks with the EU, except Iceland', () => {
+    for (const change of CHANGES) expect(ZONES.filter(({ zone }) => !changesAt(zone, change)).map(({ zone }) => zone)).toEqual(['Atlantic/Reykjavik']);
+  });
+
   it('the slack equals the minutes that really pass, also when the clocks change before closing', () => {
     fc.assert(
       fc.property(
@@ -110,7 +117,8 @@ describe('daylight-saving changes', () => {
           const off = (((minuteOfDay(closes) - minuteOfDay(now + walkMin * 60) - slack) % 1440) + 1440) % 1440;
           const crossed = now + walkMin * 60 < change && closes >= change;
           // 60: an hour was added in between. 1380: an hour was taken, counted round the clock.
-          if (!crossed) expect(off).toBe(0);
+          // Where the clocks don't change, the wall clocks agree with the minutes that passed.
+          if (!crossed || !changesAt(zone, change)) expect(off).toBe(0);
           else expect([60, 1380]).toContain(off);
         },
       ),

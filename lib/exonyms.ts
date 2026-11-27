@@ -8,6 +8,7 @@ import type { Locale } from './i18n';
  * established name in Finnish or English, plus the two towns where a Finn most often meets
  * a Swedish name (Haparanda, Mariehamn). A language is left out where it uses the local name
  * ("Tallinn" in English, "Praha" in Finnish). Everything else keeps the OpenStreetMap spelling.
+ * A city written in another alphabet ("София", "Λευκωσία") has its name in both languages.
  */
 const EXONYMS: Record<string, Partial<Record<Locale, string>>> = {
   // Estonia
@@ -45,6 +46,42 @@ const EXONYMS: Record<string, Partial<Record<Locale, string>>> = {
   València: { fi: 'Valencia', en: 'Valencia' },
   // Finland
   Mariehamn: { fi: 'Maarianhamina' },
+  // Belgium: Brussels is written in French, in Dutch or in both
+  Bruxelles: { fi: 'Bryssel', en: 'Brussels' },
+  Brussel: { fi: 'Bryssel', en: 'Brussels' },
+  Antwerpen: { en: 'Antwerp' },
+  Gent: { en: 'Ghent' },
+  Brugge: { en: 'Bruges' },
+  Oostende: { en: 'Ostend' },
+  // Bulgaria
+  София: { fi: 'Sofia', en: 'Sofia' },
+  Пловдив: { fi: 'Plovdiv', en: 'Plovdiv' },
+  Варна: { fi: 'Varna', en: 'Varna' },
+  Бургас: { fi: 'Burgas', en: 'Burgas' },
+  // Cyprus
+  Λευκωσία: { fi: 'Nikosia', en: 'Nicosia' },
+  Λεμεσός: { fi: 'Limassol', en: 'Limassol' },
+  Λάρνακα: { fi: 'Larnaka', en: 'Larnaca' },
+  Πάφος: { fi: 'Pafos', en: 'Paphos' },
+  // France
+  Paris: { fi: 'Pariisi' },
+  Nice: { fi: 'Nizza' },
+  Dunkerque: { en: 'Dunkirk' },
+  // Ireland, where an address is in Irish
+  'Baile Átha Cliath': { fi: 'Dublin', en: 'Dublin' },
+  Corcaigh: { fi: 'Cork', en: 'Cork' },
+  Luimneach: { fi: 'Limerick', en: 'Limerick' },
+  Gaillimh: { fi: 'Galway', en: 'Galway' },
+  // Luxembourg
+  Luxembourg: { fi: 'Luxemburg' },
+  Lëtzebuerg: { fi: 'Luxemburg', en: 'Luxembourg' },
+  // The Netherlands: The Hague has two names of its own
+  'Den Haag': { fi: 'Haag', en: 'The Hague' },
+  "'s-Gravenhage": { fi: 'Haag', en: 'The Hague' },
+  // Romania
+  București: { fi: 'Bukarest', en: 'Bucharest' },
+  // Iceland
+  Reykjavík: { fi: 'Reykjavik', en: 'Reykjavik' },
 };
 
 /** Mappers also write "Riga" and "RĪGA": compare without case and combining marks. */
