@@ -35,7 +35,7 @@ A job application project by Janne Lappi for Treat Health. Not a Treat product, 
 
 The number that limits the app is a fourth one: **42.3 %** of the 89,988 pharmacies in the 21 covered countries have opening hours in OpenStreetMap at all. It is 95 % in Norway, 82 % in Germany and 79 % in Finland, and 23 % in Italy, 18 % in Spain and 7 % in Greece. Where the hours are missing the app says "hours not listed" and never guesses.
 
-In CI the same things are measured on every push, against a build and with fixtures, so that a change can't make them worse unnoticed. On `main` on 27 Nov 2026: time to first result 3.3 s on GitHub's runner, with a tile as heavy as the heaviest real one (central Barcelona, 1,272 pharmacies; limit 5 s); initial JavaScript 179.9 KB (budget 185 KB); mobile LCP 0.91 s (budget 2.5 s).
+In CI the same things are measured on every push, against a build and with fixtures, so that a change can't make them worse unnoticed. On `main` on 27 Nov 2026: time to first result 3.2 s on GitHub's runner, with a tile as heavy as the heaviest real one (central Barcelona, 1,272 pharmacies; limit 5 s); initial JavaScript 180.1 KB (budget 185 KB); mobile LCP 0.91 s (budget 2.5 s).
 
 ## What is in it
 
