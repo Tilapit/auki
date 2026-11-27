@@ -91,3 +91,7 @@ For the pull request "The reports are used", from `/dev/states` in Chromium on a
 ## All of the EU and the EEA, 27 Nov 2026 (`eu-eea/`)
 
 For the pull request that adds ten countries, from `/dev/states` in Chromium on a Mac: the view for a place outside the coverage, which is London now that Paris is covered (`outside.jpg`), and the data page with 31 countries (`data-desktop.jpg`).
+
+## The frame in between, 27 Nov 2026 (`sheet-far-steady/`)
+
+For the pull request "Reduced motion means no transition": a corner of `sheet-far` at desktop size in the dark, five times enlarged, from Chromium in CI's Linux image run on a Mac (`cross-late.png`). Left, a frame that was drawn in about half of the loads: the small signs without their crosses. Right, the frames after it. Not a design figure: it shows the fault that was removed.

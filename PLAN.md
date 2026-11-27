@@ -406,7 +406,7 @@ The shape differs for each state, so colour is never the only signal, and the st
 
 - One orchestrated moment: when results render, the crosses of open pharmacies switch on in order, on the map and in the list, 30 ms apart, each 180 ms (opacity plus glow). It shows the answer, which ones are open, rather than decorating.
 - Expand/collapse and dialog open: 200 ms, user-triggered only.
-- `prefers-reduced-motion`: no stagger, no glow animation.
+- `prefers-reduced-motion`: no stagger, no glow animation, and no transition at all: every transition's duration and delay is zero. Not a very short duration on every element, which was there until 27 Nov 2026: that makes every change a transition, and a change of an inherited property then goes down the page a level a frame (a marker's disc was drawn a few frames before its cross).
 
 ### Copy
 
