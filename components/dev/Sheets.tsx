@@ -12,9 +12,12 @@ import { Button, IconButton } from '../Button';
 import { BannerFor } from '../CountryBanner';
 import { CrossGlyph } from '../CrossGlyph';
 import { MapMarker, YouAreHere } from '../MapMarker';
+import { MedicineRow } from '../MedicineDialog';
 import { NearestOpenCard } from '../NearestOpenCard';
 import { OpenStatus } from '../OpenStatus';
 import { SiteFooter } from '../SiteFooter';
+import { NearestOpenCard as CardBefore } from './before/NearestOpenCard';
+import beforeStyles from './before/NearestOpenCard.module.css';
 import styles from './Sheets.module.css';
 
 /*
@@ -145,6 +148,19 @@ const farToolon: Pharmacy = { ...toolon, walkMin: 30, walkMeters: 2400 };
  * has two.
  */
 export const CARD_CASES: Record<string, { title: string; card: () => ReactNode }> = {
+  // The card's hierarchy, before and after (27 Nov 2026): every part it can have at once, which no one place has.
+  before: {
+    title: 'Before: buttons in a line, "Ei varastossa?" as a sentence with a link, the medicine search as the last row',
+    card: () => (
+      <CardBefore pharmacy={toolon} distance="walking" ehditko={timeline} nextOpen={yliopiston} country={latvia}>
+        <MedicineRow className={beforeStyles.medicine} onOpen={() => undefined} site="apteekki.fi" />
+      </CardBefore>
+    ),
+  },
+  after: {
+    title: 'After: the main actions as one row of buttons, everything else as rows of a list',
+    card: () => <NearestOpenCard pharmacy={toolon} distance="walking" ehditko={timeline} nextOpen={yliopiston} country={latvia} onMedicine={() => undefined} medicineSite="apteekki.fi" />,
+  },
   timeline: {
     title: '1. Closes within the hour: timeline',
     card: () => <NearestOpenCard pharmacy={toolon} distance="walking" ehditko={timeline} nextOpen={yliopiston} />,

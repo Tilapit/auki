@@ -219,7 +219,10 @@
   flex-direction: column;
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;
   background: var(--sheet);
-  box-shadow: var(--shadow-sheet);
+  /* A lit line along the top edge: in the dark a shadow says nothing against a dark map, and the sheet has to stand apart from it. */
+  box-shadow:
+    var(--shadow-sheet),
+    inset 0 1px 0 var(--sheet-edge);
   /* Quick off the mark and slow to stop: from the row to the open list is most of the screen. */
   transition: transform 260ms cubic-bezier(0.2, 0.8, 0.25, 1);
 }

@@ -3,28 +3,34 @@
 import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { TOPICS, type Answers, type SendResult, type Summary, type Topic } from '@/lib/reports';
+import { Row } from './Actions';
 import { Button, IconButton } from './Button';
 import { cx } from './cx';
 import styles from './ReportDialog.module.css';
 
 /**
- * The offer: a row of its own in a pharmacy's details, under the way to the medicine search
- * (PLAN.md 7.10). A question and what pressing it does, and beside them "Ohita", always in
- * view: the row is offered, never asked, and passing it over takes one press. It has no icon,
- * because none would say anything the words don't.
+ * The offer: the last row of the list in a pharmacy's details (PLAN.md 7.10). A question and
+ * what pressing it does, and beside them "Ohita", always in view: the row is offered, never
+ * asked, and passing it over takes one press. It is a row like the others since 27 Nov 2026,
+ * with the icon and the chevron they have.
  */
 export function ReportRow({ name, onOpen, onSkip, className }: { name: string; onOpen: () => void; onSkip: () => void; className?: string }) {
   const { t } = useI18n();
   return (
-    <div className={cx(styles.row, className)} data-report-row>
-      <button type="button" className={styles.rowMain} aria-haspopup="dialog" onClick={onOpen}>
-        <span className={styles.rowTitle}>{t.report.rowTitle}</span>
-        <span className={styles.rowAction}>{t.report.rowAction}</span>
-      </button>
-      <Button variant="text" className={styles.skip} aria-label={t.report.skipLabel(name)} onClick={onSkip}>
-        {t.report.skip}
-      </Button>
-    </div>
+    <Row
+      className={className}
+      rowProps={{ 'data-report-row': '' }}
+      icon="speech"
+      title={t.report.rowTitle}
+      sub={t.report.rowAction}
+      aria-haspopup="dialog"
+      onClick={onOpen}
+      beside={
+        <Button variant="text" className={styles.skip} aria-label={t.report.skipLabel(name)} onClick={onSkip}>
+          {t.report.skip}
+        </Button>
+      }
+    />
   );
 }
 

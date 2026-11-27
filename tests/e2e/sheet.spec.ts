@@ -257,7 +257,7 @@ test('a control under the edge of the screen opens the sheet when it takes focus
   await expectAt(page, 'half');
   await rest(handle(page));
   await expect(rows(page).first()).toBeHidden();
-  const next = card(page).getByRole('link', { name: 'Yliopiston apteekki' });
+  const next = card(page).getByRole('button', { name: /^Ei varastossa\? Seuraava auki Yliopiston apteekki/ });
   const link = (await next.boundingBox())!;
   expect(link.y + link.height).toBeGreaterThan(480);
   await next.focus();
@@ -283,8 +283,8 @@ test('a control under the edge of the screen opens the sheet when it takes focus
   await expect(first).toBeFocused();
   await expect(first).toBeInViewport();
   // In the open list the button can't be reached at all: Tab from the card's last control goes to the list.
-  // That control is the way to a medicine's stock search, since the card got it (PLAN.md section 5).
-  await card(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ }).focus();
+  // That control is the row of the next open pharmacy: the medicine search is one of the main actions above it.
+  await next.focus();
   // Safari's Tab stops at text fields only, unless Option is held: that is its default, and WebKit's here.
   await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
   await expect(first).toBeFocused();
@@ -304,7 +304,7 @@ test('hours unknown nearby: the row is the nearest pharmacy, and its button is t
   await expect(answer).not.toContainText('Jumbon apteekki');
   await handle(page).click();
   await expectAt(page, 'half');
-  await expect(card(page, 'Lähin apteekki')).toContainText('Lähin, jonka tiedetään olevan auki: Jumbon apteekki');
+  await expect(card(page, 'Lähin apteekki')).toContainText('Lähin, jonka tiedetään olevan auki Jumbon apteekki');
 });
 
 test('nothing open: the sheet starts at the card, with 112 in view, and the row keeps the number', async ({ page }) => {

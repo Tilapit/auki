@@ -1,0 +1,167 @@
+/* The main actions: one row of equal buttons, the icon over the word. */
+.bar {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 8px;
+}
+
+.action {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  min-height: 66px;
+  padding: 11px 6px 9px;
+  border: 0;
+  border-radius: var(--r-button);
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.actionLabel {
+  font-size: var(--t-m);
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Under the word: where the button leads. */
+.actionSub {
+  margin-top: -3px;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  opacity: 0.85;
+}
+
+.secondary .actionSub {
+  color: var(--ink-2);
+  opacity: 1;
+}
+
+/* The mark of a link that leaves the app, in the button's corner. */
+.actionMark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0.75;
+}
+
+.primary {
+  background: var(--action);
+  color: var(--on-action);
+}
+
+.primary:hover,
+.primary:active {
+  background: var(--action-pressed);
+}
+
+.secondary {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--outline);
+}
+
+.secondary svg:first-child {
+  color: var(--link);
+}
+
+.secondary:hover,
+.secondary:active {
+  background: var(--quiet);
+}
+
+/*
+ * An inset group: rows on a surface of their own, lighter than the dark sheet and a shade
+ * off the white one. Where the group stands on the page's own ground (the desktop's panel)
+ * its container gives it the list's surface and edge instead (--group-fill, --group-edge).
+ */
+.group {
+  margin: 0;
+  padding: 0;
+  border-radius: var(--r-group);
+  background: var(--group-fill, var(--inset));
+  box-shadow: var(--group-edge, none);
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* The rule between two rows starts where the text does, as in a settings list. */
+.row + .row::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 50px;
+  border-top: 1px solid var(--inset-rule);
+  content: '';
+}
+
+.rowMain {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: center;
+  min-width: 0;
+  min-height: 56px;
+  padding: 9px 12px 9px 14px;
+  border: 0;
+  border-radius: var(--r-group);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rowMain:focus-visible {
+  outline-offset: -3px;
+}
+
+.rowIcon {
+  display: grid;
+  place-items: center;
+  color: var(--link);
+}
+
+.rowText {
+  display: grid;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-size: var(--t-b);
+  font-weight: 650;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.rowSub {
+  color: var(--ink-2);
+  font-size: var(--t-s);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.rowEnd {
+  color: var(--meta);
+}
+
+@media (hover: hover) {
+  .rowMain:hover .rowTitle {
+    text-decoration: underline;
+    text-decoration-color: var(--outline);
+    text-underline-offset: 3px;
+  }
+}

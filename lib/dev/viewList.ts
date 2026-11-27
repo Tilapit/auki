@@ -268,7 +268,27 @@ const medicineLine: Proposal = {
   proposed: { id: 'medicine-proposed', title: 'Proposed: the line is the card\'s last section' },
 };
 
-/** Open proposals, each shown as current and proposed side by side. Decided ones move to DESIGN-LOG.md. */
-export const proposals: Proposal[] = [medicineLine, compactSheet, hoursCoverage];
+/** The hierarchy of a pharmacy's details, Janne's brief of 27 Nov 2026: decided by him and built, shown here as before and after. */
+const detailsHierarchy: Proposal = {
+  id: 'details-hierarchy',
+  title: 'A pharmacy\'s details: before and after',
+  reason:
+    'Janne on his iPhone, 27 Nov 2026: everything was the same small text on the same dark ground. Now the name, the status and the walking time are large at the top; the route, the call and the medicine search are one row of buttons; the hours and the contacts are an inset group on a lighter surface; everything else is a list of rows, each with an icon and a mark at its end; and the dark sheet is a step lighter than the map, with a lit top edge. The "before" is a frozen copy of the old component, kept for this comparison only.',
+  current: { id: 'details-before', title: 'Before: facts, then four buttons one under the other, then sentences and rows', ready: 'dialog[open]' },
+  proposed: { id: 'details-after', title: 'After: large head, a row of main actions, an inset group of facts, a list of rows', ready: 'dialog[open]' },
+};
+
+/** The same for the card. */
+const cardHierarchy: Proposal = {
+  id: 'card-hierarchy',
+  title: 'The card: before and after',
+  reason:
+    'The card takes the same two forms as the details: the main actions as one row of equal buttons with the medicine search among them, and "Ei varastossa? Seuraava auki" and "Näytä apteekissa" as rows of a list. Shown with every part a card can have at once (a timeline, a next open pharmacy, the counter card, a stock search), which no one place has.',
+  current: { id: 'card-before', title: 'Before: buttons in a line, a sentence with a link, the medicine row last' },
+  proposed: { id: 'card-after', title: 'After: a row of main actions, then a list of rows' },
+};
+
+/** Proposals and decided changes still worth a look, each shown as before and after side by side. Decided ones move to DESIGN-LOG.md. */
+export const proposals: Proposal[] = [detailsHierarchy, cardHierarchy, medicineLine, compactSheet, hoursCoverage];
 
 export const allViews: ViewInfo[] = [...groups.flatMap((group) => group.views), ...proposals.flatMap((p) => [p.current, p.proposed])];

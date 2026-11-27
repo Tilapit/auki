@@ -18,7 +18,7 @@ import { fakeLocation, fakeTiles, open, settle, start, world } from './helpers';
 const inCountry = (country: string) => world(kamppi.map((pharmacy): TilePharmacy => ({ ...pharmacy, country })));
 const banner = (page: Page) => page.locator('section', { has: page.getByRole('heading', { name: 'Resepti kotimaasta?' }) }).last();
 const home = (page: Page) => banner(page).getByRole('combobox', { name: 'Reseptin maa' });
-const cardButton = (page: Page) => page.getByRole('button', { name: /^Näytä apteekissa: apteekkikortti / }).first();
+const cardButton = (page: Page) => page.getByRole('button', { name: /^Näytä apteekissa Apteekkikortti / }).first();
 const counter = (page: Page) => page.getByRole('dialog', { name: 'Näytä tämä apteekissa' });
 
 /** The browser's languages, as a visitor's phone has them. */
@@ -44,7 +44,7 @@ test('at home there is no banner and no counter card', async ({ page }) => {
   await start(page, inCountry('FI'));
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
   await expect(page.getByRole('heading', { name: 'Resepti kotimaasta?' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /^Näytä apteekissa: apteekkikortti / })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Näytä apteekissa Apteekkikortti / })).toHaveCount(0);
 });
 
 test('at home the footer has a way to the banner, for someone whose phone suggests the wrong country', async ({ page }) => {
@@ -138,7 +138,7 @@ test('a visitor in Finland: the banner is there, for the country the phone sugge
   await expect(banner(page).getByRole('link', { name: /^Kanta: lääkkeiden ostaminen ulkomaisella reseptillä/ })).toBeVisible();
   await expect(banner(page).getByRole('link', { name: /^TEHIK \(Viro\)/ })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Näytä apteekissa: apteekkikortti suomeksi' }).first().click();
+  await page.getByRole('button', { name: 'Näytä apteekissa Apteekkikortti suomeksi' }).first().click();
   const local = counter(page).locator('[lang="fi"]').first();
   await expect(local).toContainText('Hei! Minulla on toisessa EU-maassa kirjoitettu sähköinen resepti.');
   await expect(local).toContainText('Maa: Viro.');
@@ -237,7 +237,7 @@ test('a phone that suggests no country: the banner asks, in English, and answers
   await expect(section).not.toContainText('A paper prescription works under the EU’s rule.');
   await expect(section).toContainText('No official statement was found on whether a prescription written in the United Kingdom is accepted in Latvia.');
   await expect(section).toContainText('With a prescription from Finland. Tried in Riga, 11/2026');
-  await expect(page.getByRole('button', { name: 'Show at the counter: the card in Latvian' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Show at the counter The card in Latvian' }).first()).toBeVisible();
 });
 
 test('in Germany, which takes no e-prescription from abroad, the card has no lines for one: paper, and the doctor sends it', async ({ page }) => {

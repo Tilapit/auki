@@ -33,7 +33,7 @@ test('a medicine\'s name goes to the country\'s own service in the link the user
   });
   await start(page, world(kamppi));
 
-  // A row of its own in the card, named as the dialog it opens and saying where the check is made. It asks nothing until it is pressed.
+  // One of the card's main actions: its name is the dialog's, with the address of where the check is made. It asks nothing until it is pressed.
   await expect(card(page).getByRole('button', { name: 'Tarkista lääkkeen saatavuus apteekki.fi' })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Lääkkeen nimi' })).toHaveCount(0);
   await card(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ }).click();
@@ -130,6 +130,7 @@ test('in a country without a stock search of its own, nothing is offered', async
   await start(page, world(latvian));
   await expect(card(page).getByRole('heading', { level: 3 }).first()).toHaveText('Kampin apteekki');
   await expect(page.getByText('Tarkista lääkkeen saatavuus')).toHaveCount(0);
+  await expect(page.getByText('Lääkkeen saatavuus')).toHaveCount(0);
   await page.getByRole('button', { name: 'Yliopiston apteekki', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
   await expect(page.getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ })).toHaveCount(0);

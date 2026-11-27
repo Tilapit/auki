@@ -1,5 +1,6 @@
 'use client';
 
+import { Fragment } from 'react';
 import { lowerFirst } from '@/lib/format';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
@@ -9,11 +10,11 @@ import { dayHoursText, daysLabel, displayName, glyphFor, statusText } from '@/li
 import { travel, withinWalk } from '@/lib/travel';
 import type { Summary } from '@/lib/reports';
 import type { CountryInfo, Pharmacy, Scene } from '@/lib/types';
-import { Button, IconButton } from './Button';
+import { ActionBar, ActionButton, Row, RowGroup } from './Actions';
+import { IconButton } from './Button';
 import { CrossGlyph } from './CrossGlyph';
 import { Icon } from './Icon';
 import { Measure } from './Measure';
-import { MedicineRow } from './MedicineDialog';
 import { ExternalLink, NEW_TAB, NewTabNote } from './NewTab';
 import { OpenStatus } from './OpenStatus';
 import { ReportNote, ReportRow, ReportSummary } from './ReportDialog';
@@ -47,10 +48,32 @@ interface Props {
 }
 
 /**
- * Details of one pharmacy and the hand-off to a map app. The route links are real links
- * that carry only the pharmacy's position (PLAN.md 7.6), and so does the link to correct the
- * data in OpenStreetMap. The pharmacy's own email and website are shown when OpenStreetMap
- * has them: emailing a prescription ahead often works (PLAN.md section 2).
+ * An email address or a host name with places to break: after the at sign and before each dot,
+ * where one would break it by hand. Nothing is added to the text itself, so it copies as it is.
+ */
+function breakable(address: string) {
+  return address.split(/(@|\.)/).map((part, index) => (
+    <Fragment key={index}>
+      {part === '.' && <wbr />}
+      {part}
+      {part === '@' && <wbr />}
+    </Fragment>
+  ));
+}
+
+/**
+ * Details of one pharmacy, in the order a person in the street needs them (Janne, 27 Nov 2026):
+ *
+ * 1. the name, whether it is open and how far it is, large;
+ * 2. the main actions as one row of buttons: the route, the call, the medicine search;
+ * 3. the hours and the contacts, an inset group of their own;
+ * 4. what visitors told, when there are three reports;
+ * 5. everything else that can be done, as rows of a list: the next open pharmacy, the other
+ *    map app, the counter card, telling of one's own visit.
+ *
+ * The route links are real links that carry only the pharmacy's position (PLAN.md 7.6), and so
+ * does the link to correct the data in OpenStreetMap. The pharmacy's own email and website are
+ * shown when OpenStreetMap has them: emailing a prescription ahead often works (PLAN.md section 2).
  */
 export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onMedicine, medicineSite, report, onClose, onSelect }: Props) {
   const i18n = useI18n();
@@ -82,7 +105,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
 
       <div className={styles.head}>
         <span className={styles.glyph}>
-          <CrossGlyph state={glyphFor(pharmacy.status)} size={24} />
+          <CrossGlyph state={glyphFor(pharmacy.status)} size={26} />
         </span>
         <div>
           <h2 id={headingId} tabIndex={-1} data-dialog-focus className={styles.name}>
@@ -95,7 +118,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
 
       <div className={styles.summary}>
         <div>
-          <OpenStatus status={pharmacy.status} strong />
+          <OpenStatus status={pharmacy.status} strong className={styles.status} />
           {/* Hours that are missing or can't be read are the first thing worth correcting. */}
           {hoursUnknown(pharmacy.status) && <p className={styles.fix}>{fix}</p>}
           {pharmacy.dispensing === false && <p className={styles.note}>{t.status.noPrescriptions}</p>}
@@ -110,8 +133,33 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
         </p>
       </div>
 
+      {/* The phone's sheet rests with its edge under this row, or under the facts when they fit too (data-fold). */}
+      <ActionBar fold>
+        <ActionButton
+          primary
+          external
+          icon={walk ? 'walk' : 'directions'}
+          sub={t.sheet.googleIn}
+          note={<NewTabNote />}
+          href={googleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)}
+          {...NEW_TAB}
+        >
+          {t.card.route}
+        </ActionButton>
+        {pharmacy.phone && (
+          <ActionButton icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(name)}>
+            {t.card.call}
+          </ActionButton>
+        )}
+        {onMedicine && medicineSite && (
+          <ActionButton icon="search" aria-haspopup="dialog" aria-label={`${t.medicine.title} ${medicineSite}`} onClick={onMedicine}>
+            {t.medicine.short}
+          </ActionButton>
+        )}
+      </ActionBar>
+
       {(hours.length > 0 || access || pharmacy.phone || email || website) && (
-        <dl className={styles.facts}>
+        <dl className={styles.facts} data-fold>
           {hours.length > 0 && (
             <>
               <dt>{t.sheet.hours}</dt>
@@ -140,7 +188,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
             <>
               <dt>{t.sheet.email}</dt>
               <dd>
-                <a href={`mailto:${email}`}>{email}</a>
+                <a href={`mailto:${email}`}>{breakable(email)}</a>
               </dd>
             </>
           )}
@@ -148,71 +196,46 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
             <>
               <dt>{t.sheet.website}</dt>
               <dd>
-                <ExternalLink href={pharmacy.website}>{website}</ExternalLink>
+                <ExternalLink href={pharmacy.website}>{breakable(website)}</ExternalLink>
               </dd>
             </>
           )}
         </dl>
       )}
 
-      <div className={styles.actions}>
-        {/* The phone's sheet shows the details down to this button at its middle height (data-fold). */}
-        <Button
-          data-fold
-          variant="primary"
-          size="block"
+      {/* What visitors told stands with the facts; the offer to tell is the last of the rows. Never above the route. */}
+      {report?.summary && <ReportSummary summary={report.summary} />}
+
+      <RowGroup>
+        {nextOpen && nextWay && (
+          <Row
+            icon={<CrossGlyph state={glyphFor(nextOpen.status)} size={20} />}
+            title={t.card.outOfStockTitle}
+            sub={[displayName(i18n, nextOpen), nextOpenWithStreet && nextOpen.street, nextWay.primary.short, lowerFirst(statusText(i18n, nextOpen.status))].filter(Boolean).join(', ')}
+            onClick={() => onSelect?.(nextOpen)}
+          />
+        )}
+        <Row
           icon={walk ? 'walk' : 'directions'}
-          trailing="external"
-          href={googleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)}
+          title={t.sheet.apple}
+          ends="external"
+          href={appleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)}
           {...NEW_TAB}
-        >
-          {t.sheet.google}
-          <NewTabNote />
-        </Button>
-        <Button size="block" icon={walk ? 'walk' : 'directions'} trailing="external" href={appleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)} {...NEW_TAB}>
-          {t.sheet.apple}
-          <NewTabNote />
-        </Button>
-        {pharmacy.phone && (
-          <Button size="block" icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(name)}>
-            {t.card.call}
-          </Button>
-        )}
+          aria-label={`${t.sheet.apple} ${t.app.newTab}`}
+        />
         {country && (
-          <Button size="block" icon="card" aria-label={t.card.showAtCounterLabel(country.inLanguage[i18n.locale])} onClick={onShowCard}>
-            {t.card.showAtCounter}
-          </Button>
+          <Row
+            icon="card"
+            title={t.card.showAtCounter}
+            sub={t.card.counterCardIn(country.inLanguage[i18n.locale])}
+            aria-haspopup="dialog"
+            onClick={onShowCard}
+          />
         )}
-      </div>
+        {report?.offered && <ReportRow name={name} onOpen={report.onOpen} onSkip={report.onSkip} />}
+      </RowGroup>
 
-      {nextOpen && nextWay && (
-        <p className={styles.next}>
-          {rich(t.card.outOfStock, {
-            name: (
-              <a
-                href={`#${nextOpen.id}`}
-                className={styles.nextName}
-                onClick={(event) => {
-                  event.preventDefault();
-                  onSelect?.(nextOpen);
-                }}
-              >
-                {displayName(i18n, nextOpen)}
-              </a>
-            ),
-            details: [nextOpenWithStreet && nextOpen.street, nextWay.primary.short, lowerFirst(statusText(i18n, nextOpen.status))]
-              .filter(Boolean)
-              .join(', '),
-          })}
-        </p>
-      )}
-
-      {onMedicine && medicineSite && <MedicineRow className={styles.medicine} onOpen={onMedicine} site={medicineSite} />}
-
-      {/* After everything that helps one get there: what visitors told, and the offer to tell. Never above the route. */}
-      {report?.summary && <ReportSummary summary={report.summary} className={styles.report} />}
-      {report?.offered && <ReportRow name={name} onOpen={report.onOpen} onSkip={report.onSkip} className={styles.report} />}
-      {report?.note && <ReportNote kind={report.note} className={styles.report} />}
+      {report?.note && <ReportNote kind={report.note} />}
 
       <p className={styles.footnote}>
         {t.sheet.handOff} {pharmacy.checkDate ? t.sheet.sourceChecked(f.date(pharmacy.checkDate)) : t.sheet.source} {rich(t.sheet.wrong, { link: fix })}

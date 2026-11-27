@@ -1,0 +1,183 @@
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Desktop only: the details replace the list, so there is a way back. */
+.backLink {
+  display: none;
+}
+
+.head {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: start;
+}
+
+.glyph {
+  padding-top: 3px;
+}
+
+.name {
+  font-size: var(--t-l);
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Focus lands on the name when the details open; it is a reading position, not a control. */
+.name:focus {
+  outline: none;
+}
+
+.address {
+  margin-top: 3px;
+  color: var(--meta);
+  font-size: var(--t-m);
+}
+
+/* The details start at the top of the sheet's scroller: the button's circle stays inside it. */
+.close {
+  margin: 0 -8px 0 0;
+}
+
+.summary {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.note {
+  color: var(--ink-2);
+  font-size: var(--t-s);
+}
+
+/* The way to correct hours that are missing or unreadable, right under the line that says so. */
+.fix {
+  margin-top: 2px;
+  font-size: var(--t-s);
+}
+
+.fix a,
+.facts a,
+.footnote a {
+  text-underline-offset: 3px;
+}
+
+/* An address is copied letter by letter: where it has to break, it breaks without a hyphen that isn't in it. */
+.facts a {
+  hyphens: none;
+}
+
+.travel {
+  flex: none;
+  line-height: 1.1;
+  text-align: right;
+}
+
+.time {
+  display: block;
+  font-size: 1.875rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.distance {
+  display: block;
+  margin-top: 4px;
+  color: var(--meta);
+  font-size: var(--t-s);
+  white-space: nowrap;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 14px;
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--hair-2);
+  border-bottom: 1px solid var(--hair-2);
+}
+
+.facts dt {
+  color: var(--meta);
+  font-size: var(--t-s);
+  line-height: 1.5;
+}
+
+.facts dd {
+  font-size: var(--t-m);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.line {
+  display: block;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.next {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.nextName {
+  color: var(--ink);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-underline-offset: 3px;
+}
+
+/* The way to a medicine's stock search: a row of its own, with a rule under it as well as above. */
+.medicine {
+  border-bottom: 1px solid var(--hair-2);
+}
+
+/*
+ * Visitors' reports: sections of their own, each with a rule under it. The first one after
+ * the "Ei varastossa?" line gets a rule above as well; after the medicine row that row's rule is it.
+ */
+.next + .report,
+.actions + .report {
+  border-top: 1px solid var(--hair-2);
+}
+
+.footnote {
+  color: var(--meta);
+  font-size: var(--t-xs);
+  line-height: 1.45;
+}
+
+@media (min-width: 900px) {
+  .backLink {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 4px;
+    min-height: 44px;
+    margin: -8px 0 -6px -4px;
+    padding: 0 8px 0 0;
+    border: 0;
+    background: transparent;
+    color: var(--link);
+    font-size: var(--t-m);
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  .close {
+    display: none;
+  }
+}

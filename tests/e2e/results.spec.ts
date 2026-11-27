@@ -89,12 +89,12 @@ test('most nearby pharmacies without hours: the nearest leads with the call firs
   await expect(actions.first()).toHaveAccessibleName('Soita: Kampin apteekki');
   await expect(actions.nth(1)).toHaveAccessibleName('Reitti kävellen: Kampin apteekki');
   // The one known to be open is kept, as a line; and the card says how well the country's hours are covered.
-  await expect(card).toContainText('Lähin, jonka tiedetään olevan auki: Jumbon apteekki, 14,0 km, auki ympäri vuorokauden.');
+  await expect(card).toContainText('Lähin, jonka tiedetään olevan auki Jumbon apteekki, 14,0 km, auki ympäri vuorokauden');
   await expect(card).toContainText('Suomi: aukioloajat on merkitty 79 %:lle apteekeista.');
   await expect(card.getByRole('link', { name: 'Tietoa aineistosta' })).toHaveAttribute('href', '/fi/data');
   // The others stay in the list in distance order; the two in the card are not repeated.
   await expect(rows(page)).toHaveText(['Yliopiston apteekki', 'Hietalahden apteekki', 'Apteekki Runeberginkatu 6', 'Töölön apteekki', 'Kruununhaan apteekki']);
-  await card.getByRole('link', { name: 'Jumbon apteekki' }).click();
+  await card.getByRole('button', { name: /^Lähin, jonka tiedetään olevan auki Jumbon apteekki/ }).click();
   await expect(page.getByRole('dialog').getByRole('heading', { name: 'Jumbon apteekki' })).toBeVisible();
 });
 

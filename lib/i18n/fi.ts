@@ -155,6 +155,8 @@ const fi = {
     unlistedNoPhone: 'Lähimmän puhelinnumeroa ei ole merkitty, joten sen aukiolo selviää vain paikan päällä.',
     /** The nearest pharmacy whose hours say it is open, as a line under the card. */
     knownOpen: 'Lähin, jonka tiedetään olevan auki: {name}, {details}.',
+    /** The same as a row of the card: this as its title, the pharmacy and how far under it. */
+    knownOpenTitle: 'Lähin, jonka tiedetään olevan auki',
     /** The same in the collapsed sheet. */
     knownOpenShort: (name: string) => `Tiedetään olevan auki: ${name}`,
     /** The country's share of pharmacies with opening hours in OpenStreetMap, before the link to the data page. */
@@ -211,6 +213,8 @@ const fi = {
     tooLateDetail: 'Sulkeutuu {closes}, olisit perillä {arrive}.',
     nextOpen: 'Seuraava auki',
     outOfStock: 'Ei varastossa? Seuraava auki: {name}, {details}.',
+    /** The same as a row of the card and the sheet: this as its title, the pharmacy and how far under it. */
+    outOfStockTitle: 'Ei varastossa? Seuraava auki',
     route: 'Reitti',
     /** The names of buttons that show "Reitti" begin with that word: a name contains what its control shows (WCAG 2.5.3). */
     routeLabel: (name: string) => `Reitti kävellen: ${name}`,
@@ -220,6 +224,8 @@ const fi = {
     callLabel: (name: string) => `Soita: ${name}`,
     showAtCounter: 'Näytä apteekissa',
     showAtCounterLabel: (inLanguage: string) => `Näytä apteekissa: apteekkikortti ${inLanguage}`,
+    /** Under "Näytä apteekissa" in its row: what is shown, and in which language. */
+    counterCardIn: (inLanguage: string) => `Apteekkikortti ${inLanguage}`,
     showDetails: 'Näytä tiedot',
     details: (name: string) => `Näytä tiedot: ${name}`,
   },
@@ -236,6 +242,8 @@ const fi = {
     allDay: 'ympäri vuorokauden',
     unknownDay: 'ei tiedossa',
     google: 'Reitti Google Mapsissa',
+    /** Under "Reitti" on the route button: where it opens. With the word above it, it reads as the line above. */
+    googleIn: 'Google Mapsissa',
     apple: 'Reitti Apple Kartoissa',
     handOff: 'Reitti avautuu karttasovelluksessa, ja linkissä on vain apteekin sijainti.',
     source: 'Tiedot: OpenStreetMap.',
@@ -318,6 +326,8 @@ const fi = {
   medicine: {
     /** The entry line, under the card and in a pharmacy's details: a question, then the button. */
     title: 'Tarkista lääkkeen saatavuus',
+    /** The same action on a button of the main row, where the whole name has no room. */
+    short: 'Lääkkeen saatavuus',
     label: 'Lääkkeen nimi',
     /** Under the link, when its address carries the name. "{site}" is the host, as the address bar will show it. */
     sent: 'Nimi siirtyy laitteeltasi suoraan sivustolle {site}, kun avaat linkin. Sitä ei lähetetä tämän sovelluksen palvelimelle eikä tallenneta.',
