@@ -31,23 +31,46 @@
   line-height: 1.3;
 }
 
-/* The same two columns as the facts above them in the sheet: the label in the quiet colour, the value beside it. */
-.counts {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 6px 14px;
+/* Each fact on a line of its own: what was said, and by how many. */
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin: 0;
-}
-
-.counts dt {
-  color: var(--ink-2);
-  font-size: var(--t-s);
-  line-height: 1.5;
-}
-
-.counts dd {
-  font-size: var(--t-m);
+  padding: 0;
+  font-size: var(--t-b);
   line-height: 1.4;
+  list-style: none;
+}
+
+/* The way to what the countries' own pages say: a link in the line, as tall as a finger needs. */
+.guidance {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.none {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+/* /dev/states: invented reports say that they are. */
+.example {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--soon-tint);
+  color: var(--soon);
+  font-size: var(--t-xs);
+  font-weight: 650;
 }
 
 .summaryMeta {
@@ -137,6 +160,22 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+}
+
+/* The question that belongs to the pair above it: set in from it, with its words over its two chips. */
+.follow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: -2px 0 4px;
+  padding-left: 12px;
+  border-left: 2px solid var(--hair);
+}
+
+.question {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.35;
 }
 
 /*

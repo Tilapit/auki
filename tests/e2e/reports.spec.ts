@@ -127,17 +127,21 @@ test('one screen of chips: a report carries the pharmacy, its country and the ch
   await chip(page, 'Resepti ei käynyt').click();
   await expect(chip(page, 'Resepti kävi')).toHaveAttribute('aria-pressed', 'false');
   await expect(chip(page, 'Resepti ei käynyt')).toHaveAttribute('aria-pressed', 'true');
+  // Under the pair, the one question it brings: whether the prescription was from another country. A yes or a no, never which.
+  const question = form(page).getByRole('group', { name: 'Oliko resepti toisesta maasta?' });
+  await expect(question.getByRole('button')).toHaveText(['Kyllä', 'Ei']);
+  await question.getByRole('button', { name: 'Kyllä', exact: true }).click();
   await chip(page, 'Lyhyt jono').click();
   await chip(page, 'Englantia puhuttiin').click();
   await chip(page, 'Englantia puhuttiin').click();
-  await expect(form(page).locator('button[aria-pressed="true"]')).toHaveCount(2);
+  await expect(form(page).locator('button[aria-pressed="true"]')).toHaveCount(3);
 
   await form(page).getByRole('button', { name: 'Lähetä' }).click();
   await expect(form(page)).toBeHidden();
   expect(asked.sent).toHaveLength(1);
   const [{ url, body, headers }] = asked.sent;
   // The whole body, as text: no day, no time, no position, no language, nothing typed.
-  expect(body).toBe('{"pharmacy":"n105","country":"FI","answers":{"prescription":false,"shortWait":true}}');
+  expect(body).toBe('{"pharmacy":"n105","country":"FI","answers":{"prescription":false,"foreign":true,"shortWait":true}}');
   expect(new URL(url).search).toBe('');
   expect(carriesPosition([url, body, JSON.stringify(headers)].join('\n'), HERE)).toBe(false);
   expect(headers.cookie).toBeUndefined();
@@ -151,6 +155,26 @@ test('one screen of chips: a report carries the pharmacy, its country and the ch
   const kept = await page.evaluate(() => JSON.stringify([{ ...localStorage }, { ...sessionStorage }, document.cookie]));
   expect(kept).not.toContain('shortWait');
   expect(kept).not.toContain('prescription');
+  expect(kept).not.toContain('foreign');
+});
+
+test('the question about the prescription’s country is there only with an answer about the prescription, and goes with it', async ({ page }) => {
+  const asked = await fakeReports(page);
+  await start(page, world(kamppi));
+  await openDetails(page, 'Töölön apteekki');
+  await offer(page).click();
+  const question = form(page).getByRole('group', { name: 'Oliko resepti toisesta maasta?' });
+  await expect(question).toHaveCount(0);
+  await chip(page, 'Resepti kävi').click();
+  await question.getByRole('button', { name: 'Ei', exact: true }).click();
+  await expect(question.getByRole('button', { name: 'Ei', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  // The answer about the prescription is taken back: the question goes, and its answer with it.
+  await chip(page, 'Resepti kävi').click();
+  await expect(question).toHaveCount(0);
+  await chip(page, 'Englantia puhuttiin').click();
+  await form(page).getByRole('button', { name: 'Lähetä' }).click();
+  await expect(form(page)).toBeHidden();
+  expect(asked.sent.map((report) => report.body)).toEqual(['{"pharmacy":"n105","country":"FI","answers":{"english":true}}']);
 });
 
 test('closing the dialog sends nothing and keeps the offer; "Ohita" in it passes the visit over', async ({ page }) => {
@@ -214,23 +238,102 @@ test('what others told is shown from three reports on, with the count and the da
   await expect(told(page)).toBeVisible();
   await expect(told(page).getByRole('heading', { level: 3 })).toHaveText('Kävijöiden ilmoituksia');
   await expect(told(page)).toContainText('5 ilmoitusta, 12.11.2026–23.11.2026. Nimettömiä, ei tarkistettuja.');
-  await expect(told(page).locator('dt')).toHaveText(['Resepti', 'Englanti', 'Jono']);
-  await expect(told(page).locator('dd')).toHaveText(['Kävi 3, ei käynyt 1', 'Puhuttiin 4, ei puhuttu 0', 'Lyhyt 2, pitkä 2']);
+  // As facts: what was said, and by how many of those who answered it.
+  await expect(told(page).locator('li')).toHaveText(['Resepti kävi, 3/4 käyntiä', 'Englantia puhuttiin, 4/4 käyntiä', 'Lyhyt jono, 2/4 käyntiä']);
+  // Real reports are never called examples.
+  await expect(page.locator('[data-report-example]')).toHaveCount(0);
   // The offer is under it.
   await expect(offer(page)).toBeVisible();
 
+  // Below three reports the same place says that there are none to show yet, and shows nothing of the two.
   await closeDetails(page);
   await openDetails(page, 'Yliopiston apteekki');
   await expect(details(page).getByRole('link', { name: /Reitti Google Mapsissa/ })).toBeVisible();
   await expect(offer(page)).toBeVisible();
-  await expect(told(page)).toHaveCount(0);
+  await expect(told(page)).toHaveText('Kävijöiden ilmoituksiaEi vielä näytettäviä ilmoituksia. Ne näkyvät tässä, kun niitä on kolme.');
+  await expect(told(page).locator('li')).toHaveCount(0);
+});
+
+test('prescriptions from another country: how many were accepted, from three such reports on, with the way to what the countries’ pages say', async ({ page }) => {
+  await fakeReports(page, { n105: { ...FIVE, foreign: { yes: 2, no: 1 } }, n102: { ...FIVE, foreign: { yes: 1, no: 1 } } });
+  await start(page, world(kamppi));
+  await openDetails(page, 'Töölön apteekki');
+  const line = page.locator('[data-report-foreign]');
+  await expect(line).toContainText('Toisen maan resepti kävi, 2/3 käyntiä');
+  // Two such reports are not enough for a line.
+  await closeDetails(page);
+  await openDetails(page, 'Yliopiston apteekki');
+  await expect(told(page).locator('li')).toHaveCount(3);
+  await expect(line).toHaveCount(0);
+  await closeDetails(page);
+
+  // What a few visitors met is not the rule: the line leads to the guidance, which takes the keyboard.
+  await openDetails(page, 'Töölön apteekki');
+  await line.getByRole('button', { name: 'Resepti toisesta maasta?' }).click();
+  await expect(details(page)).toBeHidden();
+  const banner = page.locator('section', { has: page.getByRole('heading', { name: 'Resepti kotimaasta?' }) }).last();
+  await expect(banner.getByRole('combobox', { name: 'Reseptin maa' })).toBeFocused();
+});
+
+test('the list’s two filters are off until pressed, ask nothing before that, and take rows away without changing the order', async ({ page }) => {
+  const english = { count: 3, from: '2026-11-20', to: '2026-11-23', answers: { english: { yes: 3, no: 0 }, stepFree: { yes: 0, no: 2 } } };
+  const asked = await fakeReports(page, { n102: english, n106: { ...english, answers: { english: { yes: 2, no: 1 }, stepFree: { yes: 3, no: 0 } } }, n103: { ...english, answers: { english: { yes: 1, no: 2 } } } });
+  await start(page, world(kamppi));
+  const rows = page.locator('ol > li h3');
+  const filters = page.getByRole('group', { name: 'Näytä vain apteekit, joista kävijät kertovat' });
+  const spoken = filters.getByRole('button', { name: 'Englantia puhuttiin' });
+  const stepFree = filters.getByRole('button', { name: 'Esteetön sisäänkäynti' });
+  await expect(rows).toHaveText(['Yliopiston apteekki', 'Hietalahden apteekki', 'Apteekki Runeberginkatu 6', 'Töölön apteekki', 'Kruununhaan apteekki']);
+  await expect(spoken).toHaveAttribute('aria-pressed', 'false');
+  await expect(stepFree).toHaveAttribute('aria-pressed', 'false');
+  expect(asked.read).toEqual([]);
+
+  // On: one request that names the country, and only the pharmacies where more visitors said yes than no stay, in the list's own order.
+  await spoken.click();
+  await expect(spoken).toHaveAttribute('aria-pressed', 'true');
+  await expect(rows).toHaveText(['Yliopiston apteekki', 'Kruununhaan apteekki']);
+  expect(asked.read).toEqual(['?country=FI']);
+  // Both on: both have to hold.
+  await stepFree.click();
+  await expect(rows).toHaveText(['Kruununhaan apteekki']);
+  // The card is the nearest open pharmacy whatever the filters say.
+  await expect(page.getByRole('heading', { level: 3, name: 'Kampin apteekki' })).toBeVisible();
+  // Off again, and the list is whole, with no second request.
+  await spoken.click();
+  await stepFree.click();
+  await expect(rows).toHaveCount(5);
+  expect(asked.read).toEqual(['?country=FI']);
+  expect(asked.sent).toEqual([]);
+});
+
+test('a filter with no reports to choose by says so, and one press brings the list back', async ({ page }) => {
+  await fakeReports(page);
+  await start(page, world(kamppi));
+  const rows = page.locator('ol > li h3');
+  const filters = page.getByRole('group', { name: 'Näytä vain apteekit, joista kävijät kertovat' });
+  await filters.getByRole('button', { name: 'Esteetön sisäänkäynti' }).click();
+  await expect(page.locator('[data-report-filters]').getByRole('status')).toHaveText('Ei vielä ilmoituksia, joiden mukaan näistä apteekeista voisi valita.');
+  await expect(rows).toHaveCount(0);
+  await page.getByRole('button', { name: 'Näytä kaikki apteekit' }).click();
+  await expect(rows).toHaveCount(5);
+  await expect(filters.getByRole('button', { name: 'Esteetön sisäänkäynti' })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('without a report service a filter says that the reports could not be fetched, and the list stays whole', async ({ page }) => {
+  await start(page, world(kamppi));
+  await expect(page.locator('ol > li h3')).toHaveCount(5);
+  await page.getByRole('button', { name: 'Esteetön sisäänkäynti' }).click();
+  await expect(page.locator('[data-report-filters]').getByRole('status')).toHaveText('Kävijöiden ilmoituksia ei saatu haettua.');
+  await expect(page.locator('ol > li h3')).toHaveCount(5);
 });
 
 test('in English, on the example data of /dev/states', async ({ page }) => {
   await page.goto('/en/dev/states/report-summary');
   const region = page.getByRole('region', { name: 'What visitors have reported' });
   await expect(region).toContainText('5 reports, 12 Nov 2026 – 26 Nov 2026. Anonymous and not verified.');
-  await expect(region.locator('dd').first()).toHaveText('Accepted 3, not accepted 1');
+  await expect(region.locator('li').first()).toHaveText('Prescription accepted, 3 of 4 visits');
+  // The reports of /dev/states are invented, and say so where they are shown.
+  await expect(region).toContainText('Example data: these reports are invented.');
   await expect(page.getByRole('button', { name: 'Been here? Say how it went' })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Skip the question about your visit/ })).toHaveText('Skip');
 });

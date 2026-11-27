@@ -14,7 +14,11 @@ export function fixedReports(summaries: Summaries = {}, done: string[] = []): Re
   };
 }
 
-/** Five invented reports over two weeks, for the Helsinki fixture's nearest pharmacy. Nobody answered about the medicine. */
+/**
+ * Five invented reports over two weeks, for one pharmacy of the Helsinki fixture. Nobody
+ * answered about the medicine, and three of the four who told of a prescription said it was
+ * from another country. Example data: wherever it is shown, it is labelled as invented.
+ */
 export const FIVE_REPORTS: Summaries = {
   yliopiston: {
     count: 5,
@@ -26,5 +30,13 @@ export const FIVE_REPORTS: Summaries = {
       shortWait: { yes: 2, no: 2 },
       stepFree: { yes: 1, no: 0 },
     },
+    foreign: { yes: 2, no: 1 },
   },
+};
+
+/** The same, and two more pharmacies of the fixture with invented reports, for the list's filters: one where English was not spoken. */
+export const NEARBY_REPORTS: Summaries = {
+  ...FIVE_REPORTS,
+  kampin: { count: 4, from: '2026-11-15', to: '2026-11-25', answers: { english: { yes: 3, no: 1 }, stepFree: { yes: 3, no: 0 } } },
+  kaartin: { count: 3, from: '2026-11-20', to: '2026-11-26', answers: { english: { yes: 0, no: 3 }, stepFree: { yes: 0, no: 2 } } },
 };

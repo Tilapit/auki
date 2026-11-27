@@ -1,0 +1,77 @@
+.filters {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.label {
+  color: var(--ink-2);
+  font-size: var(--t-s);
+  line-height: 1.4;
+}
+
+.chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* The report's own chips, a little lower: a rounded rectangle, filled when it is on. Light and dark change, not hue alone. */
+.chip {
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--r-button);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--outline);
+  font: inherit;
+  font-size: var(--t-m);
+  font-weight: 550;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--action);
+  color: var(--on-action);
+  box-shadow: none;
+  font-weight: 650;
+}
+
+/* Nothing while there is nothing to say: the line takes no room then. */
+.status {
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.status:empty {
+  display: none;
+}
+
+.off {
+  min-height: 44px;
+  margin-left: -4px;
+}
+
+@media (forced-colors: active) {
+  .chip {
+    border: 1px solid ButtonText;
+  }
+
+  .chip[aria-pressed='true'] {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+}

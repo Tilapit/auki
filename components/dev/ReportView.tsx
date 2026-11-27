@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import { helsinki } from '@/lib/fixtures/helsinki';
-import { FIVE_REPORTS, fixedReports } from '@/lib/fixtures/reports';
+import { FIVE_REPORTS, NEARBY_REPORTS, fixedReports } from '@/lib/fixtures/reports';
 import { ResultsView } from './Results';
 
-export type ReportViewState = 'row' | 'summary' | 'open' | 'failed' | 'thanks';
+export type ReportViewState = 'row' | 'summary' | 'open' | 'failed' | 'thanks' | 'filter' | 'filter-none';
 
 /**
  * /dev/states only: a pharmacy's details with the visitors' reports in one of their states
@@ -19,7 +19,8 @@ export type ReportViewState = 'row' | 'summary' | 'open' | 'failed' | 'thanks';
  */
 export function ReportView({ state }: { state: ReportViewState }) {
   const told = state === 'summary' || state === 'thanks';
-  const reports = useMemo(() => fixedReports(told ? FIVE_REPORTS : {}, state === 'thanks' ? ['yliopiston'] : []), [told, state]);
+  const listed = state === 'filter' || state === 'filter-none';
+  const reports = useMemo(() => fixedReports(state === 'filter' ? NEARBY_REPORTS : told ? FIVE_REPORTS : {}, state === 'thanks' ? ['yliopiston'] : []), [told, state]);
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const element = root.current;
@@ -50,15 +51,20 @@ export function ReportView({ state }: { state: ReportViewState }) {
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  // The list with one of its filters on: on invented reports of three pharmacies, and on none at all.
+  if (listed) return <ResultsView scene={helsinki} sheet="expanded" reports={reports} reportFilter={['english']} reportExample />;
+
   return (
     <div ref={root} style={{ display: 'contents' }}>
       <ResultsView
-        scene={helsinki}
+        // In Finland, as the live app knows from the tiles: the line about prescriptions from another country has guidance to lead to.
+        scene={{ ...helsinki, here: 'FI' }}
         sheet="expanded"
         detailId="yliopiston"
         reports={reports}
         reportOpen={state === 'open' || state === 'failed'}
-        reportAnswers={state === 'open' ? { prescription: true, shortWait: false } : state === 'failed' ? { english: true } : undefined}
+        reportAnswers={state === 'open' ? { prescription: true, foreign: true, shortWait: false } : state === 'failed' ? { english: true } : undefined}
+        reportExample
         reportFailed={state === 'failed'}
         reportNote={state === 'thanks' ? 'thanks' : undefined}
       />

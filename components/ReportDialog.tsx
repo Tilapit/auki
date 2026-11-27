@@ -45,33 +45,68 @@ export function ReportNote({ kind, className }: { kind: 'thanks' | 'limit'; clas
 }
 
 /**
- * What others told of this pharmacy: shown from three reports on, as counts, with how many
- * reports there are and the days they came. Labelled as what it is: anonymous and not checked
- * by anyone. The research trip's own findings are elsewhere and stay as they are.
+ * What others told of this pharmacy, as facts: what was said, and by how many of those who
+ * answered it ("Englantia puhuttiin, 4/5 käyntiä"). Shown from three reports on, with how many
+ * reports there are and the days they came, and labelled as what it is: anonymous and not
+ * checked by anyone. The research trip's own findings are elsewhere and stay as they are.
+ *
+ * Prescriptions that visitors said were from another country have a line of their own, from
+ * three such reports on, with the way to what the two countries' own pages say (`onGuidance`).
+ * What a few visitors met is not the rule, and the rule is one press away.
  */
-export function ReportSummary({ summary, className }: { summary: Summary; className?: string }) {
+export function ReportSummary({ summary, example, onGuidance, className }: { summary: Summary; /** /dev/states: the reports are invented, and the group says so. */ example?: boolean; onGuidance?: () => void; className?: string }) {
   const { t, f } = useI18n();
   const id = useId();
   const topics = TOPICS.filter((topic) => summary.answers[topic]);
+  const fact = (said: string, { yes, no }: { yes: number; no: number }) => t.report.fact(said, f.count(yes), f.count(yes + no));
   return (
     <section className={cx(styles.summary, className)} aria-labelledby={`${id}-h`} data-report-summary>
       <h3 id={`${id}-h`} className={styles.summaryTitle}>
         {t.report.summaryTitle}
       </h3>
-      {topics.length > 0 && (
-        <dl className={styles.counts}>
-          {topics.map((topic) => {
-            const { yes, no } = summary.answers[topic]!;
-            return (
-              <Fragment key={topic}>
-                <dt>{t.report.topics[topic].label}</dt>
-                <dd>{t.report.topics[topic].counted(f.count(yes), f.count(no))}</dd>
-              </Fragment>
-            );
-          })}
-        </dl>
+      {example && (
+        <p className={styles.example} data-report-example>
+          {t.report.example}
+        </p>
+      )}
+      {(topics.length > 0 || summary.foreign) && (
+        <ul className={styles.facts}>
+          {topics.map((topic) => (
+            <li key={topic}>{fact(t.report.topics[topic].yes, summary.answers[topic]!)}</li>
+          ))}
+          {summary.foreign && (
+            <li data-report-foreign>
+              {fact(t.report.foreignSaid, summary.foreign)}
+              {onGuidance && (
+                <>
+                  {'. '}
+                  <button type="button" className={styles.guidance} onClick={onGuidance}>
+                    {t.footer.prescription}
+                  </button>
+                </>
+              )}
+            </li>
+          )}
+        </ul>
       )}
       <p className={styles.summaryMeta}>{t.report.summaryMeta(f.count(summary.count), f.dateRange(summary.from, summary.to))}</p>
+    </section>
+  );
+}
+
+/**
+ * The same place while the pharmacy has fewer than three reports: said plainly, so that the
+ * group is not just missing. Shown only where the report service answered.
+ */
+export function ReportNone({ className }: { className?: string }) {
+  const { t } = useI18n();
+  const id = useId();
+  return (
+    <section className={cx(styles.summary, className)} aria-labelledby={`${id}-h`} data-report-none>
+      <h3 id={`${id}-h`} className={styles.summaryTitle}>
+        {t.report.summaryTitle}
+      </h3>
+      <p className={styles.none}>{t.report.none}</p>
     </section>
   );
 }
@@ -119,10 +154,13 @@ export function ReportDialog({ name, open, onClose, onSend, onSkip, initialAnswe
     setState('idle');
     onClose();
   };
-  const press = (topic: Topic, value: boolean) => {
+  const press = (topic: Topic | 'foreign', value: boolean) => {
     setAnswers((before) => {
       const { [topic]: pressed, ...others } = before;
-      return pressed === value ? others : { ...others, [topic]: value };
+      const next: Answers = pressed === value ? others : { ...others, [topic]: value };
+      // Where the prescription was from belongs to what happened to it: taken back with it.
+      if (next.prescription === undefined) delete next.foreign;
+      return next;
     });
     setState((before) => (before === 'sending' ? before : 'idle'));
   };
@@ -153,13 +191,30 @@ export function ReportDialog({ name, open, onClose, onSend, onSkip, initialAnswe
 
         <div className={styles.topics}>
           {TOPICS.map((topic) => (
-            <div key={topic} role="group" aria-label={t.report.topics[topic].label} className={styles.topic}>
-              {([true, false] as const).map((value) => (
-                <button key={String(value)} type="button" className={styles.chip} aria-pressed={answers[topic] === value} onClick={() => press(topic, value)}>
-                  {t.report.topics[topic][value ? 'yes' : 'no']}
-                </button>
-              ))}
-            </div>
+            <Fragment key={topic}>
+              <div role="group" aria-label={t.report.topics[topic].label} className={styles.topic}>
+                {([true, false] as const).map((value) => (
+                  <button key={String(value)} type="button" className={styles.chip} aria-pressed={answers[topic] === value} onClick={() => press(topic, value)}>
+                    {t.report.topics[topic][value ? 'yes' : 'no']}
+                  </button>
+                ))}
+              </div>
+              {/* One more yes or no, only once the prescription has an answer to belong to. Not which country. */}
+              {topic === 'prescription' && answers.prescription !== undefined && (
+                <div role="group" aria-labelledby={`${id}-foreign`} className={styles.follow} data-report-foreign-question>
+                  <p id={`${id}-foreign`} className={styles.question}>
+                    {t.report.foreign.question}
+                  </p>
+                  <div className={styles.topic}>
+                    {([true, false] as const).map((value) => (
+                      <button key={String(value)} type="button" className={styles.chip} aria-pressed={answers.foreign === value} onClick={() => press('foreign', value)}>
+                        {t.report.foreign[value ? 'yes' : 'no']}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Fragment>
           ))}
         </div>
 

@@ -69,6 +69,59 @@ describe('a report as the server accepts it', () => {
   });
 });
 
+describe('whether the prescription was from another country', () => {
+  it('is one more yes or no, taken only with an answer about the prescription', () => {
+    expect(parseReport({ pharmacy: 'n101', country: 'FI', answers: { prescription: true, foreign: true } })?.answers).toEqual({ prescription: true, foreign: true });
+    expect(parseReport({ pharmacy: 'n101', country: 'FI', answers: { prescription: false, foreign: false } })?.answers).toEqual({ prescription: false, foreign: false });
+    // By itself it says nothing of the visit, and with another answer it has nothing to belong to.
+    expect(parseReport({ pharmacy: 'n101', country: 'FI', answers: { foreign: true } })).toBeUndefined();
+    expect(parseReport({ pharmacy: 'n101', country: 'FI', answers: { english: true, foreign: true } })).toBeUndefined();
+    // A yes or a no: never which country.
+    expect(parseReport({ pharmacy: 'n101', country: 'FI', answers: { prescription: true, foreign: 'DE' } })).toBeUndefined();
+  });
+
+  it('goes to the database as one more argument, and only when it was given', async () => {
+    const { server, fetch } = setup();
+    await server.add({ pharmacy: 'n101', country: 'FI', answers: { prescription: true, foreign: true } });
+    expect(sent(fetch).body).toEqual({ p_pharmacy: 'n101', p_country: 'FI', p_prescription: true, p_foreign: true });
+    await server.add(REPORT);
+    expect(sent(fetch, 1).body).not.toHaveProperty('p_foreign');
+  });
+
+  it('a database that has not had the second migration still takes the report, without that one answer', async () => {
+    let time = Date.UTC(2026, 10, 27, 18, 0, 0);
+    const calls: Record<string, unknown>[] = [];
+    // The first migration's function knows no p_foreign: PostgREST answers 404 with its own code for that.
+    const fetch = vi.fn(async (_url: unknown, init: RequestInit) => {
+      const body = JSON.parse(init.body as string) as Record<string, unknown>;
+      calls.push(body);
+      return 'p_foreign' in body ? new Response(JSON.stringify({ code: 'PGRST202', message: 'Could not find the function' }), { status: 404 }) : new Response(JSON.stringify('ok'), { status: 200 });
+    });
+    const server = reportsServer({ env: ENV, fetch: fetch as unknown as typeof globalThis.fetch, now: () => (time += 1) });
+    await expect(server.add({ pharmacy: 'n101', country: 'FI', answers: { prescription: true, foreign: true } })).resolves.toEqual({ status: 'stored' });
+    expect(calls).toEqual([
+      { p_pharmacy: 'n101', p_country: 'FI', p_prescription: true, p_foreign: true },
+      { p_pharmacy: 'n101', p_country: 'FI', p_prescription: true },
+    ]);
+    // Any other 404, or a report without the new answer, is not sent twice.
+    const plain = setup({ code: 'PGRST202' }, 404);
+    await expect(plain.server.add(REPORT)).resolves.toEqual({ status: 'unavailable', reason: 'upstream' });
+    expect(plain.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('is shown as its own two counts, only from three such reports on', () => {
+    expect(toSummaries([row('n101', 5, { foreign_yes: 2, foreign_no: 1 })])?.n101.foreign).toEqual({ yes: 2, no: 1 });
+    expect(toSummaries([row('n101', 5, { foreign_yes: 2, foreign_no: 0 })])?.n101).not.toHaveProperty('foreign');
+    expect(toSummaries([row('n101', 5, { foreign_yes: null, foreign_no: null })])?.n101).not.toHaveProperty('foreign');
+    // A database without the second migration sends no such columns.
+    expect(toSummaries([row('n101', 5)])?.n101).not.toHaveProperty('foreign');
+    // And the page reads it as untrusted too.
+    const body = { summaries: { n101: { count: 5, from: '2026-11-12', to: '2026-11-26', answers: {}, foreign: { yes: 2, no: 1 } }, n102: { count: 5, from: '2026-11-12', to: '2026-11-26', answers: {}, foreign: { yes: 1, no: 1 } } } };
+    expect(readSummaries(body).n101.foreign).toEqual({ yes: 2, no: 1 });
+    expect(readSummaries(body).n102).not.toHaveProperty('foreign');
+  });
+});
+
 describe('POST /api/report, behind the route', () => {
   it('hands the database the pharmacy, the country and the answers given, and nothing else', async () => {
     const { server, fetch } = setup();
@@ -233,7 +286,7 @@ describe('what the database keeps', () => {
     .join('\n');
   const code = sql.replace(/--.*$/gm, '');
 
-  it('the table has the pharmacy, the country, the day and the five answers, and no other column', () => {
+  it('the table has the pharmacy, the country, the day, the five answers and whether the prescription was from another country, and no other column', () => {
     const table = /create table public\.reports \(([\s\S]*?)\n\);/.exec(code)?.[1] ?? '';
     const columns = table
       .split('\n')
@@ -241,8 +294,12 @@ describe('what the database keeps', () => {
       .filter((line) => line && !line.startsWith('constraint'))
       .map((line) => line.split(/\s+/).slice(0, 2).join(' ').replace(/,$/, ''));
     expect(columns).toEqual(['pharmacy text', 'country text', 'day date', 'prescription boolean', 'english boolean', 'stock boolean', 'short_wait boolean', 'step_free boolean']);
-    // No later migration adds one without this test being changed with it.
-    expect(code).not.toMatch(/alter table public\.reports\s+add/i);
+    // One later migration adds one column, a boolean that is kept only with an answer about the prescription.
+    // No migration adds another without this test being changed with it.
+    const added = [...code.matchAll(/add column (\w+) (\w+)/gi)].map((match) => `${match[1]} ${match[2]}`);
+    expect(added).toEqual(['foreign_prescription boolean']);
+    expect(code).toMatch(/check \(foreign_prescription is null or prescription is not null\)/);
+    expect(code).toMatch(/case when p_prescription is null then null else p_foreign end/);
     // Nothing that could hold a moment, an address or a text.
     expect(code).not.toMatch(/timestamp|timestamptz|\binet\b|\bcidr\b|\bjsonb?\b|\buuid\b|serial|identity/i);
   });
@@ -258,6 +315,11 @@ describe('what the database keeps', () => {
 
   it('nothing is shown below three reports, and the day is the database’s own', () => {
     expect(code).toMatch(/having count\(\*\) >= 3/);
+    // The two counts about prescriptions from another country are null until there are three such reports.
+    expect(code.match(/case when count\(\*\) filter \(where r\.foreign_prescription\) >= 3 then/g)).toHaveLength(2);
+    // One function of each name at the end: the first one is dropped before its successor is made.
+    expect(code).toMatch(/drop function public\.add_report\(text, text, boolean, boolean, boolean, boolean, boolean\);/);
+    expect(code).toMatch(/drop function public\.report_summaries\(text\);/);
     expect(code).toMatch(/today date := \(now\(\) at time zone 'utc'\)::date;/);
   });
 });
@@ -307,18 +369,22 @@ describe('the texts', () => {
     expect(dateRange('fi', '2026-11-26', '2026-11-26')).toBe('26.11.2026');
   });
 
-  it('every topic has its two chips and its counts in both languages, and nothing asks for a medicine’s name', () => {
+  it('every topic has its two chips in both languages, a fact says what was said and by how many, and nothing asks for a medicine’s name', () => {
     for (const t of [fi, en]) {
       expect(Object.keys(t.report.topics).sort()).toEqual([...TOPICS].sort());
       for (const topic of TOPICS) {
-        const { label, yes, no, counted } = t.report.topics[topic];
+        const { label, yes, no } = t.report.topics[topic];
         expect(new Set([label, yes, no]).size, topic).toBe(3);
-        expect(counted('3', '1'), topic).toMatch(/3.*1/);
       }
+      expect(new Set(Object.values(t.report.foreign)).size).toBe(3);
       const all = JSON.stringify(t.report, (_, value: unknown) => (typeof value === 'function' ? (value as (...args: string[]) => string)('3', '1') : value));
       expect(all).not.toMatch(/[!—]/);
       expect(all).not.toMatch(/ilman reseptiä|without a prescription/i);
     }
     expect(fi.report.summaryMeta('5', '12.11.2026–26.11.2026')).toBe('5 ilmoitusta, 12.11.2026–26.11.2026. Nimettömiä, ei tarkistettuja.');
+    expect(fi.report.fact(fi.report.topics.english.yes, '4', '5')).toBe('Englantia puhuttiin, 4/5 käyntiä');
+    expect(fi.report.fact(fi.report.topics.stepFree.yes, '3', '3')).toBe('Esteetön sisäänkäynti, 3/3 käyntiä');
+    expect(en.report.fact(en.report.topics.english.yes, '4', '5')).toBe('English was spoken, 4 of 5 visits');
+    expect(fi.report.foreign.question).toBe('Oliko resepti toisesta maasta?');
   });
 });
