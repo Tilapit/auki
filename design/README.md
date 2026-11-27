@@ -83,3 +83,7 @@ Before and after for the pull request "The typeface is the device's own", from `
 ## The sheet's and the card's hierarchy, 27 Nov 2026 (`sheet-hierarchy/`)
 
 Before and after for the pull request "A clearer pharmacy sheet and card", in Chromium on a Mac: a pharmacy's details as they open on the phone (`details-middle.jpg`) and fully up (`details-full.jpg`, from the comparison views of `/dev/states`), the card (`card.jpg`), the details in the desktop's panel (`desktop-light.jpg`, `desktop-dark.jpg`), and the dark sheet against the real map at night and at dusk (`surface.jpg`, from `/dev/map`).
+
+## The reports in use, 27 Nov 2026 (`reports-use/`)
+
+For the pull request "The reports are used", from `/dev/states` in Chromium on a Mac, on invented reports that say so on their face: the facts in a pharmacy's details against the counts they replace (`facts.jpg`), the list's two filters and the two states without reports (`filters.jpg`), the report's new question (`question.jpg`), and the desktop (`desktop.jpg`).
