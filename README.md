@@ -177,5 +177,5 @@ Then open `/fi` or `/en`, and `/dev/states` for every view and state in light an
 - Pharmacies: © OpenStreetMap contributors, under the ODbL. Wrong or missing data is corrected in OpenStreetMap, and shows in the app after the next night.
 - Map tiles: OpenFreeMap, on the OpenMapTiles schema. `NEXT_PUBLIC_MAP_TILES_URL` points the same style at another host with that schema.
 - Walking times and routes: openrouteservice. Place search: Nominatim.
-- Typeface: Atkinson Hyperlegible Next, served from the app's own origin.
+- Typeface: the device's own (SF Pro on Apple devices, Roboto on Android). No font file is served or fetched, and the map draws its street names in the same typeface.
 - The field findings behind the plan are from Treat Health's research trip of November 2026, used with permission: [`docs/research/pharmacy-field-findings.md`](docs/research/pharmacy-field-findings.md).

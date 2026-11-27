@@ -102,7 +102,15 @@
   --dusk-muted: #9db0cb;
   --dusk-soft: #d6e3f4;
 
-  /* Type: 17 px base, sizes as on the canvas (rem so text zoom works) */
+  /*
+   * Type: the device's own typeface, so no font file is fetched (PLAN.md section 6, "Type").
+   * SF Pro on Apple devices (-apple-system in Safari, BlinkMacSystemFont in Chromium on a Mac),
+   * then whatever the system calls its own (Roboto on Android, Segoe UI on Windows), then those
+   * by name for a browser that doesn't know system-ui, then the usual last resorts.
+   */
+  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Segoe UI', 'Helvetica Neue', 'Noto Sans', Arial, sans-serif;
+
+  /* 17 px base, sizes as on the canvas (rem so text zoom works) */
   --t-xs: 0.85rem; /* 13.6 */
   --t-s: 0.875rem; /* 14 */
   --t-m: 0.9375rem; /* 15 */
@@ -149,7 +157,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--t-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -215,7 +223,7 @@ a {
   hyphens: manual;
 }
 
-/* Times and distances line up in columns. */
+/* Only where numbers stand in a column or change in place: the list's rows, the card, the markers. Not in sentences. */
 .tnum {
   font-variant-numeric: tabular-nums;
 }

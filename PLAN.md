@@ -180,7 +180,7 @@ Rows: glyph, name (plus the street when names repeat, e.g. three "Benu"), status
 ### Pharmacy sheet (tap a marker or a row)
 On the phone it behaves like a place card in Apple Maps (Janne, 25 Nov 2026). The details take the list's place in the bottom sheet, as they do in the desktop's panel, and are no modal: the map above them stays usable. The sheet opens at a middle height, down to the first route button and never more than 60 % of the screen, and the map moves so that the pharmacy's marker is in view above it. A drag takes it fully up, or down to the row, where the details close. The close button and Escape bring back what the sheet showed before, the list where it was scrolled, and focus goes back to what opened the details. At the middle nothing in them scrolls; fully up they scroll, and from their top a pull down takes the sheet down.
 
-Name, address, status, walking time and distance; hours for the coming seven days with equal days grouped ("Joka päivä 8.00–24.00", "ma–pe 8.00–21.00"), so a public holiday shows as the exception it is (from the tile's intervals, on the pharmacy's clock, Monday first; an opening past midnight is said on the day it begins; a day the data calls unknown reads "ei tiedossa", and a day beyond the data's window is left out); accessibility from `wheelchair` and `wheelchair:description`; phone; the pharmacy's email (`email`, else `contact:email`) as a `mailto:` link, because emailing the prescription often works (section 2); the pharmacy's own website when OpenStreetMap has one (`website`, else `contact:website`), shown by its host name. Actions: "Reitti Google Mapsissa", "Reitti Apple Kartoissa", "Soita". Footnote: the route opens in the map app and the link carries only the pharmacy's position; data from OpenStreetMap, with `check_date` when present, and "Väärät tiedot? Korjaa OpenStreetMapissa": a link to OpenStreetMap's note form at the pharmacy's position. When the hours are missing or unclear, the same link sits next to the status line. A fix reaches the tiles the next night, with no backend of ours. Under "Ei varastossa? Seuraava auki: …" the sheet has the same row as the card, "Tarkista lääkkeen saatavuus", between two rules, when the pharmacy's country has a stock search of its own. The figures of the sheet (hours, phone number, walking time, distance) are the typeface's own proportional ones, not its tabular ones (Janne, 26 Nov 2026; section 6, "Type").
+Name, address, status, walking time and distance; hours for the coming seven days with equal days grouped ("Joka päivä 8.00–24.00", "ma–pe 8.00–21.00"), so a public holiday shows as the exception it is (from the tile's intervals, on the pharmacy's clock, Monday first; an opening past midnight is said on the day it begins; a day the data calls unknown reads "ei tiedossa", and a day beyond the data's window is left out); accessibility from `wheelchair` and `wheelchair:description`; phone; the pharmacy's email (`email`, else `contact:email`) as a `mailto:` link, because emailing the prescription often works (section 2); the pharmacy's own website when OpenStreetMap has one (`website`, else `contact:website`), shown by its host name. Actions: "Reitti Google Mapsissa", "Reitti Apple Kartoissa", "Soita". Footnote: the route opens in the map app and the link carries only the pharmacy's position; data from OpenStreetMap, with `check_date` when present, and "Väärät tiedot? Korjaa OpenStreetMapissa": a link to OpenStreetMap's note form at the pharmacy's position. When the hours are missing or unclear, the same link sits next to the status line. A fix reaches the tiles the next night, with no backend of ours. Under "Ei varastossa? Seuraava auki: …" the sheet has the same row as the card, "Tarkista lääkkeen saatavuus", between two rules, when the pharmacy's country has a stock search of its own. The figures of the sheet (hours, phone number, walking time, distance) are proportional, not tabular (Janne, 26 Nov 2026; section 6, "Type").
 
 ### Medicine availability (provisional, `DESIGN-LOG.md` 25 Nov 2026)
 The app does not know what a pharmacy has in stock, and says so. It says where to check: the country's own service (section 7.9).
@@ -353,14 +353,20 @@ The sky on the first visit and the place search follows the sun, not the clock (
 
 ### Type
 
-- **Atkinson Hyperlegible Next**, variable (weights 200–800), self-hosted with `next/font`, subsets `latin` + `latin-ext` (about 53 KB of woff2 together). It was designed by the Braille Institute for low-vision readers: distinct I/l/1 and O/0, which matters for house numbers, times and a card read by a stranger at arm's length. Verified to cover every counter-card language (Baltic, Polish, Czech, Croatian, Nordic, German, Portuguese and Spanish characters) and to support tabular figures. It has no Cyrillic, so no Russian on the card in v1.
-- One family. Hierarchy comes from size and weight only.
+- **The device's own typeface** (Janne, 27 Nov 2026; until then Atkinson Hyperlegible Next, self-hosted). The stack, once, in `app/globals.css` (`--font-sans`): `-apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Segoe UI', 'Helvetica Neue', 'Noto Sans', Arial, sans-serif`. That is SF Pro on an iPhone and a Mac, Roboto on Android, Segoe UI on Windows. No font file is fetched, preloaded or served: nothing to wait for and nothing to swap.
+  - Why: on the phone the old typeface's figures read hard in a block of hours and a phone number, and its zero has a slash that no setting removes (`DESIGN-LOG.md`, 26 and 27 Nov 2026). The system's figures are softer and its zero is plain. The app also looks like the phone it is on, which is what the iOS app has done from the start.
+  - What was given up: one look on every device, and the old typeface's extra-distinct I, l and 1. The counter card is read by a stranger at arm's length: it is set large (below), in the pharmacy's own system face if they take the phone.
+  - It covers every counter-card language, Greek and Cyrillic included, which the old typeface did not.
+  - The map's street names are in the same typeface: the map style has no glyph files, so MapLibre draws the labels on the device (`lib/map/style.ts`). The map tile host is asked for tiles only.
+  - The visual baselines are made in CI's Linux image, where the system's typeface is whatever sans-serif that image has. They guard layout, not the typeface: how the app looks on a phone is judged on a phone, or in the screenshots made on a Mac for a pull request.
+- One family. Hierarchy comes from size and weight only. The weights in the styles (550 to 750) are drawn exactly where the system typeface is variable, as on Apple devices, and as the nearest weight it has elsewhere.
 - Sizes as on the canvas, 17 px base, set in rem: 13.6 · 14 · 15 · 16 · 17 · 21 · 26.5 · 33, and 42 to 60 for the first-visit headline. Body 17/1.5.
   - Pharmacy name: 21/1.2 at weight 650 in the card and the sheet, 17/1.3 in rows.
   - Walking time: 33 at weight 750 in the card, 21 at 700 in rows.
   - Timeline times: 26.5 at 700.
   - Counter card: 29/1.27 at weight 650 (32 on desktop), follow-up line 22/1.32.
-- `font-variant-numeric: tabular-nums` on the times and distances that stand in a column or change while they are looked at: the card, the list's rows, the markers. Not in the pharmacy sheet (Janne, 26 Nov 2026): this typeface's tabular figures are as wide as each other and its "1" has a foot, which reads as a monospace face in a block of hours and a phone number. The zero has a slash in both sets of figures: it is the typeface's own, there for telling 0 from O, and no setting of the font removes it (`DESIGN-LOG.md`, 26 Nov 2026). Default tracking, except the slight tightening the canvas uses on display sizes (−0.02em headline, −0.015em large numbers, −0.01em titles). Don't tighten body text the way Treat tightens Geist.
+- `font-variant-numeric: tabular-nums` only where numbers stand in a column or change in place: the walking times and distances of the list's rows and of the card, the timeline's two clock times, the map's markers and edge chips, the phone sheet's row, and the data page's table. Not in sentences (the bar's "2 auki klo 20.41", the line under the heading) and not in the pharmacy sheet, whose hours and phone number are text to read (Janne, 26 Nov 2026).
+- Default tracking, except the slight tightening the canvas uses on display sizes (−0.02em headline, −0.015em large numbers, −0.01em titles). Don't tighten body text the way Treat tightens Geist.
 - Line length under 70 characters.
 
 ### Shape, space, elevation
@@ -579,13 +585,13 @@ Every request the app makes:
 
 | Request | When | What it carries | Who receives it |
 |---|---|---|---|
-| The page, its scripts, styles and font | Opening the app | IP address and browser headers. No cookies | Our host |
+| The page, its scripts and styles (no font: the type is the device's own) | Opening the app | IP address and browser headers. No cookies | Our host |
 | `/tiles/v1/index.json` and `/tiles/v1/10/{x}/{y}.json` | Every search; and when the user moves the map to an area whose squares aren't on the device yet | Which squares of 20 to 30 km are needed: around the search, or under the part of the map the user moved to | Our host |
 | `POST /api/walking` | Once the pharmacies are known; again when the list is ranked after a walk of about 300 m, at most once in two minutes; again for the route line to a selected pharmacy | The position to about a metre (the device's, or the searched place's) and up to 20 pharmacy positions, in the request's body | Our server, which asks openrouteservice. openrouteservice sees our server, not the user |
 | `GET /api/geocode?q=` | Submitting a place search | The text typed | Our server, which asks Nominatim |
 | `GET /api/report?country=` | The first time a pharmacy's details are opened in a country, once per country while the page lives | The two-letter country of that pharmacy. Not the pharmacy, not the position | Our server, which asks our database. The answer is the same for everyone and is cached for five minutes |
 | `POST /api/report` | Only when the user presses "Lähetä" in the report dialog | In the body: the pharmacy's OpenStreetMap id, its country, and the chips pressed (up to five answers, each yes or no). No position, no text, no medicine, no day, no language | Our server, which stores it in our database (Supabase) with the day. The database sees our server, not the user |
-| Map tiles and glyphs | While the map is visible | Which map squares are on screen (1 to 2 km across at the closest zoom), IP address | The map tile host (OpenFreeMap), the only third party |
+| Map tiles (no glyphs: the device draws the street names) | While the map is visible | Which map squares are on screen (1 to 2 km across at the closest zoom), IP address | The map tile host (OpenFreeMap), the only third party |
 | Links the user taps: Google Maps, Apple Maps, phone, a pharmacy's email or website, OpenStreetMap's note form, a country's duty-pharmacy lookup, the sources of the prescription guidance, the map's credits | On tap, in a tab of its own | The pharmacy's position or nothing. Never the user's position. No referrer, and the new tab can't reach back to ours | Whoever the link names |
 | A country's own medicine stock search (section 7.9), opened by the user from the medicine dialog | On tap | The medicine's name as the user typed it, in the link's address, where the service takes one; otherwise nothing. Never the position, never a pharmacy. No referrer, and the new tab can't reach back to ours | The service the link names. Never our host |
 
@@ -847,7 +853,7 @@ Translations already used at the counter on the trip (adapt to card form; Polish
 - **DE:** "Wenn mein Arzt in Finnland Ihnen das Rezept direkt per E-Mail oder Fax schickt, ginge das? An welche Adresse?"
 - **DA:** "Jeg har en recept fra en finsk læge. Kan I ekspedere den her?"
 
-Everything else (ET, LT, NO, SV, HR, PT, ES, IT, EL, HU, MT, SL, SK and the missing lines; German also serves AT and most of CH): draft during M6 with `reviewed: false` and get a native check before any public launch. Atkinson Hyperlegible Next has no Greek, so the Greek card needs a fallback face chosen in M6.
+Everything else (ET, LT, NO, SV, HR, PT, ES, IT, EL, HU, MT, SL, SK and the missing lines; German also serves AT and most of CH): draft during M6 with `reviewed: false` and get a native check before any public launch. The Greek card is in the device's own typeface, like everything else since 27 Nov 2026 (section 6, "Type").
 
 ---
 
@@ -880,7 +886,7 @@ Everything else (ET, LT, NO, SV, HR, PT, ES, IT, EL, HU, MT, SL, SK and the miss
 proxy.ts                      "/" → /fi or /en by Accept-Language (Next 16 name for middleware); no cookies
 next.config.ts                security headers (section 7.6); /tiles/* rewrite to the data host
 app/
-  [locale]/layout.tsx         lang, metadata, font, inline sky script (the footer is rendered by each view)
+  [locale]/layout.tsx         lang, metadata, inline sky script (the footer is rendered by each view)
   [locale]/page.tsx           static shell, mounts <PharmacyFinder /> (M0: <FirstVisit />)
   [locale]/privacy/page.tsx   "what the app sends": every request, from lib/requests.ts (M6)
   [locale]/data/page.tsx      the pipeline's numbers per country, from index.json (M3)
@@ -959,7 +965,6 @@ pipeline/
   site/                       the data host's configuration (caching)
 public/
   sw.js                       hand-written service worker: app files, index.json, the last area's tiles (M6)
-  glyphs/                     map label glyphs in our own typeface, with its licence
   maplibre/                   MapLibre's worker, copied from node_modules at build time (not committed)
 ios/                          the iOS app, on its own track (section 11); `ios/README.md` says how to run and test it
   Auki.xcodeproj              one app target, one test target; both folders below are kept in step with the disk

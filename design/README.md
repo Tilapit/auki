@@ -75,3 +75,7 @@ Screenshots for the pull request "M6, cut down: the abroad banner with the field
 ## Prescriptions for any pair of countries, 26 Nov 2026 (`prescriptions/`)
 
 Screenshots for the pull request "Prescription from home?: for anyone, in any covered country". The banner as the phone's card shows it, from `/dev/states`: a prescription from Finland in Latvia (`fi-lv.jpg`); one from Germany in Latvia, where the electronic prescription is on no list and the trip's line is labelled as Finnish (`de-lv.jpg`); one from Estonia in Finland with "Lisätiedot ja lähteet" open, cut where the phone's sheet ends (`ee-fi.jpg`); a phone that suggests no country, in English and in the dark (`ask-en.jpg`). The counter card in Finnish for a visitor with an e-prescription from Estonia (`card-fi.jpg`).
+
+## The system typeface, 27 Nov 2026 (`system-font/`)
+
+Before and after for the pull request "The typeface is the device's own", from `/dev/states` in Chromium on a Mac, where the system's typeface is SF Pro as on an iPhone: a pharmacy's details (`sheet.jpg`), the card (`card.jpg`), the desktop in both themes (`desktop-light.jpg`, `desktop-dark.jpg`), the first window and the counter card (`first-and-counter.jpg`), and the map's street names on real tiles (`map.jpg`, from `/dev/map`).
