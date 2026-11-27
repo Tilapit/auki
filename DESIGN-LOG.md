@@ -1087,3 +1087,12 @@ Entry format:
 - Why: The trip's finding 1 is that the answer at the counter depends on the pharmacy and on who is behind it. No list can say that of a pharmacy; the people who were there can.
 - Not done: the iOS app; taking a report back; a report in any language but the app's two.
 - Status: provisional, all of it. Not merged: Janne and Claude review it first. The migration is applied to the project's database, which was empty.
+
+## 2026-11-27: No paper line on the counter card where the paper answer is a no
+- Where: `data/countries/index.ts` (`variantsFor`, `guideFor`), `ResultsView`; `/dev/states`, "abroad-pairs" (United Kingdom to Finland, United Kingdom to Sweden)
+- Change: Janne's decision of 27 Nov, on the question the night run of 26 Nov left open. Where the country's own authority says that a paper prescription from there is not accepted, the card has no paper line. That is five pairs: a prescription from the United Kingdom or from another country outside the EU and the EEA, in Finland or in Sweden, and one from Switzerland in Sweden.
+  - In all five nothing else is left for the card to ask: no e-prescription from those countries works there, and neither Finland nor Sweden is a country where the trip saw a doctor's email accepted. So there is no card, and "Näytä apteekissa" is not offered, in the card of the nearest pharmacy or in a pharmacy's details. The banner still gives its two answers and its sources.
+  - "Not obliged" (Switzerland, both ways) and "nothing found" keep the paper line. Neither is a no: a pharmacy may well dispense, and the card is how to ask.
+  - With it, a fix that was waiting for the next change here: closed, the counter card gives the keyboard back to the button that opened it in Safari on a Mac too, where a button pressed with the mouse gets no focus (as the report row already did).
+- Why: A card that says "Can you dispense it?" right under a banner that says "ei käy Suomessa" asks a stranger for what the app has just said will be refused. The unit test asked for a paper line for every pair; it now asks for one exactly where the paper answer is not a no.
+- Status: done, by Janne's decision. My own call within it: no card at all, rather than a card with only "Voisiko farmaseutti auttaa minua?", which asks for nothing by itself.

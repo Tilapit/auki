@@ -143,6 +143,19 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     return () => document.removeEventListener('click', onClick, true);
   }, []);
   const [counterOpen, setCounterOpen] = useState(options.counter !== undefined);
+  // Closed, the counter card gives the keyboard back to the button that opened it. The browser does
+  // that by itself only when the button had the focus, and Safari gives a pressed button none.
+  const counterOpener = useRef<Element | null>(null);
+  const showCard = () => {
+    counterOpener.current = pressed.current ?? document.activeElement;
+    setCounterOpen(true);
+  };
+  useEffect(() => {
+    if (counterOpen) return;
+    const from = counterOpener.current;
+    counterOpener.current = null;
+    if (from instanceof HTMLElement && from.isConnected) from.focus();
+  }, [counterOpen]);
   // Which country's stock search the medicine dialog is open for: that of the pharmacy it was opened from.
   const [medicineFor, setMedicineFor] = useState(typeof options.medicine === 'string' ? options.medicine : undefined);
   const detailRef = useRef<HTMLDialogElement>(null);
@@ -201,7 +214,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // Until it has arrived the card is as it is at home.
   const guidance = useGuidance(abroad);
   const guide = useMemo(() => guidance?.guideFor(home, here), [guidance, home, here]);
-  const country = guide && { code: guide.here, inLanguage: guide.inLanguage };
+  // "Näytä apteekissa" is offered only where the card has something to ask for (data/countries: not where the paper answer is a no).
+  const country = guide?.card && { code: guide.here, inLanguage: guide.inLanguage };
   const banner = guidance && abroad && <guidance.CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={asked} />;
   // Where to check a medicine's stock: the service of the country the card's pharmacy is in
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
@@ -541,7 +555,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 country={country}
                 onRoute={select}
                 onSelect={select}
-                onShowCard={() => setCounterOpen(true)}
+                onShowCard={showCard}
               >
                 {banner}
                 {medicineLine}
@@ -563,7 +577,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 country={country}
                 onRoute={select}
                 onSelect={select}
-                onShowCard={() => setCounterOpen(true)}
+                onShowCard={showCard}
               >
                 {banner}
                 {medicineLine}
@@ -636,7 +650,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               nextOpen={detailNext}
               nextOpenWithStreet={detailNext && needsStreet.has(detailNext.id)}
               country={country}
-              onShowCard={() => setCounterOpen(true)}
+              onShowCard={showCard}
               onMedicine={offered && providerFor(detail.country) ? () => setMedicineFor(detail.country) : undefined}
               medicineSite={siteOf(detail.country)}
               report={
@@ -662,7 +676,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       }
       overlays={
         <>
-          {guidance && guide && <guidance.CounterCard card={guide.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} fixedAwake={options.counterAwake} />}
+          {guidance && guide?.card && <guidance.CounterCard card={guide.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} fixedAwake={options.counterAwake} />}
           {options.reports && (
             <ReportDialog
               name={detail ? displayName(i18n, detail) : ''}
