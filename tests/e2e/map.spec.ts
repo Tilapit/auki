@@ -368,3 +368,23 @@ test.describe('a marker without room to press', () => {
     for (const sign of takes) expect(sign.focused).toBe(!sign.still);
   });
 });
+
+// The first drawing of the markers. Reduced motion used to give every element a transition a
+// hundredth of a millisecond long: a change of an inherited property then went down the page a
+// level a frame, and a marker's disc stood a few frames without its cross (app/globals.css).
+// The visual comparison, which asks for reduced motion, drew `sheet-far` in two ways for it.
+test('whoever has asked for less motion sees a marker whole at once, not its disc first and its cross a few frames later', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/fi/dev/states/sheet-far');
+  await page.waitForFunction(() => !document.querySelector('[data-map]:not([data-map="ready"])'));
+  const cross = await page.evaluate(() => {
+    const pin = document.querySelector<HTMLElement>('[data-pin][data-small]:not([data-away])')!;
+    const glyph = pin.querySelector('button > span:last-child svg')!;
+    // Hidden and shown again, and read each time before a frame is drawn: what the pin is, its cross is.
+    pin.style.visibility = 'hidden';
+    const hidden = getComputedStyle(glyph).visibility;
+    pin.style.visibility = '';
+    return { hidden, shown: getComputedStyle(glyph).visibility };
+  });
+  expect(cross).toEqual({ hidden: 'hidden', shown: 'visible' });
+});
