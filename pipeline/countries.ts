@@ -1,7 +1,12 @@
 /**
- * Coverage: the countries the pipeline fetches (PLAN.md 7.2 and section 8). A country joins
- * by adding a line here, once its parse rate is measured and the hours library has its
- * public holidays.
+ * Coverage: the countries the pipeline fetches (PLAN.md 7.2 and section 8): every country of
+ * the EU and the EEA, and Switzerland. A country joins by adding a line here, once its parse
+ * rate is measured and the hours library has its public holidays.
+ *
+ * Three are in without that second condition: the library (opening_hours 3.x) has no public
+ * holidays for Cyprus, Iceland or Liechtenstein. There a value that mentions PH can't be
+ * evaluated and is published as "uncertain" (hours.ts), never as open or closed; a value
+ * without PH is read as its weekdays, as everywhere. No holidays are written by hand.
  */
 
 export interface Country {
@@ -112,6 +117,19 @@ export const COUNTRIES: Country[] = [
   { code: 'SE', zone: 'Europe/Stockholm' },
   { code: 'SI', zone: 'Europe/Ljubljana' },
   { code: 'SK', zone: 'Europe/Bratislava' },
+  // The rest of the EU and the EEA, first measured on 27 Nov 2026 (PLAN.md section 8).
+  // France and the Netherlands are their European parts: what lies outside the grid's extent
+  // is left out (normalize.ts). Cyprus's area is the whole island, which keeps one clock.
+  { code: 'BE', zone: 'Europe/Brussels' },
+  { code: 'BG', zone: 'Europe/Sofia' },
+  { code: 'CY', zone: 'Asia/Nicosia' },
+  { code: 'FR', zone: 'Europe/Paris' },
+  { code: 'IE', zone: 'Europe/Dublin' },
+  { code: 'LU', zone: 'Europe/Luxembourg' },
+  { code: 'NL', zone: 'Europe/Amsterdam' },
+  { code: 'RO', zone: 'Europe/Bucharest' },
+  { code: 'IS', zone: 'Atlantic/Reykjavik' },
+  { code: 'LI', zone: 'Europe/Vaduz' },
 ];
 
 export const COUNTRY_CODES: string[] = COUNTRIES.map((country) => country.code);
