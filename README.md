@@ -25,11 +25,11 @@ A job application project by Janne Lappi for Treat Health. Not a Treat product, 
 
 | | Number | Where it is from |
 |---|---|---|
-| Time to first result on a throttled phone | **2.8 s** | The live site, 26 Nov 2026 |
+| Time to first result on a throttled phone | **2.6 s** | The live site, 27 Nov 2026 |
 | Opening hours read | **99.9 %** | The published data, 27 Nov 2026 |
 | Initial JavaScript | **179 KB** | The live site, 27 Nov 2026 |
 
-- **2.8 s** is from navigation to the first rendered result: Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from an invented position at Kamppi in Helsinki. Median of five runs (2.7 to 3.6 s): `node scripts/first-result-live.ts`. The list was by walking time in every run.
+- **2.6 s** is from navigation to the first rendered result: Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from an invented position at Kamppi in Helsinki. Median of five runs (2.6 to 3.5 s): `node scripts/first-result-live.ts`. The list was by walking time in every run. The server that asks for the walking times has run in Frankfurt since that day; it was in Washington, and a first request after a quiet hour could come back too late for the list.
 - **99.9 %**: of the 53,377 pharmacies that have opening hours in OpenStreetMap in the 31 countries covered, 53,349 were read into open intervals, and 28 were not. From the data host's [`index.json`](https://auki-data.vercel.app/tiles/v1/index.json); the same numbers per country are on the app's [data page](https://auki.vercel.app/fi/data).
 - **179 KB**: the scripts of `/fi` as they travel, compressed by the host, in Lighthouse, median of three runs (178.5 KB; it was 174 KB on 25 Nov, and the budget is 185 KB). The same runs give a mobile LCP of 0.92 s. Nearly all of it is React and the Next.js runtime.
 
