@@ -1,5 +1,5 @@
 {
- "at": 1795446929,
+ "at": 1795790299,
  "countries": {
   "FI": {
    "values": 327,
@@ -189,6 +189,87 @@
    "uncertain": 0,
    "corrected": 0,
    "parseRate": 0.9989
+  },
+  "BE": {
+   "values": 860,
+   "withHours": 1495,
+   "parsed": 1495,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 9,
+   "parseRate": 1
+  },
+  "BG": {
+   "values": 358,
+   "withHours": 828,
+   "parsed": 828,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 1
+  },
+  "CY": {
+   "values": 55,
+   "withHours": 63,
+   "parsed": 62,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 2,
+   "parseRate": 0.9841
+  },
+  "FR": {
+   "values": 4918,
+   "withHours": 10117,
+   "parsed": 10116,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 19,
+   "parseRate": 0.9999
+  },
+  "IE": {
+   "values": 288,
+   "withHours": 403,
+   "parsed": 402,
+   "unparseable": 0,
+   "uncertain": 1,
+   "corrected": 3,
+   "parseRate": 0.9975
+  },
+  "LU": {
+   "values": 89,
+   "withHours": 104,
+   "parsed": 104,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 1
+  },
+  "NL": {
+   "values": 355,
+   "withHours": 1104,
+   "parsed": 1104,
+   "unparseable": 0,
+   "uncertain": 0,
+   "corrected": 8,
+   "parseRate": 1
+  },
+  "RO": {
+   "values": 537,
+   "withHours": 1062,
+   "parsed": 1061,
+   "unparseable": 0,
+   "uncertain": 1,
+   "corrected": 4,
+   "parseRate": 0.9991
+  },
+  "LI": {
+   "values": 6,
+   "withHours": 6,
+   "parsed": 5,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 0.8333
   }
  }
 }

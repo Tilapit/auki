@@ -4,7 +4,7 @@ import type { SearchResult } from '../live';
 import type { Position } from '../state';
 import type { Hours, TilePharmacy } from '../tiles';
 import type { Scene } from '../types';
-import { RUN_OF_23_NOV } from './tiles';
+import { MEASURED_RUNS } from './tiles';
 
 /**
  * Where most pharmacies have no opening hours in OpenStreetMap: the centre of Málaga as a
@@ -64,7 +64,7 @@ const centre: TilePharmacy[] = [
 ];
 
 /** The country's share of pharmacies with opening hours, as index.json gives it. */
-const SPAIN = { country: 'ES', share: Math.round((RUN_OF_23_NOV.ES[1] / RUN_OF_23_NOV.ES[0]) * 10000) / 10000 };
+const SPAIN = { country: 'ES', share: Math.round((MEASURED_RUNS.ES[1] / MEASURED_RUNS.ES[0]) * 10000) / 10000 };
 
 function scene(pharmacies: TilePharmacy[], now: number): Scene {
   const candidates = pharmacies.map((p) => ({ pharmacy: p, meters: distanceMeters(CENTRE, p) })).sort((a, b) => a.meters - b.meters);
