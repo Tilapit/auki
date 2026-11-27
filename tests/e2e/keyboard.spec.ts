@@ -155,6 +155,31 @@ for (const size of ['phone', 'desktop'] as const) {
       await leave('Enter');
     });
 
+    test('the card’s name opens the pharmacy’s details, and Escape gives the focus back to it', async ({ page, browserName }) => {
+      const key = tabKey(browserName);
+      await page.clock.install({ time: new Date(MONDAY_EVENING * 1000) });
+      await fakeLocation(page, 'allow', 'granted');
+      await fakeTiles(page, world(kamppi));
+      await page.goto('/fi');
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
+      await mapSettled(page);
+      if (size === 'phone') {
+        // The card is one place up from the row.
+        expect(await tabTo(page, key, page.locator('[data-grab]')), 'Tab comes to the handle').toBe(true);
+        await page.keyboard.press('Enter');
+        await sheetAt(page, 'Näytä lista');
+      }
+      const opener = page.getByRole('heading', { level: 3, name: 'Kampin apteekki' }).getByRole('button');
+      expect(await tabTo(page, key, opener), 'Tab comes to the name in the card').toBe(true);
+      await page.keyboard.press('Enter');
+      const name = page.getByRole('heading', { level: 2, name: 'Kampin apteekki' });
+      await expect(name).toBeVisible();
+      await expect(name).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(name).toBeHidden();
+      await expect(opener).toBeFocused();
+    });
+
     test('the counter card abroad: opened, gone through and closed', async ({ page, browserName }) => {
       const key = tabKey(browserName);
       await open(page, '/fi/dev/states/riga');

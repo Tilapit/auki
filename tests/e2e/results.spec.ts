@@ -83,8 +83,8 @@ test('most nearby pharmacies without hours: the nearest leads with the call firs
   await expect(card.getByRole('heading', { level: 3 })).toHaveText('Kampin apteekki');
   await expect(card).toContainText('Aukioloaikoja ei ole merkitty');
   await expect(card).toContainText('Lähistöllä on 6 apteekkia, joiden aukioloaikoja ei tiedetä. Osa niistä voi olla auki. Soita ennen kuin lähdet.');
-  // The call is the first action, the route the second.
-  const actions = card.locator('a[href^="tel:"], button');
+  // The call is the first action, the route the second. (The name above them is a button too: it opens the details.)
+  const actions = card.locator('a[href^="tel:"], button:not(h3 button)');
   await expect(actions.first()).toHaveAttribute('href', 'tel:+35891234501');
   await expect(actions.first()).toHaveAccessibleName('Soita: Kampin apteekki');
   await expect(actions.nth(1)).toHaveAccessibleName('Reitti kävellen: Kampin apteekki');

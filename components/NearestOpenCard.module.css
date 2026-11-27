@@ -19,6 +19,17 @@
   align-items: start;
 }
 
+/*
+ * The head and the status line under it are one press: the pharmacy's details, as from a row
+ * of the list. They keep the card's own gap between them.
+ */
+.opener {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .glyph {
   padding-top: 3px;
 }
@@ -28,6 +39,40 @@
   font-weight: 650;
   line-height: 1.2;
   overflow-wrap: anywhere;
+}
+
+/* The name is the control; the whole head is its hit area, a little past its edges for a thumb. */
+.nameButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.nameButton::after {
+  position: absolute;
+  inset: -8px;
+  border-radius: var(--r-chip);
+  content: '';
+}
+
+.nameButton:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-underline-offset: 3px;
+}
+
+.nameButton:focus-visible {
+  outline: none;
+}
+
+.nameButton:focus-visible::after {
+  outline: 3px solid var(--focus);
+  outline-offset: 0;
 }
 
 .address {
