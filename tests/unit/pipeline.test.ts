@@ -570,8 +570,12 @@ describe('where the coverage ends', () => {
     expect(coverageOf(tileOf({ lat: 60.17, lon: 24.94 }), covered)).toEqual({ covered: true });
     // London: nothing covered.
     expect(coverageOf(tileOf({ lat: 51.5074, lon: -0.1278 }), covered)).toEqual({ covered: false });
-    // Kyrenia, in the north of Cyprus: no country's cell there, so covered only where a pharmacy is (the square's letter).
-    expect(countryAt(35.34, 33.32)).toBeNull();
+    // The north of Cyprus has no code of its own: its pharmacies come with Cyprus's, so it is Cyprus here.
+    expect(countryAt(35.34, 33.32)).toBe('CY'); // Kyrenia
+    expect(countryAt(35.12, 33.94)).toBe('CY'); // Famagusta
+    expect(countryAt(35.166, 33.36)).toBe('CY'); // Nicosia, south of the line
+    expect(countryAt(34.59, 32.98)).toBe('GB'); // Akrotiri: a British base area, not in the coverage
+    expect(countryAt(35.9, 33.5)).not.toBe('CY'); // the sea to the north
     // Imatra, on the Russian border.
     const imatra = { lat: 61.19, lon: 28.77 };
     const coverage = coverageOf(tileOf(imatra), covered);
