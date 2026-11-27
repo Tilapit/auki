@@ -302,10 +302,18 @@ const VISITORS: { home: string; here: string; what: string }[] = [
  * can photograph (32,767 px in WebKit). The banner itself is in the views of its own; the
  * whole matrix is in docs/research/prescriptions-across-borders.md.
  */
-export function AbroadSheet() {
+/**
+ * The countries of the first sheet: the 21 that were covered until 27 Nov 2026. The ten that
+ * joined then are a second sheet (`abroad-2`): with all 31 the page was taller than WebKit can
+ * photograph, and the first sheet's picture stays the one it was.
+ */
+const ABROAD_FIRST_SHEET = 21;
+
+export function AbroadSheet({ part = 1 }: { part?: 1 | 2 }) {
+  const places = part === 1 ? HERE.slice(0, ABROAD_FIRST_SHEET) : HERE.slice(ABROAD_FIRST_SHEET);
   return (
-    <Sheet title="Prescriptions across borders: what is said of each country, and the counter-card lines">
-      {HERE.map((place) => {
+    <Sheet title={`Prescriptions across borders: what is said of each country, and the counter-card lines${part === 2 ? ' (the ten that joined on 27 Nov 2026)' : ''}`}>
+      {places.map((place) => {
         const home = place.code === 'FI' ? 'EE' : 'FI';
         return (
           <Block key={place.code} title={`${place.code}, a prescription from ${home}; the card ${place.inLanguage.en}`}>

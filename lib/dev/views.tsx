@@ -111,6 +111,7 @@ export const renderers: Record<string, () => ReactNode> = {
   'abroad-finland': () => <ResultsView scene={{ ...helsinki, here: 'FI' }} home="EE" sheet="expanded" bannerOpen />,
   'abroad-ask': () => <ResultsView scene={riga} home={null} sheet="expanded" />,
   abroad: () => <AbroadSheet />,
+  'abroad-2': () => <AbroadSheet part={2} />,
   'abroad-pairs': () => <AbroadPairsSheet />,
 
   'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
