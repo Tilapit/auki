@@ -59,6 +59,14 @@ const paths = {
     </>
   ),
   arrowUp: <path d="M12 19V5.5M6.5 11L12 5.5l5.5 5.5" />,
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.2V12l3.2 2" />
+    </>
+  ),
+  /* A speech bubble: telling how a visit went. */
+  speech: <path d="M5.5 4.5h13a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7.3l-4.7 3.6v-3.6h-1a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />,
   plus: <path d="M12 5.5v13M5.5 12h13" />,
   minus: <path d="M5.5 12h13" />,
   external: (

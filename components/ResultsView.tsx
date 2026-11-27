@@ -22,7 +22,6 @@ import { cx } from './cx';
 import { LiveStatus } from './LiveStatus';
 import { Measure } from './Measure';
 import { HoursUnknownCard, NearestOpenCard, NothingOpenCard } from './NearestOpenCard';
-import cardStyles from './NearestOpenCard.module.css';
 import { OpenStatus } from './OpenStatus';
 import { ClosedGroup, PharmacyList } from './PharmacyList';
 import { PharmacySheet } from './PharmacySheet';
@@ -102,6 +101,8 @@ export interface ResultsOptions {
   home?: string | null;
   /** /dev/states only: the banner's details open from the start. */
   bannerOpen?: boolean;
+  /** /dev/states only: a pharmacy's details as another component draws them, for a before and after of the sheet. */
+  detailAs?: typeof PharmacySheet;
   /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
   mapPixels?: number;
   /** /dev/map only: the map under a finger as MapLibre has it, to compare with ours on a phone. */
@@ -129,7 +130,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   useEffect(() => onDetail?.(detailId), [onDetail, detailId]);
   /** Where the phone's sheet was before a pharmacy's details took it over: closed, it goes back there. */
   const sheetBefore = useRef<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
-  /** How much of the details the phone's sheet shows at its middle height: down to the first route button. */
+  /** How much of the details the phone's sheet shows at its middle height: down to the row of main actions, or to the facts under it when they fit too. */
   const [detailFold, setDetailFold] = useState<number>();
   /** What opened the details: the row's button, a marker, a row of the list. Focus goes back there. */
   const opener = useRef<Element | null>(null);
@@ -222,14 +223,12 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const offered = options.medicine !== false;
   const cardProvider = offered ? providerFor((unlisted?.lead ?? nearestOpen ?? firstToOpen ?? scene.pharmacies[0])?.country) : undefined;
   const openMedicine = cardProvider && (() => setMedicineFor(cardProvider.country));
-  // In the card it is styled by the card: next to "Ei varastossa?" where that line is, else a section of its own.
-  // The service's own address, as the row names it under its title: "apteekki.fi".
+  // The service's own address, as the medicine search is named with it: "apteekki.fi".
   const siteOf = (country: string | undefined) => {
     const provider = offered ? providerFor(country) : undefined;
     return provider && t.medicine.services[provider.id as keyof typeof t.medicine.services].site;
   };
   const cardSite = siteOf(cardProvider?.country);
-  const medicineLine = openMedicine && cardSite && <MedicineRow className={cardStyles.medicine} onOpen={openMedicine} site={cardSite} />;
 
   // The details take the list's place: in the desktop's panel, and in the phone's sheet. Not a
   // modal: the map above them stays usable, as it does around the results.
@@ -249,14 +248,20 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     }
   }, [detailId]);
 
-  // The middle height of the phone's sheet follows the details: their top down to the first route button.
+  // The middle height of the phone's sheet follows the details: their top down to a place they mark (data-fold).
   useEffect(() => {
     const dialog = detailRef.current;
     if (!dialog || !detailId) return;
     const measure = () => {
-      const fold = dialog.querySelector<HTMLElement>('[data-fold]');
-      if (!fold || !dialog.offsetHeight) return;
-      setDetailFold(Math.round(fold.getBoundingClientRect().bottom - dialog.getBoundingClientRect().top) + 16);
+      const folds = [...dialog.querySelectorAll<HTMLElement>('[data-fold]')];
+      if (!folds.length || !dialog.offsetHeight) return;
+      const top = dialog.getBoundingClientRect().top;
+      const bottoms = folds.map((fold) => Math.round(fold.getBoundingClientRect().bottom - top) + 16);
+      // The sheet never takes more than 60 % of the screen (ResultsShell's stylesheet), and its
+      // handle is 26 px of that. The edge rests under the last section that fits whole: a
+      // section cut in half would look like a sheet that failed to open.
+      const room = window.innerHeight * 0.6 - 26;
+      setDetailFold(bottoms.filter((bottom) => bottom <= room).pop() ?? bottoms[0]);
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -484,11 +489,12 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const hasNotices = !!scene.user.approximate || (stale && scene.dataFrom !== undefined) || missing.length > 0;
   const hasCard = !!lead || !!nearestOpen || !!firstToOpen;
   // Without a card (out-of-date data has a notice in its place) the line stands by itself, under the notices.
-  const lineAlone = !!medicineLine && !hasCard;
+  const lineAlone = !!openMedicine && !!cardSite && !hasCard;
   const hasLists = others.length > 0 || closedGroup.length > 0;
 
   const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status) && !p.tooLate);
   const detailNext = detail && nextFor(detail);
+  const Details = options.detailAs ?? PharmacySheet;
   // What visitors told of the pharmacy whose details are open, and the offer to tell of one's own visit.
   const report = useReport(options.reports, detail);
   // The row goes when it is used, and the keyboard would be left on a button that is gone: it is
@@ -556,9 +562,10 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 onRoute={select}
                 onSelect={select}
                 onShowCard={showCard}
+                onMedicine={openMedicine}
+                medicineSite={cardSite}
               >
                 {banner}
-                {medicineLine}
               </HoursUnknownCard>
             )}
 
@@ -578,16 +585,16 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 onRoute={select}
                 onSelect={select}
                 onShowCard={showCard}
+                onMedicine={openMedicine}
+                medicineSite={cardSite}
               >
                 {banner}
-                {medicineLine}
               </NearestOpenCard>
             )}
 
             {!lead && !nearestOpen && firstToOpen && (
-              <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select}>
+              <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select} onMedicine={openMedicine} medicineSite={cardSite}>
                 {banner}
-                {medicineLine}
               </NothingOpenCard>
             )}
 
@@ -642,7 +649,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
           }}
         >
           {detail && (
-            <PharmacySheet
+            <Details
               pharmacy={detail}
               city={cityIfElsewhere(detail, place, i18n.locale)}
               distance={scene.distance}

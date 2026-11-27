@@ -4,6 +4,7 @@ import { ReportView } from '@/components/dev/ReportView';
 import { ResultsView } from '@/components/dev/Results';
 import { AbroadPairsSheet, AbroadSheet, CardCase, ComponentSheet } from '@/components/dev/Sheets';
 import { StockExample } from '@/components/dev/StockExample';
+import { PharmacySheet as PharmacySheetBefore } from '@/components/dev/before/PharmacySheet';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
 import { ProblemView } from '@/components/ProblemView';
@@ -165,6 +166,12 @@ export const renderers: Record<string, () => ReactNode> = {
   'medicine-se': () => <ResultsView scene={helsinki} sheet="peek" medicine="SE" medicineReview />,
   'medicine-current': () => <ResultsView scene={helsinki} sheet="expanded" medicine={false} />,
   'medicine-proposed': () => <ResultsView scene={helsinki} sheet="expanded" />,
+
+  // The hierarchy of a pharmacy's details and of the card (27 Nov 2026): as they were, and as they are.
+  'details-before': () => <ResultsView scene={helsinki} sheet="expanded" detailId="yliopiston" detailAs={PharmacySheetBefore} />,
+  'details-after': () => <ResultsView scene={helsinki} sheet="expanded" detailId="yliopiston" />,
+  'card-before': () => <CardCase id="before" />,
+  'card-after': () => <CardCase id="after" />,
 
   // The phone's sheet (provisional): as it was, and at its lowest as proposed.
   'sheet-current': () => <ResultsView scene={helsinki} sheet="peek" sheetStyle="classic" />,

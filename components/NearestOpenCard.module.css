@@ -204,31 +204,6 @@
   gap: 8px;
 }
 
-/* "Ei varastossa? Seuraava auki" */
-.next {
-  display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  column-gap: 10px;
-  align-items: start;
-  padding-top: 14px;
-  border-top: 1px solid var(--hair-2);
-  color: var(--ink-2);
-  font-size: var(--t-m);
-  line-height: 1.45;
-}
-
-.nextGlyph {
-  padding-top: 2px;
-}
-
-.nextName {
-  color: var(--ink);
-  font-weight: 650;
-  text-decoration: underline;
-  text-decoration-color: var(--outline);
-  text-underline-offset: 3px;
-}
-
 /* "Avautuu ensimmäisenä" under a far open pharmacy: the nearby one worth waiting for. */
 .first {
   display: flex;
@@ -316,21 +291,6 @@
   color: var(--meta);
   font-size: var(--t-s);
   line-height: 1.45;
-}
-
-/*
- * The way to a medicine's stock search: a row of its own, the card's last section (the row
- * comes from ResultsView, as the card's last child, with its own rule above it). The card's
- * gap would stand twice around a row that has its own padding: it gives half back.
- */
-.medicine {
-  margin: -6px 0;
-}
-
-.next + .coverage {
-  margin-top: -6px;
-  padding-top: 0;
-  border-top: 0;
 }
 
 .coverage a {

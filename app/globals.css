@@ -14,7 +14,12 @@
   /* Surfaces */
   --paper: light-dark(#f4f8fc, #071427);
   --surface: light-dark(#ffffff, #0e2342);
-  --sheet: light-dark(#ffffff, #0b1d38);
+  /* The phone's sheet. In the dark it is a step lighter than the map's ground at night, with a lit top edge (--sheet-edge), so that it stands apart from the map. */
+  --sheet: light-dark(#ffffff, #0f2646);
+  --sheet-edge: light-dark(rgb(11 27 49 / 0.1), rgb(169 196 232 / 0.45));
+  /* An inset group inside a sheet or a card: lighter than the dark sheet, a shade off the white one. */
+  --inset: light-dark(#f0f4f9, #17335c);
+  --inset-rule: light-dark(#dce4ee, #26477a);
   --quiet: light-dark(#eef3f8, #16305a);
   --selected: light-dark(#e3eef6, #14315c);
   --hair: light-dark(#d5dfea, #1d3a63);
@@ -124,6 +129,7 @@
   --r-button: 12px;
   --r-button-lg: 14px;
   --r-chip: 10px;
+  --r-group: 14px;
   --r-card: 20px;
   --r-sheet: 28px;
 }

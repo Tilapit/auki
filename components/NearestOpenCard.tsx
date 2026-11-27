@@ -8,6 +8,7 @@ import { rich } from '@/lib/i18n/rich';
 import { displayName, fullName, glyphFor, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
 import type { CountryInfo, Ehditko, Pharmacy, Scene } from '@/lib/types';
+import { ActionBar, ActionButton, Row, RowGroup } from './Actions';
 import { Button } from './Button';
 import { CrossGlyph } from './CrossGlyph';
 import { cx } from './cx';
@@ -38,6 +39,9 @@ interface Props {
   onRoute?: (pharmacy: Pharmacy) => void;
   onSelect?: (pharmacy: Pharmacy) => void;
   onShowCard?: () => void;
+  /** Opens the medicine dialog for this pharmacy's country, and that service's address. Left out where the country has no stock search of its own. */
+  onMedicine?: () => void;
+  medicineSite?: string;
   /** More sections of the same surface: the prescription banner abroad. */
   children?: ReactNode;
 }
@@ -62,6 +66,8 @@ export function NearestOpenCard({
   onRoute,
   onSelect,
   onShowCard,
+  onMedicine,
+  medicineSite,
   children,
 }: Props) {
   const i18n = useI18n();
@@ -148,7 +154,7 @@ export function NearestOpenCard({
               </div>
             )}
           </div>
-          {nextOpen && nextWay && (
+          {nextOpen && nextWay ? (
             <div className={styles.promoted}>
               <p className={styles.promotedLabel}>{t.card.nextOpen}</p>
               <div className={styles.head}>
@@ -170,80 +176,95 @@ export function NearestOpenCard({
                   )}
                 </div>
               </div>
-              <div className={styles.actions}>
+              <ActionBar>
                 {/* The next one may be the far one from the wider search: too far to promise a walk. */}
-                <Button
-                  variant="primary"
+                <ActionButton
+                  primary
                   icon={withinWalk(nextOpen) ? 'walk' : 'directions'}
                   aria-label={(withinWalk(nextOpen) ? t.card.routeLabel : t.card.directionsLabel)(fullName(i18n, nextOpen, !!nextOpenWithStreet))}
                   onClick={() => onRoute?.(nextOpen)}
                 >
                   {t.card.route}
-                </Button>
+                </ActionButton>
                 {nextOpen.phone && (
-                  <Button
-                    icon="phone"
-                    href={`tel:${nextOpen.phone.replace(/\s/g, '')}`}
-                    aria-label={t.card.callLabel(displayName(i18n, nextOpen))}
-                  >
+                  <ActionButton icon="phone" href={`tel:${nextOpen.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(displayName(i18n, nextOpen))}>
                     {t.card.call}
-                  </Button>
+                  </ActionButton>
                 )}
-              </div>
+                <MedicineAction onOpen={onMedicine} site={medicineSite} />
+              </ActionBar>
             </div>
+          ) : (
+            onMedicine &&
+            medicineSite && (
+              <RowGroup>
+                <MedicineRowItem onOpen={onMedicine} site={medicineSite} />
+              </RowGroup>
+            )
           )}
         </>
       ) : (
         <>
-          <div className={styles.actions}>
-            <Button
-              variant="primary"
-              icon={walk ? 'walk' : 'directions'}
-              aria-label={(walk ? t.card.routeLabel : t.card.directionsLabel)(label)}
-              onClick={() => onRoute?.(pharmacy)}
-            >
+          <ActionBar>
+            <ActionButton primary icon={walk ? 'walk' : 'directions'} aria-label={(walk ? t.card.routeLabel : t.card.directionsLabel)(label)} onClick={() => onRoute?.(pharmacy)}>
               {t.card.route}
-            </Button>
+            </ActionButton>
             {pharmacy.phone && (
-              <Button icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(label)}>
+              <ActionButton icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(label)}>
                 {t.card.call}
-              </Button>
+              </ActionButton>
             )}
-            {country && (
-              <Button icon="card" aria-label={t.card.showAtCounterLabel(country.inLanguage[i18n.locale])} onClick={onShowCard}>
-                {t.card.showAtCounter}
-              </Button>
-            )}
-          </div>
-          {nextOpen && nextDetails && (
-            <div className={styles.next}>
-              <span className={styles.nextGlyph}>
-                <CrossGlyph state={glyphFor(nextOpen.status)} size={18} />
-              </span>
-              <p>
-                {rich(t.card.outOfStock, {
-                  name: (
-                    <a
-                      href={`#${nextOpen.id}`}
-                      className={styles.nextName}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        onSelect?.(nextOpen);
-                      }}
-                    >
-                      {displayName(i18n, nextOpen)}
-                    </a>
-                  ),
-                  details: nextDetails,
-                })}
-              </p>
-            </div>
+            <MedicineAction onOpen={onMedicine} site={medicineSite} />
+          </ActionBar>
+          {((nextOpen && nextDetails) || country) && (
+            <RowGroup>
+              {nextOpen && nextDetails && (
+                <Row
+                  icon={<CrossGlyph state={glyphFor(nextOpen.status)} size={20} />}
+                  title={t.card.outOfStockTitle}
+                  sub={`${displayName(i18n, nextOpen)}, ${nextDetails}`}
+                  onClick={() => onSelect?.(nextOpen)}
+                />
+              )}
+              {country && <CounterRow country={country} onOpen={onShowCard} />}
+            </RowGroup>
           )}
           {firstToOpen && <FirstToOpen pharmacy={firstToOpen} distance={distance} onSelect={onSelect} />}
         </>
       )}
       {children}
     </section>
+  );
+}
+
+/** The medicine search as one of the main actions: the short form of its name on the button, the whole of it and the service's address as its name. */
+function MedicineAction({ onOpen, site }: { onOpen?: () => void; site?: string }) {
+  const { t } = useI18n();
+  if (!onOpen || !site) return null;
+  return (
+    <ActionButton icon="search" aria-haspopup="dialog" aria-label={`${t.medicine.title} ${site}`} onClick={onOpen}>
+      {t.medicine.short}
+    </ActionButton>
+  );
+}
+
+/** The same as a row of the list, where a card has no row of main actions to put it in. */
+function MedicineRowItem({ onOpen, site }: { onOpen: () => void; site: string }) {
+  const { t } = useI18n();
+  return <Row icon="search" title={t.medicine.title} sub={site} aria-haspopup="dialog" onClick={onOpen} />;
+}
+
+/** "Näytä apteekissa": the counter card, named with the language it is in. */
+function CounterRow({ country, onOpen }: { country: CountryInfo; onOpen?: () => void }) {
+  const { t, locale } = useI18n();
+  return (
+    <Row
+      icon="card"
+      title={t.card.showAtCounter}
+      sub={t.card.counterCardIn(country.inLanguage[locale])}
+      aria-haspopup="dialog"
+      onClick={onOpen}
+    />
   );
 }
 
@@ -355,6 +376,8 @@ interface HoursUnknownProps {
   onRoute?: (pharmacy: Pharmacy) => void;
   onSelect?: (pharmacy: Pharmacy) => void;
   onShowCard?: () => void;
+  onMedicine?: () => void;
+  medicineSite?: string;
   children?: ReactNode;
 }
 
@@ -364,7 +387,7 @@ interface HoursUnknownProps {
  * nearest leads, with what we don't know said plainly and the call button first. The nearest
  * one known to be open stays as a line under it. Nothing here guesses at hours.
  */
-export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, knownOpenWithStreet, hoursListed, country, onRoute, onSelect, onShowCard, children }: HoursUnknownProps) {
+export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, knownOpenWithStreet, hoursListed, country, onRoute, onSelect, onShowCard, onMedicine, medicineSite, children }: HoursUnknownProps) {
   const i18n = useI18n();
   const { t, f, locale } = i18n;
   const id = useId();
@@ -391,50 +414,30 @@ export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, k
       </p>
 
       {/* The call comes first: it is the one way to know before the walk. */}
-      <div className={styles.actions}>
+      <ActionBar>
         {pharmacy.phone && (
-          <Button variant="primary" icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(label)}>
+          <ActionButton primary icon="phone" href={`tel:${pharmacy.phone.replace(/\s/g, '')}`} aria-label={t.card.callLabel(label)}>
             {t.card.call}
-          </Button>
+          </ActionButton>
         )}
-        <Button
-          variant={pharmacy.phone ? 'secondary' : 'primary'}
-          icon={walk ? 'walk' : 'directions'}
-          aria-label={(walk ? t.card.routeLabel : t.card.directionsLabel)(label)}
-          onClick={() => onRoute?.(pharmacy)}
-        >
+        <ActionButton primary={!pharmacy.phone} icon={walk ? 'walk' : 'directions'} aria-label={(walk ? t.card.routeLabel : t.card.directionsLabel)(label)} onClick={() => onRoute?.(pharmacy)}>
           {t.card.route}
-        </Button>
-        {country && (
-          <Button icon="card" aria-label={t.card.showAtCounterLabel(country.inLanguage[locale])} onClick={onShowCard}>
-            {t.card.showAtCounter}
-          </Button>
-        )}
-      </div>
+        </ActionButton>
+        <MedicineAction onOpen={onMedicine} site={medicineSite} />
+      </ActionBar>
 
-      {knownOpen && knownDetails && (
-        <div className={styles.next}>
-          <span className={styles.nextGlyph}>
-            <CrossGlyph state={glyphFor(knownOpen.status)} size={18} />
-          </span>
-          <p>
-            {rich(t.results.knownOpen, {
-              name: (
-                <a
-                  href={`#${knownOpen.id}`}
-                  className={styles.nextName}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    onSelect?.(knownOpen);
-                  }}
-                >
-                  {displayName(i18n, knownOpen)}
-                </a>
-              ),
-              details: knownDetails,
-            })}
-          </p>
-        </div>
+      {((knownOpen && knownDetails) || country) && (
+        <RowGroup>
+          {knownOpen && knownDetails && (
+            <Row
+              icon={<CrossGlyph state={glyphFor(knownOpen.status)} size={20} />}
+              title={t.results.knownOpenTitle}
+              sub={`${displayName(i18n, knownOpen)}, ${knownDetails}`}
+              onClick={() => onSelect?.(knownOpen)}
+            />
+          )}
+          {country && <CounterRow country={country} onOpen={onShowCard} />}
+        </RowGroup>
       )}
 
       {/* M6: where night duty rotates, the country's official duty-pharmacy lookup goes here (PLAN.md section 5). */}
@@ -457,6 +460,8 @@ interface NothingOpenProps {
   pharmacy: Pharmacy;
   distance: Scene['distance'];
   onSelect?: (pharmacy: Pharmacy) => void;
+  onMedicine?: () => void;
+  medicineSite?: string;
   children?: ReactNode;
 }
 
@@ -465,7 +470,7 @@ interface NothingOpenProps {
  * that opens first, and the emergency number kept prominent. No route button: it would lead
  * to a closed door.
  */
-export function NothingOpenCard({ pharmacy, distance, onSelect, children }: NothingOpenProps) {
+export function NothingOpenCard({ pharmacy, distance, onSelect, onMedicine, medicineSite, children }: NothingOpenProps) {
   const i18n = useI18n();
   const { t } = i18n;
   const id = useId();
@@ -477,11 +482,11 @@ export function NothingOpenCard({ pharmacy, distance, onSelect, children }: Noth
       <CardHead pharmacy={pharmacy} address={pharmacy.street} distance={distance} onSelect={onSelect}>
         <OpenStatus status={pharmacy.status} strong className={styles.status} />
       </CardHead>
-      <div className={styles.actions}>
-        <Button aria-label={t.card.details(fullName(i18n, pharmacy, true))} onClick={() => onSelect?.(pharmacy)}>
-          {t.card.showDetails}
-        </Button>
-      </div>
+      {/* No main actions: there is no route to a closed door. What is worth opening is the hours. */}
+      <RowGroup>
+        <Row icon="clock" title={t.card.showDetails} aria-label={t.card.details(fullName(i18n, pharmacy, true))} onClick={() => onSelect?.(pharmacy)} />
+        {onMedicine && medicineSite && <MedicineRowItem onOpen={onMedicine} site={medicineSite} />}
+      </RowGroup>
       <p className={styles.emergency}>{rich(t.footer.emergency, { number: <a href="tel:112">112</a> })}</p>
       {children}
     </section>

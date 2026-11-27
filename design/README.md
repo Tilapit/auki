@@ -79,3 +79,7 @@ Screenshots for the pull request "Prescription from home?: for anyone, in any co
 ## The system typeface, 27 Nov 2026 (`system-font/`)
 
 Before and after for the pull request "The typeface is the device's own", from `/dev/states` in Chromium on a Mac, where the system's typeface is SF Pro as on an iPhone: a pharmacy's details (`sheet.jpg`), the card (`card.jpg`), the desktop in both themes (`desktop-light.jpg`, `desktop-dark.jpg`), the first window and the counter card (`first-and-counter.jpg`), and the map's street names on real tiles (`map.jpg`, from `/dev/map`).
+
+## The sheet's and the card's hierarchy, 27 Nov 2026 (`sheet-hierarchy/`)
+
+Before and after for the pull request "A clearer pharmacy sheet and card", in Chromium on a Mac: a pharmacy's details as they open on the phone (`details-middle.jpg`) and fully up (`details-full.jpg`, from the comparison views of `/dev/states`), the card (`card.jpg`), the details in the desktop's panel (`desktop-light.jpg`, `desktop-dark.jpg`), and the dark sheet against the real map at night and at dusk (`surface.jpg`, from `/dev/map`).

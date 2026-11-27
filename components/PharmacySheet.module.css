@@ -1,7 +1,7 @@
 .sheet {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* Desktop only: the details replace the list, so there is a way back. */
@@ -11,7 +11,7 @@
 
 .head {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
   column-gap: 12px;
   align-items: start;
 }
@@ -20,10 +20,12 @@
   padding-top: 3px;
 }
 
+/* The name leads: the largest words of the sheet. */
 .name {
-  font-size: var(--t-l);
-  font-weight: 650;
-  line-height: 1.2;
+  font-size: var(--t-xl);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
 }
 
@@ -33,24 +35,31 @@
 }
 
 .address {
-  margin-top: 3px;
-  color: var(--meta);
+  margin-top: 4px;
+  color: var(--ink-2);
   font-size: var(--t-m);
 }
 
 /* The details start at the top of the sheet's scroller: the button's circle stays inside it. */
 .close {
-  margin: 0 -8px 0 0;
+  margin: -2px -8px 0 0;
 }
 
+/* Whether it is open, and how far: the two facts a person in the street came for, on one line. */
 .summary {
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
 
+.summary .status {
+  font-size: var(--t-l);
+  line-height: 1.25;
+}
+
 .note {
+  margin-top: 2px;
   color: var(--ink-2);
   font-size: var(--t-s);
 }
@@ -80,7 +89,7 @@
 
 .time {
   display: block;
-  font-size: 1.875rem;
+  font-size: var(--t-2xl);
   font-weight: 750;
   letter-spacing: -0.015em;
   white-space: nowrap;
@@ -89,69 +98,51 @@
 .distance {
   display: block;
   margin-top: 4px;
-  color: var(--meta);
+  color: var(--ink-2);
   font-size: var(--t-s);
   white-space: nowrap;
 }
 
+/*
+ * The hours and the contacts: an inset group of their own, on the groups' surface, a rule
+ * between one fact and the next. Two columns, so the values start on one line down the group.
+ */
 .facts {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 6px 14px;
   margin: 0;
-  padding: 12px 0;
-  border-top: 1px solid var(--hair-2);
-  border-bottom: 1px solid var(--hair-2);
+  padding: 3px 14px;
+  border-radius: var(--r-group);
+  background: var(--group-fill, var(--inset));
+  box-shadow: var(--group-edge, none);
+}
+
+.facts dt,
+.facts dd {
+  padding: 10px 0;
+  border-top: 1px solid var(--inset-rule);
+}
+
+.facts dt:first-of-type,
+.facts dt:first-of-type + dd {
+  border-top: 0;
 }
 
 .facts dt {
-  color: var(--meta);
+  padding-right: 16px;
+  color: var(--ink-2);
   font-size: var(--t-s);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .facts dd {
-  font-size: var(--t-m);
+  font-size: var(--t-b);
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
 .line {
   display: block;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.next {
-  color: var(--ink-2);
-  font-size: var(--t-m);
-  line-height: 1.45;
-}
-
-.nextName {
-  color: var(--ink);
-  font-weight: 650;
-  text-decoration: underline;
-  text-decoration-color: var(--outline);
-  text-underline-offset: 3px;
-}
-
-/* The way to a medicine's stock search: a row of its own, with a rule under it as well as above. */
-.medicine {
-  border-bottom: 1px solid var(--hair-2);
-}
-
-/*
- * Visitors' reports: sections of their own, each with a rule under it. The first one after
- * the "Ei varastossa?" line gets a rule above as well; after the medicine row that row's rule is it.
- */
-.next + .report,
-.actions + .report {
-  border-top: 1px solid var(--hair-2);
 }
 
 .footnote {
@@ -161,13 +152,19 @@
 }
 
 @media (min-width: 900px) {
+  /* On the panel's own ground a group is a surface with an edge, like the list beside the card. */
+  .sheet {
+    --group-fill: var(--surface);
+    --group-edge: inset 0 0 0 1px var(--hair);
+  }
+
   .backLink {
     display: inline-flex;
     align-items: center;
     align-self: flex-start;
     gap: 4px;
     min-height: 44px;
-    margin: -8px 0 -6px -4px;
+    margin: -8px 0 -8px -4px;
     padding: 0 8px 0 0;
     border: 0;
     background: transparent;
