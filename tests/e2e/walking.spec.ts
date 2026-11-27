@@ -218,6 +218,53 @@ test('the pharmacy sheet: the walk, the hand-off, the website, the email, and th
   await expect(sheet.getByRole('link', { name: 'Korjaa OpenStreetMapissa: Apteekki' })).toHaveCount(2);
 });
 
+/**
+ * Whose map app the route button opens (Janne, 27 Nov 2026): Apple's on an iPhone, an iPad and
+ * a Mac, Google's everywhere else, on foot in both, and the other of the two a row further
+ * down. The device is known by the name its browser gives itself, which each case sets here.
+ */
+const DEVICES = [
+  ['an iPhone', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1', 'apple'],
+  ['an iPad, which calls itself a Mac', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15', 'apple'],
+  ['a Mac, in Chrome', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', 'apple'],
+  ['an Android phone', 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36', 'google'],
+  ['a Windows computer', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36', 'google'],
+] as const;
+
+for (const [device, userAgent, app] of DEVICES) {
+  test.describe(`the route button on ${device}`, () => {
+    test.use({ userAgent });
+    test(`opens ${app === 'apple' ? 'Apple Maps' : 'Google Maps'}, on foot, and the other map app is a row below it`, async ({ page }) => {
+      await fakeWalking(page);
+      await start(page, world(kamppi));
+      await card(page).getByRole('button', { name: 'Reitti kävellen: Kampin apteekki' }).click();
+      const sheet = page.getByRole('dialog');
+      const links = {
+        apple: { name: 'Reitti Apple Kartoissa (avautuu uuteen välilehteen)', href: `https://maps.apple.com/?daddr=${kampin.lat},${kampin.lon}&dirflg=w` },
+        google: { name: 'Reitti Google Mapsissa (avautuu uuteen välilehteen)', href: `https://www.google.com/maps/dir/?api=1&destination=${kampin.lat},${kampin.lon}&travelmode=walking` },
+      };
+      const other = app === 'apple' ? 'google' : 'apple';
+      // The button: "Reitti", with the app's name under it, and a name that says both.
+      const button = sheet.locator('a[data-route]');
+      await expect(button).toHaveCount(1);
+      await expect(button).toHaveAttribute('data-route', app);
+      await expect(button).toHaveAccessibleName(links[app].name);
+      await expect(button).toHaveAttribute('href', links[app].href);
+      await expect(button).toContainText(app === 'apple' ? 'Apple Kartoissa' : 'Google Mapsissa');
+      // The other app: one link, further down.
+      const row = sheet.getByRole('link', { name: links[other].name });
+      await expect(row).toHaveCount(1);
+      await expect(row).toHaveAttribute('href', links[other].href);
+      expect((await row.boundingBox())!.y).toBeGreaterThan((await button.boundingBox())!.y);
+      // Each opens in a tab of its own and tells the map app nothing of where it came from.
+      for (const link of [button, row]) {
+        await expect(link).toHaveAttribute('target', '_blank');
+        await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      }
+    });
+  });
+}
+
 test('the route line: asked for through the same request, once per pharmacy, and drawn on the map', async ({ page }) => {
   const asked = await fakeWalking(page);
   await start(page, world(kamppi));

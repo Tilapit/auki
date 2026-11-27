@@ -245,6 +245,8 @@ const fi = {
     /** Under "Reitti" on the route button: where it opens. With the word above it, it reads as the line above. */
     googleIn: 'Google Mapsissa',
     apple: 'Reitti Apple Kartoissa',
+    /** The same under "Reitti" where the button opens Apple's map app: on an iPhone, an iPad and a Mac. */
+    appleIn: 'Apple Kartoissa',
     handOff: 'Reitti avautuu karttasovelluksessa, ja linkissä on vain apteekin sijainti.',
     source: 'Tiedot: OpenStreetMap.',
     sourceChecked: (date: string) => `Tiedot: OpenStreetMap, aukioloajat tarkistettu ${date}.`,

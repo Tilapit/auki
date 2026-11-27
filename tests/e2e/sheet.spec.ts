@@ -377,7 +377,7 @@ test.describe('a pharmacy’s details in the sheet', () => {
     const top = (await rest(handle(page))).y - 13;
     // Never more than 60 % of the screen, and down to the first route button.
     expect(top).toBeGreaterThanOrEqual(SCREEN * 0.4 - 1);
-    await expect(details(page).getByRole('link', { name: 'Reitti Google Mapsissa' })).toBeInViewport({ ratio: 1 });
+    await expect(details(page).locator('a[data-route]')).toBeInViewport({ ratio: 1 });
     // The marker of the pharmacy is on the map above the sheet, clear of the bar.
     await settle(page);
     const marker = (await page.getByRole('region', { name: /^Kartta/ }).getByRole('button', { name: /^Kampin apteekki/ }).boundingBox())!;
@@ -406,7 +406,8 @@ test.describe('a pharmacy’s details in the sheet', () => {
     // What the card has no room for: the week's hours, the contacts, both map apps, the medicine search, the report row.
     await expect(details(page).getByText('Joka päivä 8.00–21.00')).toBeVisible();
     await expect(details(page).getByRole('link', { name: 'kamppi@apteekki.example' })).toHaveCount(1);
-    await expect(details(page).getByRole('link', { name: /Reitti Google Mapsissa/ })).toBeInViewport({ ratio: 1 });
+    await expect(details(page).locator('a[data-route]')).toBeInViewport({ ratio: 1 });
+    await expect(details(page).getByRole('link', { name: /Reitti Google Mapsissa/ })).toHaveCount(1);
     await expect(details(page).getByRole('link', { name: /Reitti Apple Kartoissa/ })).toHaveCount(1);
     await expect(details(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ })).toHaveCount(1);
     await expect(details(page).getByRole('button', { name: 'Kävitkö täällä? Kerro, miten meni' })).toHaveCount(1);
