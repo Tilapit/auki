@@ -87,3 +87,7 @@ Before and after for the pull request "A clearer pharmacy sheet and card", in Ch
 ## The reports in use, 27 Nov 2026 (`reports-use/`)
 
 For the pull request "The reports are used", from `/dev/states` in Chromium on a Mac, on invented reports that say so on their face: the facts in a pharmacy's details against the counts they replace (`facts.jpg`), the list's two filters and the two states without reports (`filters.jpg`), the report's new question (`question.jpg`), and the desktop (`desktop.jpg`).
+
+## All of the EU and the EEA, 27 Nov 2026 (`eu-eea/`)
+
+For the pull request that adds ten countries, from `/dev/states` in Chromium on a Mac: the view for a place outside the coverage, which is London now that Paris is covered (`outside.jpg`), and the data page with 31 countries (`data-desktop.jpg`).
