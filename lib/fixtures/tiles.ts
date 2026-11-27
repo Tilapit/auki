@@ -136,9 +136,12 @@ const stats = (pharmacies: number, withHours: number, parsed: number, more: Part
 
 /**
  * Pharmacies, how many of them have opening hours, and how many of those were read, per
- * country: the pipeline's run of 23 November 2026 on OpenStreetMap's data of that day.
+ * country, as the pipeline measured them. The first 21: its run of 23 November 2026 on
+ * OpenStreetMap's data of that day. The ten that joined on 27 November 2026 (the rest of the
+ * EU and the EEA): its run of that day on that day's data, France and the Netherlands without
+ * what lies outside Europe.
  */
-export const RUN_OF_23_NOV: Record<string, [pharmacies: number, withHours: number, parsed: number]> = {
+export const MEASURED_RUNS: Record<string, [pharmacies: number, withHours: number, parsed: number]> = {
   FI: [787, 624, 624],
   AT: [1517, 1189, 1188],
   CH: [1646, 1036, 1035],
@@ -160,6 +163,16 @@ export const RUN_OF_23_NOV: Record<string, [pharmacies: number, withHours: numbe
   SE: [1110, 622, 622],
   SI: [315, 130, 130],
   SK: [1702, 943, 942],
+  BE: [3581, 1495, 1495],
+  BG: [1718, 828, 828],
+  CY: [647, 63, 62],
+  FR: [19098, 10117, 10116],
+  IE: [1500, 403, 402],
+  LU: [107, 104, 104],
+  NL: [1694, 1104, 1104],
+  RO: [4032, 1062, 1061],
+  IS: [109, 100, 99],
+  LI: [6, 6, 5],
 };
 
 /**
@@ -174,7 +187,7 @@ export function indexOf(tiles: { x: number; y: number }[], outside: { x: number;
   const has = new Set(tiles.map(tileKey));
   const out = new Set(outside.map(tileKey));
   const rows = Array.from({ length: 9 }, (_, row) => Array.from({ length: 9 }, (_, column) => (out.has(tileKey({ x: x0 + column, y: y0 + row })) ? '.' : has.has(tileKey({ x: x0 + column, y: y0 + row })) ? 'd' : 'c')).join(''));
-  const countries = Object.fromEntries(COUNTRY_CODES.map((code, index) => [code, stats(...RUN_OF_23_NOV[code], { generated: GENERATED + index * 47 })]));
+  const countries = Object.fromEntries(COUNTRY_CODES.map((code, index) => [code, stats(...MEASURED_RUNS[code], { generated: GENERATED + index * 47 })]));
   countries.LV = { ...countries.LV, generated: GENERATED - 2 * 86400 + 11 * 47, kept: 'fetch' };
-  return { v: 1, generated: GENERATED + 21 * 47 + 5, attribution: '© OpenStreetMap contributors, ODbL 1.0, https://www.openstreetmap.org/copyright', countries, grid: { z: TILE_ZOOM, x0, y0, width: 9, rows } };
+  return { v: 1, generated: GENERATED + COUNTRY_CODES.length * 47 + 5, attribution: '© OpenStreetMap contributors, ODbL 1.0, https://www.openstreetmap.org/copyright', countries, grid: { z: TILE_ZOOM, x0, y0, width: 9, rows } };
 }

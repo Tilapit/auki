@@ -251,14 +251,20 @@ test('the data page shows the numbers of the last run', async ({ page }) => {
   // Each country's last successful fetch, with its time, on the device's clock.
   await expect(finland).toContainText('23.11. klo 3.17');
   // When the last run was, and which countries it could not refresh.
-  await expect(page.getByText('Viimeisin haku: 23.11. klo 3.33')).toBeVisible();
+  // The fixture's run ends 47 s after each of its 31 countries: 24 minutes after 3.17.
+  await expect(page.getByText('Viimeisin haku: 23.11. klo 3.41')).toBeVisible();
   await expect(page.getByText('Ei päivittynyt viimeisimmässä haussa: Latvia.')).toBeVisible();
   const latvia = page.getByRole('row', { name: /Latvia/ });
   await expect(latvia).toContainText('21.11. klo 3.25');
   await expect(latvia).toContainText('aiempi haku');
   await expect(page.getByRole('row', { name: /Kreikka/ })).toContainText('7,3 %');
+  // The countries that joined on 27 Nov 2026, with that day's numbers.
+  await expect(page.getByRole('row', { name: /Luxemburg/ })).toContainText('97,2 %');
+  await expect(page.getByRole('row', { name: /Islanti/ })).toContainText('91,7 %');
+  await expect(page.getByRole('row', { name: /Liechtenstein/ })).toContainText('83,3 %');
   await expect(page.getByText('Missä osuus on pieni, useimmat apteekit näkyvät tuloksissa merkinnällä')).toBeVisible();
-  await expect(page.getByRole('row')).toHaveCount(23);
+  // 31 countries, the headings and the sums.
+  await expect(page.getByRole('row')).toHaveCount(33);
   await expect(page.getByRole('link', { name: 'Takaisin apteekkihakuun' }).last()).toHaveAttribute('href', '/fi');
 });
 
@@ -270,7 +276,7 @@ test('the data table fits the page on a phone and on a desktop, in both language
     for (const locale of ['fi', 'en']) {
       await page.goto(`/${locale}/data`);
       const table = page.getByRole('table');
-      await expect(table.getByRole('row')).toHaveCount(23);
+      await expect(table.getByRole('row')).toHaveCount(33);
       const { needed, room } = await table.evaluate((element) => {
         const box = element.parentElement as HTMLElement;
         const room = box.clientWidth;

@@ -253,7 +253,7 @@ export async function refreshCountries({ all, asked, previous, getExtract, giveU
         const { data, dropped } = processCountry(country, extract);
         const verdict = check(data.stats, previous.index?.countries[code]);
         log(
-          `${code}: ${data.stats.pharmacies} pharmacies (${dropped.duplicate} duplicates, ${dropped.private} private and ${dropped.noPosition} without a position left out), ` +
+          `${code}: ${data.stats.pharmacies} pharmacies (${dropped.duplicate} duplicates, ${dropped.private} private, ${dropped.noPosition} without a position and ${dropped.outsideGrid} outside the grid left out), ` +
             `${percent(data.stats.shareWithHours)} with hours, parse rate ${percent(data.stats.parseRate)}`,
         );
         if (verdict.ok) fresh = data;

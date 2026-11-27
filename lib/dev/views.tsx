@@ -111,6 +111,7 @@ export const renderers: Record<string, () => ReactNode> = {
   'abroad-finland': () => <ResultsView scene={{ ...helsinki, here: 'FI' }} home="EE" sheet="expanded" bannerOpen />,
   'abroad-ask': () => <ResultsView scene={riga} home={null} sheet="expanded" />,
   abroad: () => <AbroadSheet />,
+  'abroad-2': () => <AbroadSheet part={2} />,
   'abroad-pairs': () => <AbroadPairsSheet />,
 
   'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
@@ -131,7 +132,7 @@ export const renderers: Record<string, () => ReactNode> = {
   'walking-sheet': () => <ResultsView scene={fromTiles(walkedResultOf(withWeek))} sheet="peek" detailId="n101" />,
   'walking-sheet-unknown': () => <ResultsView scene={fromTiles(walkedResultOf(kamppi))} sheet="peek" detailId="n104" />,
 
-  'not-covered': () => <ProblemView kind="notCovered" scene={sceneAt({ source: 'search', lat: 48.8566, lon: 2.3522, label: 'Pariisi' }, '20:41')} country="FR" />,
+  'not-covered': () => <ProblemView kind="notCovered" scene={sceneAt({ source: 'search', lat: 51.5074, lon: -0.1278, label: 'Lontoo' }, '20:41')} country="GB" />,
   'not-covered-unknown': () => <ProblemView kind="notCovered" scene={sceneAt(HERE, '20:41')} />,
   data: () => <DataView loaded={{ status: 'ready', index: indexOf([]) }} zone="Europe/Helsinki" />,
   'data-failed': () => <DataView loaded={{ status: 'failed' }} />,

@@ -52,8 +52,11 @@ describe('the countries', () => {
     expect(HOMES.filter((home) => home.union === 'eea').map((home) => home.code).sort()).toEqual(['IS', 'LI', 'NO']);
     expect(HOMES.filter((home) => home.union === 'ch').map((home) => home.code)).toEqual(['CH']);
     expect(HOMES.filter((home) => home.union === 'none').map((home) => home.code)).toEqual(['GB']);
-    // Every country one can be in is a country one can be from.
-    for (const place of HERE) expect(codes, place.code).toContain(place.code);
+    // Every country one can be in is a country one can be from, and is named the same on both sides.
+    for (const place of HERE) {
+      expect(codes, place.code).toContain(place.code);
+      expect(place.inCountry, place.code).toEqual(HOMES.find((home) => home.code === place.code)!.inCountry);
+    }
   });
 
   it('names each as the browser’s own data does, in both languages', () => {
@@ -278,9 +281,33 @@ describe('electronic prescriptions, pair by pair', () => {
   it('says of every pair what was found, in one of six ways', () => {
     const counts: Record<string, number> = {};
     for (const { guide } of guides) counts[guide.ePrescription.status] = (counts[guide.ePrescription.status] ?? 0) + 1;
-    // 33 countries one can be from, 21 one can be in, less the 21 pairs at home.
-    expect(pairs).toHaveLength(33 * 21 - 21);
-    expect(counts).toEqual({ works: 94, disagree: 2, notListed: 255, notHere: 160, notAbroad: 48, unknown: 113 });
+    // 33 countries one can be from, 31 one can be in, less the 31 pairs at home.
+    expect(pairs).toHaveLength(33 * 31 - 31);
+    expect(counts).toEqual({ works: 103, disagree: 2, notListed: 347, notHere: 160, notAbroad: 78, unknown: 302 });
+  });
+
+  it('of the ten countries no page was read for, says only what another country’s own page already says', () => {
+    const ten = ['BE', 'BG', 'CY', 'FR', 'IE', 'LU', 'NL', 'RO', 'IS', 'LI'];
+    for (const here of ten) expect(EXCHANGE[here], here).toBeUndefined();
+    const there = guides.filter(({ here }) => ten.includes(here));
+    // Ten countries, each with the 32 others one can be from.
+    expect(there).toHaveLength(10 * 32);
+    const said = (status: string) => there.filter(({ guide }) => guide.ePrescription.status === status);
+    // Works: only to Cyprus, from the nine countries whose own list of where their e-prescriptions are dispensed names it.
+    expect(said('works').map(({ home, here }) => key(home, here)).sort()).toEqual(['CZ', 'EE', 'ES', 'GR', 'HR', 'LT', 'LV', 'PL', 'PT'].map((home) => key(home, 'CY')));
+    for (const { home, guide } of said('works')) expect(guide.ePrescription.sources, home).toEqual([EXCHANGE[home].source]);
+    // Sweden, Norway and Denmark say theirs cannot be used abroad: three homes, ten countries.
+    expect(said('notAbroad')).toHaveLength(3 * 10);
+    // Missing from the home country's own current list: ten such lists for nine countries, and Finland's and Austria's for Cyprus.
+    expect(said('notListed')).toHaveLength(10 * 9 + 2);
+    for (const { home, here, guide } of said('notListed')) expect(guide.ePrescription.sources, key(home, here)).toEqual([EXCHANGE[home].source]);
+    // Everything else: nothing found.
+    expect(said('unknown')).toHaveLength(320 - 9 - 30 - 92);
+    expect(guideFor('FI', 'FR')!.ePrescription.text.fi).toMatch(/^Ranska ei ole niiden maiden luettelossa, joissa Suomessa kirjoitettu sähköinen resepti käy\. Luettelo: Kanta, .* Paperinen resepti käy EU:n säännön nojalla\.$/);
+    // "Alankomaat" is a plural in Finnish.
+    expect(guideFor('FI', 'NL')!.ePrescription.text.fi).toMatch(/^Alankomaat eivät ole niiden maiden luettelossa, joissa Suomessa kirjoitettu sähköinen resepti käy\. /);
+    expect(guideFor('NL', 'LV')!.ePrescription.text.fi).toMatch(/^Alankomaat eivät ole niiden maiden luettelossa, joiden sähköiset reseptit käyvät Latviassa\. /);
+    expect(guideFor('FI', 'NL')!.ePrescription.text.en).toMatch(/^The list of countries where an e-prescription written in Finland can be used does not include the Netherlands\. /);
   });
 });
 
@@ -358,8 +385,8 @@ describe('the field results', () => {
   const tried = HERE.filter((place) => place.field);
 
   it('are there for every country the trip tried, with the month, a place and how many pharmacies', () => {
-    // Sweden was not tried at a counter, and Finland is where the prescriptions were from.
-    expect(HERE.filter((place) => !place.field).map((place) => place.code)).toEqual(['FI', 'SE']);
+    // Sweden was not tried at a counter, and Finland is where the prescriptions were from. The trip did not go to the last ten.
+    expect(HERE.filter((place) => !place.field).map((place) => place.code)).toEqual(['FI', 'SE', 'BE', 'BG', 'CY', 'FR', 'IE', 'LU', 'NL', 'RO', 'IS', 'LI']);
     for (const place of tried) {
       expect(place.field!.fi, place.code).toMatch(/^Kokeiltu \p{Lu}[^:]* 11\/2026[:,]/u);
       expect(place.field!.en, place.code).toMatch(/^Tried in \p{Lu}[^:]*, 11\/2026[:,]/u);
@@ -480,6 +507,21 @@ describe('the counter card', () => {
     expect(cardFor('xx', ['paper'], { code: 'DE', eea: true })).toBeUndefined();
   });
 
+  it('has the ten countries the trip did not go to in one language each, three of them in French', () => {
+    const language = (code: string) => HERE.find((place) => place.code === code)!.language;
+    expect(['BE', 'BG', 'CY', 'FR', 'IE', 'LU', 'NL', 'RO', 'IS', 'LI'].map(language)).toEqual(['fr', 'bg', 'el', 'fr', 'en', 'fr', 'nl', 'ro', 'is', 'de']);
+    // 24 languages, and none that no country uses.
+    expect(Object.keys(PHRASES)).toHaveLength(24);
+    expect([...new Set(HERE.map((place) => place.language))].sort()).toEqual(Object.keys(PHRASES).sort());
+    // French sets a space before the colon and the question mark: a non-breaking one.
+    expect(guideFor('FI', 'FR')!.card!.variants.paper!.local[1]).toBe('Pays\u00A0: Finlande. Pouvez-vous délivrer le médicament prescrit\u00A0?');
+    expect(guideFor('DE', 'IS')!.card!.variants.paper!.local[1]).toBe('Land: Þýskaland. Getið þið afgreitt lyfseðilinn?');
+    // None of the five new languages is the language of a pair that works, or of a country where the trip saw a doctor's email accepted.
+    expect(Object.keys(guideFor('FI', 'NL')!.card!.variants)).toEqual(['paper']);
+    // Greek has the e-prescription lines, and Cyprus is on Estonia's list.
+    expect(Object.keys(guideFor('EE', 'CY')!.card!.variants)).toEqual(['ePrescription', 'paper']);
+  });
+
   it('has a language for every country one can be in, and every language has its word for "country"', () => {
     for (const place of HERE) expect(PHRASES[place.language], place.code).toBeDefined();
     for (const [code, language] of Object.entries(PHRASES)) {
@@ -505,6 +547,7 @@ describe('in the live results', () => {
     expect(guideFor('EE', sceneIn('FI').here)?.card?.lang).toBe('fi');
     expect(guideFor('FI', sceneIn('LV').here)?.card?.lang).toBe('lv');
     expect(guideFor(undefined, sceneIn('LV').here)).toBeUndefined();
-    expect(guideFor('FI', 'FR')).toBeUndefined();
+    // The United Kingdom is a country one can be from, and not one the app covers.
+    expect(guideFor('FI', 'GB')).toBeUndefined();
   });
 });

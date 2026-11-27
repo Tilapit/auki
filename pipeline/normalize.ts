@@ -4,8 +4,10 @@
  */
 
 import { distanceMeters } from '../lib/geo.ts';
-import { roundCoordinate } from '../lib/tiles.ts';
+import { roundCoordinate, tileOf } from '../lib/tiles.ts';
 import type { Wheelchair } from '../lib/tiles.ts';
+import { gridExtent } from './coverage.ts';
+import type { GridExtent } from './coverage.ts';
 import type { Country } from './countries.ts';
 import { zoneFor } from './countries.ts';
 import type { CountryExtract, OsmElement } from './fetch.ts';
@@ -35,7 +37,13 @@ export interface Normalized {
 
 export interface NormalizeResult {
   pharmacies: Normalized[];
-  dropped: { private: number; duplicate: number; noPosition: number };
+  /**
+   * What was left out. `outsideGrid`: pharmacies that come with a country's area but lie
+   * outside the tile grid's extent, which is Europe: France's overseas departments and
+   * territories, the Caribbean parts of the Netherlands. They keep other clocks, and a
+   * country has one zone here (PLAN.md 7.2).
+   */
+  dropped: { private: number; duplicate: number; noPosition: number; outsideGrid: number };
 }
 
 /** Longest free text we carry: an opening_hours value or an accessibility note. */
@@ -121,8 +129,14 @@ function weight(pharmacy: Normalized): number {
   return (pharmacy.openingHours ? 100 : 0) + fields;
 }
 
-export function normalize(extract: CountryExtract, country: Country): NormalizeResult {
-  const dropped = { private: 0, duplicate: 0, noPosition: 0 };
+/** Is the point's square one of the grid's? The same question write.ts asks of every pharmacy. */
+export function insideGrid(point: { lat: number; lon: number }, grid: GridExtent): boolean {
+  const tile = tileOf(point);
+  return tile.x >= grid.x0 && tile.x < grid.x0 + grid.width && tile.y >= grid.y0 && tile.y < grid.y0 + grid.height;
+}
+
+export function normalize(extract: CountryExtract, country: Country, grid: GridExtent = gridExtent()): NormalizeResult {
+  const dropped = { private: 0, duplicate: 0, noPosition: 0, outsideGrid: 0 };
   const candidates: Normalized[] = [];
 
   for (const element of extract.elements) {
@@ -135,6 +149,11 @@ export function normalize(extract: CountryExtract, country: Country): NormalizeR
     const pharmacy = one(element, country, extract.states[elementKey(element)]);
     if (!pharmacy) {
       dropped.noPosition++;
+      continue;
+    }
+    // Outside Europe: left out and counted, instead of stopping the run when the tiles are written.
+    if (!insideGrid(pharmacy, grid)) {
+      dropped.outsideGrid++;
       continue;
     }
     candidates.push(pharmacy);

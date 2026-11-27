@@ -85,6 +85,14 @@ function without(intervals: Interval[], cut: Interval[]): Interval[] {
   return rest;
 }
 
+/** Does the window hold one of these days of the year, [month, day], on the zone's wall clock? */
+export function holdsDay(window: Window, days: [month: number, day: number][]): boolean {
+  for (let wall = new Date(window.wallFrom); wall < window.wallUntil; wall.setUTCDate(wall.getUTCDate() + 1)) {
+    if (days.some(([month, day]) => wall.getUTCMonth() + 1 === month && wall.getUTCDate() === day)) return true;
+  }
+  return false;
+}
+
 export function computeHours(value: string | undefined, context: HoursContext): HoursResult {
   if (!value) return { hours: { kind: 'missing' }, corrected: false };
   const raw = value.slice(0, TEXT_MAX);
@@ -108,6 +116,9 @@ export function computeHours(value: string | undefined, context: HoursContext): 
   if (VARIABLE_TIMES.test(value)) return { hours: { kind: 'uncertain', raw }, corrected };
   // Holidays differ by state here, and we could not place this pharmacy in one.
   if (country.states && !stateName && HOLIDAYS.test(value)) return { hours: { kind: 'uncertain', raw }, corrected };
+
+  // A national holiday the library lacks falls in the window: weekday hours would be a guess there.
+  if (country.missingHolidays && HOLIDAYS.test(value) && holdsDay(window, country.missingHolidays)) return { hours: { kind: 'uncertain', raw }, corrected };
 
   let found: [Date, Date, boolean, string | undefined][];
   try {

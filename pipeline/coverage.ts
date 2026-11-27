@@ -5,7 +5,7 @@
  * the border a position is on.
  */
 
-import { iso1A2Code } from '@rapideditor/country-coder';
+import { feature, iso1A2Code } from '@rapideditor/country-coder';
 import { borderCellCenter, tileOf } from '../lib/tiles.ts';
 import type { BorderGrid, TileRef } from '../lib/tiles.ts';
 
@@ -16,14 +16,29 @@ export const BORDER_CELLS = 16;
 const PART_OF: Record<string, string> = { AX: 'FI', EA: 'ES', SJ: 'NO' };
 
 /**
- * The squares looked at: from the Azores to eastern Finland, and from the Canaries to
- * Svalbard, whose one pharmacy comes with Norway's.
+ * The squares looked at: from the Azores to the eastern tip of Cyprus (34.6° east), and from
+ * the Canaries to Svalbard, whose one pharmacy comes with Norway's. This is what "Europe"
+ * means to the pipeline: a pharmacy that comes with a country's area and lies outside it
+ * (France's overseas departments, the Caribbean parts of the Netherlands) is left out and
+ * counted by normalize.ts.
  */
-export const EXTENT = { north: 81, south: 27, west: -32, east: 32.5 };
+export const EXTENT = { north: 81, south: 27, west: -32, east: 34.7 };
+
+/**
+ * The same for a place country-coder knows without a code, by its Wikidata id: the north of
+ * Cyprus. Its pharmacies come with Cyprus's area and the island keeps one clock, so a position
+ * there is in the coverage like the rest of the island. Without this line the north's own
+ * squares gave results, and the squares it shares with the British base areas said "not
+ * covered" in Famagusta, over pharmacies that are in the tile.
+ */
+const PART_OF_BY_ID: Record<string, string> = { Q23681: 'CY' };
 
 export function countryAt(lat: number, lon: number): string | null {
   const code = iso1A2Code([lon, lat], { level: 'territory' });
-  return code ? (PART_OF[code] ?? code) : null;
+  if (code) return PART_OF[code] ?? code;
+  // No code: the sea, or one of the few places without one.
+  const id = feature([lon, lat])?.properties.wikidata;
+  return (id ? PART_OF_BY_ID[id] : undefined) ?? null;
 }
 
 export interface SquareCoverage {

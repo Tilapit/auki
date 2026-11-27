@@ -6,12 +6,12 @@ import { BRAND } from '@/lib/brand';
 import { INDEX_PATH, borderCell, borderCellCenter, countryInCell, decodeTile, squareAt, tileOf, tilePath } from '@/lib/tiles';
 import type { CountryStats, IndexJson, TileJson } from '@/lib/tiles';
 import { check, statsOf } from '@/pipeline/check';
-import { BORDER_CELLS, countryAt, coverageOf } from '@/pipeline/coverage';
+import { BORDER_CELLS, EXTENT, countryAt, coverageOf, gridExtent } from '@/pipeline/coverage';
 import { COUNTRIES, COUNTRY_CODES, countryByCode } from '@/pipeline/countries';
 import type { Country } from '@/pipeline/countries';
 import { INSTANCES, buildQuery, fetchCountry, readAnswer, userAgent } from '@/pipeline/fetch';
 import type { FetchDeps } from '@/pipeline/fetch';
-import { email, normalize, phone, website } from '@/pipeline/normalize';
+import { email, insideGrid, normalize, phone, website } from '@/pipeline/normalize';
 import { GIVE_UP_AFTER_FAILURES, needsRetry, previousRun, processCountry, readArguments, refreshCountries } from '@/pipeline/run';
 import type { Previous } from '@/pipeline/run';
 import { buildSite, countryPath, decodeCountry, encodeCountry } from '@/pipeline/write';
@@ -24,10 +24,13 @@ const SWISS: Country = { code: 'CH', zone: 'Europe/Zurich', states: { 'CH-BE': '
 const FETCHED = Date.parse('2026-11-23T13:55:02Z') / 1000;
 
 describe('coverage list', () => {
-  it('is Finland and the twenty other countries of PLAN.md section 8', () => {
-    expect(COUNTRY_CODES).toHaveLength(21);
-    expect(new Set(COUNTRY_CODES).size).toBe(21);
-    expect([...COUNTRY_CODES].sort().join(' ')).toBe('AT CH CZ DE DK EE ES FI GR HR HU IT LT LV MT NO PL PT SE SI SK');
+  it('is every country of the EU and the EEA, and Switzerland (PLAN.md section 8)', () => {
+    expect(COUNTRY_CODES).toHaveLength(31);
+    expect(new Set(COUNTRY_CODES).size).toBe(31);
+    // The 27 of the EU, then Iceland, Liechtenstein and Norway, then Switzerland.
+    const eu = 'AT BE BG CY CZ DE DK EE ES FI FR GR HR HU IE IT LT LU LV MT NL PL PT RO SE SI SK'.split(' ');
+    expect(eu).toHaveLength(27);
+    expect([...COUNTRY_CODES].sort()).toEqual([...eu, 'IS', 'LI', 'NO', 'CH'].sort());
   });
 
   it('every zone is one the runtime knows', () => {
@@ -208,8 +211,22 @@ describe('normalising', () => {
   const byId = (id: string) => pharmacies.find((pharmacy) => pharmacy.id === id)!;
 
   it('leaves out private pharmacies, duplicates and elements without a position', () => {
-    expect(dropped).toEqual({ private: 1, duplicate: 1, noPosition: 1 });
+    expect(dropped).toEqual({ private: 1, duplicate: 1, noPosition: 1, outsideGrid: 0 });
     expect(pharmacies.map((pharmacy) => pharmacy.id)).toEqual(['n1001', 'n1002', 'n1003', 'n1004', 'n1006', 'r3001']);
+  });
+
+  it('leaves out and counts what lies outside the grid: a country here is its European part', () => {
+    const france = { code: 'FR', zone: 'Europe/Paris' };
+    const at = (id: number, lat: number, lon: number) => ({ type: 'node' as const, id, lat, lon, tags: { amenity: 'pharmacy', name: `Pharmacie ${id}` } });
+    // Paris; Saint-Denis on Réunion; Cayenne; Nouméa. And the eastern tip of Cyprus, which the grid holds.
+    const overseas = readAnswer(france, { elements: [at(1, 48.8566, 2.3522), at(2, -20.8789, 55.4481), at(3, 4.9372, -52.326), at(4, -22.2758, 166.458), at(5, 35.6, 34.58)] }, FETCHED, INSTANCES[0]);
+    const result = normalize(overseas, france);
+    expect(result.dropped).toEqual({ private: 0, duplicate: 0, noPosition: 0, outsideGrid: 3 });
+    expect(result.pharmacies.map((pharmacy) => pharmacy.id)).toEqual(['n1', 'n5']);
+    // What normalize lets through, the grid holds: the two ask the same question.
+    const grid = gridExtent();
+    for (const point of [{ lat: EXTENT.north, lon: EXTENT.west }, { lat: EXTENT.south, lon: EXTENT.east }, { lat: 35.6, lon: 34.58 }]) expect(insideGrid(point, grid)).toBe(true);
+    for (const point of [{ lat: EXTENT.south - 1, lon: 0 }, { lat: 60, lon: EXTENT.east + 1 }, { lat: 60, lon: EXTENT.west - 1 }, { lat: 84, lon: 0 }]) expect(insideGrid(point, grid)).toBe(false);
   });
 
   it('of a pharmacy mapped twice keeps the record that says more', () => {
@@ -551,8 +568,14 @@ describe('where the coverage ends', () => {
     const covered = new Set(COUNTRY_CODES);
     // Helsinki: Finland and its waters only.
     expect(coverageOf(tileOf({ lat: 60.17, lon: 24.94 }), covered)).toEqual({ covered: true });
-    // Paris: nothing covered.
-    expect(coverageOf(tileOf({ lat: 48.86, lon: 2.35 }), covered)).toEqual({ covered: false });
+    // London: nothing covered.
+    expect(coverageOf(tileOf({ lat: 51.5074, lon: -0.1278 }), covered)).toEqual({ covered: false });
+    // The north of Cyprus has no code of its own: its pharmacies come with Cyprus's, so it is Cyprus here.
+    expect(countryAt(35.34, 33.32)).toBe('CY'); // Kyrenia
+    expect(countryAt(35.12, 33.94)).toBe('CY'); // Famagusta
+    expect(countryAt(35.166, 33.36)).toBe('CY'); // Nicosia, south of the line
+    expect(countryAt(34.59, 32.98)).toBe('GB'); // Akrotiri: a British base area, not in the coverage
+    expect(countryAt(35.9, 33.5)).not.toBe('CY'); // the sea to the north
     // Imatra, on the Russian border.
     const imatra = { lat: 61.19, lon: 28.77 };
     const coverage = coverageOf(tileOf(imatra), covered);

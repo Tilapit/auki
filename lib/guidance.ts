@@ -4,7 +4,7 @@
  * The prescription guidance arrives when it is needed, and not before (PLAN.md sections 8 and 12).
  *
  * data/countries/ is every pair's sentences, the sources and the counter card's lines in
- * nineteen languages: some 18 KB as it travels. Most searches are made at home, where none of
+ * twenty-four languages: some 18 KB as it travels. Most searches are made at home, where none of
  * it is shown. So the results view decides with what it has from the start (the home country,
  * lib/home.ts, and the country of the pharmacy), and asks for the rest here only when the two
  * differ, or when the banner is asked for from the footer. The banner and the counter card

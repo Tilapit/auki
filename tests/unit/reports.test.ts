@@ -63,7 +63,7 @@ describe('a report as the server accepts it', () => {
 
   it('needs a pharmacy id as the tiles have them, a covered country and something said', () => {
     for (const pharmacy of ['', 'yliopiston', 'n', 'x123', 'n12345678901234', 'n12 ', '60.17,24.94', 101, null]) expect(parseReport({ ...REPORT, pharmacy }), String(pharmacy)).toBeUndefined();
-    for (const country of ['', 'fi', 'FIN', 'XX', 'US', 'FR', 358, null]) expect(parseReport({ ...REPORT, country }), String(country)).toBeUndefined();
+    for (const country of ['', 'fi', 'FIN', 'XX', 'US', 'GB', 358, null]) expect(parseReport({ ...REPORT, country }), String(country)).toBeUndefined();
     for (const answers of [{}, [], null, 'yes', undefined]) expect(parseReport({ ...REPORT, answers }), JSON.stringify(answers)).toBeUndefined();
     for (const body of [null, undefined, 'n101', 7, [REPORT]]) expect(parseReport(body)).toBeUndefined();
   });

@@ -383,6 +383,13 @@ const fi = {
         intro: 'Norjassa ei ole kaikkien apteekkien yhteistä varastohakua. Norjan apteekkiyhdistyksen sivu neuvoo, miten reseptilääkkeen saatavuus tarkistetaan apteekkiketjujen omilta sivuilta.',
         open: 'Avaa apotek.no',
       },
+      /** Iceland, in Norway's form: what the medicines agency says on Ísland.is, and its page for patients. */
+      islandIs: {
+        site: 'island.is',
+        intro: 'Islannin lääkevirasto kertoo, ettei sillä ole ajantasaista tietoa apteekkien varastoista. Viraston englanninkielinen sivu neuvoo, mitä tehdä, kun lääkettä ei saa apteekista: henkilökunta voi tarkistaa, onko sitä toisessa apteekissa.',
+        note: 'Sivulta pääsee viraston lääkeluetteloon, josta näkee, onko lääkkeestä ilmoitettu saatavuushäiriö.',
+        open: 'Avaa island.is',
+      },
       /** Not offered yet: waits for Lif's linking agreement (lib/stock/providers.ts). */
       fass: {
         site: 'fass.se',

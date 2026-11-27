@@ -1,7 +1,13 @@
 /**
- * Coverage: the countries the pipeline fetches (PLAN.md 7.2 and section 8). A country joins
- * by adding a line here, once its parse rate is measured and the hours library has its
- * public holidays.
+ * Coverage: the countries the pipeline fetches (PLAN.md 7.2 and section 8): every country of
+ * the EU and the EEA, and Switzerland. A country joins by adding a line here, once its parse
+ * rate is measured and the hours library has its public holidays.
+ *
+ * Three are in without that second condition: the library (opening_hours 3.x) has no public
+ * holidays for Cyprus, Iceland or Liechtenstein. There a value that mentions PH can't be
+ * read and is published as "unparseable" (hours.ts: the library refuses the value), never as
+ * open or closed; a value without PH is read as its weekdays, as everywhere. No holidays are
+ * written by hand.
  */
 
 export interface Country {
@@ -16,6 +22,13 @@ export interface Country {
    * state or canton, and the name the opening_hours library knows it by.
    */
   states?: Record<string, string>;
+  /**
+   * National public holidays on a fixed date, [month, day], that the hours library lacks for
+   * this country. A value that mentions holidays is not evaluated over a window that holds
+   * such a day: it is published as "uncertain" (hours.ts), instead of being read as an
+   * ordinary weekday. No hours are written from this list.
+   */
+  missingHolidays?: [month: number, day: number][];
 }
 
 const GERMAN_STATES: Record<string, string> = {
@@ -112,9 +125,31 @@ export const COUNTRIES: Country[] = [
   { code: 'SE', zone: 'Europe/Stockholm' },
   { code: 'SI', zone: 'Europe/Ljubljana' },
   { code: 'SK', zone: 'Europe/Bratislava' },
+  // The rest of the EU and the EEA, first measured on 27 Nov 2026 (PLAN.md section 8).
+  // France and the Netherlands are their European parts: what lies outside the grid's extent
+  // is left out (normalize.ts). Cyprus's area is the whole island, which keeps one clock.
+  { code: 'BE', zone: 'Europe/Brussels' },
+  { code: 'BG', zone: 'Europe/Sofia' },
+  { code: 'CY', zone: 'Asia/Nicosia' },
+  // opening_hours 3.16.0 has 1 January for Alsace-Moselle and the overseas departments only
+  // (its "Nouvel An" is bound to twelve named states), so without a state it is no holiday.
+  { code: 'FR', zone: 'Europe/Paris', missingHolidays: [[1, 1]] },
+  { code: 'IE', zone: 'Europe/Dublin' },
+  { code: 'LU', zone: 'Europe/Luxembourg' },
+  { code: 'NL', zone: 'Europe/Amsterdam' },
+  { code: 'RO', zone: 'Europe/Bucharest' },
+  { code: 'IS', zone: 'Atlantic/Reykjavik' },
+  { code: 'LI', zone: 'Europe/Vaduz' },
 ];
 
 export const COUNTRY_CODES: string[] = COUNTRIES.map((country) => country.code);
+
+/**
+ * The covered countries the hours library has no public holidays for (opening_hours 3.x,
+ * tried on 27 Nov 2026). A test holds this list true: when the library learns one of them,
+ * the test fails and the code leaves the list.
+ */
+export const WITHOUT_HOLIDAYS: readonly string[] = ['CY', 'IS', 'LI'];
 
 export function countryByCode(code: string): Country | undefined {
   return COUNTRIES.find((country) => country.code === code);
