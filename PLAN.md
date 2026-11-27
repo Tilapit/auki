@@ -769,8 +769,6 @@ What a visit was like, told by the visitor and shown to the next one (section 5)
 
 ---
 
-## 8. Country guide data---
-
 ## 8. Country guide data
 
 In v1 this data feeds the "Resepti kotimaasta?" banner and the counter card, for a prescription from any country at a pharmacy in any covered one (Janne's decision of 26 Nov 2026). Full guide pages come later. What it rests on, read on 26 Nov 2026 and quoted in `docs/research/prescriptions-across-borders.md`:

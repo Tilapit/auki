@@ -164,6 +164,19 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   }, [counterOpen]);
   // Which country's stock search the medicine dialog is open for: that of the pharmacy it was opened from.
   const [medicineFor, setMedicineFor] = useState(typeof options.medicine === 'string' ? options.medicine : undefined);
+  // Closed, the medicine dialog gives the keyboard back to the button that opened it, as the counter
+  // card does: by itself the browser does so only when the button had the focus, and Safari gives a pressed button none.
+  const medicineOpener = useRef<Element | null>(null);
+  const showMedicine = (country: string | undefined) => {
+    medicineOpener.current = pressed.current ?? document.activeElement;
+    setMedicineFor(country);
+  };
+  useEffect(() => {
+    if (medicineFor !== undefined) return;
+    const from = medicineOpener.current;
+    medicineOpener.current = null;
+    if (from instanceof HTMLElement && from.isConnected) from.focus();
+  }, [medicineFor]);
   const detailRef = useRef<HTMLDialogElement>(null);
   // Which pharmacy the report dialog was opened for. It is open only while that pharmacy's details are:
   // it can never come up by itself over another pharmacy's.
@@ -229,7 +242,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
   const cardProvider = offered ? providerFor((unlisted?.lead ?? nearestOpen ?? firstToOpen ?? scene.pharmacies[0])?.country) : undefined;
-  const openMedicine = cardProvider && (() => setMedicineFor(cardProvider.country));
+  const openMedicine = cardProvider && (() => showMedicine(cardProvider.country));
   // The service's own address, as the medicine search is named with it: "apteekki.fi".
   const siteOf = (country: string | undefined) => {
     const provider = offered ? providerFor(country) : undefined;
@@ -496,7 +509,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const hasNotices = !!scene.user.approximate || (stale && scene.dataFrom !== undefined) || missing.length > 0;
   const hasCard = !!lead || !!nearestOpen || !!firstToOpen;
   // Without a card (out-of-date data has a notice in its place) the line stands by itself, under the notices.
-  const lineAlone = !!openMedicine && !!cardSite && !hasCard;
+  const lineAlone = !!cardProvider && !!cardSite && !hasCard;
   const hasLists = others.length > 0 || closedGroup.length > 0;
 
   const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status) && !p.tooLate);
@@ -618,7 +631,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               </NothingOpenCard>
             )}
 
-            {lineAlone && openMedicine && cardSite && <MedicineRow onOpen={openMedicine} site={cardSite} />}
+            {lineAlone && cardProvider && cardSite && <MedicineRow onOpen={() => showMedicine(cardProvider.country)} site={cardSite} />}
           </div>
         ) : undefined
       }
@@ -678,7 +691,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               nextOpenWithStreet={detailNext && needsStreet.has(detailNext.id)}
               country={country}
               onShowCard={showCard}
-              onMedicine={offered && providerFor(detail.country) ? () => setMedicineFor(detail.country) : undefined}
+              onMedicine={offered && providerFor(detail.country) ? () => showMedicine(detail.country) : undefined}
               medicineSite={siteOf(detail.country)}
               report={
                 options.reports && {
