@@ -17,7 +17,7 @@ import { Icon } from './Icon';
 import { Measure } from './Measure';
 import { ExternalLink, NEW_TAB, NewTabNote } from './NewTab';
 import { OpenStatus } from './OpenStatus';
-import { ReportNote, ReportRow, ReportSummary } from './ReportDialog';
+import { ReportNone, ReportNote, ReportRow, ReportSummary } from './ReportDialog';
 import styles from './PharmacySheet.module.css';
 
 interface Props {
@@ -38,11 +38,23 @@ interface Props {
   /** The address of that service, as the row names it: "apteekki.fi". */
   medicineSite?: string;
   /**
-   * Visitors' reports (PLAN.md 7.10): what others told, once there are three; the row that
-   * offers to tell of one's own visit; and what stands in the row's place after it was used.
+   * Visitors' reports (PLAN.md 7.10): what others told, once there are three, or that there
+   * are none to show yet (`known`: the service answered); the row that offers to tell of one's
+   * own visit; and what stands in the row's place after it was used.
    * Left out where there is no report service: then the sheet is as it was without it.
    */
-  report?: { summary?: Summary; offered: boolean; note?: 'thanks' | 'limit'; onOpen: () => void; onSkip: () => void };
+  report?: {
+    known?: boolean;
+    summary?: Summary;
+    /** /dev/states: the summary is made of invented reports, and says so. */
+    example?: boolean;
+    /** Opens what the two countries' own pages say of a prescription from another country. */
+    onGuidance?: () => void;
+    offered: boolean;
+    note?: 'thanks' | 'limit';
+    onOpen: () => void;
+    onSkip: () => void;
+  };
   onClose?: () => void;
   onSelect?: (pharmacy: Pharmacy) => void;
 }
@@ -204,7 +216,7 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
       )}
 
       {/* What visitors told stands with the facts; the offer to tell is the last of the rows. Never above the route. */}
-      {report?.summary && <ReportSummary summary={report.summary} />}
+      {report?.summary ? <ReportSummary summary={report.summary} example={report.example} onGuidance={report.onGuidance} /> : report?.known && <ReportNone />}
 
       <RowGroup>
         {nextOpen && nextWay && (

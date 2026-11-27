@@ -159,13 +159,15 @@ export const groups: ViewGroup[] = [
   {
     id: 'reports',
     title: 'Visitors\' reports (provisional): offered in a pharmacy\'s details, never asked',
-    note: 'A row under the medicine search, with "Ohita" always in view; one screen of chips with no text field; and what others told, shown from three reports on with the count and the days. Stored: the pharmacy, its country, the day and the chips. On example data here: no service is called.',
+    note: 'The last row of a pharmacy\'s details, with "Ohita" always in view; one screen of chips with no text field; what others told, as facts with the count and the days, from three reports on; and two filters over the list, off until pressed. Stored: the pharmacy, its country, the day, the chips, and with an answer about the prescription whether it was from another country. On example data here, labelled as invented where it is shown: no service is called.',
     views: [
-      { id: 'report-row', title: 'The offer: a row in the details, "Ohita" beside it', ready: '[data-report-shown]' },
-      { id: 'report-summary', title: 'Five reports of this pharmacy: the counts, how many and when, then the offer', ready: '[data-report-shown]' },
-      { id: 'report-open', title: 'One screen of chips, two pressed: at most one of a pair, none required', ready: '[data-report-dialog][open]' },
+      { id: 'report-row', title: 'No reports to show yet, said in so many words; and the offer, "Ohita" beside it', ready: '[data-report-shown]' },
+      { id: 'report-summary', title: 'Five invented reports of this pharmacy as facts: what was said and by how many, prescriptions from another country with the way to the guidance, how many and when; then the offer', ready: '[data-report-shown]' },
+      { id: 'report-open', title: 'One screen of chips, three pressed: at most one of a pair, none required; under the prescription\'s pair the one question it brings', ready: '[data-report-dialog][open]' },
       { id: 'report-failed', title: 'The sending failed: the chips stay as they were, and it can be tried again', ready: '[data-report-dialog][open]', sizes: PHONE, themes: ['light'] },
       { id: 'report-thanks', title: 'After sending: thanks in the row\'s place, and no second offer for the same visit', ready: '[data-report-shown]', sizes: PHONE },
+      { id: 'report-filter', title: 'The list with "Englantia puhuttiin" on, on invented reports of three pharmacies: two pass, in their own order', ready: '[data-report-filters]' },
+      { id: 'report-filter-none', title: 'The same filter with no reports yet, as in the live app today: the list\'s place says so', ready: '[data-report-filters]', sizes: PHONE },
     ],
   },
   {

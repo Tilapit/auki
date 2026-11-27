@@ -97,6 +97,8 @@ export const renderers: Record<string, () => ReactNode> = {
   'report-open': () => <ReportView state="open" />,
   'report-failed': () => <ReportView state="failed" />,
   'report-thanks': () => <ReportView state="thanks" />,
+  'report-filter': () => <ReportView state="filter" />,
+  'report-filter-none': () => <ReportView state="filter-none" />,
   'sheet-far': () => <ResultsView scene={rigaFarOpen} sheet="peek" detailId="meness-marupe" />,
   counter: () => <ResultsView scene={riga} sheet="expanded" counter="ePrescription" counterAwake />,
   'counter-paper': () => <ResultsView scene={riga} sheet="expanded" counter="paper" counterAwake />,

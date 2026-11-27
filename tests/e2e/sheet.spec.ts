@@ -286,7 +286,12 @@ test('a control under the edge of the screen opens the sheet when it takes focus
   // That control is the row of the next open pharmacy: the medicine search is one of the main actions above it.
   await next.focus();
   // Safari's Tab stops at text fields only, unless Option is held: that is its default, and WebKit's here.
-  await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+  const tab = browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
+  // Over the list stand its two filters; the first pharmacy is the third stop.
+  await page.keyboard.press(tab);
+  await expect(page.getByRole('button', { name: 'Englantia puhuttiin' })).toBeFocused();
+  await page.keyboard.press(tab);
+  await page.keyboard.press(tab);
   await expect(first).toBeFocused();
 });
 

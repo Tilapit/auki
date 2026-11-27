@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { useReport } from '@/hooks/useReport';
+import { useReport, useReportFilter, type FilterTopic } from '@/hooks/useReport';
 import type { RouteFor } from '@/hooks/useRouteLine';
 import { COUNTRY_CODES } from '@/lib/countries';
 import { useGuidance } from '@/lib/guidance';
@@ -30,6 +30,7 @@ import { ResultsShell, type SheetState } from './ResultsShell';
 import { MapView } from './MapView';
 import { MedicineDialog, MedicineRow } from './MedicineDialog';
 import { ReportDialog } from './ReportDialog';
+import { ReportFilters } from './ReportFilters';
 import styles from './ResultsView.module.css';
 
 export interface ResultsOptions {
@@ -94,6 +95,10 @@ export interface ResultsOptions {
   reportFailed?: boolean;
   /** /dev/states only: the line that stands in the row's place after a report was sent. */
   reportNote?: 'thanks' | 'limit';
+  /** /dev/states only: the reports are invented, and the summary says so on its face. */
+  reportExample?: boolean;
+  /** /dev/states only: the list's filters that are on from the start. In the live app both are off until pressed. */
+  reportFilter?: FilterTopic[];
   /**
    * /dev/states only: the country the prescription is from. null: the device suggests none, and
    * the banner asks. Left out, the scene's own; the live app takes it from the device (lib/home.ts).
@@ -209,6 +214,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // unless it is asked for from the footer: the phone's suggestion can be wrong at home too.
   const atHome = !!here && home === here;
   const [asked, setAsked] = useState(false);
+  // How many times the banner was asked for from a pharmacy's reports: each time the keyboard goes to it again.
+  const [guidanceAsked, setGuidanceAsked] = useState(0);
   const abroad = !!here && (!atHome || asked);
   // The guidance itself (the sentences, the sources, the card's lines) is not part of the first
   // load: it is fetched when the two countries differ, and at home never (lib/guidance.ts).
@@ -217,7 +224,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const guide = useMemo(() => guidance?.guideFor(home, here), [guidance, home, here]);
   // "Näytä apteekissa" is offered only where the card has something to ask for (data/countries: not where the paper answer is a no).
   const country = guide?.card && { code: guide.here, inLanguage: guide.inLanguage };
-  const banner = guidance && abroad && <guidance.CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={asked} />;
+  const banner = guidance && abroad && <guidance.CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={guidanceAsked || asked} />;
   // Where to check a medicine's stock: the service of the country the card's pharmacy is in
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
@@ -515,6 +522,19 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     if (reportUsed > 0) document.getElementById(`${id}-detail`)?.focus();
   }, [reportUsed, id]);
   const afterReport = () => setReportUsed((count) => count + 1);
+  // From a pharmacy's reports to what the two countries' own pages say: the details close, the
+  // sheet opens on the card, and the banner there takes the keyboard (not what opened the details).
+  const toGuidance = () => {
+    opener.current = null;
+    setAsked(true);
+    setGuidanceAsked((count) => count + 1);
+    setDetailId(undefined);
+    setSheet('expanded');
+  };
+  // The list's two filters, off until pressed. They take rows away; the order and the card are never touched.
+  const filter = useReportFilter(options.reports, scene.pharmacies, options.reportFilter);
+  const shownOthers = others.filter(filter.passes);
+  const shownClosed = closedGroup.filter(filter.passes);
 
   return (
     <ResultsShell
@@ -662,7 +682,11 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               medicineSite={siteOf(detail.country)}
               report={
                 options.reports && {
+                  known: report.known,
                   summary: report.summary,
+                  example: options.reportExample,
+                  // Only where the app has guidance to open: a pharmacy in a covered country.
+                  onGuidance: here ? toGuidance : undefined,
                   offered: report.offered && !options.reportNote,
                   note: report.note ?? options.reportNote,
                   onOpen: () => {
@@ -715,9 +739,11 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
     >
       {hasLists && (
         <div className={styles.content} data-reveal={options.reveal || undefined}>
-          {others.length > 0 && (
+          {options.reports && <ReportFilters filter={filter} none={filter.state === 'ready' && shownOthers.length + shownClosed.length === 0} />}
+
+          {shownOthers.length > 0 && (
             <PharmacyList
-              pharmacies={others}
+              pharmacies={shownOthers}
               distance={scene.distance}
               needsStreet={needsStreet}
               selectedId={detailId}
@@ -726,9 +752,9 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
             />
           )}
 
-          {closedGroup.length > 0 && (
+          {shownClosed.length > 0 && (
             <ClosedGroup
-              pharmacies={closedGroup}
+              pharmacies={shownClosed}
               distance={scene.distance}
               needsStreet={needsStreet}
               selectedId={detailId}
