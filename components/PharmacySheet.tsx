@@ -2,9 +2,10 @@
 
 import { Fragment } from 'react';
 import { lowerFirst } from '@/lib/format';
+import { useMapApp } from '@/hooks/useMapApp';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
-import { appleDirectionsUrl, emailAddress, googleDirectionsUrl, osmNoteUrl, websiteHost } from '@/lib/maps';
+import { directionsUrl, emailAddress, osmNoteUrl, websiteHost, type MapApp } from '@/lib/maps';
 import { hoursUnknown } from '@/lib/results';
 import { dayHoursText, daysLabel, displayName, glyphFor, statusText } from '@/lib/status';
 import { travel, withinWalk } from '@/lib/travel';
@@ -84,7 +85,9 @@ function breakable(address: string) {
  *    map app, the counter card, telling of one's own visit.
  *
  * The route links are real links that carry only the pharmacy's position (PLAN.md 7.6), and so
- * does the link to correct the data in OpenStreetMap. The pharmacy's own email and website are
+ * does the link to correct the data in OpenStreetMap. The route button opens the device's own
+ * map app where there is one, Apple's on an iPhone, an iPad and a Mac, and Google's elsewhere;
+ * the other of the two is a row of the list (hooks/useMapApp.ts). The pharmacy's own email and website are
  * shown when OpenStreetMap has them: emailing a prescription ahead often works (PLAN.md section 2).
  */
 export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, nextOpenWithStreet, country, onShowCard, onMedicine, medicineSite, report, onClose, onSelect }: Props) {
@@ -95,6 +98,11 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
   const address = [pharmacy.street, city].filter(Boolean).join(', ');
   // Too far to walk: the links name no way of travel and the map app picks one.
   const walk = withinWalk(pharmacy);
+  // The button's map app, and the other one's row.
+  const app = useMapApp();
+  const other: MapApp = app === 'apple' ? 'google' : 'apple';
+  const routeIn = { google: t.sheet.google, apple: t.sheet.apple };
+  const appIn = { google: t.sheet.googleIn, apple: t.sheet.appleIn };
   const hours =
     pharmacy.hours?.map((line) => `${daysLabel(i18n, line.days)} ${dayHoursText(i18n, line.hours)}`) ??
     (pharmacy.status.kind === 'unparseable' || pharmacy.status.kind === 'uncertain' ? [pharmacy.status.raw] : []);
@@ -151,9 +159,10 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
           primary
           external
           icon={walk ? 'walk' : 'directions'}
-          sub={t.sheet.googleIn}
+          sub={appIn[app]}
+          data-route={app}
           note={<NewTabNote />}
-          href={googleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)}
+          href={directionsUrl(app, pharmacy.lat, pharmacy.lon, walk)}
           {...NEW_TAB}
         >
           {t.card.route}
@@ -229,11 +238,11 @@ export function PharmacySheet({ pharmacy, distance, city, headingId, nextOpen, n
         )}
         <Row
           icon={walk ? 'walk' : 'directions'}
-          title={t.sheet.apple}
+          title={routeIn[other]}
           ends="external"
-          href={appleDirectionsUrl(pharmacy.lat, pharmacy.lon, walk)}
+          href={directionsUrl(other, pharmacy.lat, pharmacy.lon, walk)}
           {...NEW_TAB}
-          aria-label={`${t.sheet.apple} ${t.app.newTab}`}
+          aria-label={`${routeIn[other]} ${t.app.newTab}`}
         />
         {country && (
           <Row

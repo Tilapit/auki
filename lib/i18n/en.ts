@@ -204,6 +204,7 @@ const en: Dictionary = {
     google: 'Route in Google Maps',
     googleIn: 'in Google Maps',
     apple: 'Route in Apple Maps',
+    appleIn: 'in Apple Maps',
     handOff: "The route opens in the map app, and the link carries only the pharmacy's position.",
     source: 'Data: OpenStreetMap.',
     sourceChecked: (date) => `Data: OpenStreetMap, opening hours checked ${date}.`,

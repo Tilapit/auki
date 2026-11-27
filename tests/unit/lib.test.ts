@@ -6,7 +6,7 @@ import { cityName } from '@/lib/exonyms';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { stress } from '@/lib/fixtures/stress';
 import { pickLocale } from '@/lib/i18n';
-import { appleDirectionsUrl, emailAddress, googleDirectionsUrl, osmNoteUrl, websiteHost } from '@/lib/maps';
+import { appleDirectionsUrl, directionsUrl, emailAddress, googleDirectionsUrl, mapAppFor, osmNoteUrl, websiteHost } from '@/lib/maps';
 import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
 import { DETOUR_METERS, arrange, cityIfElsewhere, hoursUnknown, placeLabel } from '@/lib/results';
 import type { OpenStatus, Pharmacy } from '@/lib/types';
@@ -291,6 +291,30 @@ describe('a farther pharmacy', () => {
     expect(googleDirectionsUrl(1.5, 2.5, false)).toBe('https://www.google.com/maps/dir/?api=1&destination=1.5,2.5');
     expect(appleDirectionsUrl(1.5, 2.5)).toContain('dirflg=w');
     expect(appleDirectionsUrl(1.5, 2.5, false)).toBe('https://maps.apple.com/?daddr=1.5,2.5');
+  });
+
+  it("is handed to Apple's map app on an iPhone, an iPad and a Mac, and to Google's everywhere else", () => {
+    const safari = 'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6';
+    const chrome = 'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0';
+    expect(mapAppFor(`Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) ${safari} Mobile/15E148 Safari/604.1`)).toBe('apple');
+    expect(mapAppFor(`Mozilla/5.0 (iPad; CPU OS 18_6 like Mac OS X) ${safari} Mobile/15E148 Safari/604.1`)).toBe('apple');
+    // An iPad as it has named itself since iPadOS 13, and a Mac: the same words, and the same answer.
+    expect(mapAppFor(`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ${safari} Safari/605.1.15`)).toBe('apple');
+    expect(mapAppFor(`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ${chrome} Safari/537.36`)).toBe('apple');
+    // Chrome and Firefox on an iPhone say iPhone too.
+    expect(mapAppFor(`Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0.0.0 Mobile/15E148 Safari/604.1`)).toBe('apple');
+    expect(mapAppFor(`Mozilla/5.0 (Linux; Android 15; Pixel 9) ${chrome} Mobile Safari/537.36`)).toBe('google');
+    expect(mapAppFor(`Mozilla/5.0 (Windows NT 10.0; Win64; x64) ${chrome} Safari/537.36`)).toBe('google');
+    expect(mapAppFor(`Mozilla/5.0 (X11; Linux x86_64) ${chrome} Safari/537.36`)).toBe('google');
+    expect(mapAppFor('Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36')).toBe('google');
+    // A browser that says nothing of itself: Google's, which opens anywhere.
+    expect(mapAppFor('')).toBe('google');
+    expect(mapAppFor(undefined)).toBe('google');
+    // The links are the two above, by the app's name, on foot unless it is too far to walk.
+    expect(directionsUrl('apple', 1.5, 2.5)).toBe(appleDirectionsUrl(1.5, 2.5));
+    expect(directionsUrl('google', 1.5, 2.5)).toBe(googleDirectionsUrl(1.5, 2.5));
+    expect(directionsUrl('apple', 1.5, 2.5, false)).toBe('https://maps.apple.com/?daddr=1.5,2.5');
+    expect(directionsUrl('google', 1.5, 2.5, false)).toBe('https://www.google.com/maps/dir/?api=1&destination=1.5,2.5');
   });
 });
 

@@ -54,7 +54,7 @@ test('the offer is a row in a pharmacy’s details: nothing is asked before one 
   await expect(skip(page)).toBeVisible();
   await expect(skip(page)).toHaveText('Ohita');
   // The row is below the way there: after the route buttons, never above them.
-  const route = await details(page).getByRole('link', { name: /Reitti Google Mapsissa/ }).boundingBox();
+  const route = await details(page).locator('a[data-route]').boundingBox();
   const row = await page.locator('[data-report-row]').boundingBox();
   expect(row!.y).toBeGreaterThan(route!.y + route!.height);
   // One request, which names the country and nothing else. No pharmacy, no position.
@@ -85,7 +85,7 @@ test('"Ohita" takes the row away, sends nothing, and the same visit is not asked
   // Opened again, the same pharmacy has no row; another one has.
   await closeDetails(page);
   await openDetails(page, 'Töölön apteekki');
-  await expect(details(page).getByRole('link', { name: /Reitti Google Mapsissa/ })).toBeVisible();
+  await expect(details(page).locator('a[data-route]')).toBeVisible();
   await expect(offer(page)).toHaveCount(0);
   await closeDetails(page);
   await openDetails(page, 'Yliopiston apteekki');
@@ -248,7 +248,7 @@ test('what others told is shown from three reports on, with the count and the da
   // Below three reports the same place says that there are none to show yet, and shows nothing of the two.
   await closeDetails(page);
   await openDetails(page, 'Yliopiston apteekki');
-  await expect(details(page).getByRole('link', { name: /Reitti Google Mapsissa/ })).toBeVisible();
+  await expect(details(page).locator('a[data-route]')).toBeVisible();
   await expect(offer(page)).toBeVisible();
   await expect(told(page)).toHaveText('Kävijöiden ilmoituksiaEi vielä näytettäviä ilmoituksia. Ne näkyvät tässä, kun niitä on kolme.');
   await expect(told(page).locator('li')).toHaveCount(0);
