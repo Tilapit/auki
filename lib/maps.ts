@@ -11,6 +11,25 @@ export function appleDirectionsUrl(lat: number, lon: number, walking = true): st
   return `https://maps.apple.com/?daddr=${lat},${lon}${walking ? '&dirflg=w' : ''}`;
 }
 
+/** The map apps a route is handed to. */
+export type MapApp = 'apple' | 'google';
+
+/**
+ * Whose map app the route button opens: Apple's on an iPhone, an iPad and a Mac, where it is
+ * the device's own, and Google's everywhere else (Janne, 27 Nov 2026). The other one is a row
+ * further down. Read on the device from the name the browser gives itself: nothing is asked,
+ * sent or kept. An iPad has called itself a Macintosh since iPadOS 13, and a Mac is one: both
+ * get Apple's. A browser that says nothing gets Google's, which opens anywhere.
+ */
+export function mapAppFor(userAgent: string | undefined): MapApp {
+  return /\b(?:iPhone|iPad|iPod|Macintosh)\b/.test(userAgent ?? '') ? 'apple' : 'google';
+}
+
+/** The route to a place in that app: the same links as above, by the app's name. */
+export function directionsUrl(app: MapApp, lat: number, lon: number, walking = true): string {
+  return app === 'apple' ? appleDirectionsUrl(lat, lon, walking) : googleDirectionsUrl(lat, lon, walking);
+}
+
 /** A pharmacy search in the map app, for when our own search is down. Carries no location. */
 export function googleSearchUrl(query: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;

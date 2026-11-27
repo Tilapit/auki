@@ -1189,3 +1189,15 @@ Entry format:
 - Measured in CI's Linux image on this Mac: of six baseline runs of `sheet-far` three came out one way and three the other; with the change eight of eight are the same file. The whole suite in Chromium, made twice: four views varied between runs before, none after.
 - Not changed: the comparison's threshold, and what anyone without the setting sees. Nothing in the app waits for a transition to end.
 
+## 2026-11-27: "Reitti" opens the device's own map app
+- Where: `mapAppFor` and `directionsUrl` in `lib/maps.ts`; `hooks/useMapApp.ts`; `components/PharmacySheet.tsx`; `lib/i18n/` (`sheet.appleIn`); PLAN.md section 5; `tests/e2e/walking.spec.ts`, `tests/unit/lib.test.ts`
+- Change: On an iPhone, an iPad and a Mac the route button says "Reitti" with "Apple Kartoissa" under it and opens Apple Maps; the row further down is "Reitti Google Mapsissa". Everywhere else it is as before: Google Maps on the button, Apple Maps in the row. Walking directions in both, and no way of travel named when the pharmacy is too far to walk to, as before.
+- Why: Janne's decision of 27 Nov 2026, after trying the new sheet: on Apple's devices the route should open the map app the device has. This settles what the sheet's entry of the same day left provisional.
+- Decided on the way:
+  - **The device is read from the browser's own name, on the device.** "iPhone", "iPad", "iPod" or "Macintosh" in it is Apple's. An iPad has called itself a Macintosh since iPadOS 13, and a Mac is to get Apple's too, so the two need not be told apart. Nothing is asked, sent or kept, and no question is put to anyone.
+  - **Chrome on a Mac gets Apple Maps too.** The brief says Mac, not Safari. Apple's link opens the Maps app from Safari and Apple Maps on the web from other browsers.
+  - **A browser that says nothing of itself gets Google's**, which opens anywhere.
+  - **The page as the server writes it says Google's**, and the browser puts its own in when it takes the page over. The app's own views are made in the browser after a search, so nobody sees that happen; `/dev/states` on an Apple device does, at load.
+  - **The other app stays one row down, in the same place and form.** No third form of action was added (the rule of the sheet's entry).
+- In `/dev/states` and the baselines: Chromium in CI is Linux and shows Google's on the button; WebKit there stands in for an iPhone and shows Apple's. Screenshots made on this Mac show Apple's in both.
+

@@ -95,3 +95,8 @@ For the pull request that adds ten countries, from `/dev/states` in Chromium on 
 ## The frame in between, 27 Nov 2026 (`sheet-far-steady/`)
 
 For the pull request "Reduced motion means no transition": a corner of `sheet-far` at desktop size in the dark, five times enlarged, from Chromium in CI's Linux image run on a Mac (`cross-late.png`). Left, a frame that was drawn in about half of the loads: the small signs without their crosses. Right, the frames after it. Not a design figure: it shows the fault that was removed.
+
+## The route button and the device's own map app, 27 Nov 2026 (`route-own-maps/`)
+
+For the pull request "Reitti opens the device's own map app", from `/dev/states` in Chromium on a Mac, each context naming itself as the device in the caption: a pharmacy's details on a phone, fully open, as an iPhone and as an Android phone get them (`phone.jpg`), and on a desktop screen as a Mac and as a Windows computer get them (`desktop.jpg`).
+

@@ -184,10 +184,10 @@ On the phone it behaves like a place card in Apple Maps (Janne, 25 Nov 2026). Th
 In this order (Janne, 27 Nov 2026: "everything is the same small text on the same dark ground and gets lost"; until then the facts came first and four buttons stood one under another):
 
 1. **The name, large**, with the pharmacy's cross and its address. Under it, on one line, the status in its tone and the walking time with the distance: the sheet's largest words.
-2. **The main actions, one row of equal buttons**: "Reitti" with "Google Mapsissa" under it and the mark of a link that leaves the app, "Soita", and "Lääkkeen saatavuus" where the pharmacy's country has a stock search of its own. "Reitti" is the primary one and opens Google Maps, as the first of the two route buttons did before (provisional: which map app the main button opens, `DESIGN-LOG.md`).
+2. **The main actions, one row of equal buttons**: "Reitti" with the map app's name under it and the mark of a link that leaves the app, "Soita", and "Lääkkeen saatavuus" where the pharmacy's country has a stock search of its own. "Reitti" is the primary one and opens the device's own map app where there is one: Apple Maps on an iPhone, an iPad and a Mac ("Apple Kartoissa"), Google Maps everywhere else ("Google Mapsissa"), on foot in both (Janne, 27 Nov 2026). The device is known from the name its browser gives itself, read on the device (`mapAppFor` in `lib/maps.ts`): nothing is asked, sent or kept.
 3. **The hours and the contacts, an inset group** on a surface of its own, a rule between one fact and the next: hours for the coming seven days with equal days grouped ("Joka päivä 8.00–24.00", "ma–pe 8.00–21.00"), so a public holiday shows as the exception it is (from the tile's intervals, on the pharmacy's clock, Monday first; an opening past midnight is said on the day it begins; a day the data calls unknown reads "ei tiedossa", and a day beyond the data's window is left out); accessibility from `wheelchair` and `wheelchair:description`; phone; the pharmacy's email (`email`, else `contact:email`) as a `mailto:` link, because emailing the prescription often works (section 2); the pharmacy's own website when OpenStreetMap has one (`website`, else `contact:website`), shown by its host name. An address breaks after its at sign or before a dot.
 4. **What visitors told**, once there are three reports ("Visitors' reports" below), a group of its own.
-5. **Everything else as rows of a list**, each with an icon in front and a mark at its end, a chevron for what opens here and the mark of a link for what leaves the app: "Ei varastossa? Seuraava auki" with the pharmacy under it; "Reitti Apple Kartoissa"; "Näytä apteekissa" with the card's language under it, where a prescription from another country has a counter card; "Kävitkö täällä?" with "Kerro, miten meni" under it and "Ohita" beside it.
+5. **Everything else as rows of a list**, each with an icon in front and a mark at its end, a chevron for what opens here and the mark of a link for what leaves the app: "Ei varastossa? Seuraava auki" with the pharmacy under it; the route in the other map app, "Reitti Google Mapsissa" where the button opens Apple's and "Reitti Apple Kartoissa" where it opens Google's; "Näytä apteekissa" with the card's language under it, where a prescription from another country has a counter card; "Kävitkö täällä?" with "Kerro, miten meni" under it and "Ohita" beside it.
 6. The footnote: the route opens in the map app and the link carries only the pharmacy's position; data from OpenStreetMap, with `check_date` when present, and "Väärät tiedot? Korjaa OpenStreetMapissa": a link to OpenStreetMap's note form at the pharmacy's position. When the hours are missing or unclear, the same link sits right under the status line. A fix reaches the tiles the next night, with no backend of ours.
 
 The figures of the sheet (hours, phone number, walking time, distance) are proportional, not tabular (Janne, 26 Nov 2026; section 6, "Type").
@@ -959,7 +959,7 @@ components/
   MapMarker.tsx               marker and you-are-here; the edge chip lives in the map component
   NearestOpenCard.tsx         "Lähin auki nyt" + ehditkö + next open
   PharmacyList.tsx  PharmacyRow.tsx   list, rows and the "Kiinni nyt" group
-  PharmacySheet.tsx           details + Google/Apple Maps hand-off
+  PharmacySheet.tsx           details + the hand-off to Apple Maps or Google Maps, the device's own first
   CrossGlyph.tsx              the status glyph (open / soon / closed / unknown)
   OpenStatus.tsx              status text from a computed status
   CountryBanner.tsx  CounterCard.tsx
@@ -972,6 +972,7 @@ hooks/
   usePharmacySearch.ts        locate → tiles → walking; aborts; time budget
   useRouteLine.ts             the walking route to the selected pharmacy, once per pharmacy and position (M5)
   useNow.ts                   minute tick + visibilitychange
+  useMapApp.ts                whose map app the route button opens on this device: Apple's or Google's
   useWakeLock.ts
   useLivePosition.ts          watchPosition while the page is visible; the search hook ranks again after ~300 m (M4)
 lib/
