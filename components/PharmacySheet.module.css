@@ -145,6 +145,15 @@
   border-bottom: 1px solid var(--hair-2);
 }
 
+/*
+ * Visitors' reports: sections of their own, each with a rule under it. The first one after
+ * the "Ei varastossa?" line gets a rule above as well; after the medicine row that row's rule is it.
+ */
+.next + .report,
+.actions + .report {
+  border-top: 1px solid var(--hair-2);
+}
+
 .footnote {
   color: var(--meta);
   font-size: var(--t-xs);

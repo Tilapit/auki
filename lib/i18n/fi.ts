@@ -280,6 +280,38 @@ const fi = {
     awake: 'Näyttö pysyy päällä.',
   },
   /**
+   * Anonymous pharmacy reports (PLAN.md 7.10). Offered as a row in a pharmacy's details, never
+   * asked. Every chip is a plain statement about the visit, and no medicine is named.
+   */
+  report: {
+    /** The row: a question, and under it what pressing it does. */
+    rowTitle: 'Kävitkö täällä?',
+    rowAction: 'Kerro, miten meni',
+    skip: 'Ohita',
+    skipLabel: (name: string) => `Ohita kysymys käynnistä: ${name}`,
+    title: 'Miten käynti meni?',
+    intro: 'Valitse ne, jotka pitävät paikkansa. Jokainen on vapaaehtoinen.',
+    /** Each topic: its name, the two chips, and the two words its counts are shown with. */
+    topics: {
+      prescription: { label: 'Resepti', yes: 'Resepti kävi', no: 'Resepti ei käynyt', counted: (yes: string, no: string) => `Kävi ${yes}, ei käynyt ${no}` },
+      english: { label: 'Englanti', yes: 'Englantia puhuttiin', no: 'Englantia ei puhuttu', counted: (yes: string, no: string) => `Puhuttiin ${yes}, ei puhuttu ${no}` },
+      stock: { label: 'Lääke', yes: 'Lääke oli varastossa', no: 'Lääkettä ei ollut', counted: (yes: string, no: string) => `Oli varastossa ${yes}, ei ollut ${no}` },
+      shortWait: { label: 'Jono', yes: 'Lyhyt jono', no: 'Pitkä jono', counted: (yes: string, no: string) => `Lyhyt ${yes}, pitkä ${no}` },
+      stepFree: { label: 'Sisäänkäynti', yes: 'Esteetön sisäänkäynti', no: 'Portaita tai kynnys', counted: (yes: string, no: string) => `Esteetön ${yes}, portaita tai kynnys ${no}` },
+    },
+    send: 'Lähetä',
+    sending: 'Lähetetään',
+    chooseOne: 'Valitse ainakin yksi.',
+    /** Under the buttons: exactly what is stored, and what is not. */
+    privacy: 'Ilmoitus on nimetön. Siitä tallennetaan apteekki, valintasi ja päivä. Sijaintia, lääkkeen nimeä tai laitteesi osoitetta ei tallenneta.',
+    failed: 'Lähetys ei onnistunut. Yritä uudelleen.',
+    limit: 'Tästä apteekista on tänään jo paljon ilmoituksia, joten tätä ei tallennettu.',
+    thanks: 'Kiitos. Ilmoituksesi on tallennettu.',
+    /** What others told: shown from three reports on, with the count and the days they came. */
+    summaryTitle: 'Kävijöiden ilmoituksia',
+    summaryMeta: (count: string, days: string) => `${count} ilmoitusta, ${days}. Nimettömiä, ei tarkistettuja.`,
+  },
+  /**
    * Medicine availability (PLAN.md 7.9). The app never says a pharmacy has a medicine: it says
    * where to check. No medicine is named anywhere in these texts, not even as an example.
    */

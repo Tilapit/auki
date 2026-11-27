@@ -78,6 +78,16 @@ export function date(locale: Locale, iso: string): string {
   }).format(new Date(Date.UTC(y, m - 1, d)));
 }
 
+/**
+ * Two ISO dates as a range: "12.11.2026–26.11.2026" / "12 Nov 2026 – 26 Nov 2026", or the one
+ * date when they are the same day. An en dash: without spaces in Finnish, where the dates have
+ * none, and with them in English, where they do.
+ */
+export function dateRange(locale: Locale, from: string, to: string): string {
+  if (from === to) return date(locale, from);
+  return locale === 'fi' ? `${date(locale, from)}–${date(locale, to)}` : `${date(locale, from)} – ${date(locale, to)}`;
+}
+
 /** The day an instant falls on, on the device's clock: "22.11." / "22 Nov". For "data fetched on …". */
 export function dayOf(locale: Locale, epochSeconds: number, timeZone?: string): string {
   return new Intl.DateTimeFormat(INTL[locale], { day: 'numeric', month: locale === 'fi' ? 'numeric' : 'short', timeZone }).format(new Date(epochSeconds * 1000));
@@ -125,6 +135,7 @@ export interface Formatters {
   distance: (meters: number, long?: boolean) => string;
   minutes: (value: number, long?: boolean) => string;
   date: (iso: string) => string;
+  dateRange: (from: string, to: string) => string;
   dayOf: (epochSeconds: number) => string;
   /** On the device's clock, unless a zone is given. */
   dayAndTime: (epochSeconds: number, timeZone?: string) => string;
@@ -142,6 +153,7 @@ export function formatters(locale: Locale): Formatters {
     distance: (meters, long) => distance(locale, meters, long),
     minutes: (value, long) => minutes(locale, value, long),
     date: (iso) => date(locale, iso),
+    dateRange: (from, to) => dateRange(locale, from, to),
     dayOf: (epochSeconds) => dayOf(locale, epochSeconds),
     dayAndTime: (epochSeconds, timeZone) => dayAndTime(locale, epochSeconds, timeZone),
     percent: (share, decimals) => percent(locale, share, decimals),

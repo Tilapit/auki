@@ -19,15 +19,22 @@ export const MAP_TILES_URL = process.env.NEXT_PUBLIC_MAP_TILES_URL || 'https://t
 export const MAP_TILE_HOST = new URL(MAP_TILES_URL).origin;
 
 export interface AppRequest {
-  id: 'page' | 'tiles' | 'geocode' | 'walking' | 'mapTiles';
+  id: 'page' | 'tiles' | 'geocode' | 'walking' | 'mapTiles' | 'reports' | 'report';
   /** Our own origin, or the origin of the third party. */
   origin: string;
   /** Paths the request can have, as prefixes. */
   paths: string[];
   /** What it carries about where the user is. */
-  carries: 'nothing' | 'squares of 20 to 30 km' | 'the text typed' | 'the exact position' | 'the map squares on screen';
+  carries:
+    | 'nothing'
+    | 'squares of 20 to 30 km'
+    | 'the text typed'
+    | 'the exact position'
+    | 'the map squares on screen'
+    | 'the country of the pharmacy whose details were opened'
+    | 'one pharmacy, its country and the chips pressed';
   /** The milestone it arrives with. */
-  since: 'M0' | 'M1' | 'M3' | 'M4' | 'M5';
+  since: 'M0' | 'M1' | 'M3' | 'M4' | 'M5' | 'MR';
 }
 
 export const REQUESTS: AppRequest[] = [
@@ -36,6 +43,9 @@ export const REQUESTS: AppRequest[] = [
   { id: 'geocode', origin: 'self', paths: ['/api/geocode'], carries: 'the text typed', since: 'M1' },
   { id: 'walking', origin: 'self', paths: ['/api/walking'], carries: 'the exact position', since: 'M5' },
   { id: 'mapTiles', origin: MAP_TILE_HOST, paths: ['/'], carries: 'the map squares on screen', since: 'M4' },
+  // Visitors' reports (PLAN.md 7.10): what others told, read per country; and one's own report, sent only when the user sends it.
+  { id: 'reports', origin: 'self', paths: ['/api/report'], carries: 'the country of the pharmacy whose details were opened', since: 'MR' },
+  { id: 'report', origin: 'self', paths: ['/api/report'], carries: 'one pharmacy, its country and the chips pressed', since: 'MR' },
 ];
 
 /** The only request that may carry the position. */

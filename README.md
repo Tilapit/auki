@@ -30,6 +30,7 @@ In CI the same things are measured on every push, against a build and with fixtu
 - **A prescription from another country.** For anyone, in any covered country, Finland among them: where the country of the prescription is not the country of the pharmacy, the card says whether the electronic prescription and the paper one work there. Each answer is what an official page said on the day it was read (each country's own list of the cross-border e-prescription; the EU's rule on prescriptions from another member state), with the page named and dated, and where no page speaks it says that nothing was found. The home country is the browser's own suggestion, changed in one control; nobody is asked. What a research trip met at each country's counters is shown with its sample size, month and city, labelled as made with prescriptions from Finland. The research is in [`docs/research/prescriptions-across-borders.md`](docs/research/prescriptions-across-borders.md).
 - **A card to show at the counter**, in the pharmacy's language with English under it, in nineteen languages. Seventeen are drafts that no native speaker has read, and the card says so on its face.
 - **Medicine availability, as a hand-off.** Where a country has a stock search of its own that may be linked to (Finland, Germany, Austria, Norway), the card and every pharmacy's details open it, with the medicine's name in the link where the service's address takes one. The app says where to check, never that a pharmacy has a medicine, and the name never reaches the app's server. The research is in [`docs/research/medicine-availability.md`](docs/research/medicine-availability.md).
+- **Visitors' reports.** A row in a pharmacy's details offers to tell how a visit went: one screen of chips, no text, always skippable, never asked. Anonymous, and shown for a pharmacy only once it has three, as counts with the days they came (`PLAN.md` section 7.10).
 - **A data page** with the pipeline's numbers per country, and when each was last fetched.
 - **Finnish and English**, light and dark, phone and desktop.
 - **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. A pharmacy has a sheet of its own with the week's opening hours, the call and the route handed off to Apple Maps. Its time logic passes the same test cases as the web's (`tests/vectors/`). No walking times and no route line on its own map yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
@@ -83,10 +84,12 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 
 ## Privacy
 
-- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps three things. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. The country of the prescription, once it has been picked in the "Resepti kotimaasta?" banner: two letters, read on the device and never sent. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
+- No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps four things: the three here, and one for the visitors' reports, below. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. The country of the prescription, once it has been picked in the "Resepti kotimaasta?" banner: two letters, read on the device and never sent. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
 - The position: one request, to the app's own server, as above. Checked by a test on every push.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.
+- A visitor's report: sent only when the user presses "Lähetä", and it carries the pharmacy, its country and the chips pressed, to the letter. Stored with the day and nothing else: no account, no position, no medicine, no text, no time of day, no IP address. Shown for a pharmacy only once it has three, as counts with the days. The database is behind the app's own server, with row-level security on and no policy; the browser never talks to it. Checked by a third test, and by a unit test that reads the table's columns from the migration.
+- For the reports the device keeps the fourth thing: today's date and the ids of the pharmacies whose row was answered or passed over today, so that the same visit is not asked about twice. Never sent, and empty again the next day.
 
 ## Accessibility
 
@@ -118,7 +121,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 - The app's own medicine stock or price data: there is no source for it. For stock the app hands over to each country's own service.
 - Doctor, chat or triage: that is Treat's product, not this app's.
 - Reviews or ratings from Google on the map: Google's terms for the EEA don't allow its Places content with someone else's map. The app links to Google Maps instead.
-- Storing prescriptions or identity numbers. Accounts, a database, any LLM feature, push notifications.
+- Storing prescriptions or identity numbers. Accounts, any LLM feature, push notifications. A database for anything but the visitors' reports: the pharmacies are static files.
 - Claims about what a single pharmacy can do with a foreign prescription: the field samples are too small, and the answer depended on who stood at the counter.
 
 ## Known limitations
@@ -129,6 +132,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 - **Greek place names.** OpenStreetMap writes a city in the local script. A city in Greek letters that is not in the app's small table of Finnish and English names is not shown: the app says "Lähelläsi" (near you) instead. The typeface has no Greek either.
 - **The public Overpass servers are shared and sometimes busy.** The pipeline asks once per country, retries once, tries one other server, and otherwise keeps the night before's data; a second pass at the end of the same run, and another attempt two and a half hours later, ask again for the countries that failed. A commercial service should build from a planet extract or its own Overpass instance.
 - **Walking times depend on a free plan** of 500 searches a day. Beyond that, and whenever the service is slow, distances are straight lines, labelled as such. The budget is counted in the server's memory, per instance.
+- **The limits on visitors' reports count calls, not callers.** Nothing about the sender is read or stored (no account, no IP address), so the app can't tell two visitors from one. One script could send a pharmacy's 20 reports a day itself, all invented, and from three reports on they are shown as counts. It could also use up the 2,000 the database takes in a day in all, and then no report is taken for any pharmacy until the next day. This is kept on purpose: counting per person would mean reading who sends. What stands against it today is small: the summary says "Nimettömiä, ei tarkistettuja" (anonymous and not verified), a pharmacy's day is capped, and the trip's field findings are kept apart from the reports. What would fix it later is a rate limit per address at the platform's edge (on Vercel, a firewall rule for `/api/report`): the edge sees every request's address anyway, and would count and refuse there, so that no address reaches the app's code or the database.
 - **The map needs WebGL.** Without it the markers stand on a plain ground and the app says so.
 - **Hours written as sunrise or sunset** are shown as uncertain.
 - **Landscape phones** get the phone layout and are cramped.
@@ -137,9 +141,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 ## Open pull requests
 
-This file describes what is in `main`. Open on 26 Nov 2026, and not described above:
-
-- [#25](https://github.com/Tilapit/auki/pull/25): visitors' reports. A row in a pharmacy's details offers to tell how a visit went, on one screen of chips with no text; anonymous, kept behind the app's own server, and shown for a pharmacy only once it has three. It waits for a review.
+This file describes what is in `main`. On 26 Nov 2026 no pull request is open that is not described above.
 
 ## Run it
 
@@ -151,6 +153,7 @@ npm run dev
 Then open `/fi` or `/en`, and `/dev/states` for every view and state in light and dark, phone and desktop. Node 22.18 or later.
 
 - Place search needs `CONTACT_EMAIL` in `.env.local` (Nominatim asks callers to identify themselves), and walking times need `ORS_API_KEY`, a free key from openrouteservice. Copy `.env.example`. Without them the app works: by straight line, and without the search.
+- Visitors' reports need a Supabase project: `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `.env.local`, and `npm run db:push` once with `SUPABASE_DB_URL` (it needs the Supabase CLI). Without them the app offers no report and shows none.
 - Real pharmacies in development: `npm run data` once (it needs `CONTACT_EMAIL`), then `npm run data:serve` next to the dev server.
 - Tests: `npm test` (unit and property tests), `npm run test:e2e` (Playwright, Chromium and WebKit), `npm run lighthouse` (the budgets, against a build).
 - The other commands are listed in `CLAUDE.md`.
@@ -161,7 +164,8 @@ Then open `/fi` or `/en`, and `/dev/states` for every view and state in light an
 |---|---|
 | `app/`, `components/`, `hooks/` | The pages, the views and their state |
 | `lib/` | The logic, pure where it can be: tiles, opening status, ehditkö, the map's arithmetic, formats, the two languages |
-| `lib/server/`, `app/api/` | The two server routes |
+| `lib/server/`, `app/api/` | The three server routes: place search, walking times, visitors' reports |
+| `supabase/migrations/` | The reports table and its two functions |
 | `pipeline/` | The nightly data pipeline |
 | `tests/` | Unit and property tests, the Playwright tests with their visual baselines, and the shared cases for the iOS app |
 | `ios/` | The iOS app |

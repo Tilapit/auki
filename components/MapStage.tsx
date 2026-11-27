@@ -7,6 +7,7 @@ import { routesFrom } from '@/hooks/useRouteLine';
 import { distanceMeters } from '@/lib/geo';
 import { noneShownOpen, staysOpen, toPharmacy, toScene } from '@/lib/live';
 import { areaLayer, type Bounds } from '@/lib/map/area';
+import { liveReports } from '@/lib/reports';
 import { sceneAt } from '@/lib/scene';
 import { readLastDetail, saveLastDetail } from '@/lib/session';
 import type { MapView } from '@/lib/state';
@@ -88,6 +89,9 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
   // A new position, from a new search or after a walk, starts again.
   const routeFor = useMemo(() => routesFrom(position), [position]);
 
+  // Visitors' reports: asked for when a pharmacy's details are first opened, once per country (PLAN.md 7.10).
+  const reports = useMemo(() => liveReports(), []);
+
   // The moment the first result is on screen, for the measurement of PLAN.md section 12.
   useEffect(() => {
     performance.mark('first-result');
@@ -112,6 +116,7 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
       findInArea={findInArea}
       onArea={onArea}
       routeFor={routeFor}
+      reports={reports}
       detailId={detailBefore}
       onDetail={saveLastDetail}
     />
