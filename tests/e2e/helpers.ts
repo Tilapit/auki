@@ -5,7 +5,7 @@ import { distanceMeters } from '@/lib/geo';
 import { INDEX_PATH, encodeTile, tileKey, tileOf, tilePath } from '@/lib/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
 import { REPORT_PATH } from '@/lib/reports';
-import { WALKING_PATH, WALK_METERS_PER_SECOND, type Walk } from '@/lib/walking';
+import { WAKE_METHOD, WALKING_PATH, WALK_METERS_PER_SECOND, type Walk } from '@/lib/walking';
 
 /**
  * What the flow tests share: a scripted geolocation, so each case behaves the same in
@@ -127,10 +127,12 @@ export function gridWalk(from: Place, to: Place): Walk {
  * A request for a route gets a line of three points between the two places.
  * 'hold': never answers, as a service that is too slow. A number: that status.
  * Returns the requests it was asked, as the server would read them.
+ * The wake-up (GET) is not its business: it goes on to the default of fixtures.ts.
  */
 export async function fakeWalking(page: Page, answer: 'grid' | 'hold' | number | ((from: Place, to: Place, index: number) => Walk | null | undefined) = 'grid'): Promise<WalkingAsked[]> {
   const asked: WalkingAsked[] = [];
   await page.route(`**${WALKING_PATH}`, async (route) => {
+    if (route.request().method() === WAKE_METHOD) return route.fallback();
     const body = route.request().postDataJSON() as WalkingAsked;
     asked.push(body);
     if (answer === 'hold') return;

@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { ALWAYS, GENERATED, MONDAY_EVENING, farOpen, kamppi, kamppiClosed } from '@/lib/fixtures/tiles';
-import { carriesPosition, isAllowedUrl, MAP_TILE_HOST, POSITION_REQUEST } from '@/lib/requests';
+import { carriesPosition, isAllowedUrl, MAP_TILE_HOST, POSITION_REQUEST, WAKE_REQUEST } from '@/lib/requests';
 import { INDEX_PATH } from '@/lib/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
 import { expect, test } from './fixtures';
@@ -168,7 +168,8 @@ test('the place name leads to another place', async ({ page }) => {
  * The privacy claim of PLAN.md 7.6, checked: the position leaves the device in no request
  * but POST /api/walking, and the page talks to no host but ours and the map tile host. The
  * whole flow: locate, results with walking times, a pharmacy's details and its route line,
- * place search.
+ * place search. The wake-up of the walking function (GET on the same path) is one of the
+ * requests that may not carry it.
  */
 test('privacy: the position is in the walking request and in no other, and no request leaves the allowed hosts', async ({ page, baseURL }) => {
   const seen: { method: string; url: string; text: string }[] = [];
@@ -216,6 +217,13 @@ test('privacy: the position is in the walking request and in no other, and no re
     expect(carriesPosition(url + headers, HERE)).toBe(false);
     expect(carriesPosition(body, HERE)).toBe(true);
   }
+  // The wake-up of the walking function was sent too, when the position was asked for. It is another
+  // method on the same path, so the loop above held it to carrying no position; and it carries nothing
+  // else either. One of them: the place search came seconds later, to a function that was just woken.
+  const wakes = seen.filter((request) => request.method === WAKE_REQUEST.method && new URL(request.url).pathname === WAKE_REQUEST.path);
+  expect(wakes).toHaveLength(1);
+  expect(new URL(wakes[0].url).search).toBe('');
+  expect(wakes[0].text.split('\n')[2]).toBe('');
   // The tile requests name squares, and nothing but squares.
   const tiles = seen.filter((request) => new URL(request.url).origin === origin && new URL(request.url).pathname.startsWith('/tiles/'));
   expect(tiles.length).toBeGreaterThanOrEqual(2);

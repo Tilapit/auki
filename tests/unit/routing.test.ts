@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { GET } from '@/app/api/walking/route';
 import { FUNCTION_REGION, Gate, MATRIX_TIMEOUT_MS, OWN_LIMITS, PLAN_LIMITS, readRequest, resetWalking, walking, type Deps } from '@/lib/server/routing';
 import { MAX_DESTINATIONS, WALKING_WAIT_MS } from '@/lib/walking';
 
@@ -303,5 +304,44 @@ describe('the budget', () => {
     advance(9 * 60_000);
     await expect(walking({ from: HERE, to: THREE }, deps)).resolves.toEqual({ status: 'unavailable', reason: 'paused' });
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('the wake-up, GET on the route', () => {
+  const asked = vi.fn<(...args: unknown[]) => Promise<Response>>(async () => new Response('{}'));
+  const get = (address = 'https://auki.example/api/walking', headers: Record<string, string> = {}) => GET(new Request(address, { headers }));
+
+  beforeEach(() => {
+    // With a key in place: the wake-up asks nobody because it never tries, not because it can't.
+    vi.stubEnv('ORS_API_KEY', KEY);
+    vi.stubGlobal('fetch', asked);
+    asked.mockClear();
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it('answers with nothing, is never cached, and asks openrouteservice nothing', async () => {
+    const response = get();
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe('');
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(get('https://auki.example/api/walking', { 'sec-fetch-site': 'same-origin' }).status).toBe(204);
+    expect(asked).not.toHaveBeenCalled();
+  });
+
+  it('refuses a request with anything in its address: the position has no way in here', async () => {
+    for (const address of ['https://auki.example/api/walking?lat=60.16952&lon=24.93545', 'https://auki.example/api/walking?wake']) {
+      const response = get(address);
+      expect(response.status, address).toBe(400);
+      expect(response.headers.get('cache-control')).toBe('no-store');
+    }
+    expect(asked).not.toHaveBeenCalled();
+  });
+
+  it('refuses a page of another site, as the walking request does', () => {
+    for (const site of ['cross-site', 'same-site', 'none']) expect(get(undefined, { 'sec-fetch-site': site }).status, site).toBe(403);
+    expect(asked).not.toHaveBeenCalled();
   });
 });
