@@ -67,9 +67,7 @@ export function NearestOpenCard({
   const i18n = useI18n();
   const { t, f } = i18n;
   const id = useId();
-  const name = displayName(i18n, pharmacy);
   const label = fullName(i18n, pharmacy, pharmacy.name === null);
-  const way = travel(i18n, pharmacy, distance);
   const address = [pharmacy.street, city].filter(Boolean).join(', ');
   // Too far to walk: the route button stops promising a walk.
   const walk = withinWalk(pharmacy);
@@ -90,23 +88,9 @@ export function NearestOpenCard({
         {t.results.nearestOpen}
       </h2>
 
-      <div className={styles.head}>
-        <span className={styles.glyph}>
-          <CrossGlyph state={glyphFor(pharmacy.status)} size={24} />
-        </span>
-        <div className={styles.who}>
-          <h3 className={styles.name}>{name}</h3>
-          {address && <p className={styles.address}>{address}</p>}
-        </div>
-        <div className={styles.travel}>
-          <p className={cx(styles.time, 'tnum')}>
-            <Measure {...way.primary} />
-          </p>
-          <p className={cx(styles.distance, 'tnum')}>
-            <Measure short={way.secondary.short} long={way.secondary.long || way.secondary.short} />
-          </p>
-        </div>
-      </div>
+      <CardHead pharmacy={pharmacy} address={address} distance={distance} onSelect={onSelect}>
+        {ehditko.kind === 'none' && <OpenStatus status={pharmacy.status} strong className={styles.status} />}
+      </CardHead>
 
       {ehditko.kind === 'timeline' && (
         <div className={cx(styles.timeline, tight && styles.tight)}>
@@ -132,8 +116,6 @@ export function NearestOpenCard({
           </div>
         </div>
       )}
-
-      {ehditko.kind === 'none' && <OpenStatus status={pharmacy.status} strong className={styles.status} />}
 
       {pharmacy.dispensing === false && <p className={styles.context}>{t.status.noPrescriptions}</p>}
 
@@ -265,6 +247,57 @@ export function NearestOpenCard({
   );
 }
 
+interface HeadProps {
+  pharmacy: Pharmacy;
+  address?: string;
+  distance: Scene['distance'];
+  onSelect?: (pharmacy: Pharmacy) => void;
+  /** The status line, where the card has one right under the head: it belongs to the same press. */
+  children?: ReactNode;
+}
+
+/**
+ * The head of a card: the cross, the name, the address and how far. The name is the one
+ * control, with its hit area stretched over the head and the status line under it, as in the
+ * list's rows: a press opens the pharmacy's details (hours, contacts, routes, the medicine
+ * search, the report row), which the card itself has no room for.
+ */
+function CardHead({ pharmacy, address, distance, onSelect, children }: HeadProps) {
+  const i18n = useI18n();
+  const name = displayName(i18n, pharmacy);
+  const way = travel(i18n, pharmacy, distance);
+  return (
+    <div className={styles.opener}>
+      <div className={styles.head}>
+        <span className={styles.glyph}>
+          <CrossGlyph state={glyphFor(pharmacy.status)} size={24} />
+        </span>
+        <div className={styles.who}>
+          <h3 className={styles.name}>
+            {onSelect ? (
+              <button type="button" className={styles.nameButton} onClick={() => onSelect(pharmacy)}>
+                {name}
+              </button>
+            ) : (
+              name
+            )}
+          </h3>
+          {address && <p className={styles.address}>{address}</p>}
+        </div>
+        <div className={styles.travel}>
+          <p className={cx(styles.time, 'tnum')}>
+            <Measure {...way.primary} />
+          </p>
+          <p className={cx(styles.distance, 'tnum')}>
+            <Measure short={way.secondary.short} long={way.secondary.long || way.secondary.short} />
+          </p>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 /**
  * "Avautuu ensimmäisenä" under a far open pharmacy: go there now, or wait for this one nearby.
  * The name is the one control, with its hit area stretched over the block, as in the list rows.
@@ -336,7 +369,6 @@ export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, k
   const { t, f, locale } = i18n;
   const id = useId();
   const label = fullName(i18n, pharmacy, pharmacy.name === null);
-  const way = travel(i18n, pharmacy, distance);
   const address = [pharmacy.street, city].filter(Boolean).join(', ');
   const walk = withinWalk(pharmacy);
   const knownWay = knownOpen && travel(i18n, knownOpen, distance);
@@ -348,25 +380,9 @@ export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, k
         {t.results.nearestUnlisted}
       </h2>
 
-      <div className={styles.head}>
-        <span className={styles.glyph}>
-          <CrossGlyph state={glyphFor(pharmacy.status)} size={24} />
-        </span>
-        <div className={styles.who}>
-          <h3 className={styles.name}>{displayName(i18n, pharmacy)}</h3>
-          {address && <p className={styles.address}>{address}</p>}
-        </div>
-        <div className={styles.travel}>
-          <p className={cx(styles.time, 'tnum')}>
-            <Measure {...way.primary} />
-          </p>
-          <p className={cx(styles.distance, 'tnum')}>
-            <Measure short={way.secondary.short} long={way.secondary.long || way.secondary.short} />
-          </p>
-        </div>
-      </div>
-
-      <OpenStatus status={pharmacy.status} strong className={styles.status} />
+      <CardHead pharmacy={pharmacy} address={address} distance={distance} onSelect={onSelect}>
+        <OpenStatus status={pharmacy.status} strong className={styles.status} />
+      </CardHead>
 
       {pharmacy.dispensing === false && <p className={styles.context}>{t.status.noPrescriptions}</p>}
 
@@ -453,31 +469,14 @@ export function NothingOpenCard({ pharmacy, distance, onSelect, children }: Noth
   const i18n = useI18n();
   const { t } = i18n;
   const id = useId();
-  const name = displayName(i18n, pharmacy);
-  const way = travel(i18n, pharmacy, distance);
   return (
     <section className={styles.card} aria-labelledby={`${id}-h`}>
       <h2 id={`${id}-h`} className={styles.label}>
         {t.results.opensFirst}
       </h2>
-      <div className={styles.head}>
-        <span className={styles.glyph}>
-          <CrossGlyph state={glyphFor(pharmacy.status)} size={24} />
-        </span>
-        <div className={styles.who}>
-          <h3 className={styles.name}>{name}</h3>
-          {pharmacy.street && <p className={styles.address}>{pharmacy.street}</p>}
-        </div>
-        <div className={styles.travel}>
-          <p className={cx(styles.time, 'tnum')}>
-            <Measure {...way.primary} />
-          </p>
-          <p className={cx(styles.distance, 'tnum')}>
-            <Measure short={way.secondary.short} long={way.secondary.long || way.secondary.short} />
-          </p>
-        </div>
-      </div>
-      <OpenStatus status={pharmacy.status} strong className={styles.status} />
+      <CardHead pharmacy={pharmacy} address={pharmacy.street} distance={distance} onSelect={onSelect}>
+        <OpenStatus status={pharmacy.status} strong className={styles.status} />
+      </CardHead>
       <div className={styles.actions}>
         <Button aria-label={t.card.details(fullName(i18n, pharmacy, true))} onClick={() => onSelect?.(pharmacy)}>
           {t.card.showDetails}

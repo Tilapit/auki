@@ -148,6 +148,7 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 
 ### "Lähin auki nyt" card
 - Name, address, walking time (the largest number), distance.
+- The name is a button, and the head and the status line under it are its hit area: a press opens the pharmacy's details, the same sheet as from a row of the list (Janne, 27 Nov 2026; `DESIGN-LOG.md`). So do the card's other two forms, "Lähin apteekki" and "Avautuu ensimmäisenä".
 - "Ehditkö" only when it tells something:
   - closes within 60 minutes → a timeline: "Perillä 20.44", "Sulkeutuu 21.00", "16 min pelivaraa". The slack is green, and turns to the `soon` colour when it is under 5 minutes or under 20% of the walking time, whichever is larger;
   - arrival would be at or after closing → "Et ehdi ennen sulkemista" and the next open pharmacy, which gets "Reitti" and "Soita" as the main actions. The closing one keeps "Soita": a call can ask them to wait. On the phone the sheet's row says the same and its button is "Soita";

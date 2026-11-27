@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 import { farOpen, kamppi, kamppiClosed } from '@/lib/fixtures/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
 import { expect, test } from './fixtures';
-import { settle, start, world } from './helpers';
+import { fakeReports, settle, start, world } from './helpers';
 
 /**
  * The phone's bottom sheet (PLAN.md section 5). It rests in three places: on one row, so
@@ -384,6 +384,50 @@ test.describe('a pharmacy’s details in the sheet', () => {
     await expect(handle(page)).toHaveAccessibleName('Näytä lisää');
   });
 
+  test('a press on the card’s name opens them as a row of the list does, and closed they give the card back', async ({ page }) => {
+    await fakeReports(page);
+    await start(page, world(kamppi));
+    await handle(page).click();
+    await expectAt(page, 'half');
+    await rest(handle(page));
+    const name = card(page).getByRole('button', { name: 'Kampin apteekki', exact: true });
+    await name.click();
+    const heading = details(page).getByRole('heading', { level: 2 });
+    await expect(heading).toHaveText('Kampin apteekki');
+    await expect(heading).toBeFocused();
+    // At the middle, like the details of any pharmacy: the map stays in view above them.
+    await expect(handle(page)).toHaveAccessibleName('Näytä lisää');
+    await rest(handle(page));
+    // What the card has no room for: the week's hours, the contacts, both map apps, the medicine search, the report row.
+    await expect(details(page).getByText('Joka päivä 8.00–21.00')).toBeVisible();
+    await expect(details(page).getByRole('link', { name: 'kamppi@apteekki.example' })).toHaveCount(1);
+    await expect(details(page).getByRole('link', { name: /Reitti Google Mapsissa/ })).toBeInViewport({ ratio: 1 });
+    await expect(details(page).getByRole('link', { name: /Reitti Apple Kartoissa/ })).toHaveCount(1);
+    await expect(details(page).getByRole('button', { name: /^Tarkista lääkkeen saatavuus/ })).toHaveCount(1);
+    await expect(details(page).getByRole('button', { name: 'Kävitkö täällä? Kerro, miten meni' })).toHaveCount(1);
+    // Closed, the sheet is at the card again, and the keyboard is back on the name that opened them.
+    await details(page).getByRole('button', { name: 'Sulje' }).click();
+    await expect(details(page)).toBeHidden();
+    await expectAt(page, 'half');
+    await expect(name).toBeFocused();
+  });
+
+  test('the status line under the card’s name belongs to the same press', async ({ page }) => {
+    // Without the pharmacy that closes at nine, the nearest open one is open until midnight: its card has a status line and no timeline.
+    await start(page, world(kamppi.slice(1)));
+    await handle(page).click();
+    await expectAt(page, 'half');
+    await rest(handle(page));
+    await expect(card(page).getByRole('heading', { level: 3 })).toHaveText('Yliopiston apteekki');
+    const status = (await card(page).getByText('Auki klo 24 asti', { exact: true }).boundingBox())!;
+    await page.mouse.click(status.x + status.width / 2, status.y + status.height / 2);
+    await expect(details(page).getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
+    // The card's own buttons are still their own: the head's hit area ends above them.
+    await page.keyboard.press('Escape');
+    await expect(details(page)).toBeHidden();
+    await card(page).getByRole('link', { name: 'Soita: Yliopiston apteekki' }).click({ trial: true });
+  });
+
   test('the close button and Escape bring back what the sheet showed before: the row, or the list where it was', async ({ page }) => {
     // A short screen, so that the list of six is longer than the open sheet.
     await page.setViewportSize({ width: 390, height: 560 });
@@ -521,10 +565,15 @@ test.describe('with a finger', () => {
     await page.touchscreen.tap(name.x, name.y);
     await expectAt(page, 'half');
     await expect(page.getByRole('dialog')).toBeHidden();
-    // At the card a tap on its text does nothing: only the lowest sheet is one big handle.
+    // At the card a tap on plain text does nothing: only the lowest sheet is one big handle.
+    const label = await rest(card(page).getByRole('heading', { level: 2 }));
+    await page.touchscreen.tap(label.x, label.y);
+    await expectAt(page, 'half');
+    await expect(page.getByRole('dialog')).toBeHidden();
+    // The card's name is a button: a tap on it opens the pharmacy's details.
     const title = await rest(card(page).getByRole('heading', { level: 3 }));
     await page.touchscreen.tap(title.x, title.y);
-    await expectAt(page, 'half');
+    await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Kampin apteekki');
   });
 
   // Janne's iPhone, 25 Nov 2026: "sometimes a touch doesn't register". Below the open list the
