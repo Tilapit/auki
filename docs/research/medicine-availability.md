@@ -2,6 +2,8 @@
 
 Checked on 24 and 25 November 2026, for Janne's scope change of 24 Nov (PLAN.md, decision D9): show where a medicine is in stock, starting where it is allowed. Six countries: Finland, Sweden, Denmark, Austria, Germany and Norway.
 
+On 27 November 2026 ten more countries were looked at, when the app's coverage grew by them: Belgium, Bulgaria, Cyprus, France, Ireland, Luxembourg, the Netherlands, Romania, Iceland and Liechtenstein. That round was short, about half an hour for all ten, and its results are in their own section below. "None found" there means that nothing was found in that time, not that nothing exists.
+
 This file is the evidence. What the app does with it is in `lib/stock/providers.ts` and PLAN.md 7.9.
 
 ## The answer in one table
@@ -14,6 +16,8 @@ This file is the evidence. What the app does with it is in `lib/stock/providers.
 | Norway | None across the chains | Apotekforeningen's page explains how to check each chain | **Offered** as a link to that page. No name |
 | Sweden | Lagerstatus on Fass | Lif, with Sveriges Apoteksförening | **Built, not offered.** Fass's terms ask for a free agreement before a service links to it |
 | Denmark | Stock in the "apoteket" app | Danmarks Apotekerforening | **Nothing.** Behind MitID, and only for one's own prescriptions |
+| Iceland | None that the medicines agency can see: it says it has no real-time view of pharmacies' stock | Lyfjastofnun's page for patients on Ísland.is says what to do | **Offered** as a link to that page, as for Norway. No name |
+| Belgium, Bulgaria, Cyprus, France, Ireland, Luxembourg, the Netherlands, Romania, Liechtenstein | None found (27 Nov) | | **Nothing.** No page was read that says there is none, so the app says nothing either |
 
 No country has a documented public API or open data for stock per pharmacy. Every hand-off is a plain link, and nothing is fetched from any service.
 
@@ -134,6 +138,86 @@ A traveller from Finland has no MitID, so a link to the app would lead nowhere. 
 
 **Why not a chain's search.** Vitusapotek's search address is confirmed and published by the site. Apotek 1's could not be seen working, and Boots closes its search to automated agents. A link to one chain would favour it and leave out the pharmacies of the others.
 
+## The ten countries of 27 November 2026
+
+**The question.** Is there a stock search for the public that covers pharmacies across the country, as Finland's does? Not one chain's web shop, and not a shortage list. Where there is none, is there an official or association page that says so and is worth a link, as in Norway?
+
+**How this round was checked.**
+- One or two web searches per country, in the country's own language, then the pages themselves.
+- **Read** means the page was fetched with `curl` and a plain user agent on 27 Nov and its text read. **Read in part** means the passages about pharmacies and stock were read, found by searching the page's text, and not the whole page. **Read through the fetch tool** means a tool fetched the page and answered questions about it with quotes: the quotes are the tool's, and the page's full text was not seen.
+- **Search summary, not read** marks what only a search result said. Nothing in the app rests on such a line.
+- A page that refused (403, a human check, no answer) is named as such. No block was worked around.
+- No page of the nine countries without a result says that the country has no such service. So the result there is "none found", and the app says nothing.
+
+### Iceland: no service, and the agency says why
+
+- **Lyfjastofnun, the medicines agency, on its role in shortages** (in Icelandic), https://island.is/s/lyfjastofnun/hlutverk-lyfjastofnunar-i-lyfjaskorti: "Lyfjastofnun hefur ekki yfirsýn yfir birgðastöðu lyfja í rauntíma, hvorki hjá heildsölum né apótekum". The agency has no real-time view of the stock of wholesalers or of pharmacies. Read.
+- **Its page for patients**, in English, https://island.is/en/medicine-shortages-and-remedies-for-patients (in Icelandic: https://island.is/lyfjaskortur-og-urraedi-fyrir-lyfjanotendur). Three steps. Look up the shortage in the agency's catalogue of medicines, Sérlyfjaskrá, which marks the medicines with a reported shortage and can be searched by name. Ask the pharmacy: "The staff can check whether […] the medicine is available at another pharmacy". Then the health centre. Read in English as far as the advice goes; the same passage was found in the Icelandic page.
+- **Terms.** The agency's legal disclaimer, https://island.is/en/o/ima/legal-disclaimer (last updated 9 January 2023): the agency holds the copyright, and its information "may be reused provided that the relevant webpages are appropriately cited as sources". Nothing about links. `https://island.is/robots.txt` answers 404.
+- **The link the app offers** is the page for patients, in English for both of the app's languages: `https://island.is/en/medicine-shortages-and-remedies-for-patients`. It takes no name. No coverage is claimed: the page is advice, not a stock search.
+- **What the dialog says, and from which page.** That the agency has no real-time view of pharmacies' stock: from the first page, which is not the one linked. That the pharmacy's staff can check whether another pharmacy has the medicine, and that the catalogue shows reported shortages: from the page linked.
+- **Not checked.** Whether a pharmacy chain shows stock on its own site. A bill that would have pharmacies report their stock to the agency in real time (search summary, not read).
+
+### Belgium: none found
+
+- https://pharmastatus.be/, the medicines agency's application: the address answers with an empty frame that needs scripts. Only its title was read: "PharmaStatus – The online application on the availability of medicines". What it shows was not seen.
+- The agency's own page about it, https://www.fagg-afmps.be/node/104129, answered with a human check, with `curl` and with the fetch tool. The federal press releases https://news.belgium.be/en/node/23496 and https://news.belgium.be/nl/node/44739 answered 403.
+- Search summary, not read: PharmaStatus lists medicines that companies have reported as unavailable in the whole country, not a pharmacy's stock. The council of ministers approved a "Stock Monitoring Tool" on 18 July 2026; for whom is not known.
+- **Result: nothing offered.**
+
+### Bulgaria: none found
+
+- "Намери своето лекарство" ("Find your medicine"), an app. Its App Store page, https://apps.apple.com/bg/app/id6478790772, read: a joint project of БАРПТЛ, the association for the parallel trade in medicines, and БАТЕЛ (the wholesalers' association, by a search summary). "Подайте сигнал за липсващо лекарство и ние ще се свържем с Вас за съдействие": the user reports a missing medicine and is contacted. A request, not a stock search. Not linked.
+- The article about its launch, https://www.capital.bg/politika_i_ikonomika/zdraveopazvane/2024/03/28/4606910_mobilno_prilojenie_shte_tursi_lipsvashti_lekarstva/, answered 403 both ways. Search summary, not read: over 700 pharmacies take part, and the user gives the medicine, the place and a phone number.
+- Search summary, not read: the medicines agency's tracking system SESPA is for the trade and the authorities. No public lookup was found.
+- **Result: nothing offered.**
+
+### Cyprus: none found
+
+- The Pharmaceutical Services' page, https://www.moh.gov.cy/phs, leads to https://www.gov.cy/moh-phs, which answered 403 both ways.
+- Two searches, in English and in Greek, found apps that list the pharmacies on duty, and news about shortages. None was read.
+- **Result: nothing offered.**
+
+### France: none found
+
+- The medicines agency ANSM, https://ansm.sante.fr/disponibilites-des-produits-de-sante/medicaments: its list of products in short supply, per product for the whole country. The list itself loads with scripts: the title and the filters were read, not the entries.
+- Vigirupture, by the company Offisanté: https://www.vigirupture.fr/ answered 403 (a security service). An article in the trade paper Le Quotidien du pharmacien, https://www.lequotidiendupharmacien.fr/medicament-parapharmacie/medicament/offisante-lance-un-observatoire-des-medicaments, its opening paragraph read: Vigirupture is a means for pharmacies to cope with shortages, and Offisanté has added an "Observatoire des ruptures et tensions de médicaments" that manufacturers can use too. Search summary, not read: a version of the observatory for the public shows on a map where a medicine is available, and between 6,500 and 8,500 pharmacies use Vigirupture. A company's service of a part of the pharmacies, whose pages and terms could not be opened. Not linked. **To check by hand**, if France is wanted: what the public version shows, and its terms.
+- Search summary, not read: the Ordre des pharmaciens' DP-Ruptures is for pharmacists.
+- **Result: nothing offered.**
+
+### Ireland: none found
+
+- The medicines regulator HPRA, https://www.hpra.ie/regulation/human-medicine/patients-and-healthcare-professionals/medicines-shortages, read through the fetch tool: the HPRA publishes a list of shortages; "your doctor or pharmacist will often be able to supply an alternative strength, form, or product"; where a product is not on the list, "pharmacists may need to check with other distributors". The page names no tool that shows which pharmacy has a medicine.
+- **Result: nothing offered.**
+
+### Luxembourg: none found
+
+- The Health Directorate's page on unavailability, https://santesecu.public.lu/en/espace-professionnel/departement-sante/pharmacies-et-medicaments/indisponibilite-commercialisation.html, read in part (its opening and the legal framework): in the professionals' part of the site, about what a marketing authorisation holder has to report and the forms for it. Nothing for the public or about a pharmacy's stock in the part read.
+- Search summary, not read: a national platform to follow the availability of medicines is being prepared; for whom is not known.
+- **Result: nothing offered.**
+
+### The Netherlands: none found
+
+- The pharmacists' association KNMP on shortages, https://www.knmp.nl/dossiers/geneesmiddelentekorten, read through the fetch tool: it names KNMP Farmanco, where "is te zien welke geregistreerde geneesmiddelen niet beschikbaar zijn". Nothing about stock per pharmacy.
+- KNMP Farmanco, https://farmanco.knmp.nl/, read: "Dé website voor alle geneesmiddelentekorten". Per product, the packs that are short and the delivery date the manufacturer expects. Shortages in the whole country, not a pharmacy's shelf.
+- The government's page on shortages, https://www.rijksoverheid.nl/themas/familie-zorg-en-gezondheid/geneesmiddelen/aanpak-medicijntekorten, read in part: why medicines run short and the measures against it. Nothing about looking up a pharmacy's stock in the part read.
+- The consumer programme Radar, 29 April 2024, https://radar.avrotros.nl/artikel/medicijnen-niet-op-voorraad-bij-je-apotheek-waar-kun-je-terecht-60512, read: with a spokesperson of the KNMP. Nobody is bound to one pharmacy, and "je kunt ook apotheken bellen met de vraag of ze jouw medicatie op voorraad hebben". Press, not a page of the association.
+- The patients' page that the KNMP links to, https://www.apotheek.nl/zorg-van-de-apotheker/medicijnen-actualiteit/medicijntekorten, answered 404 to `curl`.
+- **Result: nothing offered.** Everything read points to calling the pharmacies, and no official page says that there is no search: so the app does not say it either.
+
+### Romania: none found
+
+- A news report of 15 November 2026, https://www.puterea.ro/medicamente-blocate-in-depozite-rogobete-anunta-ca-stocurile-vor-fi-publicate-pe-site-ul-ministerului-sanatatii/, read: the health minister announced a change of law by which the stocks in the wholesalers' depots are to be made public on the Ministry's site. A plan, and about wholesalers, not pharmacies.
+- https://medicamentelipsa.ms.ro/ did not answer.
+- Search summary, not read: the Ministry's electronic stock reporting system SER (order 1345 of 2016) gives the authorities summed figures, not a pharmacy's stock.
+- **Result: nothing offered.** Worth another look when the Ministry publishes what it announced.
+
+### Liechtenstein: none found
+
+- The national administration's page on medicines, https://www.llv.li/en/individuals/health-care-and-care/treatment-and-care/pharmaceuticals/approved-medicine, answered 403 both ways.
+- One search, in German, found nothing about a lookup. Nothing was read.
+- **Result: nothing offered.**
+
 ## For live stock: whom to ask, and what the answer has to allow
 
 The seam is `StockProvider.stock` in `lib/stock/provider.ts`. No provider has it. It needs an agreement per country:
@@ -160,8 +244,14 @@ What an agreed interface has to allow, for the rules of PLAN.md 7.6 to hold:
 - Austria: today's number of pharmacies in ApoApp, and whether the app can be installed from Google Play in Finland.
 - Norway: Apotek 1's and Boots's search pages as a user sees them.
 - Everything was requested from one Nordic address. Blocking from other countries is untested.
+- The ten countries of 27 Nov: every page listed above as refused or not answering, which is most of Belgium, Cyprus and Liechtenstein. In those three the result rests on searches alone.
+- Iceland: the pharmacy chains' own sites.
+- France: Vigirupture's public pages and terms.
+- In none of the ten was a pharmacy association asked. A question by e-mail would settle each "none found".
 
 ## Sources
+
+The pages of the ten countries of 27 Nov are listed in their own sections above, each with what was read and what refused.
 
 Finland
 - Lääkehaku: https://www.apteekki.fi/laakehaku.html · its terms: https://laakehakupalvelu.apteekkariliitto.fi/Kayttoehdot.aspx

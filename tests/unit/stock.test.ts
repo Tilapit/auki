@@ -46,6 +46,16 @@ describe('the countries\' own stock searches', () => {
   it('a country without one gets nothing', () => {
     // Denmark's lookup is in an app, behind the Danish e-ID, for one's own prescriptions: nothing to hand over to.
     for (const country of ['LV', 'DK', undefined]) expect(providerFor(country)).toBeUndefined();
+    // Nine of the ten countries of 27 Nov 2026: no national stock search for the public was found, and no page worth a link in its place.
+    for (const country of ['BE', 'BG', 'CY', 'FR', 'IE', 'LU', 'NL', 'RO', 'LI']) expect(providerFor(country), country).toBeUndefined();
+  });
+
+  it('where an authority says that nobody has the stock in view, the link is its page of advice: no name, and no coverage claimed', () => {
+    // Iceland, in Norway's form. The page is not a stock search, so the dialog must not say which pharmacies take part in it.
+    const iceland = providerFor('IS');
+    expect(iceland?.takesMedicine).toBe(false);
+    expect(iceland?.coverage).toBeUndefined();
+    expect(iceland?.handoff({ medicine: NAME })).toEqual({ url: 'https://island.is/en/medicine-shortages-and-remedies-for-patients', withMedicine: false });
   });
 
   it('a provider that waits for its operator\'s agreement is not offered, and /dev/states can still show it', () => {

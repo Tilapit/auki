@@ -299,6 +299,12 @@ const en: Dictionary = {
         intro: "Norway has no stock search that covers every pharmacy. The Norwegian Pharmacy Association's page explains how to check a prescription medicine's stock on each pharmacy chain's own site.",
         open: 'Open apotek.no',
       },
+      islandIs: {
+        site: 'island.is',
+        intro: "The Icelandic Medicines Agency says it has no real-time view of what pharmacies have in stock. Its page for patients says what to do when a medicine is not available: the pharmacy's staff can check whether another pharmacy has it.",
+        note: "The page leads to the agency's medicine catalogue, which shows whether a shortage has been reported for a medicine.",
+        open: 'Open island.is',
+      },
       fass: {
         site: 'fass.se',
         intro: 'In Sweden, Fass shows pharmacy by pharmacy whether a medicine is in stock. It is run by Lif, the association of the pharmaceutical industry.',

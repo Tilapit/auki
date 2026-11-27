@@ -91,6 +91,23 @@ const NO: StockProvider = {
 };
 
 /**
+ * Iceland, in Norway's form. The medicines agency Lyfjastofnun writes on Ísland.is that it has
+ * no real-time view of the stock of wholesalers or pharmacies. Its page for patients, in
+ * English, says what to do when a medicine is not available: the pharmacy's staff can check
+ * whether another pharmacy has it, and the agency's catalogue marks the reported shortages.
+ * The page is not a stock search, so no coverage is claimed for it. It takes no name.
+ */
+const IS: StockProvider = {
+  country: 'IS',
+  id: 'islandIs',
+  hosts: ['island.is'],
+  channel: 'web',
+  takesMedicine: false,
+  handoff: () => ({ url: 'https://island.is/en/medicine-shortages-and-remedies-for-patients', withMedicine: false }),
+  checked: '2026-11-27',
+};
+
+/**
  * Sweden: Lagerstatus on Fass, by Lif with Sveriges Apoteksförening. Built and checked, and
  * not offered: Fass's terms of use (4.5, read 25 Nov 2026) ask for a separate, free agreement
  * with Lif before another digital service links to Fass systematically. It moves to
@@ -108,7 +125,7 @@ const SE: StockProvider = {
 };
 
 /** What the live app offers. */
-export const PROVIDERS: StockProvider[] = [FI, DE, AT, NO];
+export const PROVIDERS: StockProvider[] = [FI, DE, AT, NO, IS];
 
 /** Ready, and waiting for the operator's agreement. /dev/states shows them; the live app does not. */
 export const AWAITING_AGREEMENT: StockProvider[] = [SE];
