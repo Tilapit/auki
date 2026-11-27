@@ -5,8 +5,9 @@
  *
  * Three are in without that second condition: the library (opening_hours 3.x) has no public
  * holidays for Cyprus, Iceland or Liechtenstein. There a value that mentions PH can't be
- * evaluated and is published as "uncertain" (hours.ts), never as open or closed; a value
- * without PH is read as its weekdays, as everywhere. No holidays are written by hand.
+ * read and is published as "unparseable" (hours.ts: the library refuses the value), never as
+ * open or closed; a value without PH is read as its weekdays, as everywhere. No holidays are
+ * written by hand.
  */
 
 export interface Country {

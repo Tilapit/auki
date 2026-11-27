@@ -14,8 +14,9 @@ import { fakeLocation, fakeMapTiles, gridWalk, type WalkingAsked } from './helpe
  *
  * The tiles are answered by the test, so each answer is held back for as long as the same
  * profile would take to deliver it: one round trip, plus its gzipped size at 1.6 Mbit/s.
- * The tile is as heavy as the heaviest real one, central Barcelona on 23 Nov 2026: 1,272
- * pharmacies and 56 KB gzipped. The invented rows here compress better than real ones, so
+ * The tile is as heavy as the heaviest real one was until 27 Nov 2026, central Barcelona on
+ * 23 Nov 2026: 1,272 pharmacies and 56 KB gzipped. (Central Paris, which joined the coverage
+ * on 27 Nov, has 1,826 pharmacies and 67.6 KB; this test's tile has not been changed for it.) The invented rows here compress better than real ones, so
  * the delay is worked out from the real weight, not from theirs.
  *
  * From M5 the first result waits for the walking times too (PLAN.md 7.1, step 5), so the
