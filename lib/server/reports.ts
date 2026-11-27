@@ -9,7 +9,8 @@ import type { Summaries, Summary, Topic } from '../reports.ts';
  * no address of the device, no header about it.
  *
  * What is stored is the function's arguments and the day, which the database sets: the
- * pharmacy's id, its country and up to five answers (supabase/migrations/).
+ * pharmacy's id, its country, up to five answers, and with an answer about the prescription
+ * whether it was from another country (supabase/migrations/).
  *
  * How often it can be called has three limits, none of which needs to know the caller:
  * this server instance passes on at most PER_MINUTE reports a minute, and the database takes
@@ -61,6 +62,9 @@ export function limiter(perMinute: number): (now: number) => boolean {
   };
 }
 
+/** The database has no function of that name that takes those arguments: it has not had the migration that adds one of them. */
+const NO_SUCH_FUNCTION = Symbol('no such function');
+
 /** One call of a database function through Supabase's own API. undefined: it did not answer, or not with a result. */
 async function call(config: Config, name: string, args: Record<string, unknown>, fetcher: typeof fetch): Promise<unknown> {
   try {
@@ -71,6 +75,11 @@ async function call(config: Config, name: string, args: Record<string, unknown>,
       cache: 'no-store',
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
+    if (response.status === 404) {
+      // PostgREST's own code for "no function matches the name and the arguments given".
+      const problem = (await response.json().catch(() => null)) as { code?: unknown } | null;
+      return problem?.code === 'PGRST202' ? NO_SUCH_FUNCTION : undefined;
+    }
     if (!response.ok) return undefined;
     return (await response.json()) as unknown;
   } catch {
@@ -95,7 +104,11 @@ export function toSummaries(rows: unknown): Summaries | undefined {
       const no = row[`${COLUMNS[topic]}_no`];
       if (isCount(yes) && isCount(no) && yes + no > 0) answers[topic] = { yes, no };
     }
-    summaries[pharmacy] = { count: reports, from, to, answers };
+    // Prescriptions from another country: a line of its own, and only from three of them on. A database
+    // that has not had the second migration sends no such columns, and then there is no such line.
+    const { foreign_yes: abroadYes, foreign_no: abroadNo } = row;
+    const foreign = isCount(abroadYes) && isCount(abroadNo) && abroadYes + abroadNo >= MIN_REPORTS ? { yes: abroadYes, no: abroadNo } : undefined;
+    summaries[pharmacy] = { count: reports, from, to, answers, ...(foreign ? { foreign } : {}) };
   }
   return summaries;
 }
@@ -118,7 +131,11 @@ export function reportsServer(deps: Deps = {}) {
       if (!pass(now())) return { status: 'limit' };
       const args: Record<string, unknown> = { p_pharmacy: report.pharmacy, p_country: report.country };
       for (const topic of TOPICS) if (report.answers[topic] !== undefined) args[`p_${COLUMNS[topic]}`] = report.answers[topic];
-      const answer = await call(config, 'add_report', args, fetcher);
+      const { foreign } = report.answers;
+      let answer = await call(config, 'add_report', foreign === undefined ? args : { ...args, p_foreign: foreign }, fetcher);
+      // A database without the second migration has no place for that one answer. The report is
+      // stored without it rather than lost: the five answers are what the visitor came to tell.
+      if (answer === NO_SUCH_FUNCTION && foreign !== undefined) answer = await call(config, 'add_report', args, fetcher);
       if (answer === 'ok') return { status: 'stored' };
       if (answer === 'limit') return { status: 'limit' };
       return { status: 'unavailable', reason: 'upstream' };

@@ -18,7 +18,7 @@ interface Props {
   /** /dev/states only: the details open from the start. */
   open?: boolean;
   /** The banner was asked for from the footer: the keyboard goes to its control, which also brings it into view. */
-  takeFocus?: boolean;
+  takeFocus?: boolean | number;
 }
 
 /**

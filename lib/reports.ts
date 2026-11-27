@@ -4,10 +4,11 @@ import { COUNTRY_CODES } from './countries.ts';
  * Anonymous pharmacy reports (PLAN.md 7.10): what a visitor may tell about a visit, and what
  * the app shows of what others told.
  *
- * A report is the pharmacy, its country and up to five answers. That is all the browser sends
- * (POST /api/report), and with the day, which the server sets, all that is stored: no
- * account, no position, no medicine, no text. Reports are shown for a pharmacy only once it
- * has three, as counts with the first and the last day.
+ * A report is the pharmacy, its country and up to five answers, and with an answer about the
+ * prescription one more yes or no: whether the prescription was from another country. That is
+ * all the browser sends (POST /api/report), and with the day, which the server sets, all that
+ * is stored: no account, no position, no medicine, no text, and not which country. Reports are
+ * shown for a pharmacy only once it has three, as counts with the first and the last day.
  *
  * This file is the contract between the page and the server, and the device's own memory of
  * what it has already been offered. The browser never talks to the database.
@@ -19,8 +20,12 @@ export const REPORT_PATH = '/api/report';
 export const TOPICS = ['prescription', 'english', 'stock', 'shortWait', 'stepFree'] as const;
 export type Topic = (typeof TOPICS)[number];
 
-/** true: the first chip of the pair ("Resepti kävi"). false: the second ("Resepti ei käynyt"). */
-export type Answers = Partial<Record<Topic, boolean>>;
+/**
+ * true: the first chip of the pair ("Resepti kävi"). false: the second ("Resepti ei käynyt").
+ * `foreign` belongs to the answer about the prescription and is given only with it: whether
+ * that prescription was from another country than the pharmacy's. Not which country.
+ */
+export type Answers = Partial<Record<Topic, boolean>> & { foreign?: boolean };
 
 export interface Report {
   /** The pharmacy's id as the tiles have it: OpenStreetMap's type and number, "n123". */
@@ -40,6 +45,11 @@ export interface Summary {
   to: string;
   /** How many said yes and how many no, per topic. A topic nobody answered is left out. */
   answers: Partial<Record<Topic, { yes: number; no: number }>>;
+  /**
+   * Of the reports that said the prescription was from another country: how many said it was
+   * accepted and how many that it was not. Only once there are three of them; left out below that.
+   */
+  foreign?: { yes: number; no: number };
 }
 
 /** The summaries of one country, by pharmacy id. Only pharmacies with at least MIN_REPORTS. */
@@ -69,9 +79,13 @@ export function parseReport(body: unknown): Report | undefined {
   if (given.length === 0) return undefined;
   const parsed: Answers = {};
   for (const [topic, value] of given) {
-    if (!(TOPICS as readonly string[]).includes(topic) || typeof value !== 'boolean') return undefined;
-    parsed[topic as Topic] = value;
+    if (typeof value !== 'boolean') return undefined;
+    if (topic === 'foreign') parsed.foreign = value;
+    else if ((TOPICS as readonly string[]).includes(topic)) parsed[topic as Topic] = value;
+    else return undefined;
   }
+  // Where the prescription was from says nothing by itself: it is taken only with what happened to it.
+  if (parsed.foreign !== undefined && parsed.prescription === undefined) return undefined;
   return { pharmacy, country, answers: parsed };
 }
 
@@ -147,14 +161,16 @@ export function readSummaries(body: unknown): Summaries {
   const summaries = (body as { summaries?: unknown } | null)?.summaries;
   if (typeof summaries !== 'object' || summaries === null) return found;
   for (const [pharmacy, raw] of Object.entries(summaries as Record<string, unknown>)) {
-    const { count, from, to, answers } = (raw ?? {}) as Record<string, unknown>;
+    const { count, from, to, answers, foreign } = (raw ?? {}) as Record<string, unknown>;
     if (!isPharmacyId(pharmacy) || !isCount(count) || count < MIN_REPORTS || !isDay(from) || !isDay(to)) continue;
     const kept: Summary['answers'] = {};
     for (const topic of TOPICS) {
       const pair = (answers as Record<string, unknown> | null | undefined)?.[topic] as { yes?: unknown; no?: unknown } | undefined;
       if (pair && isCount(pair.yes) && isCount(pair.no) && pair.yes + pair.no > 0) kept[topic] = { yes: pair.yes, no: pair.no };
     }
-    found[pharmacy] = { count, from, to, answers: kept };
+    const abroad = foreign as { yes?: unknown; no?: unknown } | null | undefined;
+    const enough = abroad && isCount(abroad.yes) && isCount(abroad.no) && abroad.yes + abroad.no >= MIN_REPORTS;
+    found[pharmacy] = { count, from, to, answers: kept, ...(enough ? { foreign: { yes: abroad.yes as number, no: abroad.no as number } } : {}) };
   }
   return found;
 }

@@ -202,7 +202,8 @@ export function ResultsShell({ place, updated, barLine, title, sheet, onSheetCha
     if (window.matchMedia(DESKTOP).matches) return;
     const scroll = scrollRef.current;
     if (at !== 'expanded' || detailOpen) scroll?.scrollTo({ top: 0 });
-    else if (toList.current) listsRef.current?.querySelector<HTMLElement>('button, a[href]')?.focus();
+    // The first pharmacy of the list, which is what the button promised: not the list's filters, which stand above it.
+    else if (toList.current) (listsRef.current?.querySelector<HTMLElement>('ol button, ol a[href]') ?? listsRef.current?.querySelector<HTMLElement>('button, a[href]'))?.focus();
     else if (focused.current) focused.current.scrollIntoView({ block: 'nearest' });
     else scroll?.scrollTo({ top: listTop.current });
     if (at !== 'expanded' && !detailOpen) listTop.current = 0;

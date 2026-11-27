@@ -299,14 +299,16 @@ const fi = {
     skipLabel: (name: string) => `Ohita kysymys käynnistä: ${name}`,
     title: 'Miten käynti meni?',
     intro: 'Valitse ne, jotka pitävät paikkansa. Jokainen on vapaaehtoinen.',
-    /** Each topic: its name, the two chips, and the two words its counts are shown with. */
+    /** Each topic: its name and the two chips. The first chip's words are also how the topic is told as a fact. */
     topics: {
-      prescription: { label: 'Resepti', yes: 'Resepti kävi', no: 'Resepti ei käynyt', counted: (yes: string, no: string) => `Kävi ${yes}, ei käynyt ${no}` },
-      english: { label: 'Englanti', yes: 'Englantia puhuttiin', no: 'Englantia ei puhuttu', counted: (yes: string, no: string) => `Puhuttiin ${yes}, ei puhuttu ${no}` },
-      stock: { label: 'Lääke', yes: 'Lääke oli varastossa', no: 'Lääkettä ei ollut', counted: (yes: string, no: string) => `Oli varastossa ${yes}, ei ollut ${no}` },
-      shortWait: { label: 'Jono', yes: 'Lyhyt jono', no: 'Pitkä jono', counted: (yes: string, no: string) => `Lyhyt ${yes}, pitkä ${no}` },
-      stepFree: { label: 'Sisäänkäynti', yes: 'Esteetön sisäänkäynti', no: 'Portaita tai kynnys', counted: (yes: string, no: string) => `Esteetön ${yes}, portaita tai kynnys ${no}` },
+      prescription: { label: 'Resepti', yes: 'Resepti kävi', no: 'Resepti ei käynyt' },
+      english: { label: 'Englanti', yes: 'Englantia puhuttiin', no: 'Englantia ei puhuttu' },
+      stock: { label: 'Lääke', yes: 'Lääke oli varastossa', no: 'Lääkettä ei ollut' },
+      shortWait: { label: 'Jono', yes: 'Lyhyt jono', no: 'Pitkä jono' },
+      stepFree: { label: 'Sisäänkäynti', yes: 'Esteetön sisäänkäynti', no: 'Portaita tai kynnys' },
     },
+    /** Asked under the prescription's two chips, once one of them is pressed. Not which country. */
+    foreign: { question: 'Oliko resepti toisesta maasta?', yes: 'Kyllä', no: 'Ei' },
     send: 'Lähetä',
     sending: 'Lähetetään',
     chooseOne: 'Valitse ainakin yksi.',
@@ -318,6 +320,19 @@ const fi = {
     /** What others told: shown from three reports on, with the count and the days they came. */
     summaryTitle: 'Kävijöiden ilmoituksia',
     summaryMeta: (count: string, days: string) => `${count} ilmoitusta, ${days}. Nimettömiä, ei tarkistettuja.`,
+    /** One fact of the summary: what was said, and by how many of those who answered it. "Englantia puhuttiin, 4/5 käyntiä". */
+    fact: (said: string, yes: string, of: string) => `${said}, ${yes}/${of} käyntiä`,
+    /** The same for prescriptions that visitors said were from another country. */
+    foreignSaid: 'Toisen maan resepti kävi',
+    /** Where the service answered and the pharmacy has fewer than three reports. True of none, one and two. */
+    none: 'Ei vielä näytettäviä ilmoituksia. Ne näkyvät tässä, kun niitä on kolme.',
+    /** /dev/states only: on a summary made of invented reports. */
+    example: 'Esimerkkiaineistoa: nämä ilmoitukset on keksitty.',
+    /** The list's two filters, each named as the fact it asks for, and what stands in the list's place when nothing passes. */
+    filters: 'Näytä vain apteekit, joista kävijät kertovat',
+    filterNone: 'Ei vielä ilmoituksia, joiden mukaan näistä apteekeista voisi valita.',
+    filterFailed: 'Kävijöiden ilmoituksia ei saatu haettua.',
+    filterOff: 'Näytä kaikki apteekit',
   },
   /**
    * Medicine availability (PLAN.md 7.9). The app never says a pharmacy has a medicine: it says
