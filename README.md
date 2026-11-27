@@ -1,24 +1,41 @@
 # Auki (working name)
 
-A web app that finds the nearest open pharmacy, on a map and in a list, and says whether you get there before it closes. A job application project by Janne Lappi for Treat Health. Not a Treat product, and not affiliated with Treat Health.
+A web app that finds the nearest open pharmacy, on a map and in a list, and says whether you get there before it closes. For someone in an unfamiliar city in the evening, with a prescription that may be from another country.
+
+A job application project by Janne Lappi for Treat Health. Not a Treat product, and not affiliated with Treat Health.
 
 **Live: <https://auki.vercel.app>**
 
-> **To come, from Janne: a 30-second screen recording.** Open, allow location, the nearest open pharmacy, ehditkö, the route hand-off.
+> **To come, from Janne: a 30-second screen recording.** Its script is [`docs/recording.md`](docs/recording.md).
 
-The spec is [`PLAN.md`](PLAN.md), the working rules are in [`CLAUDE.md`](CLAUDE.md), and every design decision made during the build is in [`DESIGN-LOG.md`](DESIGN-LOG.md). Each milestone was a pull request whose description is its report: what changed, why, screenshots, CI results and the measured numbers.
+## If you have five minutes
+
+**Try it, two minutes.** Open the live link on a phone. "In English" is at the top right.
+
+1. Press "Näytä apteekit lähelläni" and allow the location, or press "Hae paikan nimellä" and type a place ("Kamppi").
+2. The row at the bottom is the answer: the nearest open pharmacy, the walking minutes, its status. Pull the sheet up for the card. When that pharmacy closes within the hour, the card shows when you would be there, when it closes and the minutes to spare ("ehditkö").
+3. Press the pharmacy's name: the route, the call, the medicine search, the week's hours.
+4. Press the place name at the top and search "Riika". The card now says whether a prescription from your country works in Latvia, with its sources, and "Näytä apteekissa" opens a card for the counter, in Latvian.
+
+**Read, three minutes.** "Three numbers" and "Decisions and trade-offs" below are what the project has to say for itself. The rest of this file is reference.
+
+**Go deeper, if you like.** [`PLAN.md`](PLAN.md) is the spec. [`DESIGN-LOG.md`](DESIGN-LOG.md) has every design decision with its reason. Each piece of work was a pull request whose description is its report: what changed, why, screenshots, CI results and the measured numbers.
 
 ## Three numbers
 
-| | Number | Measured |
+| | Number | Where it is from |
 |---|---|---|
-| Time to first result on a throttled phone | **2.8 s** | 26 Nov 2026, on the live site. Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from navigation to the first rendered result, from an invented position at Kamppi in Helsinki. Median of five runs (2.7 to 3.6 s): `node scripts/first-result-live.ts`. The list was by walking time in every run: the first result waits for the walking times, for a second and a half at the most. A day earlier, when the walking service's address had changed and the list was by straight line, the same measurement gave 2.5 s. |
-| Opening hours read | **99.9 %** | 25 Nov 2026, from the live data host's [`index.json`](https://auki-data.vercel.app/tiles/v1/index.json), as the night's pipeline run wrote it: of the 38,089 pharmacies that have opening hours in OpenStreetMap, 38,067 were read into open intervals. The same numbers per country are on the app's [data page](https://auki.vercel.app/fi/data). |
-| Initial JavaScript | **174 KB** | 25 Nov 2026, on the live site: the scripts of `/fi` as they travel, compressed by the host, in Lighthouse, median of three runs. The same runs give a mobile LCP of 0.91 s on Lighthouse's phone profile. Nearly all of it is React and the Next.js runtime. |
+| Time to first result on a throttled phone | **2.8 s** | The live site, 26 Nov 2026 |
+| Opening hours read | **99.9 %** | The night's data run, 25 Nov 2026 |
+| Initial JavaScript | **174 KB** | The live site, 25 Nov 2026 |
+
+- **2.8 s** is from navigation to the first rendered result: Chromium on Lighthouse's phone profile (slow 4G, 4× slower CPU), location already allowed, nothing cached, from an invented position at Kamppi in Helsinki. Median of five runs (2.7 to 3.6 s): `node scripts/first-result-live.ts`. The list was by walking time in every run.
+- **99.9 %**: of the 38,089 pharmacies that have opening hours in OpenStreetMap, 38,067 were read into open intervals. From the data host's [`index.json`](https://auki-data.vercel.app/tiles/v1/index.json); the same numbers per country are on the app's [data page](https://auki.vercel.app/fi/data).
+- **174 KB**: the scripts of `/fi` as they travel, compressed by the host, in Lighthouse, median of three runs. The same runs give a mobile LCP of 0.91 s. Nearly all of it is React and the Next.js runtime.
 
 The number that limits the app is a fourth one: **42.3 %** of the 89,988 pharmacies in the 21 covered countries have opening hours in OpenStreetMap at all. It is 95 % in Norway, 82 % in Germany and 79 % in Finland, and 23 % in Italy, 18 % in Spain and 7 % in Greece. Where the hours are missing the app says "hours not listed" and never guesses.
 
-In CI the same things are measured on every push, against a build and with fixtures, so that a change can't make them worse unnoticed. On `main` on 25 Nov 2026: time to first result 4.5 s on GitHub's runner, with a tile as heavy as the heaviest real one (central Barcelona, 1,272 pharmacies; limit 5 s); initial JavaScript 176.6 KB (budget 185 KB); mobile LCP 0.93 s (budget 2.5 s).
+In CI the same things are measured on every push, against a build and with fixtures, so that a change can't make them worse unnoticed. On `main` on 27 Nov 2026: time to first result 3.3 s on GitHub's runner, with a tile as heavy as the heaviest real one (central Barcelona, 1,272 pharmacies; limit 5 s); initial JavaScript 179.9 KB (budget 185 KB); mobile LCP 0.91 s (budget 2.5 s).
 
 ## What is in it
 
@@ -26,13 +43,13 @@ In CI the same things are measured on every push, against a build and with fixtu
 - **Results, map first.** The nearest pharmacies as markers and as a list, sorted by walking time. Each has a status worked out on the device from the hours in the data, and renewed every minute: open, closes soon, closed and when it opens, hours not listed.
 - **Ehditkö.** When the nearest open pharmacy closes within the hour, the card shows when you would be there, when it closes and the minutes to spare. When you would not make it, it says so and puts the next open one forward.
 - **Nothing open nearby:** the app looks up to 30 km for one that is, and otherwise shows the first to open, with 112 kept in view.
-- **A pharmacy's details:** the week's opening hours, a route handed off to Google Maps or Apple Maps, the phone number, the website and email when OpenStreetMap has them, and a link to correct the data there.
-- **A prescription from another country.** For anyone, in any covered country, Finland among them: where the country of the prescription is not the country of the pharmacy, the card says whether the electronic prescription and the paper one work there. Each answer is what an official page said on the day it was read (each country's own list of the cross-border e-prescription; the EU's rule on prescriptions from another member state), with the page named and dated, and where no page speaks it says that nothing was found. The home country is the browser's own suggestion, changed in one control; nobody is asked. What a research trip met at each country's counters is shown with its sample size, month and city, labelled as made with prescriptions from Finland. The research is in [`docs/research/prescriptions-across-borders.md`](docs/research/prescriptions-across-borders.md).
-- **A card to show at the counter**, in the pharmacy's language with English under it, in nineteen languages. Seventeen are drafts that no native speaker has read, and the card says so on its face.
-- **Medicine availability, as a hand-off.** Where a country has a stock search of its own that may be linked to (Finland, Germany, Austria, Norway), the card and every pharmacy's details open it, with the medicine's name in the link where the service's address takes one. The app says where to check, never that a pharmacy has a medicine, and the name never reaches the app's server. The research is in [`docs/research/medicine-availability.md`](docs/research/medicine-availability.md).
+- **A pharmacy's details**, opened from its name, its row or its marker: the name, the status and the walking time large; the route (handed off to Google Maps or Apple Maps), the call and the medicine search as one row of buttons; the week's opening hours, the phone number, and the website and email when OpenStreetMap has them; and a link to correct the data there.
+- **A prescription from another country.** For anyone, in any covered country: where the prescription's country is not the pharmacy's, the card says whether the electronic prescription and the paper one work there. Each answer is what an official page said on the day it was read, with the page named and dated; where no page speaks, it says that nothing was found. The home country is the browser's own suggestion, changed in one control: nobody is asked. What a research trip met at each country's counters stands beside it, with its sample size, month and city, labelled as made with prescriptions from Finland. The research is in [`docs/research/prescriptions-across-borders.md`](docs/research/prescriptions-across-borders.md).
+- **A card to show at the counter**, in the pharmacy's language with English under it, in nineteen languages. Seventeen are drafts that no native speaker has read, and the card says so on its face. It asks only for what the answers above allow: no e-prescription lines where none works, and no card at all where the country's own authority says a paper prescription from there is not accepted.
+- **Medicine availability, as a hand-off.** Where a country has a stock search of its own that may be linked to (Finland, Germany, Austria, Norway), the card and every pharmacy's details open it from one of their main buttons, with the medicine's name in the link where the service's address takes one. The app says where to check, never that a pharmacy has a medicine, and the name never reaches the app's server. The research is in [`docs/research/medicine-availability.md`](docs/research/medicine-availability.md).
 - **Visitors' reports.** A row in a pharmacy's details offers to tell how a visit went: one screen of chips, no text, always skippable, never asked. Anonymous, and shown for a pharmacy only once it has three, as counts with the days they came (`PLAN.md` section 7.10).
 - **A data page** with the pipeline's numbers per country, and when each was last fetched.
-- **Finnish and English**, light and dark, phone and desktop.
+- **Finnish and English**, light and dark, phone and desktop, in the device's own typeface: no font is fetched.
 - **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. A pharmacy has a sheet of its own with the week's opening hours, the call and the route handed off to Apple Maps. Its time logic passes the same test cases as the web's (`tests/vectors/`). No walking times and no route line on its own map yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
 
 Every view and state can be seen from fixtures, without a network, at `/dev/states` in a development build.
@@ -107,6 +124,10 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 > **To come, from Janne: the VoiceOver pass**, on macOS and on an iPhone, logged here with its date and what it found.
 
+## How it was made
+
+Built between 22 and 27 Nov 2026 by Janne Lappi with Claude Code. Janne wrote the brief, tried each version on his phone and made the decisions; Claude Code wrote the code, the tests and the reports, from the spec in [`PLAN.md`](PLAN.md) and the working rules in [`CLAUDE.md`](CLAUDE.md). Every change came as a pull request that Janne reviewed and merged, or had said beforehand could be merged once its checks were green. [`DESIGN-LOG.md`](DESIGN-LOG.md) says of each design decision whose it was.
+
 ## Left out, and why
 
 **Not built yet (milestone M6).** These are in the plan and not in the app:
@@ -129,7 +150,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 - **Opening hours are only as good as OpenStreetMap's**, and in Southern Europe most pharmacies have none there yet (the numbers above).
 - **In a public repository GitHub switches scheduled workflows off after 60 days without a commit.** The data would then age, and after seven days the app shows no pharmacy as open. "Enable workflow" on the Data workflow's page switches it back on.
 - **Public holidays** are known per country, and per state or canton in Germany, Spain and Switzerland. A town's own holidays, common in Spain and Italy, are not.
-- **Greek place names.** OpenStreetMap writes a city in the local script. A city in Greek letters that is not in the app's small table of Finnish and English names is not shown: the app says "Lähelläsi" (near you) instead. The typeface has no Greek either.
+- **Greek place names.** OpenStreetMap writes a city in the local script. A city in Greek letters that is not in the app's small table of Finnish and English names is not shown: the app says "Lähelläsi" (near you) instead.
 - **The public Overpass servers are shared and sometimes busy.** The pipeline asks once per country, retries once, tries one other server, and otherwise keeps the night before's data; a second pass at the end of the same run, and another attempt two and a half hours later, ask again for the countries that failed. A commercial service should build from a planet extract or its own Overpass instance.
 - **Walking times depend on a free plan** of 500 searches a day. Beyond that, and whenever the service is slow, distances are straight lines, labelled as such. The budget is counted in the server's memory, per instance.
 - **The limits on visitors' reports count calls, not callers.** Nothing about the sender is read or stored (no account, no IP address), so the app can't tell two visitors from one. One script could send a pharmacy's 20 reports a day itself, all invented, and from three reports on they are shown as counts. It could also use up the 2,000 the database takes in a day in all, and then no report is taken for any pharmacy until the next day. This is kept on purpose: counting per person would mean reading who sends. What stands against it today is small: the summary says "Nimettömiä, ei tarkistettuja" (anonymous and not verified), a pharmacy's day is capped, and the trip's field findings are kept apart from the reports. What would fix it later is a rate limit per address at the platform's edge (on Vercel, a firewall rule for `/api/report`): the edge sees every request's address anyway, and would count and refuse there, so that no address reaches the app's code or the database.
@@ -141,7 +162,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 ## Open pull requests
 
-This file describes what is in `main`. On 26 Nov 2026 no pull request is open that is not described above.
+This file describes what is in `main`. On 27 Nov 2026 no pull request is open that is not described above.
 
 ## Run it
 
