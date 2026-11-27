@@ -147,6 +147,29 @@ test('a visitor in Finland: the banner is there, for the country the phone sugge
   await expect(counter(page)).not.toContainText('Käännös tarkistamatta');
 });
 
+test('where the paper answer is a no the counter card is not offered: a prescription from the United Kingdom in Finland', async ({ page }) => {
+  await reads(page, ['et-EE', 'en-GB']);
+  await start(page, inCountry('FI'));
+  // From Estonia there is a card, as above.
+  await expect(home(page)).toHaveValue('EE');
+  await expect(cardButton(page)).toBeVisible();
+
+  // From the United Kingdom, Finland's own authority says no, and no e-prescription from there works:
+  // a card would ask the pharmacy for what the banner has just said it does not do.
+  await home(page).selectOption('GB');
+  await expect(banner(page)).toContainText('EU- ja Eta-maiden sekä Sveitsin ulkopuolella kirjoitettu resepti ei käy Suomessa.');
+  await expect(page.getByRole('button', { name: /^Näytä apteekissa/ })).toHaveCount(0);
+  // The same in a pharmacy's details.
+  await page.getByRole('button', { name: 'Yliopiston apteekki', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('heading', { level: 2 })).toHaveText('Yliopiston apteekki');
+  await expect(page.getByRole('button', { name: /^Näytä apteekissa/ })).toHaveCount(0);
+  await page.keyboard.press('Escape');
+
+  // Back to a country whose prescriptions work, and the card is offered again.
+  await home(page).selectOption('EE');
+  await expect(cardButton(page)).toBeVisible();
+});
+
 test('a prescription from Germany in Latvia: not on Latvia’s list, which the answer says with the list’s owner and date; the card has paper lines only', async ({ page }) => {
   await reads(page, ['de-DE', 'de', 'en']);
   await start(page, inCountry('LV'));
