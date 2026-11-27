@@ -10,8 +10,8 @@ the library's correction, how many can't be read. Moving that instant from the 2
 27th changed no count of the first 21.
 
 The hours library has no public holidays for Cyprus, Iceland and Liechtenstein: a value
-that mentions `PH` can't be read there and counts as unparseable (one in Cyprus, one of
-Liechtenstein's six).
+that mentions `PH` can't be read there and counts as unparseable (one in Cyprus, one in
+Iceland, one of Liechtenstein's six).
 
 CI runs the hours step over all of it on every push (`tests/unit/corpus.test.ts`): no value
 may throw, every interval must be sound, and the counts must equal `expected.json`. So a

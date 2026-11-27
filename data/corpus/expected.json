@@ -1,5 +1,5 @@
 {
- "at": 1795790299,
+ "at": 1795791336,
  "countries": {
   "FI": {
    "values": 327,
@@ -261,6 +261,15 @@
    "uncertain": 1,
    "corrected": 4,
    "parseRate": 0.9991
+  },
+  "IS": {
+   "values": 66,
+   "withHours": 100,
+   "parsed": 99,
+   "unparseable": 1,
+   "uncertain": 0,
+   "corrected": 0,
+   "parseRate": 0.99
   },
   "LI": {
    "values": 6,

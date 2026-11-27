@@ -171,6 +171,7 @@ export const MEASURED_RUNS: Record<string, [pharmacies: number, withHours: numbe
   LU: [107, 104, 104],
   NL: [1694, 1104, 1104],
   RO: [4032, 1062, 1061],
+  IS: [109, 100, 99],
   LI: [6, 6, 5],
 };
 
@@ -186,8 +187,7 @@ export function indexOf(tiles: { x: number; y: number }[], outside: { x: number;
   const has = new Set(tiles.map(tileKey));
   const out = new Set(outside.map(tileKey));
   const rows = Array.from({ length: 9 }, (_, row) => Array.from({ length: 9 }, (_, column) => (out.has(tileKey({ x: x0 + column, y: y0 + row })) ? '.' : has.has(tileKey({ x: x0 + column, y: y0 + row })) ? 'd' : 'c')).join(''));
-  // A covered country without a measured run has no line in a real index either.
-  const countries = Object.fromEntries(COUNTRY_CODES.flatMap((code, index) => (MEASURED_RUNS[code] ? [[code, stats(...MEASURED_RUNS[code], { generated: GENERATED + index * 47 })]] : [])));
+  const countries = Object.fromEntries(COUNTRY_CODES.map((code, index) => [code, stats(...MEASURED_RUNS[code], { generated: GENERATED + index * 47 })]));
   countries.LV = { ...countries.LV, generated: GENERATED - 2 * 86400 + 11 * 47, kept: 'fetch' };
   return { v: 1, generated: GENERATED + COUNTRY_CODES.length * 47 + 5, attribution: '© OpenStreetMap contributors, ODbL 1.0, https://www.openstreetmap.org/copyright', countries, grid: { z: TILE_ZOOM, x0, y0, width: 9, rows } };
 }
