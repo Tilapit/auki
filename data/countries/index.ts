@@ -40,7 +40,11 @@ export interface Guide {
   field?: Text;
   /** "latviaksi" / "in Latvian": the language of the counter card. */
   inLanguage: Text;
-  card: CardPhrases;
+  /**
+   * The card to show at the counter. Left out where it would have nothing to ask for: a pair
+   * whose paper prescription an authority says is not accepted, with no other way offered.
+   */
+  card?: CardPhrases;
 }
 
 /** How a home country outside the list stands in a sentence. */
@@ -145,9 +149,18 @@ function onPaper(status: PaperStatus, home: string, here: string, from: Text, to
   }
 }
 
-/** The card's variants for a pair: e-prescription lines only where a page says the pair works. */
-function variantsFor(status: EPrescription['status'], here: Here): CardVariant[] {
-  return [...(status === 'works' || status === 'disagree' ? (['ePrescription'] as const) : []), 'paper', ...(here.doctorSends ? (['doctorSends'] as const) : [])];
+/**
+ * The card's variants for a pair. E-prescription lines only where a page says the pair works.
+ * No paper line where the country's own authority says a paper prescription from there is not
+ * accepted: the card would ask the pharmacy for what the banner has just said it will not do.
+ * "Not obliged" and "nothing found" are not a no, and keep the line.
+ */
+function variantsFor(status: EPrescription['status'], onPaper: PaperStatus, here: Here): CardVariant[] {
+  return [
+    ...(status === 'works' || status === 'disagree' ? (['ePrescription'] as const) : []),
+    ...(onPaper === 'refused' ? [] : (['paper'] as const)),
+    ...(here.doctorSends ? (['doctorSends'] as const) : []),
+  ];
 }
 
 /**
@@ -165,8 +178,10 @@ export function guideFor(home: string | undefined, here: string | undefined): Gu
 
   const electronicFacts = ePrescription(code, place.code);
   const paperFacts = paper(code, place.code);
-  const card = cardFor(place.language, variantsFor(electronicFacts.status, place), { code: known?.code, eea: inEea(code) });
+  const card = cardFor(place.language, variantsFor(electronicFacts.status, paperFacts.status, place), { code: known?.code, eea: inEea(code) });
   if (!card) return undefined;
+  // A card with no lines to show is no card: the pharmacist's line alone asks for nothing.
+  const offered = Object.keys(card.variants).length > 0;
 
   return {
     home: code,
@@ -183,7 +198,7 @@ export function guideFor(home: string | undefined, here: string | undefined): Gu
     paper: { status: paperFacts.status, text: onPaper(paperFacts.status, code, place.code, from, to), notes: paperFacts.notes, sources: paperFacts.sources },
     ...(place.field ? { field: place.field } : {}),
     inLanguage: place.inLanguage,
-    card,
+    ...(offered ? { card } : {}),
   };
 }
 

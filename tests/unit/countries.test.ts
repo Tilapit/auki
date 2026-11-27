@@ -418,11 +418,14 @@ describe('the wording rules', () => {
 });
 
 describe('the counter card', () => {
-  it('is in the language of the country one is in, with a paper line for every pair and the English under it', () => {
+  it('is in the language of the country one is in, with the English under it, and has a paper line wherever the paper answer is not a no', () => {
     for (const { home, here, guide } of guides) {
       const place = HERE.find((entry) => entry.code === here)!;
+      // The paper line is there exactly where no authority says that a paper prescription from there is refused.
+      expect(guide.card?.variants.paper !== undefined, key(home, here)).toBe(guide.paper.status !== 'refused');
+      if (!guide.card) continue;
       expect(guide.card.lang, key(home, here)).toBe(PHRASES[place.language].lang);
-      expect(guide.card.variants.paper, key(home, here)).toBeDefined();
+      expect(Object.keys(guide.card.variants).length, key(home, here)).toBeGreaterThan(0);
       for (const lines of Object.values(guide.card.variants)) {
         expect(lines.local.length, key(home, here)).toBeGreaterThanOrEqual(2);
         expect(lines.english, key(home, here)).toMatch(/^Hello\. /);
@@ -431,29 +434,44 @@ describe('the counter card', () => {
     }
   });
 
+  it('is not offered where the paper answer is a no and nothing else works: the card would ask for what the banner says is refused', () => {
+    const refused = guides.filter(({ guide }) => guide.paper.status === 'refused');
+    expect(refused.map(({ home, here }) => key(home, here)).sort()).toEqual(['CH to SE', 'GB to FI', 'GB to SE', `${OTHER} to FI`, `${OTHER} to SE`].sort());
+    for (const { home, here, guide } of refused) {
+      // None of these pairs has an e-prescription that works, and neither Finland nor Sweden takes a doctor's email.
+      expect(guide.card, key(home, here)).toBeUndefined();
+      // The banner still answers: the guide is there without its card.
+      expect(guide.paper.text.fi, key(home, here)).toMatch(/ei käy/);
+    }
+    // Every other pair has a card, and "not obliged" and "nothing found" keep the paper line: neither is a no.
+    for (const { home, here, guide } of guides) if (guide.paper.status !== 'refused') expect(guide.card, key(home, here)).toBeDefined();
+    expect(guideFor('DE', 'CH')!.card!.variants.paper).toBeDefined();
+    expect(guideFor('GB', 'LV')!.card!.variants.paper).toBeDefined();
+  });
+
   it('offers the e-prescription lines exactly where a page says the pair works, and has them in that language', () => {
     for (const { home, here, guide } of guides) {
-      expect(guide.card.variants.ePrescription !== undefined, key(home, here)).toBe(guide.ePrescription.status === 'works' || guide.ePrescription.status === 'disagree');
+      expect(guide.card?.variants.ePrescription !== undefined, key(home, here)).toBe(guide.ePrescription.status === 'works' || guide.ePrescription.status === 'disagree');
     }
   });
 
   it('names the prescription’s country in the pharmacy’s language, after a colon, and leaves it out when it is not known', () => {
-    expect(guideFor('DE', 'LV')!.card.variants.paper!.local).toEqual(['Labdien! Šī ir oriģināla recepte, ko izrakstījis ārsts citā Eiropas Savienības vai Eiropas Ekonomikas zonas valstī.', 'Valsts: Vācija. Vai varat izsniegt zāles pēc šīs receptes?']);
-    expect(guideFor('DE', 'LV')!.card.variants.paper!.english).toBe('Hello. This is an original prescription from a doctor in another EU or EEA country. Country: Germany. Can you dispense it?');
-    expect(guideFor('EE', 'FI')!.card.variants.ePrescription!.local).toEqual(['Hei! Minulla on toisessa EU-maassa kirjoitettu sähköinen resepti.', 'Voisitteko hakea sähköisen eurooppalaisen reseptini? Maa: Viro.', 'Tässä on passini tai henkilökorttini.']);
+    expect(guideFor('DE', 'LV')!.card!.variants.paper!.local).toEqual(['Labdien! Šī ir oriģināla recepte, ko izrakstījis ārsts citā Eiropas Savienības vai Eiropas Ekonomikas zonas valstī.', 'Valsts: Vācija. Vai varat izsniegt zāles pēc šīs receptes?']);
+    expect(guideFor('DE', 'LV')!.card!.variants.paper!.english).toBe('Hello. This is an original prescription from a doctor in another EU or EEA country. Country: Germany. Can you dispense it?');
+    expect(guideFor('EE', 'FI')!.card!.variants.ePrescription!.local).toEqual(['Hei! Minulla on toisessa EU-maassa kirjoitettu sähköinen resepti.', 'Voisitteko hakea sähköisen eurooppalaisen reseptini? Maa: Viro.', 'Tässä on passini tai henkilökorttini.']);
     // Outside the EU and the EEA the card does not claim the rule, and a country the list lacks is not named.
-    expect(guideFor('GB', 'IT')!.card.variants.paper!.english).toBe('Hello. This is an original prescription from a doctor in another country. Country: United Kingdom. Can you dispense it?');
-    expect(guideFor(OTHER, 'IT')!.card.variants.paper!.english).toBe('Hello. This is an original prescription from a doctor in another country. Can you dispense it?');
+    expect(guideFor('GB', 'IT')!.card!.variants.paper!.english).toBe('Hello. This is an original prescription from a doctor in another country. Country: United Kingdom. Can you dispense it?');
+    expect(guideFor(OTHER, 'IT')!.card!.variants.paper!.english).toBe('Hello. This is an original prescription from a doctor in another country. Can you dispense it?');
   });
 
   it('keeps the line about the Finnish identity code for a prescription from Finland only', () => {
-    expect(guideFor('FI', 'LV')!.card.variants.ePrescription!.local[2]).toBe(PHRASES.lv.finnishId);
-    expect(guideFor('EE', 'LV')!.card.variants.ePrescription!.local[2]).toBe(PHRASES.lv.ePrescription![2]);
+    expect(guideFor('FI', 'LV')!.card!.variants.ePrescription!.local[2]).toBe(PHRASES.lv.finnishId);
+    expect(guideFor('EE', 'LV')!.card!.variants.ePrescription!.local[2]).toBe(PHRASES.lv.ePrescription![2]);
   });
 
   it('offers "the doctor sends it" where the trip saw it accepted, as before', () => {
     expect(HERE.filter((place) => place.doctorSends).map((place) => place.code)).toEqual(['HR', 'DE', 'AT', 'CH', 'DK', 'NO', 'IT', 'SI', 'SK']);
-    for (const place of HERE) expect(guideFor(place.code === 'EE' ? 'FI' : 'EE', place.code)!.card.variants.doctorSends !== undefined, place.code).toBe(place.doctorSends === true);
+    for (const place of HERE) expect(guideFor(place.code === 'EE' ? 'FI' : 'EE', place.code)!.card!.variants.doctorSends !== undefined, place.code).toBe(place.doctorSends === true);
   });
 
   it('says of every translation that it has not been checked: only the app’s own two languages count as reviewed', () => {
@@ -484,8 +502,8 @@ describe('in the live results', () => {
 
   it('there is guidance for any other country’s prescription there, and none at home', () => {
     expect(guideFor('FI', sceneIn('FI').here)).toBeUndefined();
-    expect(guideFor('EE', sceneIn('FI').here)?.card.lang).toBe('fi');
-    expect(guideFor('FI', sceneIn('LV').here)?.card.lang).toBe('lv');
+    expect(guideFor('EE', sceneIn('FI').here)?.card?.lang).toBe('fi');
+    expect(guideFor('FI', sceneIn('LV').here)?.card?.lang).toBe('lv');
     expect(guideFor(undefined, sceneIn('LV').here)).toBeUndefined();
     expect(guideFor('FI', 'FR')).toBeUndefined();
   });

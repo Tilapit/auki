@@ -148,6 +148,7 @@ Visual reference: the canvas, board exports in `design/png/` and the source file
 
 ### "Lähin auki nyt" card
 - Name, address, walking time (the largest number), distance.
+- The name is a button, and the head and the status line under it are its hit area: a press opens the pharmacy's details, the same sheet as from a row of the list (Janne, 27 Nov 2026; `DESIGN-LOG.md`). So do the card's other two forms, "Lähin apteekki" and "Avautuu ensimmäisenä".
 - "Ehditkö" only when it tells something:
   - closes within 60 minutes → a timeline: "Perillä 20.44", "Sulkeutuu 21.00", "16 min pelivaraa". The slack is green, and turns to the `soon` colour when it is under 5 minutes or under 20% of the walking time, whichever is larger;
   - arrival would be at or after closing → "Et ehdi ennen sulkemista" and the next open pharmacy, which gets "Reitti" and "Soita" as the main actions. The closing one keeps "Soita": a call can ask them to wait. On the phone the sheet's row says the same and its button is "Soita";
@@ -828,6 +829,7 @@ Since 26 Nov 2026 the card is for a prescription from any country, so its lines 
 - the doctor sends it: "Hello. My doctor can send the prescription straight to you by email or fax." · "Would that work? Which address or number should they use?"
 - The country's name is the browser's own for the card's language (`Intl.DisplayNames`), standing by itself after a colon, so that no sentence needs it in another case.
 - Nineteen languages, Finnish among them for visitors to Finland. Seventeen are drafts with `reviewed: false`; Finnish and English are the app's own.
+- No paper line where the paper answer is a no (Janne, 27 Nov 2026): where the country's own authority says a paper prescription from there is not accepted. That is a prescription from outside the EU and the EEA in Finland or Sweden, and one from Switzerland in Sweden. Nothing else is left for the card to ask in those pairs, so there is no card and "Näytä apteekissa" is not offered; the banner still answers. "Not obliged" and "nothing found" are not a no and keep the line.
 
 The lines as first planned, for a prescription from Finland:
 

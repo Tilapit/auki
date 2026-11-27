@@ -1088,6 +1088,26 @@ Entry format:
 - Not done: the iOS app; taking a report back; a report in any language but the app's two.
 - Status: provisional, all of it. Not merged: Janne and Claude review it first. The migration is applied to the project's database, which was empty.
 
+## 2026-11-27: The card's head opens the pharmacy's details
+- Where: `components/NearestOpenCard.tsx` (`CardHead`) and its styles: all three forms of the card ("Lähin auki nyt", "Lähin apteekki", "Avautuu ensimmäisenä")
+- Change: Janne's decision of 27 Nov, from his iPhone: the nearest pharmacy could be seen only as its card, and the card has no room for the week's hours, the contacts, both map apps or the report row. The name in the card is now a button, and its hit area is the head and the status line under it, a little past their edges for a thumb. A press opens the same details as a row of the list does.
+  - On the phone they open at the sheet's middle height, as they do from a row or a marker (the entry of 25 Nov, "a place card, not a modal"), and the handle or a drag takes them fully up. Closed, the sheet is at the card again and the keyboard is back on the name.
+  - The card's own buttons and links are outside the hit area and do what they did. "Reitti" still opens the same details: the card now has two ways there, and the name is the one a hand tries first.
+  - Not the "Seuraava auki" pharmacy of the too-late card: it is a row of the list as well, with its own "Reitti", and two buttons of one name on one screen would be one too many for a screen reader.
+  - "Näytä tiedot" in the card for when nothing is open stays. It is that card's only button, and the name beside it now does the same.
+  - Nothing looks different yet. A mouse gets an underline on the name and the keyboard a ring around the head. Whether the head should say that it opens (a chevron) belongs to the work on the card's and the sheet's hierarchy, which is its own piece.
+- Why: The card is the answer and the details are everything else about it. The list's rows have opened their details by the name since M1; the one pharmacy that mattered most did not.
+- Status: done, by Janne's decision. My own call within it: the middle height. "Opens in full" could also be read as the sheet going fully up; I kept the place card's rule of 25 Nov, which Janne asked for after the details had opened at full height and hidden the map. Fully up from the card would be one line in `ResultsView` (`open`).
+
+## 2026-11-27: No paper line on the counter card where the paper answer is a no
+- Where: `data/countries/index.ts` (`variantsFor`, `guideFor`), `ResultsView`; `/dev/states`, "abroad-pairs" (United Kingdom to Finland, United Kingdom to Sweden)
+- Change: Janne's decision of 27 Nov, on the question the night run of 26 Nov left open. Where the country's own authority says that a paper prescription from there is not accepted, the card has no paper line. That is five pairs: a prescription from the United Kingdom or from another country outside the EU and the EEA, in Finland or in Sweden, and one from Switzerland in Sweden.
+  - In all five nothing else is left for the card to ask: no e-prescription from those countries works there, and neither Finland nor Sweden is a country where the trip saw a doctor's email accepted. So there is no card, and "Näytä apteekissa" is not offered, in the card of the nearest pharmacy or in a pharmacy's details. The banner still gives its two answers and its sources.
+  - "Not obliged" (Switzerland, both ways) and "nothing found" keep the paper line. Neither is a no: a pharmacy may well dispense, and the card is how to ask.
+  - With it, a fix that was waiting for the next change here: closed, the counter card gives the keyboard back to the button that opened it in Safari on a Mac too, where a button pressed with the mouse gets no focus (as the report row already did).
+- Why: A card that says "Can you dispense it?" right under a banner that says "ei käy Suomessa" asks a stranger for what the app has just said will be refused. The unit test asked for a paper line for every pair; it now asks for one exactly where the paper answer is not a no.
+- Status: done, by Janne's decision. My own call within it: no card at all, rather than a card with only "Voisiko farmaseutti auttaa minua?", which asks for nothing by itself.
+
 ## 2026-11-27: The typeface is the device's own
 - Where: `app/globals.css` (`--font-sans`), `app/[locale]/layout.tsx`, `lib/map/style.ts`, `lib/requests.ts`; every view. Before and after in `design/system-font/`
 - Change: Janne's decision of 27 Nov, which replaces his of 26 Nov ("the zero stays as the typeface has it"). Atkinson Hyperlegible Next is gone and nothing takes its place: the stack is `-apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Segoe UI', 'Helvetica Neue', 'Noto Sans', Arial, sans-serif`. SF Pro on an iPhone and a Mac, Roboto on Android, Segoe UI on Windows.
