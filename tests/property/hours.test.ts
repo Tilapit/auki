@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { STALE_SECONDS, hoursStatus, isOpenStatus, localMoment } from '@/lib/hoursStatus';
 import type { Hours, Interval } from '@/lib/tiles';
 import { dateAt, dayNumber, instantOf, wallAt } from '@/lib/zone';
-import { COUNTRIES, countryByCode, zoneFor } from '@/pipeline/countries';
+import { COUNTRIES, WITHOUT_HOLIDAYS, countryByCode, zoneFor } from '@/pipeline/countries';
 import type { Country } from '@/pipeline/countries';
 import { computeHours, windowFor } from '@/pipeline/hours';
 
@@ -148,9 +148,11 @@ describe('daylight-saving changes', () => {
 });
 
 describe('public holidays', () => {
-  // Christmas Day and New Year's Day are public holidays in all 21 countries.
+  // Christmas Day and New Year's Day are public holidays in every covered country. The library
+  // knows the holidays of all but three of them (WITHOUT_HOLIDAYS), and lacks 1 January in France
+  // (missingHolidays): those four have tests of their own below.
   const run = utc('2026-12-25T03:00:00Z');
-  const cases = COUNTRIES.flatMap((country) => (country.states ? Object.keys(country.states).map((state) => ({ country, state: state as string | undefined })) : [{ country, state: undefined as string | undefined }]));
+  const cases = COUNTRIES.filter((country) => !WITHOUT_HOLIDAYS.includes(country.code) && !country.missingHolidays).flatMap((country) => (country.states ? Object.keys(country.states).map((state) => ({ country, state: state as string | undefined })) : [{ country, state: undefined as string | undefined }]));
 
   const openOn = (intervals: Interval[], date: string, zone: string): Interval[] => intervals.filter((interval) => dateAt(interval.from, zone) === date);
 
@@ -162,6 +164,38 @@ describe('public holidays', () => {
       expect(openOn(data.hours.open, '2027-01-01', country.zone), label).toEqual([]);
       // The 28th is an ordinary Monday everywhere.
       expect(openOn(data.hours.open, '2026-12-28', country.zone), label).toHaveLength(1);
+    }
+  });
+
+  it('France: the library lacks 1 January, so a value that mentions holidays is uncertain while the window holds that day, and read before and after', () => {
+    const france = countryByCode('FR')!;
+    expect(france.missingHolidays).toEqual([[1, 1]]);
+    const value = 'Mo-Su 08:00-20:00; PH off';
+    const at = (iso: string) => computeHours(value, { country: france, window: windowFor(france.zone, utc(iso)) }).hours;
+    // The window is eight days: 1 January is in it from 25 December to 1 January.
+    expect(at('2026-12-24T03:00:00Z').kind).toBe('parsed');
+    for (const day of ['2026-12-25T03:00:00Z', '2026-12-28T12:00:00Z', '2027-01-01T22:00:00Z']) expect(at(day), day).toEqual({ kind: 'uncertain', raw: value });
+    expect(at('2027-01-02T03:00:00Z').kind).toBe('parsed');
+    // A value without holidays is read all the same, and the other countries are not touched.
+    expect(computeHours('Mo-Su 08:00-20:00', { country: france, window: windowFor(france.zone, run) }).hours.kind).toBe('parsed');
+    expect(COUNTRIES.filter((country) => country.missingHolidays).map((country) => country.code)).toEqual(['FR']);
+    // Christmas Day the library has: closed on it in a window that ends before the new year.
+    const before = parsed(value, france, france.zone, utc('2026-12-20T03:00:00Z'));
+    expect(openOn(before.hours.open, '2026-12-25', france.zone)).toEqual([]);
+    expect(openOn(before.hours.open, '2026-12-23', france.zone)).toHaveLength(1);
+  });
+
+  it('where the library has no holidays, a value that mentions them is not read as open or closed, and any other is read', () => {
+    expect(WITHOUT_HOLIDAYS.length).toBeGreaterThan(0);
+    for (const code of WITHOUT_HOLIDAYS) {
+      const country = countryByCode(code)!;
+      expect(country, code).toBeDefined();
+      const window = windowFor(country.zone, run);
+      // Not a guess from the weekdays: on the holiday itself that could be wrong.
+      for (const value of ['Mo-Su 08:00-20:00; PH off', 'Mo-Su 08:00-20:00; PH 10:00-14:00', 'Mo-Fr 08:00-19:00; Su,PH 08:00-12:00']) {
+        expect(computeHours(value, { country, window }).hours, `${code} ${value}`).toEqual({ kind: 'unparseable', raw: value });
+      }
+      expect(parsed('Mo-Su 08:00-20:00', country, country.zone, run).hours.open.length, code).toBeGreaterThan(0);
     }
   });
 

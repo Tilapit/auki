@@ -21,6 +21,13 @@ export interface Country {
    * state or canton, and the name the opening_hours library knows it by.
    */
   states?: Record<string, string>;
+  /**
+   * National public holidays on a fixed date, [month, day], that the hours library lacks for
+   * this country. A value that mentions holidays is not evaluated over a window that holds
+   * such a day: it is published as "uncertain" (hours.ts), instead of being read as an
+   * ordinary weekday. No hours are written from this list.
+   */
+  missingHolidays?: [month: number, day: number][];
 }
 
 const GERMAN_STATES: Record<string, string> = {
@@ -123,7 +130,9 @@ export const COUNTRIES: Country[] = [
   { code: 'BE', zone: 'Europe/Brussels' },
   { code: 'BG', zone: 'Europe/Sofia' },
   { code: 'CY', zone: 'Asia/Nicosia' },
-  { code: 'FR', zone: 'Europe/Paris' },
+  // opening_hours 3.16.0 has 1 January for Alsace-Moselle and the overseas departments only
+  // (its "Nouvel An" is bound to twelve named states), so without a state it is no holiday.
+  { code: 'FR', zone: 'Europe/Paris', missingHolidays: [[1, 1]] },
   { code: 'IE', zone: 'Europe/Dublin' },
   { code: 'LU', zone: 'Europe/Luxembourg' },
   { code: 'NL', zone: 'Europe/Amsterdam' },
@@ -133,6 +142,13 @@ export const COUNTRIES: Country[] = [
 ];
 
 export const COUNTRY_CODES: string[] = COUNTRIES.map((country) => country.code);
+
+/**
+ * The covered countries the hours library has no public holidays for (opening_hours 3.x,
+ * tried on 27 Nov 2026). A test holds this list true: when the library learns one of them,
+ * the test fails and the code leaves the list.
+ */
+export const WITHOUT_HOLIDAYS: readonly string[] = ['CY', 'IS', 'LI'];
 
 export function countryByCode(code: string): Country | undefined {
   return COUNTRIES.find((country) => country.code === code);
