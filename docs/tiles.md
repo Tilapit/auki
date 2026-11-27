@@ -56,8 +56,8 @@ whole design rests on (PLAN.md 7.6).
   "grid": {
     "z": 10,
     "x0": 420, "y0": 97,                // the square of the first character of the first row
-    "width": 185,
-    "rows": ["....ccccdd..", "…"]       // one string per row of squares, north to south
+    "width": 191,
+    "rows": ["....ccccdd..", "…"]       // one string per row of squares, north to south: 336 of them
   }
 }
 ```
@@ -76,6 +76,31 @@ square outside the grid is `.`.
 
 So the index answers "is there data here" and "are we in a covered country" without a request
 per empty square. Sea within a covered country's waters counts as that country.
+
+**The extent.** The grid holds the squares from 81° to 27° north and from 32° west to 34.7°
+east: from the Azores to the eastern tip of Cyprus, and from the Canaries to Svalbard. Since
+27 Nov 2026 it is 191 squares wide and 336 high. Until then its eastern edge was 32.5° east
+and it was 185 wide; `x0` and `y0` did not move. A reader takes the size from `index.json`
+and assumes none.
+
+**The countries** are the keys of `countries`: every country of the EU and the EEA, and
+Switzerland, 31 since 27 Nov 2026 (21 until then; BE, BG, CY, FR, IE, LU, NL, RO, IS and LI
+joined). The ten are in the published index from the first nightly run after their merge.
+
+**A country is its European part.** A pharmacy that comes with a country's area in
+OpenStreetMap and whose square lies outside the grid is in no tile and in no count: the
+pipeline leaves it out and counts it in its own log. On 27 Nov 2026 that was 689 of France's
+elements (its overseas departments and territories) and 67 of the Netherlands' (the
+Caribbean). So `FR` and `NL` mean the European part here, with one zone each. A position
+outside the grid is outside the coverage, like any `.` square.
+
+**The north of Cyprus is `CY`** (provisional, 27 Nov 2026). Its pharmacies come with Cyprus's
+area and the island keeps one clock, `Asia/Nicosia`. In the grid and in a border grid the
+north counts as Cyprus. The British base areas of Akrotiri and Dhekelia are `GB` in a border
+grid, outside the coverage.
+
+Nothing in the format or its version changed when the ten countries joined, and
+`npm run vectors` wrote the same files as before: the iOS vectors are identical.
 
 ## A tile
 
@@ -104,7 +129,9 @@ per empty square. Sea within a covered country's waters counts as that country.
 
 One entry per country and time zone in the square. A square on a border has several; so does
 a square where one country's data is fresh and its neighbour's was kept from an earlier run.
-Spain and Portugal have two zones each (the Canaries, the Azores).
+Spain and Portugal have two zones each (the Canaries, the Azores); every other country has
+one. A zone is an IANA name and need not begin with `Europe/`: Cyprus is `Asia/Nicosia` and
+Iceland `Atlantic/Reykjavik`.
 
 **Freshness is per source, not per tile.** A pharmacy's data is too old to read when
 `now − generated > 7 days`, or when `now` is outside `[from, until)`. Then no status is
@@ -143,8 +170,8 @@ Column 7 of a row says which of four things is known:
 | Column 7 | Column 8 | Meaning |
 |---|---|---|
 | null | null | **Missing**: OpenStreetMap has no opening hours |
-| `"x"` | the value | **Unparseable**: the value could not be read |
-| `"u"` | the value | **Uncertain**: read, but not to be trusted (sunrise-based times; holidays in a state we could not determine) |
+| `"x"` | the value | **Unparseable**: the value could not be read (free text; in Cyprus, Iceland and Liechtenstein also any value that mentions public holidays) |
+| `"u"` | the value | **Uncertain**: read, but not to be trusted (sunrise-based times; holidays in a state we could not determine; in France, a value that mentions holidays while the window holds 1 January) |
 | a number | null | **Parsed**: the set at that index of `hours` |
 | a number | the value | **Parsed, with unknown stretches**: the set has a second list |
 
@@ -162,6 +189,14 @@ A set is `[open]` or `[open, unknown]`. Each list is flat: start, end, start, en
   time on the pharmacy's own clock.
 - Public holidays are already in them, by country, and by state or canton in Germany, Spain
   and Switzerland.
+- Three countries have no public holidays in the hours library: Cyprus, Iceland and
+  Liechtenstein. There a value that mentions them (`PH`) is `"x"`, never open or closed, and
+  a value without them is read as its weekdays, as everywhere. On 27 Nov 2026 that was one
+  pharmacy in Cyprus, one in Iceland and one of Liechtenstein's six.
+- In France the library lacks 1 January. A French value that mentions holidays is `"u"` in
+  every run whose window holds that day (the runs of 25 December to 1 January) and is read
+  as usual on every other day. 184 of France's 10,117 pharmacies with hours carry such a
+  value. Both rules are provisional.
 - Identical sets are stored once and shared by index.
 
 ### border
