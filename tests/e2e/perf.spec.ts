@@ -13,11 +13,12 @@ import { fakeLocation, fakeMapTiles, gridWalk, type WalkingAsked } from './helpe
  * allowed and a cold cache.
  *
  * The tiles are answered by the test, so each answer is held back for as long as the same
- * profile would take to deliver it: one round trip, plus its gzipped size at 1.6 Mbit/s.
- * The tile is as heavy as the heaviest real one was until 27 Nov 2026, central Barcelona on
- * 23 Nov 2026: 1,272 pharmacies and 56 KB gzipped. (Central Paris, which joined the coverage
- * on 27 Nov, has 1,826 pharmacies and 67.6 KB; this test's tile has not been changed for it.) The invented rows here compress better than real ones, so
- * the delay is worked out from the real weight, not from theirs.
+ * profile would take to deliver it: one round trip, plus its size as it travels at
+ * 1.6 Mbit/s. The tile is as heavy as the heaviest real one, central Paris: `HEAVIEST` below
+ * has its numbers. The invented rows here compress better than real ones, so the delay is
+ * worked out from the real weight, not from theirs; what the phone then has to read and
+ * search is the invented tile itself, which is held to the real one's size before
+ * compression and to its number of opening-hours sets.
  *
  * From M5 the first result waits for the walking times too (PLAN.md 7.1, step 5), so the
  * walking request is part of the measurement. It is answered by the test after one round
@@ -30,7 +31,24 @@ import { fakeLocation, fakeMapTiles, gridWalk, type WalkingAsked } from './helpe
 const RTT_MS = 150;
 const DOWN_BYTES_PER_S = (1.6 * 1024 * 1024) / 8;
 const UP_BYTES_PER_S = (750 * 1024) / 8;
-const HEAVIEST_TILE_GZIP_BYTES = 56 * 1024;
+/**
+ * The heaviest real tile: central Paris (10/518/352), as it was published on 27 Nov 2026.
+ * Until that day it was central Barcelona (10/518/382): 1,271 pharmacies, 145 sets of hours,
+ * 176.7 KB before compression and 56.3 KB as it travels. This test used that weight until then.
+ */
+const HEAVIEST = {
+  pharmacies: 1826,
+  /** Distinct sets of opening hours in it. */
+  hoursSets: 588,
+  /** Before compression, which is what the phone parses: 267.8 KB. */
+  rawBytes: 274_228,
+  /**
+   * As it travels to Chromium through the app's own address: 72.1 KB, in the CDN's Brotli.
+   * (The same file is 67.6 KB by gzip at its usual level, the figure the documents had; the
+   * CDN compresses on the way and does it lighter.)
+   */
+  travelBytes: 73_800,
+};
 const RUNS = 5;
 /** Our server asking openrouteservice for one row of twenty: assumed until it is measured with a key. */
 const WALKING_SERVICE_MS = 400;
@@ -42,23 +60,36 @@ const WALKING_SERVICE_MS = 400;
  */
 const LIMIT_MS = 5000;
 
+const two = (value: number): string => String(value).padStart(2, '0');
+
+/**
+ * An invented tile shaped like central Paris's: as many pharmacies, as many different sets of
+ * hours, and each field on about the share of rows that has it there (a street on a quarter,
+ * a phone and the wheelchair answer on two in five, hours on two in three). The first rows
+ * stand around Kamppi, where the search is made from.
+ */
 function heavyTile(): TilePharmacy[] {
-  const schedules = Array.from({ length: 145 }, (_, index) => daily(`0${7 + (index % 3)}:${index % 2 ? '30' : '00'}`, `${17 + (index % 6)}:${index % 4 ? '00' : '30'}`));
-  return Array.from({ length: 1272 }, (_, index) => ({
-    id: `n${1000000 + index}`,
+  const schedules = Array.from({ length: HEAVIEST.hoursSets }, (_, index) => daily(`${two(6 + (index % 4))}:${two((index % 12) * 5)}`, `${two(17 + (index % 7))}:${two((Math.floor(index / 12) % 12) * 5)}`));
+  const cities = ['Paris', ...Array.from({ length: 79 }, (_, index) => `Commune ${index + 1}`)];
+  return Array.from({ length: HEAVIEST.pharmacies }, (_, index) => ({
+    id: `n${10000000000 + index * 7919}`,
     lat: Math.round((KAMPPI.lat + ((index % 40) - 20) * 0.002) * 1e5) / 1e5,
     lon: Math.round((KAMPPI.lon + (Math.floor(index / 40) - 16) * 0.004) * 1e5) / 1e5,
-    name: `Farmàcia ${['Sant Antoni', 'del Mercat', 'Gran Via', 'Eixample', 'de la Plaça'][index % 5]} ${index}`,
-    street: `Carrer de ${['Provença', 'Mallorca', 'València', 'Aragó'][index % 4]} ${index % 300}`,
-    city: ['Barcelona', "L'Hospitalet de Llobregat", 'Badalona'][index % 3],
+    name: `Pharmacie ${['de la Mairie', 'du Marché', 'Centrale', 'des Arts et Métiers', 'de la Gare'][index % 5]} ${index}`,
+    ...(index % 4 === 0 ? { street: `${1 + (index % 180)} Rue ${['de Rivoli', 'Saint-Honoré', 'de Vaugirard', 'du Faubourg Saint-Antoine'][(index / 4) % 4]}` } : {}),
+    ...(index % 5 === 0 ? { city: cities[(index / 5) % cities.length] } : {}),
     country: 'FI',
     zone: 'Europe/Helsinki',
     generated: GENERATED,
     windowFrom: WEEK_FROM,
     windowUntil: WEEK_UNTIL,
-    hours: index % 5 === 0 ? { kind: 'missing' as const } : schedules[index % schedules.length],
-    ...(index % 3 === 0 ? { phone: `+34 93 ${100000 + index}` } : {}),
-    ...(index % 7 === 0 ? { website: `https://farmacia-${index}.example/` } : {}),
+    // Every third has no hours; the others take the sets in turn, so that each set is in use.
+    hours: index % 3 === 0 ? { kind: 'missing' as const } : schedules[Math.floor((index * 2) / 3) % schedules.length],
+    ...(index % 5 < 2 ? { phone: `+33 1 ${40000000 + index * 13}` } : {}),
+    ...(index % 12 === 0 ? { email: `pharmacie-${index}@pharmacie.example` } : {}),
+    ...(index % 8 === 0 ? { website: `https://www.pharmacie-${index}.example/accueil/` } : {}),
+    ...(index % 5 > 2 ? { wheelchair: (['yes', 'limited', 'no'] as const)[index % 3] } : {}),
+    ...(index % 2 === 0 ? { checkDate: `2026-${two(1 + (index % 11))}-${two(1 + (index % 28))}` } : {}),
   }));
 }
 
@@ -67,10 +98,16 @@ test('time to first result on a throttled phone', async ({ browser, browserName 
   test.setTimeout(300_000);
 
   const home = tileOf(KAMPPI);
+  const tile = encodeTile({ ...home, pharmacies: heavyTile() });
   const files: Record<string, string> = {
     [INDEX_PATH]: JSON.stringify(indexOf([home])),
-    [tilePath(home.x, home.y)]: JSON.stringify(encodeTile({ ...home, pharmacies: heavyTile() })),
+    [tilePath(home.x, home.y)]: JSON.stringify(tile),
   };
+  // The invented tile is no lighter to read than the real one: as many rows and sets of hours, and at least its size.
+  const rawBytes = Buffer.byteLength(files[tilePath(home.x, home.y)]);
+  expect(tile.rows).toHaveLength(HEAVIEST.pharmacies);
+  expect(tile.hours.length).toBeGreaterThanOrEqual(HEAVIEST.hoursSets);
+  expect(rawBytes, 'the size of the invented tile before compression').toBeGreaterThanOrEqual(HEAVIEST.rawBytes);
 
   /** Five cold runs. `walking`: answered as a healthy service would, or never. */
   const measure = async (walking: 'answers' | 'never'): Promise<number[]> => {
@@ -87,7 +124,7 @@ test('time to first result on a throttled phone', async ({ browser, browserName 
     await page.route('**/tiles/v1/**', async (route) => {
       const body = files[new URL(route.request().url()).pathname];
       if (body === undefined) return route.fulfill({ status: 404, body: '' });
-      const bytes = route.request().url().endsWith('index.json') ? gzipSync(body).length : HEAVIEST_TILE_GZIP_BYTES;
+      const bytes = route.request().url().endsWith('index.json') ? gzipSync(body).length : HEAVIEST.travelBytes;
       await new Promise((resolve) => setTimeout(resolve, RTT_MS + (bytes / DOWN_BYTES_PER_S) * 1000));
       await route.fulfill({ contentType: 'application/json', body });
     });
@@ -117,7 +154,7 @@ test('time to first result on a throttled phone', async ({ browser, browserName 
   const list = (sorted: number[]) => sorted.map((time) => Math.round(time)).join(', ');
 
   const withWalking = await measure('answers');
-  const summary = `median ${Math.round(median(withWalking))} ms of ${RUNS} runs (${list(withWalking)}); one tile of 1,272 pharmacies, delivered as ${HEAVIEST_TILE_GZIP_BYTES / 1024} KB, and walking times after ${RTT_MS + WALKING_SERVICE_MS} ms`;
+  const summary = `median ${Math.round(median(withWalking))} ms of ${RUNS} runs (${list(withWalking)}); one tile of ${HEAVIEST.pharmacies.toLocaleString('en-US')} pharmacies, ${(rawBytes / 1024).toFixed(1)} KB to read, delivered as ${(HEAVIEST.travelBytes / 1024).toFixed(1)} KB, and walking times after ${RTT_MS + WALKING_SERVICE_MS} ms`;
   testInfo.annotations.push({ type: 'time to first result', description: summary });
   console.log(`Time to first result: ${summary}`);
 
