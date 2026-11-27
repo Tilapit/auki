@@ -93,7 +93,8 @@ export function contentSecurityPolicy({ development, devRoutes }: HeaderOptions)
     'style-src': ["'self'", "'unsafe-inline'"],
     // Our own files and inline SVG. The map draws on a canvas from vector data and loads no image.
     'img-src': ["'self'", 'data:'],
-    'font-src': ["'self'"],
+    // No font is fetched from anywhere: the type is the device's own, on the map too. (`next dev` shows its own overlay in a font of ours.)
+    'font-src': [development ? "'self'" : "'none'"],
     'connect-src': ["'self'", ...THIRD_PARTY_ORIGINS, ...(development ? ['ws:', 'wss:'] : [])],
     // The map's worker is a file on our own origin (scripts/copy-map-worker.mjs): no blob: worker.
     'worker-src': ["'self'"],

@@ -140,10 +140,10 @@ export interface StyleOptions {
   locale: Locale;
   /** The sun at the map's centre: the light on the 3D buildings, and dusk or night in the dark theme. */
   sun?: { altitude: number; azimuth: number };
-  /** Vector tiles (TileJSON) and label glyphs. Config, so the tile host can be swapped (PLAN.md, decision D6). */
+  /** Vector tiles (TileJSON), and glyph files for the labels if a host's own are wanted: left out, the device draws them. Config, so the tile host can be swapped (PLAN.md, decision D6). */
   tiles?: string;
   glyphs?: string;
-  /** Typeface stacks for labels, as named under the glyphs URL. */
+  /** Typeface stacks for labels: as named under the glyphs URL, or CSS families where the device draws them. */
   fonts?: { regular: string[]; strong: string[] };
   /** The pharmacies of the area layer. Left out, the layer starts empty and the map is given them afterwards. */
   area?: AreaData;
@@ -169,9 +169,15 @@ export const NO_ROUTE = { type: 'FeatureCollection' as const, features: [] as ne
 export const routeData = (line: Line | undefined) => (line ? { type: 'Feature' as const, properties: {}, geometry: line } : NO_ROUTE);
 
 export const OPENFREEMAP_TILES = 'https://tiles.openfreemap.org/planet';
-/** Our own typeface on the map, served from our origin. */
-export const OWN_GLYPHS = '/glyphs/{fontstack}/{range}.pbf';
-export const OWN_FONTS = { regular: ['Atkinson Hyperlegible Next Regular'], strong: ['Atkinson Hyperlegible Next SemiBold'] };
+/**
+ * The map's labels are in the device's own typeface, like the rest of the app (globals.css,
+ * --font-sans): a style without a glyphs address makes MapLibre draw every glyph itself, on a
+ * canvas, from the stack as a CSS family list. So the map fetches no glyph files at all.
+ * MapLibre reads a stack's weight out of its first name: the strong stack starts with a name
+ * that is that word and nothing else, which no font answers to.
+ */
+const SYSTEM_FONTS = ['-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Noto Sans', 'Arial'];
+export const OWN_FONTS = { regular: SYSTEM_FONTS, strong: ['Semibold', ...SYSTEM_FONTS] };
 
 /** The buildings start to rise here and stand at full height a little over half a zoom level on. */
 export const RISE_FROM = 15;
@@ -378,7 +384,7 @@ export function buildStyle(options: StyleOptions): StyleSpecification {
       [AREA_SOURCE]: { type: 'geojson', data: options.area ?? NO_AREA },
       [ROUTE_SOURCE]: { type: 'geojson', data: routeData(options.route) },
     },
-    glyphs: options.glyphs ?? OWN_GLYPHS,
+    ...(options.glyphs ? { glyphs: options.glyphs } : {}),
     layers,
     light: lightFor(theme, sun),
   };

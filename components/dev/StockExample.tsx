@@ -53,7 +53,7 @@ export function StockExample({ medicine, pharmacies, zone }: Props) {
       <h3 id={`${id}-h`} className={styles.product}>
         {answer.product}
       </h3>
-      <p className={cx(styles.source, 'tnum')}>
+      <p className={styles.source}>
         {rich(t.medicine.stock.source, { site: <span className={styles.site}>{site}</span>, time: <time dateTime={clockAt(answer.asOf, zone)}>{f.clock(clockAt(answer.asOf, zone))}</time> })}
       </p>
       <ul className={styles.lines}>
