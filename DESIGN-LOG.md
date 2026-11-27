@@ -1087,3 +1087,14 @@ Entry format:
 - Why: The trip's finding 1 is that the answer at the counter depends on the pharmacy and on who is behind it. No list can say that of a pharmacy; the people who were there can.
 - Not done: the iOS app; taking a report back; a report in any language but the app's two.
 - Status: provisional, all of it. Not merged: Janne and Claude review it first. The migration is applied to the project's database, which was empty.
+
+## 2026-11-27: The card's head opens the pharmacy's details
+- Where: `components/NearestOpenCard.tsx` (`CardHead`) and its styles: all three forms of the card ("Lähin auki nyt", "Lähin apteekki", "Avautuu ensimmäisenä")
+- Change: Janne's decision of 27 Nov, from his iPhone: the nearest pharmacy could be seen only as its card, and the card has no room for the week's hours, the contacts, both map apps or the report row. The name in the card is now a button, and its hit area is the head and the status line under it, a little past their edges for a thumb. A press opens the same details as a row of the list does.
+  - On the phone they open at the sheet's middle height, as they do from a row or a marker (the entry of 25 Nov, "a place card, not a modal"), and the handle or a drag takes them fully up. Closed, the sheet is at the card again and the keyboard is back on the name.
+  - The card's own buttons and links are outside the hit area and do what they did. "Reitti" still opens the same details: the card now has two ways there, and the name is the one a hand tries first.
+  - Not the "Seuraava auki" pharmacy of the too-late card: it is a row of the list as well, with its own "Reitti", and two buttons of one name on one screen would be one too many for a screen reader.
+  - "Näytä tiedot" in the card for when nothing is open stays. It is that card's only button, and the name beside it now does the same.
+  - Nothing looks different yet. A mouse gets an underline on the name and the keyboard a ring around the head. Whether the head should say that it opens (a chevron) belongs to the work on the card's and the sheet's hierarchy, which is its own piece.
+- Why: The card is the answer and the details are everything else about it. The list's rows have opened their details by the name since M1; the one pharmacy that mattered most did not.
+- Status: done, by Janne's decision. My own call within it: the middle height. "Opens in full" could also be read as the sheet going fully up; I kept the place card's rule of 25 Nov, which Janne asked for after the details had opened at full height and hidden the map. Fully up from the card would be one line in `ResultsView` (`open`).
