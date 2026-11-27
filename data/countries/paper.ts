@@ -5,7 +5,8 @@
  * the others (Directive 2011/24/EU, Article 11, which the EEA Agreement has taken in), under
  * the dispensing country's own rules. Switzerland is outside it, in both directions. Finland
  * says more than the rule asks: it also takes paper prescriptions from Switzerland, and says in
- * so many words that it takes none from anywhere else.
+ * so many words that it takes none from anywhere else. Sweden's medicines agency says that a
+ * Swedish pharmacy may not dispense a prescription issued outside the EEA.
  *
  * On top of the rule, what each country one can be in says of it, where its own authorities
  * were read. Each note names its source (data/countries/sources.ts).
@@ -132,6 +133,8 @@ export function paper(home: string, here: string): Paper {
     if (unionOf(home) === 'ch') return { status: 'accepted', sources: ['kantaForeign', 'euHealthcareFi'], notes: [HERE_NOTES.FI] };
     return { status: 'refused', sources: ['euHealthcareFi'], notes: [] };
   }
+  // Sweden's medicines agency: a Swedish pharmacy may not dispense a prescription issued in a country outside the EEA. Switzerland is outside it.
+  if (here === 'SE') return { status: 'refused', sources: ['lakemedelsverketEea'], notes: [] };
   if (here === 'CH') return { status: 'notObliged', sources: ['yourEuropeFaq', 'swissPositionPaper'], notes: [SWISS] };
   if (unionOf(home) === 'ch') return { status: 'notObliged', sources: ['yourEuropeFaq'], notes: [] };
   return { status: 'unknown', sources: ['yourEurope'], notes: [] };

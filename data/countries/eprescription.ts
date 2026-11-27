@@ -40,11 +40,13 @@ export interface ExchangePage {
   forOwnSource?: SourceId;
   /** What it says to visitors with an e-prescription from another country, when the pair works. */
   forVisitors?: Text;
+  /** Where `forVisitors` is from, when it is another page than the one with the list of whose prescriptions are taken. */
+  forVisitorsSource?: SourceId;
 }
 
 const EIGHT = ['HR', 'CZ', 'EE', 'LV', 'LT', 'PL', 'PT', 'ES'];
 
-/** One page per country that publishes its partners. Finland's is two Kanta pages with the same eight countries. */
+/** One entry per country that publishes its partners. Finland's is two Kanta pages with the same eight countries, Austria's two pages of its health portal with the same two. */
 export const EXCHANGE: Record<string, ExchangePage> = {
   FI: {
     source: 'kantaAbroad',
@@ -112,6 +114,25 @@ export const EXCHANGE: Record<string, ExchangePage> = {
       en: 'First give your consent in Portal zdravlja. The service is for non-repeat prescriptions.',
     },
   },
+  AT: {
+    // Three pages of Austria's health portal. Where its own e-prescriptions are dispensed: the country overview (August 2026).
+    // Whose its pharmacies retrieve: the page for health professionals (September 2026). Both name Czechia and Spain, and no other.
+    // Which pharmacies: the page for patients travelling to Austria (October 2026), which lists those that offer the service and names no country.
+    // The page gives no total and does not say "only": the note says what it does, with the count of its list on that day.
+    source: 'gesundheitAt',
+    forOwnSource: 'gesundheitAtSteps',
+    forVisitorsSource: 'gesundheitAtVisitors',
+    outbound: ['CZ', 'ES'],
+    inbound: ['CZ', 'ES'],
+    forOwn: {
+      fi: 'Anna ensin kertaluonteinen suostumus (Opt-In) Itävallan terveysportaalissa ID Austrialla tai kirjallisesti. Apteekissa tunnistaudutaan Itävallan passilla tai henkilökortilla tai ID Austrialla luodulla kertakoodilla. Palvelu ei koske vapaana tekstinä kirjoitettuja reseptejä, apteekissa valmistettavia lääkkeitä eikä huumausaineiksi luokiteltuja lääkkeitä (Suchtmittel). Ulkomailla resepti käsitellään yksityisreseptinä: lääke maksetaan ensin itse.',
+      en: 'First give your one-time consent (Opt-In) in Austria’s health portal with ID Austria, or in writing. At the pharmacy you identify yourself with an Austrian passport or identity card, or with a one-time code made with ID Austria. The service does not cover free-text prescriptions, medicines prepared at the pharmacy or addictive substances (Suchtmittel). Abroad the prescription is treated as a private one: you first pay for the medicine yourself.',
+    },
+    forVisitors: {
+      fi: 'Itävallan terveysportaali gesundheit.gv.at luettelee apteekit, jotka tarjoavat palvelua. Niitä on 45.',
+      en: 'Austria’s health portal gesundheit.gv.at lists the pharmacies that offer the service. There are 45.',
+    },
+  },
   CZ: {
     source: 'epreskripce',
     outbound: ['EE', 'FI', 'HR', 'CY', 'LT', 'LV', 'PL', 'AT', 'GR', 'ES'],
@@ -150,27 +171,12 @@ export const EXCHANGE: Record<string, ExchangePage> = {
   },
 };
 
-/** Finland's list of whose e-prescriptions it dispenses is on another Kanta page than its list of where its own are dispensed. */
-const INBOUND_SOURCE: Partial<Record<string, SourceId>> = { FI: 'kantaForeign' };
-
 /**
- * A country whose own page lists where its e-prescriptions are dispensed, and names no country
- * whose e-prescriptions it takes. Austria's page has two countries, as of August 2026; for
- * visitors it lists the Austrian pharmacies that take part, and says nothing of where from.
- * So it is read for one direction only: nothing is said from it about a prescription brought
- * to Austria.
+ * Where the list of whose e-prescriptions a country dispenses is on another page than its list
+ * of where its own are dispensed: Finland's two Kanta pages, and Austria's page for health
+ * professionals.
  */
-export const OUTBOUND_ONLY: Record<string, { source: SourceId; outbound: string[]; forOwn: Text; forOwnSource: SourceId }> = {
-  AT: {
-    source: 'gesundheitAt',
-    outbound: ['CZ', 'ES'],
-    forOwnSource: 'gesundheitAtSteps',
-    forOwn: {
-      fi: 'Anna ensin kertaluonteinen suostumus (Opt-In) Itävallan terveysportaalissa ID Austrialla tai kirjallisesti. Apteekissa tunnistaudutaan Itävallan passilla tai henkilökortilla tai ID Austrialla luodulla kertakoodilla. Palvelu ei koske vapaana tekstinä kirjoitettuja reseptejä, apteekissa valmistettavia lääkkeitä eikä huumausaineiksi luokiteltuja lääkkeitä (Suchtmittel). Ulkomailla resepti käsitellään yksityisreseptinä: lääke maksetaan ensin itse.',
-      en: 'First give your one-time consent (Opt-In) in Austria’s health portal with ID Austria, or in writing. At the pharmacy you identify yourself with an Austrian passport or identity card, or with a one-time code made with ID Austria. The service does not cover free-text prescriptions, medicines prepared at the pharmacy or addictive substances (Suchtmittel). Abroad the prescription is treated as a private one: you first pay for the medicine yourself.',
-    },
-  },
-};
+const INBOUND_SOURCE: Partial<Record<string, SourceId>> = { FI: 'kantaForeign', AT: 'gesundheitAtProfessionals' };
 
 /**
  * Countries whose own authorities say that pharmacies there take no e-prescription from
@@ -224,6 +230,14 @@ export const NOT_ABROAD: Record<string, Note> = {
     },
   },
   DK: NO_FOREIGN.DK,
+  SE: {
+    // The Medical Products Agency's own answer in its forum of questions, updated 14.4.2026. Its page "Recept inom EES" asks for a paper form too.
+    source: 'lakemedelsverket',
+    text: {
+      fi: 'Ruotsin lääkeviraston (Läkemedelsverket) mukaan sähköistä reseptiä ei toistaiseksi voi käyttää Ruotsin ulkopuolella. Apteekkia voi pyytää tulostamaan sen paperille ennen matkaa.',
+      en: 'The Swedish Medical Products Agency says electronic prescriptions cannot at present be used outside Sweden, and that you can ask a pharmacy to print yours on paper before you travel.',
+    },
+  },
 };
 
 /** Where only some pharmacies take part, by the statement of another country's ministry about the service as a whole. */
@@ -265,26 +279,21 @@ const inboundSource = (country: string): SourceId => INBOUND_SOURCE[country] ?? 
 export function ePrescription(home: string, here: string): EPrescription {
   const from = EXCHANGE[home];
   const to = EXCHANGE[here];
-  const oneWay = OUTBOUND_ONLY[home];
-  // The home country's page with the list of where its e-prescriptions are dispensed, and whether it can be read for what it leaves out.
-  const sender: SourceId | undefined = from?.source ?? oneWay?.source;
-  const senderCurrent = from ? !from.dated : oneWay !== undefined;
-  const sent = (from?.outbound.includes(here) ?? false) || (oneWay?.outbound.includes(here) ?? false);
+  const sent = from?.outbound.includes(here) ?? false;
   const taken = to?.inbound.includes(home) ?? false;
 
   if (NO_FOREIGN[here]) return { status: 'notHere', sources: [NO_FOREIGN[here].source], notes: [NO_FOREIGN[here]] };
 
   if (sent || taken) {
     // A page that is current and leaves the pair out, against one that has it: say so, don't pick a side.
-    const denied = (sent && to && !to.dated && !taken) || (taken && senderCurrent && !sent);
-    const sources = [...(sent ? [sender!] : []), ...(taken ? [inboundSource(here)] : [])];
-    if (denied) return { status: 'disagree', sources: [sender!, inboundSource(here)], notes: [] };
+    const denied = (sent && to && !to.dated && !taken) || (taken && from && !from.dated && !sent);
+    if (denied) return { status: 'disagree', sources: [from!.source, inboundSource(here)], notes: [] };
+    const sources = [...(sent ? [from!.source] : []), ...(taken ? [inboundSource(here)] : [])];
     const notes: Note[] = [];
     if (from?.forOwn) notes.push({ text: from.forOwn, source: from.forOwnSource ?? from.source });
-    else if (oneWay) notes.push({ text: oneWay.forOwn, source: oneWay.forOwnSource });
     const pair = PAIR_NOTES[`${home}>${here}`];
     if (pair) notes.push(pair);
-    else if (to?.forVisitors) notes.push({ text: to.forVisitors, source: inboundSource(here) });
+    else if (to?.forVisitors) notes.push({ text: to.forVisitors, source: to.forVisitorsSource ?? inboundSource(here) });
     else if (SOME_PHARMACIES[here]) notes.push(SOME_PHARMACIES[here]);
     return { status: 'works', sources: [...new Set(sources)], notes };
   }
@@ -292,7 +301,7 @@ export function ePrescription(home: string, here: string): EPrescription {
   if (NOT_ABROAD[home]) return { status: 'notAbroad', sources: [NOT_ABROAD[home].source], notes: [NOT_ABROAD[home]] };
 
   // Pages that list their partners, and are current enough to be read for what they leave out.
-  const silent = [...(senderCurrent ? [sender!] : []), ...(to && !to.dated ? [inboundSource(here)] : [])];
+  const silent = [...(from && !from.dated ? [from.source] : []), ...(to && !to.dated ? [inboundSource(here)] : [])];
   if (silent.length > 0) return { status: 'notListed', sources: silent, notes: [] };
   return { status: 'unknown', sources: ['yourEurope'], notes: [] };
 }

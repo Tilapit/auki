@@ -239,6 +239,43 @@ test('Sweden, where nothing was tried at a counter, has no field line, and says 
   await expect(banner(page).getByRole('link', { name: /^E-hälsomyndigheten \(Ruotsi\)/ })).toBeVisible();
 });
 
+test('a prescription from Sweden in Latvia: Sweden’s own agency says it can’t be used abroad, and how to get it on paper', async ({ page }) => {
+  await reads(page, ['sv-SE', 'sv', 'en']);
+  await start(page, inCountry('LV'));
+  await expect(home(page)).toHaveValue('SE');
+  await expect(banner(page)).toContainText('Ruotsissa kirjoitettu sähköinen resepti ei käy ulkomailla.');
+  await expect(banner(page)).toContainText('Ruotsissa kirjoitettu paperinen resepti kelpaa Latviassa, kun siinä on vaaditut tiedot.');
+  await banner(page).getByRole('button', { name: 'Lisätiedot ja lähteet' }).click();
+  await expect(banner(page)).toContainText('Apteekkia voi pyytää tulostamaan sen paperille ennen matkaa.');
+  const agency = banner(page).getByRole('listitem').filter({ hasText: 'Läkemedelsverket (Ruotsi)' });
+  await expect(agency.getByRole('link')).toHaveAttribute('href', SOURCES.lakemedelsverket.url.fi);
+  await expect(agency).toContainText('Sivu päivitetty 14.4.2026, luettu 26.11.2026.');
+  // No page says the pair works: the card has paper lines only.
+  await cardButton(page).click();
+  await expect(counter(page).getByRole('group', { name: 'Reseptin muoto' })).toHaveCount(0);
+});
+
+test('a prescription from Latvia in Austria: the two countries’ pages disagree, and the banner says so and names both', async ({ page }) => {
+  await reads(page, ['lv-LV', 'lv', 'en']);
+  await start(page, inCountry('AT'));
+  await expect(home(page)).toHaveValue('LV');
+  await expect(banner(page)).toContainText('Maiden omat sivut kertovat eri tavoin, käykö Latviassa kirjoitettu sähköinen resepti Itävallassa.');
+  await banner(page).getByRole('button', { name: 'Lisätiedot ja lähteet' }).click();
+  await expect(banner(page).getByRole('link', { name: /^eveseliba\.gov\.lv \(Latvia\)/ })).toHaveCount(1);
+  // Austria's list of whose e-prescriptions its pharmacies take is on its page for health professionals, with that page's date.
+  await expect(banner(page).getByRole('listitem').filter({ hasText: 'gesundheit.gv.at (Itävalta): EU-resepti, tietoa terveydenhuollon ammattilaisille' })).toContainText('Sivu päivitetty 21.9.2026, luettu 26.11.2026.');
+});
+
+test('a prescription from Spain in Austria: both pages have the pair, and the answer says where the pharmacies that offer the service are listed', async ({ page }) => {
+  await reads(page, ['es-ES', 'es', 'en']);
+  await start(page, inCountry('AT'));
+  await expect(home(page)).toHaveValue('ES');
+  await expect(banner(page)).toContainText('Espanjassa kirjoitettu sähköinen resepti käy Itävallassa.');
+  await banner(page).getByRole('button', { name: 'Lisätiedot ja lähteet' }).click();
+  await expect(banner(page)).toContainText('Itävallan terveysportaali gesundheit.gv.at luettelee apteekit, jotka tarjoavat palvelua. Niitä on 45.');
+  await expect(banner(page).getByRole('link', { name: /^gesundheit\.gv\.at \(Itävalta\): tietoa Itävaltaan matkustaville potilaille/ })).toHaveAttribute('href', SOURCES.gesundheitAtVisitors.url.fi);
+});
+
 test('while the card is open the screen is asked to stay awake, and the card says so only when it does', async ({ page }) => {
   await page.addInitScript(() => {
     const log: string[] = [];

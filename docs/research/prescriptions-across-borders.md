@@ -2,23 +2,24 @@
 
 The evidence behind PLAN.md section 8 and `data/countries/`: for a prescription written in one country and a pharmacy in another, what works. Everything here was read on **26 Nov 2026**, by four research passes of the day run of that date, each told to quote and not to fill gaps from memory. The app shows only what a page read that day says, with the page named and dated (`data/countries/sources.ts`), and says plainly where nothing was found.
 
-Read this file as the record of what the pages said on that day. It has had a second reading the same day (below), by readers of the same kind as the first. Before the pull request that brought it is merged, a person should read the claims against the pages themselves.
+Read this file as the record of what the pages said on that day. It has had a second reading the same day (below), by readers of the same kind as the first, and an evening and a night reading of the pages those two left. Before the pull request that brought it is merged, a person should read the claims against the pages themselves.
 
 ## What the app takes from it
 
 1. **Paper prescriptions.** A prescription written in one EU or EEA country can be dispensed in the others, under the dispensing country's own rules: Directive 2011/24/EU, Article 11, taken into the EEA Agreement by Joint Committee Decision No 153/2014, and in plain words on Your Europe (last checked there 26.8.2026), which also lists what the prescription has to show. Switzerland is outside the rule in both directions (Your Europe's FAQ).
-2. **Electronic prescriptions.** There is no European list. The Commission's page on the service names no country, and Your Europe gives one example (Finland to Croatia, Estonia and Portugal) that is older than Finland's own list. So the pairs come from each country's own page: Finland (Kanta), Estonia, Poland, Spain, Portugal, Croatia, Czechia, Latvia, Lithuania and Greece. Among the nine with a current page no pair is told two ways. Since the evening reading Austria has a page for one direction, and one pair with it is told two ways (Austria to Latvia): the app says so.
+2. **Electronic prescriptions.** There is no European list. The Commission's page on the service names no country, and Your Europe gives one example (Finland to Croatia, Estonia and Portugal) that is older than Finland's own list. So the pairs come from each country's own page: Finland (Kanta), Estonia, Poland, Spain, Portugal, Croatia, Czechia, Latvia, Lithuania, Greece and Austria. Among the first nine with a current page no pair is told two ways. Austria's two lists, found in the evening and the night readings on two pages of its health portal, name Czechia and Spain alone, and Latvia's page has Austria both ways: the app says that the two countries' pages disagree, for each direction.
 3. **Croatia's page with both lists shows 4.10.2024 as its date** (the contact point's page, found in the evening reading; until then the only list was a notice of October 2022). What it names is shown as working. It is still not read for what it leaves out: its date is two years old, and it has a service that began after that date.
-4. **Countries that take no e-prescription from abroad**, by their own authorities: Sweden, Denmark, Norway, Germany. Switzerland's guidance for pharmacies recognises only the Swiss e-prescription.
-5. **Finland as the country one is in**: Kanta's eight countries for electronic prescriptions, at any pharmacy; paper prescriptions from the EU, the EEA and Switzerland; none from anywhere else (EU-healthcare.fi).
-6. **Nothing found**, and shown as that: the electronic prescription wherever neither country publishes a list (Italy, Hungary, Malta, Slovenia, Slovakia and Austria as the country one is in, for most home countries); paper prescriptions from outside the EU, the EEA and Switzerland everywhere but Finland.
+4. **Countries that take no e-prescription from abroad**, by their own authorities: Sweden, Denmark, Norway, Germany. Switzerland's guidance for pharmacies recognises only the Swiss e-prescription. **Countries whose own e-prescription can't be used abroad**, by their own authorities: Norway, Denmark, and since the night reading Sweden.
+5. **Finland as the country one is in**: Kanta's eight countries for electronic prescriptions, at any pharmacy; paper prescriptions from the EU, the EEA and Switzerland; none from anywhere else (EU-healthcare.fi). **Sweden as the country one is in**: no prescription from outside the EEA (Läkemedelsverket, night reading).
+6. **Nothing found**, and shown as that: the electronic prescription wherever neither country publishes a list (Italy, Hungary, Malta, Slovenia and Slovakia as the country one is in, for most home countries); paper prescriptions from outside the EU, the EEA and Switzerland everywhere but Finland and Sweden.
 
 ## What is weaker than it looks
 
 - **Spain's list does not split the two directions.** The ministry says every region works "as issuer and receiver" and lists eleven countries; the app takes each as both ways. The site's map page was read in the evening and does not split them either: one colour for the countries that "can exchange" e-prescriptions, the same eleven, dated 7 October 2026.
 - **Greece's table is icons without a legend.** "In Greece" was read as inbound and "abroad" as outbound; Portugal's page agrees with that reading.
-- **Austria and Cyprus** appear in other countries' lists. Their own pages were read in the evening. Austria's names where its own e-prescriptions are dispensed (Czechia and Spain, August 2026) and no country whose e-prescriptions it takes; Cyprus's name no country at all. So a pair with Austria as the country one is in still rests on the home country's page alone.
-- **Austria to Latvia is told two ways**: Latvia's page takes Austria's e-prescriptions, Austria's own list of destinations does not have Latvia. The app says the pages disagree.
+- **Austria and Cyprus** appear in other countries' lists. Their own pages were read in the evening. Austria's pages for patients name where its own e-prescriptions are dispensed (Czechia and Spain, August 2026) and no country whose e-prescriptions it takes. That list is on its page for health professionals, found in the night reading: the same two, as of September 2026. It is written for pharmacies, not for travellers. Cyprus's pages name no country at all.
+- **Austria and Latvia are told two ways, in both directions**: Latvia's page (24 November 2026, read three times) has Austria as a country whose e-prescriptions it takes and as one where its own are dispensed; neither of Austria's two lists (August and September 2026) has Latvia. The app says the pages disagree and picks neither.
+- **Sweden's "no" for its own e-prescription abroad** is a sentence in an answer in the medicines agency's question forum (updated 14.4.2026), not on a page of its own. The agency's page on prescriptions in the EEA asks for a paper form and says a pharmacy can print the e-prescription on one. No list that was read has Sweden.
 - **Switzerland** rests on a position paper for pharmacies, read from the pharmacists' association's site. It is not a federal statement; no page of the Federal Office of Public Health or Swissmedic was found.
 - **Germany**: the e-prescription statement is gematik's FAQ for pharmacies; the paper statement is from the national contact point's page for people insured in Germany. Neither is the health ministry.
 - **The United Kingdom**: no general official statement was found. GOV.UK's guide for Spain (last updated 2.9.2021) says a UK prescription can be used there; the app does not use it, because it is one country and five years old.
@@ -138,12 +139,12 @@ Four pages of gesundheit.gv.at, Austria's public health portal ("Erstellt durch:
 
 > List of pharmacies in Austria offering the MyHealth@EU ePrescription service
 
-followed by 44 pharmacies with their addresses. **It names no country whose e-prescriptions those pharmacies take.** The two Word documents linked there (the patient information notice) were not read.
+followed by 44 pharmacies with their addresses (45: the night reading counted them again, N6). **It names no country whose e-prescriptions those pharmacies take.** The two Word documents linked there (the patient information notice) were not read (the English one was read at night, N6).
 
 What was done with it:
 
 - Austria's list of where its own e-prescriptions are dispensed is in the data as `OUTBOUND_ONLY.AT`: Czechia and Spain, source `gesundheitAt` (2026-08-19). What it asks of its own people is a note from the step-by-step page (`gesundheitAtSteps`, 2026-02-24).
-- **Nothing is said from Austria's pages about a prescription brought to Austria**, because they name no country. A pair with Austria as the country one is in still rests on the home country's page alone (Czechia, Latvia and Spain say yes), and where that has none, nothing was found. That only some pharmacies in Austria take part is on Austria's page and is not yet a note in the app: it would be shown for pairs Austria's page does not itself confirm. For whoever continues.
+- **Nothing is said from Austria's pages about a prescription brought to Austria**, because they name no country. A pair with Austria as the country one is in still rests on the home country's page alone (Czechia, Latvia and Spain say yes), and where that has none, nothing was found. That only some pharmacies in Austria take part is on Austria's page and is not yet a note in the app: it would be shown for pairs Austria's page does not itself confirm. For whoever continues. (Both were done in the night reading, N6: Austria's page for health professionals has the list, and the note is in the app.)
 - **One pair is now told two ways: Austria to Latvia.** Latvia's page (its images replaced 24 Nov 2026, read twice on 26 Nov) has Austria among the countries whose e-prescriptions are dispensed in Latvia. Austria's overview (August 2026) names Czechia and Spain only. The app says that the two pages disagree and names both; it does not pick one. Latvia's images were not opened a third time in the evening.
 - Austria to Czechia and to Spain: yes, as before, now on both countries' word.
 - Austria to Croatia, Hungary, Italy, Malta, Slovenia and Slovakia: from "nothing found" to "not on the list" (Austria's). Austria to Finland, Estonia, Lithuania, Poland, Portugal and Greece were "not on the list" by those countries' pages and are now so by both.
@@ -165,8 +166,8 @@ Read 26 Nov 2026 (evening). **No official statement was found on using a German 
 
 - gematik's questions on the e-prescription, https://www.gematik.de/anwendungen/e-rezept/faq-e-rezept: the word "Ausland" occurs in two questions, neither about a German e-prescription abroad. The one already in the app: "E-Rezepte aus dem EU-Ausland sind derzeit noch nicht in Deutschland einlösbar."
 - The German contact point's page for people insured in Germany, https://www.eu-patienten.de/de/behandlung_ausland/verordnungen_einloesen_eu/verordnungen_einloesen_eu.jsp: no mention of the e-prescription ("E-Rezept", "elektronisch": no match).
-- Its page for visitors, "Behandlung in Deutschland > Verschreibungen einlösen": the address that was guessed answered 404, and the right one was not looked for.
-- The Swedish eHealth Agency's English pages, https://www.ehalsomyndigheten.se/sprak/english/eu/how-prescriptions-work-in-sweden/ and https://www.ehalsomyndigheten.se/sprak/english/eu/purchase-of-medicinal-products/: both are for visitors to Sweden. The second says: "If you need medicinal products that require a prescription in Sweden, you must either have a current paper prescription for cross-border use from your home country or get a new Swedish prescription before you can buy the medicinal product at a pharmacy." Nothing on a Swedish e-prescription abroad. The agency's Swedish-language pages were not read.
+- Its page for visitors, "Behandlung in Deutschland > Verschreibungen einlösen": the address that was guessed answered 404, and the right one was not looked for. (Read at night: N2.)
+- The Swedish eHealth Agency's English pages, https://www.ehalsomyndigheten.se/sprak/english/eu/how-prescriptions-work-in-sweden/ and https://www.ehalsomyndigheten.se/sprak/english/eu/purchase-of-medicinal-products/: both are for visitors to Sweden. The second says: "If you need medicinal products that require a prescription in Sweden, you must either have a current paper prescription for cross-border use from your home country or get a new Swedish prescription before you can buy the medicinal product at a pharmacy." Nothing on a Swedish e-prescription abroad. The agency's Swedish-language pages were not read. (Read at night, and the medicines agency's with them: N3.)
 - A search turned up reports to the Swedish government from 2020 to 2023 on the legal groundwork; they are not current statements and were not read.
 
 ### E6. Iceland and Liechtenstein
@@ -179,7 +180,7 @@ Read 26 Nov 2026 (evening). **Nothing was found that the app can show.** No chan
 
 ### E7. Which medicines Article 11(6) leaves out
 
-Article 11(6) of Directive 2011/24/EU, as quoted in the notes of the first reading: "Paragraph 1 shall not apply to medicinal products subject to special medical prescription provided for in Article 71(2) of Directive 2001/83/EC." (The Publications Office's address for 32011L0024 answered 404 in the evening; the quote is the morning's.)
+Article 11(6) of Directive 2011/24/EU, as quoted in the notes of the first reading: "Paragraph 1 shall not apply to medicinal products subject to special medical prescription provided for in Article 71(2) of Directive 2001/83/EC." (The Publications Office's address for 32011L0024 answered 404 in the evening; the quote is the morning's. It answered at night, and the text is as quoted: N1.)
 
 Directive 2001/83/EC was read in the evening from the Publications Office's copy, http://publications.europa.eu/resource/celex/32001L0083, in English and in Finnish: the text as published in Official Journal L 311, 28/11/2001. A consolidated version with later amendments was not read.
 
@@ -193,6 +194,196 @@ Directive 2001/83/EC was read in the evening from the Publications Office's copy
 - In the app: one more note for every pair the rule covers, after the one on Article 11(6), sourced to this directive (`medicinesDirective`). It names no medicine.
 - Which medicines each country has put in the category was not read for any country. Finland, Sweden and Norway say on their own pages what they do not dispense on a foreign prescription, and the app has those notes already.
 
+## The night reading, 26 Nov 2026: what the evening left
+
+The pages the evening reading listed as not read, taken by one more reader between 23.50 and midnight the same day (Helsinki time), so the day they were read is still 26 Nov 2026. Each page was fetched as text and quoted from that text; the two images and the two documents were opened and read. Nothing here is from memory or from a search engine's summary: a search was used only to find an address, and the page was then fetched.
+
+Three things change the data. Austria has a list of whose e-prescriptions its pharmacies take, on a page nobody had opened (N6). Sweden's medicines agency says in words that a Swedish e-prescription can't be used outside Sweden (N3), and that a Swedish pharmacy may not dispense a prescription from outside the EEA (N3). Counts are of the 672 pairs.
+
+### N1. Directive 2011/24/EU itself
+
+http://publications.europa.eu/resource/celex/32011L0024, which answered 404 in the evening, answered at 23.50. It leads to the Publications Office's copy of the text as published in Official Journal L 88, 4.4.2011, p. 45 (the response's Last-Modified: 11 Aug 2025). Read in English and in Finnish. The morning's reading had read this address and the consolidated text of 12.1.2025 (section C.0 below); the evening could not open it again, and at night it opened.
+
+> Article 11(1): If a medicinal product is authorised to be marketed on their territory, in accordance with Directive 2001/83/EC or Regulation (EC) No 726/2004, Member States shall ensure that prescriptions issued for such a product in another Member State for a named patient can be dispensed on their territory in compliance with their national legislation in force, and that any restrictions on recognition of individual prescriptions are prohibited unless such restrictions are: (a) limited to what is necessary and proportionate to safeguard human health, and non-discriminatory; or (b) based on legitimate and justified doubts about the authenticity, content or comprehensibility of an individual prescription.
+
+> Article 11(6): Paragraph 1 shall not apply to medicinal products subject to special medical prescription provided for in Article 71(2) of Directive 2001/83/EC.
+
+> 11 artiklan 6 kohta: Edellä olevaa 1 kohtaa ei sovelleta lääkkeisiin, jotka edellyttävät direktiivin 2001/83/EY 71 artiklan 2 kohdassa edellytettyä erityislääkemääräystä.
+
+- Article 11(6) is word for word what the morning's notes quote. The evening's doubt is closed: the quote is the text's.
+- Also there, and not used by the app: the recognition "shall not affect a pharmacist’s right, by virtue of national rules, to refuse, for ethical reasons, to dispense a product that was prescribed in another Member State", and Article 11(5), under which the Commission may exclude categories of medicines "where necessary in order to safeguard public health". Whether it has done so was not read.
+- No change to the data.
+
+### N2. Germany: the contact point's page for visitors, and the ministry
+
+The address the evening guessed was wrong. The right one is in the site's own menu: https://www.eu-patienten.de/de/behandlung_deutschland/verordnungen_einloesen/verschreibungen_einloesen.jsp ("Behandlung in Deutschland > Verschreibungen einlösen"; in its metadata: 2026-07-23).
+
+**It is about prescriptions written in Germany**, for people from other countries who were treated there, and not about a prescription brought to Germany:
+
+> Wie löse ich meine in Deutschland ausgestellten Verschreibungen ein?
+
+> Grundsätzlich können Sie eine in Deutschland ausgestellte Verschreibung für Arzneimittel und Medizinprodukte in einem anderen Mitgliedstaat einlösen. Darüber sollten Sie allerdings Ihre Ärztin oder Ihren Arzt/Ihre Zahnärztin oder Ihren Zahnarzt in Deutschland informieren. In diesem Fall muss die Verschreibung bestimmte inhaltliche Anforderungen erfüllen.
+
+> Das Verfahren der grenzüberschreitenden Einlösung von Verschreibungen aus anderen Mitgliedstaaten ist noch recht neu. Deshalb empfehlen wir Ihnen zurzeit, von Ihrer Ärztin oder Ihrem Arzt/Ihrer Zahnärztin oder Ihrem Zahnarzt in Deutschland ausgestellte Verschreibungen für Arzneimittel oder Medizinprodukte in Deutschland einzulösen.
+
+(A prescription written in Germany can in principle be redeemed in another member state, if it has the required details. The procedure is still fairly new, so the contact point advises for now to redeem it in Germany.)
+
+- The e-prescription is not mentioned: "E-Rezept" and "elektronisch" have no match, and "digital" occurs only in "Unterschrift (handschriftlich oder digital, je nach Medium der Verschreibung)".
+- The same site's page for those who write prescriptions, https://www.eu-patienten.de/de/informationen_gesundheitsdienstleister/verordnung_ausstellen/verschreibung_ausstellen.jsp (metadata: 2024-05-30): no mention of the e-prescription either.
+- The Federal Ministry of Health's page on the e-prescription, https://www.bundesgesundheitsministerium.de/e-rezept ("Stand: 27. Oktober 2025"): the words "Ausland", "EU-", "europ" and "grenz" have no match. It says nothing of another country in either direction.
+- **So there is still no official statement on a German e-prescription abroad.** No change to the data. What the page says of a German paper prescription abroad is the EU's rule with a caution, and the app has no note from the home country's side for paper; it was not added.
+
+### N3. Sweden as a home country
+
+**The Swedish eHealth Agency's pages in Swedish say nothing of a Swedish e-prescription abroad.**
+
+- Its page on the e-prescription for private persons, https://www.ehalsomyndigheten.se/privatperson/e-recept/ ("Senast uppdaterad: 24 september 2025"): what an e-prescription is, where it is stored, the law. No other country is mentioned.
+- The site's own search, for "recept utomlands", "utomlands", "e-recept EU", "MyHealth@EU", "recept annat EU-land" and "ePrescription": the reports to the government from 2020 to 2022 that the evening found, the agency's answer to a consultation on "E-recept inom EES" (SOU 2021:102), the English pages already read, and two pages that were opened:
+  - "För dig som bor i EU", https://www.ehalsomyndigheten.se/verksamhet/ndi/ehds/for-dig-som-bor--i-eu ("Senast uppdaterad: 15 juni 2026"), on what the European Health Data Space will give residents: "få omedelbar och kostnadsfri tillgång till följande kategorier av dina hälsodata i elektronisk form: patientöversikter, recept och elektronisk expediering […]". It is about rights under the regulation, and names no country.
+  - The questions on the high-cost protection, https://www.ehalsomyndigheten.se/privatperson/hogkostnadsskydd/fragor-och-svar---hogkostnadsskyddet: "Jag har hämtat ut läkemedel på recept utomlands, kan jag få ersättning för det i Sverige? […] Det är Försäkringskassan som utreder om du har rätt till svensk läkemedelsförmån."
+
+**The Swedish Medical Products Agency (Läkemedelsverket) says it in words.** Its question forum, where the agency answers under its own name, https://fragor.lakemedelsverket.se/org/lakemedelsverket/d/kan-man-anvanda-sitt-svenska-recept-i-andra-lander/ (question of 30 Aug 2019; the answer is signed "Läkemedelsverket" and shows "Uppdaterad 14 apr", in the page's markup 2026-04-14):
+
+> Ja, det kan vara möjligt att ta ut på svenska recept i andra EU/EES-länder (EU-länder samt Island, Norge och Liechtenstein) med undantag av recept på narkotika och dopningsmedel (exempelvis testosteron och tillväxthormoner).
+
+> Förutsättningar för att receptet ska kunna användas inom EU/EES […] att receptet är på papper. Elektroniska recept kan för närvarande inte användas utanför Sverige, men om du har ett elektroniskt recept så kan du be apoteket att skriva ut det på papper innan du reser
+
+(Among the conditions: that the prescription is on paper. Electronic prescriptions cannot at present be used outside Sweden, but if you have an electronic prescription you can ask the pharmacy to print it on paper before you travel.)
+
+A second answer in the same forum, on prescriptions from another EU or EEA country at a Swedish pharmacy, https://fragor.lakemedelsverket.se/org/lakemedelsverket/d/uttag-pa-recept-fran-annat-euees-land-pa-svenskt-a/ (question of 11 Nov 2020; "Uppdaterad 19 nov 2025"):
+
+> att receptet är utfärdat på en receptblankett i pappersformat. Elektroniska recept kan för närvarande inte överföras mellan andra EU/EES-länder och Sverige. Svenska apotek får inte ta emot recept från utländska förskrivare via e-post, telefon eller fax.
+
+(Electronic prescriptions cannot at present be transferred between other EU and EEA countries and Sweden.)
+
+**The agency's page "Recept inom EES"**, https://www.lakemedelsverket.se/sv/handel-med-lakemedel/apotek/apotekskunder/recept-inom-ees. Its text is drawn by a script, so the page was also opened in a browser to see the date it shows: "Publicerad: 9 december 2021. Senast uppdaterad: 27 december 2024". Its English version, https://www.lakemedelsverket.se/en/trading-pharmaceuticals/pharmacy/pharmacy-customers/prescriptions-within-the-eea, shows "Last updated: May 13, 2022" and lacks the Swedish page's last paragraph on territories.
+
+> Om du reser till ett annat EES-land kan du ta med dig ditt svenska recept. Tänk på att: Berätta för din läkare att receptet ska expedieras i annat EES-land. Receptet ska utfärdas på receptblankett i pappersformat. Har du elektroniskt recept så kan du be apoteket att skriva ut det på en receptblankett för det här ändamålet. Receptet får inte innehålla särskilt läkemedel (narkotika, dopningsmedel såsom exempelvis testosteron och tillväxthormoner).
+
+> För att ett svenskt apotek ska kunna expediera ett EES-recept och lämna ut läkemedel gäller bland annat: att läkemedlet är godkänt i Sverige; att läkemedlet inte är klassat som särskilt läkemedel (narkotika, dopningsmedel såsom exempelvis testosteron och tillväxthormoner); att farmaceuten bedömer att den kan göra en säker expedition; att receptet är utfärdat på receptblankett i pappersformat.
+
+> Ett svenskt apotek får inte expediera ett recept som är utfärdat i ett land utanför EES.
+
+> Det finns ett antal territorier som är associerade med EU-länder men som inte är en del av EU:s inre marknad eller inte är en del av EU. Recept från dessa territorier gäller inte i Sverige. Det gäller bland annat Grönland, Färöarna och Franska Polynesien samt de nederländska öarna Saba, Bonaire, Aruba och Curacao.
+
+(A Swedish prescription for another EEA country has to be issued on a paper prescription form; a pharmacy can print an electronic one on the form for this. A Swedish pharmacy may not dispense a prescription issued in a country outside the EEA.)
+
+**1177**, the regions' health site, "Resa med läkemedel", https://www.1177.se/undersokning-behandling/behandling-med-lakemedel/rad-om-lakemedel/resa-med-lakemedel/ ("Senast uppdaterad: 2024-08-27"): "Du kan hämta ut läkemedel på recept inom hela EES-området, det vill säga EU samt Norge, Island och Lichtenstein. Receptet måste vara utskrivet av en behörig förskrivare inom EES-området." The e-prescription is not mentioned; nothing there speaks against the agency.
+
+What was done with it:
+
+- **Sweden's e-prescription abroad is a "no" in its own authority's words**, as Norway's and Denmark's are: `NOT_ABROAD.SE`, source `lakemedelsverket` (the first forum answer, 2026-04-14, which has the sentence and a current date). The note also gives the agency's way out: ask a pharmacy to print the prescription on paper before the journey. Norway says the opposite of its own (a printout is not enough), so the two notes are not interchangeable.
+- Sixteen pairs change: Sweden to Finland, Estonia, Latvia, Lithuania, Poland, Czechia, Portugal, Spain and Greece from "not on the list" to "no (home)"; Sweden to Austria, Croatia, Hungary, Italy, Malta, Slovenia and Slovakia from "nothing found" to "no (home)". Sweden to Germany, Switzerland, Denmark and Norway stay "no (here)".
+- It agrees with every list that was read: none has Sweden. A unit test holds that, so that a list which one day names Sweden sends somebody back to this page.
+- **A paper prescription from outside the EEA is a "no" in Sweden**, in the agency's words on "Recept inom EES" (`lakemedelsverketEea`, 2024-12-27). Three pairs: from the United Kingdom and from elsewhere outside the EU and the EEA, which said that nothing was found, and from Switzerland, which said that pharmacies are not obliged. The page is two years old; it is a statement and not a list, and the app uses older statements than that (Norway's of 2023).
+- Not used: the sentence on territories (the app asks for a country, not a territory); what the agency says of a Swedish paper prescription abroad beyond the EU's rule (the app has no note from the home country's side for paper).
+- A weakness to know: the sentence the sixteen pairs rest on is in an answer in a question forum, not on a page of its own. The forum is the agency's, the answer is signed by it and was updated seven months ago, and its own page asks for a paper form too. The Commission's page on the service, which could settle it, names no country (A.1 below).
+
+### N4. Liechtenstein
+
+**Nothing was read, and nothing found that the app can show.** No change to the data.
+
+- The national administration's site, llv.li, answered an automated request with 403 and a challenge page ("Just a moment…", `cf-mitigated: challenge`). It was left at that, as norden.org was. The page tried: https://llv.li/en/business/industry-professional-associations/health-professions-remedies/pharmaceuticals/distribution-channels, which a search had turned up; what it says is not known.
+- A search limited to llv.li, regierung.li and gesetze.li, for the e-prescription and prescriptions from abroad, returned the texts of the medicines laws (Heilmittelgesetz; the act on trade in medicines in the EEA) and no page for patients. The laws were not opened.
+- So Liechtenstein as a home country still rests on Your Europe's sentence that the EU's rule holds there, and on the other countries' lists, none of which has it. For a person with a browser: llv.li, Amt für Gesundheit.
+
+### N5. Latvia's lists, a third time
+
+https://eveseliba.gov.lv/sakums/pārrobežu-e-veselības-pakalpojumi, read once more for Austria. The two images, https://eveseliba.gov.lv/docs/default-source/default-document-library/35a0000ffe8d660a8a6b5c5af7ecc9a47.png (Latvian) and …/45a0000ffe8d660a8a6b5c5af7ecc9a56.png (English), carry Last-Modified 24 Nov 2026, and were opened and read by eye. The English one:
+
+> Countries participating in cross-border e-prescription data exchange with Latvia: [columns] Latvia transfers e-prescription data. Citizens of Latvia can obtain medication prescribed via ePrescriptions in pharmacies in country B. / Latvia receives e-prescription data. Citizens of country A can obtain medication prescribed via ePrescriptions in pharmacies in Latvia.
+
+| | Latvia transfers | Latvia receives |
+|---|---|---|
+| Austria | ✓ | ✓ |
+| Czechia | ✓ | ✓ |
+| Estonia | ✓ | ✓ |
+| Greece | ✓ | ✓ |
+| Croatia | ✓ | ✓ |
+| Cyprus | ✓ | ✓ |
+| Lithuania | ✓ | ✓ |
+| Poland | ✓ | ✓ |
+| Portugal | | ✓ |
+| Finland | ✓ | ✓ |
+| Spain* | ✓ | ✓ |
+
+> *The dispensation of ePrescriptions is currently available in select regions of Spain
+
+The Latvian image has the same rows and ticks. And the page says it in text as well, which the earlier readings did not quote:
+
+> Pārrobežu e-receptes datu apmaiņu ar Latviju ir uzsākusi Austrija, Čehija, Grieķija, Igaunija, Horvātija, Kipra, Lietuva, Polija, Portugāle, Somija, Spānija, savukārt citas valstis pievienosies pakāpeniski. Valstu saraksts tiks atjaunots šajā sadaļā.
+
+(Cross-border e-prescription data exchange with Latvia has been started by Austria, Czechia, Greece, Estonia, Croatia, Cyprus, Lithuania, Poland, Portugal, Finland and Spain, and other countries will join step by step. The list of countries will be updated in this section.) In that sentence the word "Austrija" is a link to Austria's page for patients travelling to Austria (N6).
+
+- **Austria has a tick in both columns, in both images, and is named in the text.** The three readings agree, and `EXCHANGE.LV` is as the page has it. Nothing was misread.
+- So the disagreement with Austria's own pages is real, and after N6 it is about both directions. Latvia's page is the newer one (its images are of 24 November 2026; Austria's two lists are of August and September).
+
+### N6. Austria: whose e-prescriptions its pharmacies take, and which pharmacies
+
+Four more documents of gesundheit.gv.at, Austria's public health portal.
+
+**The page for health professionals**, https://www.gesundheit.gv.at/service/professional/my-health-eu/eu-rezept-gda.html ("Das EU-Rezept - Infos für GDAs"; "Letzte Aktualisierung: 21. September 2026"; "Erstellt durch: Gesundheit Österreich GmbH, Abteilung Digitalisierung und Dateninfrastrukturen"). Nobody had opened it: the evening read the pages for patients. It has the list those lack:
+
+> Aus welchen EU/EWR-Ländern können österreichische Apotheken derzeit EU-Rezepte abrufen?
+
+> Tschechische Republik: Hier finden Sie eine englischsprachige Übersicht (PDF, 369 KB) der verfügbaren Identifikationsmöglichen für Bürgerinnen und Bürger aus Tschechien.
+
+> Spanien: Hier finden Sie eine englischsprachige Übersicht (PDF, 2 MB) der verfügbaren Identifikationsmöglichkeiten für spanische Bürgerinnen und Bürger.
+
+> Stand: September 2026.
+
+(From which EU and EEA countries can Austrian pharmacies at present retrieve EU prescriptions? Czechia and Spain, each with a link to how its citizens identify themselves. As of September 2026.) Also on the page:
+
+> Für österreichische Apotheken bedeutet das, dass Rezeptdaten von Personen aus dem EU/EWR-Ausland sicher und elektronisch abgefragt werden können – ohne Vorlage eines Papier-Rezepts.
+
+> Die Teilnahme am EU-Rezept bietet Apotheken zudem die Möglichkeit die Versorgungssicherheit im grenznahen Raum zu stärken […]. Ab dem Jahr 2029 sind alle Apotheken im Rahmen der EU-Verordnung über den europäischen Gesundheitsdatenraum rechtlich verpflichtet, das EU-Rezept Service anzubieten.
+
+(Taking part is a pharmacy's choice until 2029, when the regulation on the European Health Data Space obliges every pharmacy.)
+
+**The questions for pharmacies**, linked there, https://www.gesundheit.gv.at/dam/jcr:d8946c9b-3666-46e4-9df4-7934ab7d4501/FAQ_EU-Rezept_Apotheken_V1.0.pdf (a PDF of four pages, "V1.0"; the file's Last-Modified: 18 May 2026):
+
+> Wer kann die Rezeptdaten von EU-Rezepten abrufen? Die Rezeptdaten von EU-Rezepten können nur von teilnehmenden öffentlichen Apotheken in Österreich abgerufen werden, nicht jedoch von Hausapotheken und Anstaltsapotheken. Die teilnehmenden öffentlichen Apotheken sollen künftig hier aufgelistet werden: https://www.gesundheit.gv.at/service/my-health-eu/information-for-patients-travelling-to-austria.html
+
+> Welche EU-/EWR-Länder nehmen am EU-Rezept teil? Eine aktuelle Übersicht der teilnehmenden EU-/EWR-Länder finden Sie hier: Elektronische grenzüberschreitende Gesundheitsdienste - Europäische Kommission (europa.eu)
+
+(Only public pharmacies that take part can retrieve them. For the countries it points to the Commission's page, which names none.)
+
+**The page for patients travelling to Austria**, read again, https://www.gesundheit.gv.at/service/my-health-eu/information-for-patients-travelling-to-austria.html ("Letzte Aktualisierung: 29. Oktober 2026"): as the evening found it. Under "List of pharmacies in Austria offering the MyHealth@EU ePrescription service" there are **45 pharmacies in 26 towns**, 13 of them in Vienna, and a link to "the search tool of the Austrian Chamber of Pharmacists, including a map showing pharmacies offering the MyHealth@EU ePrescription service (in German only)". It names no country.
+
+The evening counted 44. The list is 162 lines of text: its heading, 26 towns, and three lines for each pharmacy (name, street, postcode and town), which makes 45. One of Schladming's two pharmacies has its postcode written "A-8970", and a count of lines that begin with four digits misses it.
+
+**The patient information notice** linked there, in English, a Word file of 189 KB ("AT_PIN_eP_D_Country_B_English_Version […] Final Feb 2026"; in the text: "Last updated on: 03.02.2026"). Its title: "Patient Information Notice (PIN) for ePrescriptions, which were issued abroad and can be filled in an Austrian pharmacy".
+
+> A patient wishes to use an ePrescription outside of their country of affiliation and has fulfilled the respective national requirements for participating in this MyHealth@EU service. To do so, they can visit one of the participating pharmacies in Austria and identify themselves there in accordance with the rules set by the Member State of affiliation.
+
+> In order to fill an ePrescription in Austrian pharmacies, foreign patients must have met these requirements in their respective Member State of affiliation and identify themselves in an Austrian pharmacy using the means of identification required by the Member State of affiliation.
+
+It is about how personal data is handled, and names no country. The German version was not opened.
+
+What was done with it:
+
+- **Austria is a country with both lists now.** `EXCHANGE.AT`: its own e-prescriptions are dispensed in Czechia and Spain (the country overview, `gesundheitAt`, 2026-08-19, as before), and its pharmacies retrieve those of Czechia and Spain (`gesundheitAtProfessionals`, 2026-09-21). The mechanism that held Austria's one list on its own (`OUTBOUND_ONLY`) is gone from the code.
+- Czechia to Austria and Spain to Austria: "yes" as before, now on both countries' word.
+- **Latvia to Austria is told two ways now**, as Austria to Latvia already was: Latvia's page has Austria in both columns (N5), and neither of Austria's two lists has Latvia. The app says that the pages disagree and names both, for each direction. It was "yes" on Latvia's word alone. Which page is behind is not known: Latvia's is two months newer, and its text links to Austria's page for visitors.
+- **Twenty pairs to Austria go from "nothing found" to "not on the list"** (Austria's): from Belgium, Bulgaria, Switzerland, Cyprus, Germany, France, the United Kingdom, Croatia, Hungary, Ireland, Iceland, Italy, Liechtenstein, Luxembourg, Malta, the Netherlands, Romania, Slovenia, Slovakia and from elsewhere. Sweden to Austria would be the twenty-first; it is "no (home)" after N3. Estonia, Finland, Greece, Lithuania, Poland and Portugal to Austria were "not on the list" by their own pages and are so by both now.
+- **Which pharmacies:** where the pair works (from Czechia and Spain), the answer now carries a note from the page for visitors (`gesundheitAtVisitors`, 2026-10-29): Austria's health portal lists the pharmacies that offer the service, and there are 45. The page gives no total: the number is a count of its list on that day, and it grows, since taking part is a pharmacy's choice until 2029. The note does not say "only", because the page for visitors does not; that word is in the questions for pharmacies and in the notice ("one of the participating pharmacies").
+- A weakness to know: the list of whose e-prescriptions are taken is on a page written for pharmacies, under a heading that asks exactly that question, with its own date. The pages for patients still name no country.
+
+Counts after the night reading: works 95 → 94, disagree 1 → 2, not on the list 244 → 255, not here 160, not abroad 32 → 48, nothing found 140 → 113. On paper: three pairs to Sweden from "nothing found" or "not obliged" to "no".
+
+### N7. A second reader for the pages that change the data
+
+After the changes were made, a reader who had not seen these notes was given the six claims that change the data and their addresses, and told to fetch each page and look for what would make the claim wrong. Fetched at 00.13 on 27 Nov 2026 (Helsinki time), every page answered.
+
+- Austria's page for health professionals: two countries under the heading, Czechia and Spain, "Stand: September 2026.", "Letzte Aktualisierung: 21. September 2026"; no other country anywhere in the page, Latvia not among them. Confirmed.
+- Austria's page for visitors: 45 pharmacies, counted two ways (lines with a postcode; 19 towns with one pharmacy and 26 pharmacies in seven towns with several). "Letzte Aktualisierung: 29. Oktober 2026". Confirmed.
+- Austria's country overview: Czechia and Spain, "Letzte Aktualisierung: 19. August 2026". Confirmed.
+- Läkemedelsverket's answer: the sentence word for word, signed, with `datetime="2026-04-14T12:59:23…"` after "Uppdaterad"; the visible text is "14 apr", without a year. Confirmed.
+- Läkemedelsverket's page "Recept inom EES": both sentences, and "changed": "2024-12-27" in its metadata. Confirmed; the date the page shows was seen in a browser by the first reader only.
+- Latvia's page: the sentence with the eleven countries, and the English image with Austria in both columns and Portugal in one; the image's Last-Modified is 24 Nov 2026. Confirmed.
+- Of the three new sentences in the app, it found one that said more than its page: the note on Austria's pharmacies began "Only at pharmacies that have joined the service", and the page for visitors says neither "only" nor how many. The note was reworded to what the page does.
+- Not checked by the second reader: the PDF and the Word file, Latvia's Latvian image, the eHealth agency's pages.
+
 ## Every pair: the electronic prescription
 
 Rows: the country the prescription is from. Columns: the country of the pharmacy. Generated from `data/countries/` (`guideFor`).
@@ -204,43 +395,43 @@ Rows: the country the prescription is from. Columns: the country of the pharmacy
 - **disagree**: one country's page has the pair and the other's, as current, leaves it out.
 - **?**: nothing official found.
 
-Counts after the evening reading: yes 95, disagree 1, no (list) 244, no (here) 160, no (home) 32, nothing found 140. Before it: yes 95, no (list) 238, no (here) 160, no (home) 32, nothing found 147.
+Counts after the night reading: yes 94, disagree 2, no (list) 255, no (here) 160, no (home) 48, nothing found 113. After the evening reading: yes 95, disagree 1, no (list) 244, no (here) 160, no (home) 32, nothing found 140. Before that: yes 95, no (list) 238, no (here) 160, no (home) 32, nothing found 147.
 
 | from \ in | FI | EE | LV | LT | PL | CZ | HR | PT | ES | DE | AT | CH | DK | NO | SE | GR | HU | IT | MT | SI | SK |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | **AT** | no (list) | no (list) | disagree | no (list) | no (list) | yes | no (list) | no (list) | yes | no (here) | · | no (here) | no (here) | no (here) | no (here) | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) |
-| **BE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **BG** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **CH** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | · | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **CY** | no (list) | yes | yes | yes | yes | yes | yes | no (list) | yes | no (here) | ? | no (here) | no (here) | no (here) | no (here) | yes | ? | ? | ? | ? | ? |
+| **BE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **BG** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **CH** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | · | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **CY** | no (list) | yes | yes | yes | yes | yes | yes | no (list) | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | yes | ? | ? | ? | ? | ? |
 | **CZ** | yes | yes | yes | yes | yes | · | yes | no (list) | yes | no (here) | yes | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
-| **DE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | · | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **DE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | · | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 | **DK** | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (here) | no (home) | no (here) | · | no (here) | no (here) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) |
 | **EE** | yes | · | yes | yes | yes | yes | yes | yes | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
 | **ES** | yes | yes | yes | yes | yes | yes | yes | yes | · | no (here) | yes | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
 | **FI** | · | yes | yes | yes | yes | yes | yes | yes | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) |
-| **FR** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **GB** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **FR** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **GB** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 | **GR** | no (list) | yes | yes | yes | yes | yes | no (list) | no (list) | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | · | no (list) | no (list) | no (list) | no (list) | no (list) |
-| **HR** | yes | yes | yes | yes | yes | no (list) | · | yes | yes | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **HU** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | · | ? | ? | ? | ? |
-| **IE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **IS** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **IT** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | · | ? | ? | ? |
-| **LI** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **HR** | yes | yes | yes | yes | yes | no (list) | · | yes | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **HU** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | · | ? | ? | ? | ? |
+| **IE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **IS** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **IT** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | · | ? | ? | ? |
+| **LI** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 | **LT** | yes | yes | yes | · | yes | yes | yes | yes | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
-| **LU** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **LV** | yes | yes | · | yes | yes | yes | yes | no (list) | yes | no (here) | yes | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
-| **MT** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | · | ? | ? |
-| **NL** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **LU** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **LV** | yes | yes | · | yes | yes | yes | yes | no (list) | yes | no (here) | disagree | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
+| **MT** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | · | ? | ? |
+| **NL** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 | **NO** | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (here) | no (home) | no (here) | no (here) | · | no (here) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) |
 | **PL** | yes | yes | yes | yes | · | yes | yes | yes | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
 | **PT** | yes | yes | yes | yes | yes | yes | yes | · | yes | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | yes | no (list) | no (list) | no (list) | no (list) | no (list) |
-| **RO** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
-| **SE** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | · | no (list) | ? | ? | ? | ? | ? |
-| **SI** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | · | ? |
-| **SK** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | · |
-| **other** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | ? | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **RO** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
+| **SE** | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) | no (here) | no (home) | no (here) | no (here) | no (here) | · | no (home) | no (home) | no (home) | no (home) | no (home) | no (home) |
+| **SI** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | · | ? |
+| **SK** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | · |
+| **other** | no (list) | no (list) | no (list) | no (list) | no (list) | no (list) | ? | no (list) | no (list) | no (here) | no (list) | no (here) | no (here) | no (here) | no (here) | no (list) | ? | ? | ? | ? | ? |
 
 
 ## Every pair: the paper prescription
@@ -248,7 +439,7 @@ Counts after the evening reading: yes 95, disagree 1, no (list) 244, no (here) 1
 - **EU rule**: both countries are in the EU or the EEA.
 - **yes**: outside the rule, and the country one is in says it takes it.
 - **not obliged**: Switzerland on either side.
-- **no**: Finland, of a prescription from outside the EU, the EEA and Switzerland.
+- **no**: Finland, of a prescription from outside the EU, the EEA and Switzerland; Sweden, of one from outside the EEA.
 - **?**: nothing official found.
 
 | from \ in | FI | EE | LV | LT | PL | CZ | HR | PT | ES | DE | AT | CH | DK | NO | SE | GR | HU | IT | MT | SI | SK |
@@ -256,7 +447,7 @@ Counts after the evening reading: yes 95, disagree 1, no (list) 244, no (here) 1
 | **AT** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | · | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **BE** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **BG** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
-| **CH** | yes | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | · | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged |
+| **CH** | yes | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged | · | not obliged | not obliged | no | not obliged | not obliged | not obliged | not obliged | not obliged | not obliged |
 | **CY** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **CZ** | EU rule | EU rule | EU rule | EU rule | EU rule | · | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **DE** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | · | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
@@ -265,7 +456,7 @@ Counts after the evening reading: yes 95, disagree 1, no (list) 244, no (here) 1
 | **ES** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | · | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **FI** | · | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **FR** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
-| **GB** | no | ? | ? | ? | ? | ? | ? | ? | ? | ? | ? | not obliged | ? | ? | ? | ? | ? | ? | ? | ? | ? |
+| **GB** | no | ? | ? | ? | ? | ? | ? | ? | ? | ? | ? | not obliged | ? | ? | no | ? | ? | ? | ? | ? | ? |
 | **GR** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | · | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **HR** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | · | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **HU** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | · | EU rule | EU rule | EU rule | EU rule |
@@ -285,22 +476,26 @@ Counts after the evening reading: yes 95, disagree 1, no (list) 244, no (here) 1
 | **SE** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | · | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule |
 | **SI** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | · | EU rule |
 | **SK** | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | not obliged | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | EU rule | · |
-| **other** | no | ? | ? | ? | ? | ? | ? | ? | ? | ? | ? | not obliged | ? | ? | ? | ? | ? | ? | ? | ? | ? |
+| **other** | no | ? | ? | ? | ? | ? | ? | ? | ? | ? | ? | not obliged | ? | ? | no | ? | ? | ? | ? | ? | ? |
 
 ## Not done, for whoever continues
 
 1. A person's reading of the claims, against the pages.
 2. Croatia: whether the contact point's page is to be read as current (E1); a person could ask HZZO. The two PDFs it links were not read.
-3. Austria: whose e-prescriptions its pharmacies take. Its page for visitors names 44 pharmacies and no country (E3); the patient information notice linked there (a Word file) was not read. And Austria to Latvia, which the two countries' pages tell two ways: Latvia's images a third time, or a question to either authority.
+3. Austria and Latvia: the two countries' pages tell both directions between them two ways (N5, N6). Latvia's page is the newer and was read three times; a question to either authority would settle it. The German version of Austria's patient information notice was not opened, nor the two PDFs on how Czech and Spanish citizens identify themselves.
 4. Cyprus: the other pages of the contact point's wiki, and gov.cy's page on the electronic prescription (E4).
-5. Germany and Sweden as home countries: still no official statement found (E5). Not read: Germany's visitor-facing page on eu-patienten.de (the right address), a page of the Federal Ministry of Health, the Swedish-language pages of E-hälsomyndigheten.
+5. Germany as a home country: still no official statement found on its e-prescription abroad (E5, N2).
 6. Switzerland: the position paper from kantonsapotheker.ch itself; a federal page.
-7. Iceland and Liechtenstein: nothing found that the app can show (E6). Liechtenstein: no page fetched; the Amt für Gesundheit's site was not searched directly.
+7. Iceland and Liechtenstein: nothing found that the app can show (E6, N4). Liechtenstein's administration site, llv.li, answers automated requests with a challenge: for a person with a browser.
 8. Info Norden, by a person with a browser.
 9. The countries with nothing found, as the country one is in: Italy, Hungary, Malta, Slovenia, Slovakia.
-10. Directive 2001/83/EC in its consolidated version, and which medicines each country has put under "special medical prescription" (E7).
+10. Directive 2001/83/EC in its consolidated version, and which medicines each country has put under "special medical prescription" (E7). Whether the Commission has excluded any category of medicines under Article 11(5) of Directive 2011/24/EU (N1).
+11. Sweden: what its medicines agency says of a Swedish paper prescription abroad (the form; narcotics and doping agents left out) is not a note in the app, which has no notes from the home country's side for paper (N3). The same for Germany's contact point (N2).
+12. The number of pharmacies in Austria that take part (45 on 29.10.2026) is written into a note, and will be out of date when the page changes.
 
 Done in the evening reading and taken off this list: Croatia's later notices and its page with both lists; Spain's map page; Austria's and Cyprus's own pages; Article 71(2) of Directive 2001/83/EC.
+
+Done in the night reading and taken off this list: Directive 2011/24/EU itself; Germany's page for visitors; Sweden's pages in Swedish; Latvia's images a third time; whose e-prescriptions Austria's pharmacies take, and the note that only some of them take part.
 
 ---
 

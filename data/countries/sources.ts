@@ -126,6 +126,18 @@ export const SOURCES = {
     updated: '2026-02-24',
     checked: READ,
   },
+  gesundheitAtProfessionals: {
+    label: { fi: 'gesundheit.gv.at (Itävalta): EU-resepti, tietoa terveydenhuollon ammattilaisille', en: 'gesundheit.gv.at (Austria): the EU prescription, information for health professionals' },
+    url: one('https://www.gesundheit.gv.at/service/professional/my-health-eu/eu-rezept-gda.html'),
+    updated: '2026-09-21',
+    checked: READ,
+  },
+  gesundheitAtVisitors: {
+    label: { fi: 'gesundheit.gv.at (Itävalta): tietoa Itävaltaan matkustaville potilaille', en: 'gesundheit.gv.at (Austria): information for patients travelling to Austria' },
+    url: one('https://www.gesundheit.gv.at/service/my-health-eu/information-for-patients-travelling-to-austria.html'),
+    updated: '2026-10-29',
+    checked: READ,
+  },
   epreskripce: {
     label: { fi: 'epreskripce.gov.cz (Tšekki): rajat ylittävä e-resepti', en: 'epreskripce.gov.cz (Czechia): the cross-border e-prescription' },
     url: one('https://epreskripce.gov.cz/o-ereceptu/preshranicni-erecept/'),
@@ -149,10 +161,26 @@ export const SOURCES = {
     checked: READ,
   },
 
-  // Countries whose pharmacies take no e-prescription from abroad, and what they say of paper ones
+  // Countries whose pharmacies take no e-prescription from abroad or whose own can't be used abroad, and what they say of paper ones
   ehalsomyndigheten: {
     label: { fi: 'E-hälsomyndigheten (Ruotsi): reseptit Ruotsissa', en: 'Swedish eHealth Agency: how prescriptions work in Sweden' },
     url: one('https://www.ehalsomyndigheten.se/sprak/english/eu/how-prescriptions-work-in-sweden/'),
+    checked: READ,
+  },
+  lakemedelsverket: {
+    label: {
+      fi: 'Läkemedelsverket (Ruotsi): ruotsalaisen reseptin käyttö muissa maissa, kysymys ja vastaus',
+      en: 'Swedish Medical Products Agency: using a Swedish prescription in other countries, question and answer',
+    },
+    url: one('https://fragor.lakemedelsverket.se/org/lakemedelsverket/d/kan-man-anvanda-sitt-svenska-recept-i-andra-lander/'),
+    updated: '2026-04-14',
+    checked: READ,
+  },
+  lakemedelsverketEea: {
+    label: { fi: 'Läkemedelsverket (Ruotsi): reseptit Eta-alueella', en: 'Swedish Medical Products Agency: prescriptions within the EEA' },
+    // The Swedish page: the agency's English version of it shows 13.5.2022 as its date.
+    url: one('https://www.lakemedelsverket.se/sv/handel-med-lakemedel/apotek/apotekskunder/recept-inom-ees'),
+    updated: '2024-12-27',
     checked: READ,
   },
   lifeInDenmark: {
