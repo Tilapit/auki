@@ -188,6 +188,7 @@ export const groups: ViewGroup[] = [
       { id: 'abroad', title: 'Every country\'s banner and counter-card lines, for reading through: the 21 countries covered until 27 Nov 2026', sizes: PHONE, themes: ['light'], fullPage: true },
       { id: 'abroad-2', title: 'The same for the ten countries that joined on 27 Nov 2026', sizes: PHONE, themes: ['light'], fullPage: true },
       { id: 'abroad-pairs', title: 'A pair for each kind of answer, and the footer\'s line at home, for reading through', sizes: PHONE, themes: ['light'], fullPage: true },
+      { id: 'handoff', title: 'The hand-off link (provisional): the banner without a link or with #rx=e, and with #rx=p, where the paper answer leads. The card on paper is "counter-paper"', sizes: PHONE, fullPage: true },
     ],
   },
   {

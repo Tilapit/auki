@@ -1,8 +1,9 @@
 import { geocode, isLanguage } from '@/lib/server/geocode';
 
 /**
- * GET /api/geocode?q=Kamppi&lang=fi: one place for a typed name (PLAN.md 7.5).
- * Carries the text the user typed and nothing else. Nothing is logged.
+ * GET /api/geocode?q=Kamppi&lang=fi: the places a typed name can mean, best first, at most
+ * five (PLAN.md 7.5). `place` is the first of `places`. Carries the text the user typed and the
+ * language, and nothing else. Nothing is logged.
  */
 export async function GET(request: Request): Promise<Response> {
   const { searchParams } = new URL(request.url);
@@ -14,7 +15,7 @@ export async function GET(request: Request): Promise<Response> {
     case 'none':
       // The same name gives the same place for a day, so the CDN can answer for us and for Nominatim.
       return Response.json(
-        { place: result.status === 'found' ? result.place : null },
+        result.status === 'found' ? { place: result.place, places: result.places } : { place: null, places: [] },
         { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800' } },
       );
     case 'invalid':

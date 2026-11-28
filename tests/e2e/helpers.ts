@@ -64,8 +64,8 @@ export async function fakeLocation(page: Page, mode: Mode, permission: 'prompt' 
   );
 }
 
-/** Answers GET /api/geocode. Returns the queries it was asked. */
-export async function fakePlaces(page: Page, answer: { place: object | null } | number) {
+/** Answers GET /api/geocode. Returns the queries it was asked. `places`: everything the name can mean, as our server gives it since the hand-off link (PLAN.md 7.8). */
+export async function fakePlaces(page: Page, answer: { place: object | null; places?: object[] } | number) {
   const asked: string[] = [];
   await page.route('**/api/geocode**', async (route) => {
     asked.push(new URL(route.request().url()).search);

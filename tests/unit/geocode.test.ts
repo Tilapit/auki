@@ -24,15 +24,14 @@ function setup(hits: unknown = [kamppi], ok = true) {
 beforeEach(() => resetGeocode());
 
 describe('geocode', () => {
-  it('asks Nominatim for one place, in the UI language, and names itself', async () => {
+  it('asks Nominatim for a few places, in the UI language, and names itself', async () => {
     const { deps, fetch } = setup();
-    await expect(geocode('  Kamppi ', 'fi', deps)).resolves.toEqual({
-      status: 'found',
-      place: { lat: 60.1689, lon: 24.9325, label: 'Kamppi, Helsinki', country: 'FI' },
-    });
+    const place = { lat: 60.1689, lon: 24.9325, label: 'Kamppi, Helsinki', country: 'FI' };
+    await expect(geocode('  Kamppi ', 'fi', deps)).resolves.toEqual({ status: 'found', place, places: [place] });
     const [url, init] = fetch.mock.calls[0] as unknown as [URL, RequestInit];
     expect(url.origin + url.pathname).toBe('https://nominatim.openstreetmap.org/search');
-    expect(Object.fromEntries(url.searchParams)).toEqual({ q: 'Kamppi', format: 'jsonv2', limit: '1', addressdetails: '1', 'accept-language': 'fi' });
+    // The name and the language, and nothing about the caller: no country is ever asked for (PLAN.md 7.8).
+    expect(Object.fromEntries(url.searchParams)).toEqual({ q: 'Kamppi', format: 'jsonv2', limit: '5', addressdetails: '1', 'accept-language': 'fi' });
     expect((init.headers as Record<string, string>)['User-Agent']).toBe(userAgent('contact@example.org'));
     expect(userAgent('contact@example.org')).toContain(BRAND.toLowerCase());
   });
@@ -49,6 +48,22 @@ describe('geocode', () => {
     await expect(geocode('x'.repeat(81), 'fi', deps)).resolves.toEqual({ status: 'invalid' });
     await expect(geocode(null, 'fi', deps)).resolves.toEqual({ status: 'invalid' });
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('passes on what the name can mean, best first, each with its country, and at most five', async () => {
+    const hit = (lat: string, city: string, country_code: string) => ({ lat, lon: '10', name: 'Kirchplatz', address: { city, country_code } });
+    const hits = [hit('48.2', 'Wien', 'at'), hit('48.1', 'München', 'de'), { lat: 'north', lon: '10', name: 'Kirchplatz' }, hit('47.5', 'Basel', 'ch'), hit('47.0', 'Graz', 'at'), hit('47.3', 'Zürich', 'ch'), hit('52.5', 'Berlin', 'de')];
+    const { deps } = setup(hits);
+    const result = await geocode('Kirchplatz', 'fi', deps);
+    // The third answer has no place to it and is left out; the seventh is beyond the five that are read.
+    expect(result).toMatchObject({ status: 'found', place: { label: 'Kirchplatz, Wien', country: 'AT' } });
+    expect(result.status === 'found' && result.places.map((place) => `${place.label} ${place.country}`)).toEqual(['Kirchplatz, Wien AT', 'Kirchplatz, München DE', 'Kirchplatz, Basel CH', 'Kirchplatz, Graz AT']);
+    expect(result.status === 'found' && result.places[0]).toBe(result.status === 'found' && result.place);
+  });
+
+  it('says none when every answer is without a place', async () => {
+    const { deps } = setup([{ lat: 'north', lon: 'east' }, {}]);
+    await expect(geocode('Kamppi', 'fi', deps)).resolves.toEqual({ status: 'none' });
   });
 
   it('says none when nothing matches', async () => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useHandoff } from '@/hooks/useHandoff';
 import { useLivePosition, type Fix } from '@/hooks/useLivePosition';
 import { useNow } from '@/hooks/useNow';
 import { routesFrom } from '@/hooks/useRouteLine';
@@ -89,6 +90,9 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
   // A new position, from a new search or after a walk, starts again.
   const routeFor = useMemo(() => routesFrom(position), [position]);
 
+  // The prescription's format, where a hand-off link named one: from the address's fragment, on the device (PLAN.md 7.8).
+  const { rx } = useHandoff();
+
   // Visitors' reports: asked for when a pharmacy's details are first opened, once per country (PLAN.md 7.10).
   const reports = useMemo(() => liveReports(), []);
 
@@ -119,6 +123,7 @@ function LiveResults({ state, onRefresh, onSearch, onFarOpen, onFix, area, onAre
       reports={reports}
       detailId={detailBefore}
       onDetail={saveLastDetail}
+      rx={rx}
     />
   );
 }

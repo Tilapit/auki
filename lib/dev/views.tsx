@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { DataView } from '@/components/DataPage';
 import { ReportView } from '@/components/dev/ReportView';
 import { ResultsView } from '@/components/dev/Results';
-import { AbroadPairsSheet, AbroadSheet, CardCase, ComponentSheet } from '@/components/dev/Sheets';
+import { AbroadPairsSheet, AbroadSheet, CardCase, ComponentSheet, HandoffSheet } from '@/components/dev/Sheets';
 import { StockExample } from '@/components/dev/StockExample';
 import { PharmacySheet as PharmacySheetBefore } from '@/components/dev/before/PharmacySheet';
 import { FirstVisit } from '@/components/FirstVisit';
@@ -113,6 +113,7 @@ export const renderers: Record<string, () => ReactNode> = {
   abroad: () => <AbroadSheet />,
   'abroad-2': () => <AbroadSheet part={2} />,
   'abroad-pairs': () => <AbroadPairsSheet />,
+  handoff: () => <HandoffSheet />,
 
   'tiles-peek': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="peek" />,
   'tiles-half': () => <ResultsView scene={fromTiles(resultOf(kamppi))} sheet="half" />,

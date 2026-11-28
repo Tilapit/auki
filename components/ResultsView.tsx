@@ -5,6 +5,7 @@ import { useReport, useReportFilter, type FilterTopic } from '@/hooks/useReport'
 import type { RouteFor } from '@/hooks/useRouteLine';
 import { COUNTRY_CODES } from '@/lib/countries';
 import { useGuidance } from '@/lib/guidance';
+import type { Rx } from '@/lib/handoff';
 import { useHome } from '@/lib/home';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
@@ -106,6 +107,12 @@ export interface ResultsOptions {
   home?: string | null;
   /** /dev/states only: the banner's details open from the start. */
   bannerOpen?: boolean;
+  /**
+   * The prescription's format, as a hand-off link named it (lib/handoff.ts): the banner leads with
+   * its answer and the counter card opens on it. The live app reads it from the address's
+   * fragment; a view of /dev/states names its own.
+   */
+  rx?: Rx;
   /** /dev/states only: a pharmacy's details as another component draws them, for a before and after of the sheet. */
   detailAs?: typeof PharmacySheet;
   /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
@@ -237,7 +244,9 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const guide = useMemo(() => guidance?.guideFor(home, here), [guidance, home, here]);
   // "Näytä apteekissa" is offered only where the card has something to ask for (data/countries: not where the paper answer is a no).
   const country = guide?.card && { code: guide.here, inLanguage: guide.inLanguage };
-  const banner = guidance && abroad && <guidance.CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={guidanceAsked || asked} />;
+  const banner = guidance && abroad && <guidance.CountryBanner home={home} onHome={setHome} guide={guide} open={options.bannerOpen} takeFocus={guidanceAsked || asked} rx={options.rx} />;
+  // The counter card opens on the format a fixture names, else on the link's. Where the pair has no lines for it, on its first.
+  const cardFormat: CardVariant | undefined = options.counter ?? (options.rx === 'e' ? 'ePrescription' : options.rx === 'p' ? 'paper' : undefined);
   // Where to check a medicine's stock: the service of the country the card's pharmacy is in
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
@@ -720,7 +729,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       }
       overlays={
         <>
-          {guidance && guide?.card && <guidance.CounterCard card={guide.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={options.counter} fixedAwake={options.counterAwake} />}
+          {guidance && guide?.card && <guidance.CounterCard card={guide.card} open={counterOpen} onClose={() => setCounterOpen(false)} initialVariant={cardFormat} fixedAwake={options.counterAwake} />}
           {options.reports && (
             <ReportDialog
               name={detail ? displayName(i18n, detail) : ''}

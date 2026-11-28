@@ -19,7 +19,8 @@ export interface Place {
 }
 
 export type GeocodeResult =
-  | { status: 'found'; place: Place }
+  /** `places`: what Nominatim answered, best first, at most PLACES_MAX. `place` is the first of them. */
+  | { status: 'found'; place: Place; places: Place[] }
   | { status: 'none' }
   | { status: 'invalid' }
   /** not-configured: CONTACT_EMAIL is missing, so we can't identify ourselves and don't call. */
@@ -37,6 +38,13 @@ const MIN_GAP_MS = 1000;
 const TIMEOUT_MS = 6000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const CACHE_MAX = 500;
+/**
+ * How many places are asked for and passed on. A name can be a place in several countries
+ * ("Kirchplatz", "Rue de la Gare"): the device takes the first unless a hand-off link named a
+ * country, and then the first one there (lib/handoff.ts). The country is never sent here: the
+ * choice is made on the device, from an answer that is the same for everyone (PLAN.md 7.8).
+ */
+export const PLACES_MAX = 5;
 export const QUERY_MIN = 2;
 export const QUERY_MAX = 80;
 
@@ -119,7 +127,7 @@ export async function geocode(rawQuery: string | null, language: Language, overr
 
 async function lookUp(query: string, language: Language, deps: Deps): Promise<GeocodeResult> {
   const url = new URL(ENDPOINT);
-  url.search = new URLSearchParams({ q: query, format: 'jsonv2', limit: '1', addressdetails: '1', 'accept-language': language }).toString();
+  url.search = new URLSearchParams({ q: query, format: 'jsonv2', limit: String(PLACES_MAX), addressdetails: '1', 'accept-language': language }).toString();
   try {
     const response = await deps.fetch(url, {
       headers: { 'User-Agent': userAgent(deps.contact as string), Accept: 'application/json' },
@@ -128,12 +136,14 @@ async function lookUp(query: string, language: Language, deps: Deps): Promise<Ge
     });
     if (!response.ok) return { status: 'unavailable', reason: 'upstream' };
     const hits = (await response.json()) as NominatimHit[];
-    const hit = Array.isArray(hits) ? hits[0] : undefined;
-    if (!hit) return { status: 'none' };
-    const lat = Number(hit.lat);
-    const lon = Number(hit.lon);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return { status: 'none' };
-    return { status: 'found', place: { lat, lon, label: labelFor(hit) || query, country: hit.address?.country_code?.toUpperCase() } };
+    const places = (Array.isArray(hits) ? hits : []).slice(0, PLACES_MAX).flatMap((hit): Place[] => {
+      const lat = Number(hit?.lat);
+      const lon = Number(hit?.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return [];
+      return [{ lat, lon, label: labelFor(hit) || query, country: hit.address?.country_code?.toUpperCase() }];
+    });
+    if (places.length === 0) return { status: 'none' };
+    return { status: 'found', place: places[0], places };
   } catch {
     return { status: 'unavailable', reason: 'upstream' };
   }
