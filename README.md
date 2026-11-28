@@ -75,7 +75,8 @@ flowchart LR
   end
   pick -->|"tile numbers only"| tiles
   tiles --> app
-  app -->|"exact position: this request only"| walking["/api/walking"]
+  app -->|"nothing: wakes it when the position is asked for"| walking["/api/walking"]
+  app -->|"exact position: this request only"| walking
   walking --> ors["openrouteservice"]
   app -->|"typed place name"| geocode["/api/geocode"]
   geocode --> nominatim["Nominatim"]
@@ -90,7 +91,7 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 
 **Opening hours parsed in the pipeline, not on the phone.** OpenStreetMap's `opening_hours` is a small language with public holidays in it. The pipeline turns each value into plain open intervals for the next eight days, in the pharmacy's own time zone, with the country's holidays. The browser then needs no parser and no holiday tables: "open now" is a comparison of numbers. The cost is those eight days, which is why a tile expires.
 
-**The position leaves the device in one request.** Finding pharmacies sends no position: the requests name squares. Walking times can't be worked out ahead, so `POST /api/walking` carries the position, in its body, to the app's own server, which asks openrouteservice; openrouteservice sees the server, not the user, and nothing is logged. A browser test records every request of the whole flow and fails if any other request carries the position, or if one goes to a host other than the app's and the map tile host. The Content-Security-Policy is built from the same list (`lib/requests.ts`). The map tile host learns which map squares are on screen: it is the one third party.
+**The position leaves the device in one request.** Finding pharmacies sends no position: the requests name squares. Walking times can't be worked out ahead, so `POST /api/walking` carries the position, in its body, to the app's own server, which asks openrouteservice; openrouteservice sees the server, not the user, and nothing is logged. The server's function sleeps when nobody has asked for a while, and its start takes most of the second and a half the list waits for walking times. So the app wakes it when it starts looking for the position: a `GET` to the same address with no query and no body, answered with nothing, which calls nobody (since 28 Nov 2026; what it gains on the live site is not measured yet). A browser test records every request of the whole flow and fails if any other request carries the position, or if one goes to a host other than the app's and the map tile host. The Content-Security-Policy is built from the same list (`lib/requests.ts`). The map tile host learns which map squares are on screen: it is the one third party.
 
 **The straight-line fallback.** Walking times come from openrouteservice's free plan, 500 searches a day. The server keeps its own count under that and stops asking for a while when the service says no or keeps failing. The list waits a second and a half for walking times and no longer: without them it is by straight line and says so, and it is never reordered afterwards. A walking service that is down costs the first few users that second and a half, and the rest nothing.
 
@@ -103,7 +104,7 @@ TypeScript throughout, CSS Modules with CSS variables, no UI kit, no analytics, 
 ## Privacy
 
 - No accounts, no cookies, no analytics, and no position is kept on any server. The device keeps four things: the three here, and one for the visitors' reports, below. One mark, that location has worked here before, so that a later visit skips the first window: one character, with no position and no time in it. The country of the prescription, once it has been picked in the "Resepti kotimaasta?" banner: two letters, read on the device and never sent. And each tab keeps its own last search, the position with it, so that the results are there again when the tab is loaded anew: in the tab's session storage, never sent anywhere, gone when the tab is closed or the results are left, and not used once it is half an hour old.
-- The position: one request, to the app's own server, as above. Checked by a test on every push.
+- The position: one request, to the app's own server, as above. Checked by a test on every push. The wake-up of that server, sent when the position is asked for or a place search is submitted, carries nothing; the same test finds it and holds it to that.
 - A medicine's name: typed into a field that belongs to no form, kept only while the dialog is open, and sent only in the link the user opens, to the service that link names. Checked by a second test.
 - Links out (map apps, phone, a pharmacy's website) carry the pharmacy's position or nothing, and no referrer.
 - A visitor's report: sent only when the user presses "Lähetä", and it carries the pharmacy, its country and the chips pressed, to the letter; with a chip about the prescription, also a yes or no to whether it was from another country, never which. Stored with the day and nothing else: no account, no position, no medicine, no text, no time of day, no IP address. Shown for a pharmacy only once it has three, as counts with the days. The database is behind the app's own server, with row-level security on and no policy; the browser never talks to it. Checked by a third test, and by a unit test that reads the table's columns from the migration.
