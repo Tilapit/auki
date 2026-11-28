@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
 import { GENERATED, KAMPPI, WEEK_FROM, WEEK_UNTIL, daily, indexOf } from '@/lib/fixtures/tiles';
 import { INDEX_PATH, encodeTile, tileOf, tilePath } from '@/lib/tiles';
 import type { TilePharmacy } from '@/lib/tiles';
-import { WALKING_PATH, WALKING_WAIT_MS } from '@/lib/walking';
+import { WAKE_METHOD, WALKING_PATH, WALKING_WAIT_MS } from '@/lib/walking';
 import { fakeLocation, fakeMapTiles, gridWalk, type WalkingAsked } from './helpers';
 
 /**
@@ -26,6 +26,10 @@ import { fakeLocation, fakeMapTiles, gridWalk, type WalkingAsked } from './helpe
  * That time is an assumption, 400 ms: on 24 Nov 2026 there was no key to measure it with.
  * The second number is the worst case by design: a walking service that never answers, where
  * the list goes on without it after a second and a half.
+ *
+ * The wake-up of the walking function (PLAN.md 7.1, step 4) goes out as the position is asked
+ * for, and is answered here after one round trip. What it is for, a function's cold start, is
+ * not in this test: the walking request here always meets a server that is awake.
  */
 
 const RTT_MS = 150;
@@ -130,6 +134,11 @@ test('time to first result on a throttled phone', async ({ browser, browserName 
     });
     // The walking times: twenty walks, a few hundred bytes, after the round trip and the service's own time.
     await page.route(`**${WALKING_PATH}`, async (route) => {
+      // The wake-up asks no service: a function that is awake answers it after one round trip, with nothing.
+      if (route.request().method() === WAKE_METHOD) {
+        await new Promise((resolve) => setTimeout(resolve, RTT_MS));
+        return route.fulfill({ status: 204, body: '' }).catch(() => undefined);
+      }
       if (walking === 'never') return;
       const asked = route.request().postDataJSON() as WalkingAsked;
       await new Promise((resolve) => setTimeout(resolve, RTT_MS + WALKING_SERVICE_MS));
@@ -196,7 +205,7 @@ test('the map loads after the results, and stays inside its own budget', async (
     else await route.fulfill({ json: body });
   });
   // No walking times here: the server without a key, answered by the test. No test reaches a real service.
-  await page.route(`**${WALKING_PATH}`, (route) => route.fulfill({ status: 503, json: { error: 'not-configured' } }));
+  await page.route(`**${WALKING_PATH}`, (route) => (route.request().method() === WAKE_METHOD ? route.fulfill({ status: 204, body: '' }) : route.fulfill({ status: 503, json: { error: 'not-configured' } })));
 
   // Every script the page fetches, with the bytes it took on the wire.
   const devtools = await context.newCDPSession(page);

@@ -1201,3 +1201,18 @@ Entry format:
   - **The other app stays one row down, in the same place and form.** No third form of action was added (the rule of the sheet's entry).
 - In `/dev/states` and the baselines: Chromium in CI is Linux and shows Google's on the button; WebKit there stands in for an iPhone and shows Apple's. Screenshots made on this Mac show Apple's in both.
 
+
+## 2026-11-28: The walking function is woken when the app starts looking for a position (provisional in its details)
+- Where: `app/api/walking/route.ts` (`GET`), `wakeWalking` in `hooks/usePharmacySearch.ts`, `wakesNow` in `lib/walking.ts`, `lib/requests.ts` (`wake`, `WAKE_REQUEST`); PLAN.md 7.1 (step 4, "The wake-up"), 7.6, 10 and 12; README; `tests/e2e/walking.spec.ts`, `tests/e2e/results.spec.ts`, `tests/e2e/fixtures.ts`, `tests/unit/routing.test.ts`, `tests/unit/walking.test.ts`. No view changed.
+- Change: Janne's decision of 28 Nov 2026, the option pull request #34 named. When the app starts looking for a position it sends one request to the walking function that carries nothing, so that the function has started by the time the position and the pharmacies are known. The server answers with nothing and never calls openrouteservice.
+- Why: The list waits a second and a half for walking times, and a function that has stood idle spends most of that on starting. Measured on 27 Nov at 21.50 UTC in Frankfurt, after an idle hour: the cold answer was on screen about 1.2 s after the request arrived, 0.2 to 0.3 s inside the wait, on one sample. A slower start or a slower answer from openrouteservice would have shown that visitor straight lines.
+- Decided on the way, each provisional:
+  - **`GET` on the same address, not a new one and not an empty `POST`.** The same address is the same function, which is the point. Another method makes it another request than the one that may carry the position, so the privacy test holds it to what every other request is held to without a new rule; and a browser's `GET` has no body to put anything in. The route's test used to hold that `GET` answers 405, with the reason "the position is never in an address". It now holds that reason directly: a `GET` with anything in its address is refused (400), and one without is answered 204 with nothing.
+  - **A place search wakes it too.** The brief says "as soon as the app starts looking for the position"; a typed name is the other way to one, its list waits the same second and a half, and the lookup's own time is the head start. One line to take out in `search` if only the device's way is meant.
+  - **At most once a minute.** A second press, a retry or a search right after a search sends nothing: a function woken a moment ago is awake. How long Vercel keeps an idle function is not documented; a minute is well inside what was seen.
+  - **Not sent**: by the first window before a button is pressed (it still asks nothing), for a search that comes back from the tab's storage, when the list is ranked again after a walk, and without a connection.
+  - **Refused like the walking request** when a browser says it comes from another site's page. It spends no budget, so this is for one rule on the route, not for need.
+  - **Listed in `lib/requests.ts` under M5**, with the date: it belongs to the walking times and has no milestone of its own.
+- What it gives away: that a search has begun, a moment before the walking request would say the same, and also when no position ever comes. PLAN.md 7.6 says so in the table.
+- Not measured: what it gains on the live site. That needs the deployed function to have stood idle and one run of `scripts/first-result-live.ts`; a pull request's preview is behind Vercel's login.
+- Status: the request by Janne's decision; the calls above provisional.
