@@ -19,7 +19,7 @@ export const MAP_TILES_URL = process.env.NEXT_PUBLIC_MAP_TILES_URL || 'https://t
 export const MAP_TILE_HOST = new URL(MAP_TILES_URL).origin;
 
 export interface AppRequest {
-  id: 'page' | 'tiles' | 'geocode' | 'walking' | 'mapTiles' | 'reports' | 'report';
+  id: 'page' | 'tiles' | 'geocode' | 'wake' | 'walking' | 'mapTiles' | 'reports' | 'report';
   /** Our own origin, or the origin of the third party. */
   origin: string;
   /** Paths the request can have, as prefixes. */
@@ -41,6 +41,9 @@ export const REQUESTS: AppRequest[] = [
   { id: 'page', origin: 'self', paths: ['/'], carries: 'nothing', since: 'M0' },
   { id: 'tiles', origin: 'self', paths: ['/tiles/'], carries: 'squares of 20 to 30 km', since: 'M3' },
   { id: 'geocode', origin: 'self', paths: ['/api/geocode'], carries: 'the text typed', since: 'M1' },
+  // The wake-up (PLAN.md 7.1, step 4; 28 Nov 2026, after M5): a GET to the walking function when the app
+  // starts looking for a position, so that the request below does not meet a function that is still starting.
+  { id: 'wake', origin: 'self', paths: ['/api/walking'], carries: 'nothing', since: 'M5' },
   { id: 'walking', origin: 'self', paths: ['/api/walking'], carries: 'the exact position', since: 'M5' },
   { id: 'mapTiles', origin: MAP_TILE_HOST, paths: ['/'], carries: 'the map squares on screen', since: 'M4' },
   // Visitors' reports (PLAN.md 7.10): what others told, read per country; and one's own report, sent only when the user sends it.
@@ -50,6 +53,12 @@ export const REQUESTS: AppRequest[] = [
 
 /** The only request that may carry the position. */
 export const POSITION_REQUEST = { method: 'POST', path: '/api/walking' } as const;
+
+/**
+ * The wake-up of the same function: another method on the same path, so it is not the request
+ * above, and the privacy test holds it to what every other request is held to. It carries nothing.
+ */
+export const WAKE_REQUEST = { method: 'GET', path: '/api/walking' } as const;
 
 export const THIRD_PARTY_ORIGINS: string[] = [...new Set(REQUESTS.map((request) => request.origin).filter((origin) => origin !== 'self'))];
 

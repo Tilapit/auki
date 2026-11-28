@@ -339,6 +339,30 @@ const fi = {
     filterOff: 'Näytä kaikki apteekit',
   },
   /**
+   * The duty pharmacy (PLAN.md section 5): where pharmacies take turns out of hours, the way to
+   * the country's own lookup. Nothing here says when or where one is open: the lookup does.
+   * "Päivystävä apteekki" at any hour: the reason is the closed doors nearby, not the clock.
+   */
+  duty: {
+    title: 'Päivystävä apteekki',
+    // The results' heading and the phone's bar where every pharmacy nearby is closed by its hours:
+    // the one on duty may be among them, so neither says that nothing is open.
+    noneTitle: 'Lähistön apteekit ovat kiinni, päivystävä voi olla auki',
+    // Short enough for the phone's bar at 320 px, as "Aukioloaikoja ei tiedetä" is.
+    noneShort: 'Päivystävä voi olla auki',
+    found: (count: number) => `${count === 1 ? 'Löytyi yksi apteekki' : `Löytyi ${count} apteekkia`}. Aukioloaikojen mukaan yksikään ei ole auki. Päivystävä apteekki voi olla auki.`,
+    // Why our list may miss it. The country as in the line about its opening hours: "Saksa: …".
+    why: (country: string) => `${country}: apteekit päivystävät vuorotellen, kun muut ovat kiinni. Vuoro ei näy näissä aukioloajoissa.`,
+    find: 'Hae päivystävä apteekki',
+    regions: 'Päivystävät apteekit alueittain',
+    call: (number: string) => `Soita ${number}`,
+    callSub: 'Kertoo päivystävän apteekin',
+    // Under a row of the card, after the service's address: "aponet.de: apteekit päivystävät vuorotellen".
+    turns: 'apteekit päivystävät vuorotellen',
+    door: 'Suljetun apteekin ovessa kerrotaan, mikä apteekki päivystää.',
+    source: 'Lähde: {by}, luettu {checked}.',
+  },
+  /**
    * Medicine availability (PLAN.md 7.9). The app never says a pharmacy has a medicine: it says
    * where to check. No medicine is named anywhere in these texts, not even as an example.
    */

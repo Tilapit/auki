@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { carriesPosition } from '@/lib/requests';
+import { POSITION_REQUEST, REQUESTS, WAKE_REQUEST, carriesPosition } from '@/lib/requests';
 import type { Found, TilePharmacy } from '@/lib/tiles';
-import { MAX_DESTINATIONS, WALK_METERS_PER_SECOND, atLeastStraight, byWalking, readLine, readWalks, routeLine, walkMinutes, walkingBody, type Walks } from '@/lib/walking';
+import { MAX_DESTINATIONS, WAKE_GAP_MS, WAKE_METHOD, WALKING_PATH, WALK_METERS_PER_SECOND, atLeastStraight, byWalking, readLine, readWalks, routeLine, wakesNow, walkMinutes, walkingBody, type Walks } from '@/lib/walking';
 
 const HERE = { lat: 60.1695234, lon: 24.9354478 };
 
@@ -24,6 +24,32 @@ describe('the walking request', () => {
   it('never names more destinations than the server takes', () => {
     const many = Array.from({ length: 30 }, (_, index) => ({ lat: 60 + index / 1000, lon: 24 }));
     expect(JSON.parse(walkingBody(HERE, many)).to).toHaveLength(MAX_DESTINATIONS);
+  });
+});
+
+describe('the wake-up of the walking function', () => {
+  const at = Date.UTC(2026, 10, 28, 9, 0, 0);
+
+  it('is sent the first time, and not again within a minute', () => {
+    expect(wakesNow(undefined, at)).toBe(true);
+    expect(wakesNow(at, at)).toBe(false);
+    expect(wakesNow(at, at + WAKE_GAP_MS - 1)).toBe(false);
+    expect(wakesNow(at, at + WAKE_GAP_MS)).toBe(true);
+    expect(WAKE_GAP_MS).toBe(60_000);
+  });
+
+  it('is sent when the device’s clock has been set back by more than that', () => {
+    expect(wakesNow(at, at - 1000)).toBe(false);
+    expect(wakesNow(at, at - 3_600_000)).toBe(true);
+  });
+
+  it('is another method on the path of the request that carries the position, and is listed as carrying nothing', () => {
+    expect(WAKE_REQUEST).toEqual({ method: WAKE_METHOD, path: WALKING_PATH });
+    expect(POSITION_REQUEST.path).toBe(WALKING_PATH);
+    expect(WAKE_REQUEST.method).not.toBe(POSITION_REQUEST.method);
+    expect(REQUESTS.find((request) => request.id === 'wake')).toMatchObject({ origin: 'self', paths: [WALKING_PATH], carries: 'nothing' });
+    // Still one request with the position in the list.
+    expect(REQUESTS.filter((request) => request.carries === 'the exact position').map((request) => request.id)).toEqual(['walking']);
   });
 });
 

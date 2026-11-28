@@ -297,6 +297,29 @@
   color: var(--link);
 }
 
+/*
+ * The duty lookup where it leads the card (PLAN.md section 5): above the farther open pharmacy
+ * and the first one to open, on the same surface, with a rule under it as the card's other
+ * sections have one above.
+ */
+.duty {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--hair-2);
+}
+
+.dutySource {
+  color: var(--meta);
+  font-size: var(--t-s);
+  line-height: 1.45;
+}
+
+.dutySource a {
+  color: var(--link);
+}
+
 /* Prominent where nothing is open: the one number that always works. */
 .emergency {
   padding-top: 14px;

@@ -40,7 +40,8 @@ export interface Arranged {
   closerUnknown: number;
 }
 
-const COLLAPSE_FROM = 3;
+/** From this many closed pharmacies nearer than the open one, the night has come to the neighbourhood: they fold into one row, and where duty rotates the lookup is offered. */
+export const COLLAPSE_FROM = 3;
 const CITY_FROM_NEAREST = 5;
 /**
  * How much farther a pharmacy known to be open may be than the nearest one with unknown
@@ -119,6 +120,26 @@ export function arrange(scene: Pick<Scene, 'pharmacies' | 'farOpen'>, options: A
     ...(unlisted ? { unlisted } : {}),
     closerUnknown,
   };
+}
+
+/**
+ * Where the country's duty lookup goes in the card, in a country where pharmacies take turns
+ * out of hours (PLAN.md section 5). The reason is always the state of the doors nearby, never
+ * the clock, so that Sundays and holidays are covered too.
+ *
+ * - `lead`: nothing nearby is open, as far as opening hours can say. The lookup comes before
+ *   the farther open pharmacy and the first one to open.
+ * - `row`: the card has an answer of its own, which stays first, and the lookup is one row
+ *   under it. That is so under unknown hours, when at least COLLAPSE_FROM nearer pharmacies
+ *   are closed, and when the only open ones close before a walk there would end.
+ * - Nothing in the daytime, when a closed door or two on the way mean nothing.
+ */
+export function dutyPlace(arranged: Pick<Arranged, 'nearestOpen' | 'far' | 'unlisted' | 'closerClosed'>, scene: Pick<Scene, 'pharmacies' | 'ehditko'>): 'lead' | 'row' | undefined {
+  if (arranged.unlisted) return 'row';
+  if (arranged.far || !arranged.nearestOpen) return 'lead';
+  if (arranged.closerClosed >= COLLAPSE_FROM) return 'row';
+  const noneInTime = scene.ehditko.kind === 'tooLate' && !scene.pharmacies.some((p) => isOpenNow(p.status) && !p.tooLate);
+  return noneInTime ? 'row' : undefined;
 }
 
 /**
