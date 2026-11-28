@@ -166,7 +166,7 @@ const en: PrivacyTexts = {
       name: 'Walking times and the route',
       when: 'Once the nearest pharmacies are known. Again when you have walked about 300\u00A0m, at most once in two minutes, and when the route to a selected pharmacy is drawn on the map.',
       carries: 'The location to about a metre (your device’s, or the place you searched for) and the locations of up to 20 pharmacies. They are in the body of the request, not in its address.',
-      receiver: 'The app’s server, which passes the locations on to the openrouteservice service and gets the walking times back. That service sees our server, not you: your IP address is not passed on. Our server neither saves the location nor logs it.',
+      receiver: 'The app’s server, which passes the locations on to openrouteservice, a routing service, and gets the walking times back. That service sees our server, not you: your IP address is not passed on. Our server neither saves the location nor logs it.',
     },
     mapTiles: {
       name: 'The map',
