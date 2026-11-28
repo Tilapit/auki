@@ -346,7 +346,8 @@ const fi = {
     // The results' heading and the phone's bar where every pharmacy nearby is closed by its hours:
     // the one on duty may be among them, so neither says that nothing is open.
     noneTitle: 'Lähistön apteekit ovat kiinni, päivystävä voi olla auki',
-    noneShort: 'Kiinni, päivystävä voi olla auki',
+    // Short enough for the phone's bar at 320 px, as "Aukioloaikoja ei tiedetä" is.
+    noneShort: 'Päivystävä voi olla auki',
     found: (count: number) => `${count === 1 ? 'Löytyi yksi apteekki' : `Löytyi ${count} apteekkia`}. Aukioloaikojen mukaan yksikään ei ole auki. Päivystävä apteekki voi olla auki.`,
     // Why our list may miss it. The country as in the line about its opening hours: "Saksa: …".
     why: (country: string) => `${country}: apteekit päivystävät vuorotellen, kun muut ovat kiinni. Vuoro ei näy näissä aukioloajoissa.`,

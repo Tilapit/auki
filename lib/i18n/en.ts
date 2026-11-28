@@ -277,7 +277,7 @@ const en: Dictionary = {
   duty: {
     title: 'Duty pharmacy',
     noneTitle: 'The pharmacies nearby are closed, the one on duty may be open',
-    noneShort: 'Closed, one on duty may be open',
+    noneShort: 'Duty pharmacy may be open',
     found: (count) => `${count === 1 ? 'Found one pharmacy' : `Found ${count} pharmacies`}. By their opening hours none is open. The pharmacy on duty may be open.`,
     why: (country) => `${country}: pharmacies take turns to stay open when the others are closed. Whose turn it is does not show in these opening hours.`,
     find: 'Find the duty pharmacy',

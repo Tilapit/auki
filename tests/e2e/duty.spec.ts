@@ -113,7 +113,7 @@ test.describe('on the phone', () => {
     // The bar counts the one that is known to be open.
     await page.goto('/fi/dev/states/duty-nothing-open-half');
     await expect(page.locator('[data-sheet]').first()).toHaveAttribute('data-sheet', 'half');
-    await expect(page.getByText('Kiinni, päivystävä voi olla auki').first()).toBeVisible();
+    await expect(page.getByText('Päivystävä voi olla auki', { exact: true }).first()).toBeVisible();
   });
 
   test('in the live app too: the results of a German night open at the card, with the lookup in view', async ({ page }) => {
