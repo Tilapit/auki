@@ -104,3 +104,8 @@ For the pull request "Reitti opens the device's own map app", from `/dev/states`
 ## The duty pharmacy, 28 Nov 2026 (`duty/`)
 
 For the pull request "The duty pharmacy", from `/dev/states` in Chromium on a Mac, on invented pharmacies in Leipzig and Athens and the fixture of Málaga; the lookups, the number and the sources are the real ones. Nothing open nearby, before and after, and the same when nothing is open within 30 km (`lead.jpg`); where our own answer stays first and where a country has no lookup (`row.jpg`); the desktop in both themes (`desktop.jpg`).
+
+
+## What the app sends, 28 Nov 2026 (`privacy/`)
+
+For the pull request that adds the page of every request, from Chromium on a Mac: the page on a phone in four parts, two in light and two in dark (`phone.jpg`); at desktop size, in Finnish in light and in English in dark (`desktop.jpg`); and the results footer with the link that leads to the page, on the desktop panel and the phone's sheet (`footer.jpg`).

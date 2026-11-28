@@ -1,17 +1,15 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import { OSM_COPYRIGHT_URL } from '@/lib/maps';
 import { INDEX_PATH } from '@/lib/tiles';
 import type { CountryStats, IndexJson } from '@/lib/tiles';
-import { Wordmark } from './FirstVisit';
-import { LanguageSwitch } from './LanguageSwitch';
 import { ExternalLink } from './NewTab';
-import { SiteFooter } from './SiteFooter';
+import { TextPage } from './TextPage';
 import styles from './DataPage.module.css';
+import text from './TextPage.module.css';
 
 export type Loaded = { status: 'loading' } | { status: 'failed' } | { status: 'ready'; index: IndexJson };
 
@@ -42,46 +40,31 @@ export function DataPage() {
  * there the times are said in a fixed zone, so that the server and the browser agree.
  */
 export function DataView({ loaded, zone }: { loaded: Loaded; zone?: string }) {
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <Link href={`/${locale}`} className={styles.home} aria-label={t.data.home}>
-          <Wordmark size={26} />
-        </Link>
-        <LanguageSwitch />
-      </header>
+    <TextPage title={t.data.title}>
+      <p className={text.intro}>{t.data.intro}</p>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>{t.data.title}</h1>
-        <p className={styles.intro}>{t.data.intro}</p>
-
-        {loaded.status === 'loading' && (
-          <p role="status" className={styles.note}>
-            {t.data.loading}
-          </p>
-        )}
-        {loaded.status === 'failed' && (
-          <p role="status" className={styles.note}>
-            {t.data.failed}
-          </p>
-        )}
-        {loaded.status === 'ready' && <DataTable index={loaded.index} zone={zone} />}
-
-        <ul className={styles.explain}>
-          {t.data.explain.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-        <p className={styles.text}>{t.data.fix}</p>
-        <p className={styles.text}>{rich(t.data.licence, { osm: <ExternalLink href={OSM_COPYRIGHT_URL}>{t.footer.osm}</ExternalLink> })}</p>
-        <p className={styles.text}>
-          <Link href={`/${locale}`}>{t.data.back}</Link>
+      {loaded.status === 'loading' && (
+        <p role="status" className={styles.note}>
+          {t.data.loading}
         </p>
-      </main>
+      )}
+      {loaded.status === 'failed' && (
+        <p role="status" className={styles.note}>
+          {t.data.failed}
+        </p>
+      )}
+      {loaded.status === 'ready' && <DataTable index={loaded.index} zone={zone} />}
 
-      <SiteFooter variant="panel" />
-    </div>
+      <ul className={styles.explain}>
+        {t.data.explain.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+      <p className={text.text}>{t.data.fix}</p>
+      <p className={text.text}>{rich(t.data.licence, { osm: <ExternalLink href={OSM_COPYRIGHT_URL}>{t.footer.osm}</ExternalLink> })}</p>
+    </TextPage>
   );
 }
 

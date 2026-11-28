@@ -1,7 +1,7 @@
 /**
- * Every request the app may make (PLAN.md 7.6), in one place. The Content-Security-Policy
- * and the privacy test are built from it, and the "what the app sends" page will be (M6),
- * so the three can't drift apart.
+ * Every request the app may make (PLAN.md 7.6), in one place. The Content-Security-Policy,
+ * the privacy test and the "what the app sends" page (components/PrivacyPage.tsx) are built
+ * from it, so the three can't drift apart.
  *
  * The claim it backs is narrow, so that it can be checked: the position leaves the device
  * in one request, POST /api/walking, and the page talks to one third party, the map tile
@@ -80,6 +80,34 @@ export function carriesPosition(text: string, position: { lat: number; lon: numb
   return [prefix(position.lat), prefix(position.lon)].some((needle) => needle !== undefined && text.includes(needle));
 }
 
+/** The requests that are sent with a body. Every other one is a GET, as a browser's network panel shows it. */
+const POSTED: ReadonlySet<string> = new Set(['walking', 'report']);
+
+export function methodOf(request: AppRequest): 'GET' | 'POST' {
+  return POSTED.has(request.id) ? 'POST' : 'GET';
+}
+
+/**
+ * Where a request shows in the browser's own network panel: its path on our origin, or the
+ * third party's host. The "what the app sends" page prints it beside the request's name, so
+ * that the list can be held against what the browser did.
+ */
+export function addressOf(request: AppRequest): string {
+  return request.origin === 'self' ? request.paths[0] : new URL(request.origin).host;
+}
+
+/**
+ * What the user opens themself. These are not requests of the app's: each is a link to another
+ * site or app, in a tab of its own and without a referrer (components/NewTab.tsx), to hosts the
+ * page itself may never call. Listed so that the page says what such a link carries.
+ */
+export const OPENED_BY_USER = [
+  // The route in a map app, a phone number, a pharmacy's email and website, OpenStreetMap's note form, the official pages the app points to, the map's credits.
+  { id: 'links', carries: "the pharmacy's position or nothing" },
+  // A country's own medicine stock search (PLAN.md 7.9), opened from the medicine dialog.
+  { id: 'medicine', carries: 'the medicine name as typed, where the service takes one' },
+] as const;
+
 export interface HeaderOptions {
   /** `next dev`: React needs eval for its error overlay, and hot reloading a socket. */
   development: boolean;
@@ -116,6 +144,17 @@ export function contentSecurityPolicy({ development, devRoutes }: HeaderOptions)
   return Object.entries(directives)
     .map(([name, values]) => `${name} ${values.join(' ')}`)
     .join('; ');
+}
+
+/**
+ * The line of the policy that holds the page to the list, as a visitor's browser gets it:
+ * the "what the app sends" page prints it.
+ */
+export function connectSources(): string {
+  const directive = contentSecurityPolicy({ development: false, devRoutes: false })
+    .split('; ')
+    .find((line) => line.startsWith('connect-src '));
+  return directive ?? '';
 }
 
 const PERMISSIONS = ['geolocation=(self)', 'screen-wake-lock=(self)', 'camera=()', 'microphone=()', 'payment=()', 'usb=()', 'accelerometer=()', 'gyroscope=()', 'magnetometer=()', 'browsing-topics=()'];

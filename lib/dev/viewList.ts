@@ -220,6 +220,7 @@ export const groups: ViewGroup[] = [
     views: [
       { id: 'data', title: 'The data page: the numbers of the last run, one country kept from an earlier run', fullPage: true },
       { id: 'data-failed', title: 'The data page: the numbers did not load', sizes: ['phone'], themes: ['light'] },
+      { id: 'privacy', title: 'What the app sends: every request of lib/requests.ts, the links the user opens, what the device keeps, and how it is checked', fullPage: true },
     ],
   },
   {

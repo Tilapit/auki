@@ -1239,3 +1239,21 @@ Entry format:
 - Not changed: the lit-cross status system, the palette, the list, the map. No pharmacy is shown as open because of this: the app never guesses whose turn it is.
 - Views: Málaga's ("Hours coverage") gained the row, since Spain is entered. Riga's and Helsinki's are as they were.
 - Status: provisional, all of it. Open for Janne: whether the lead is right as built; the softened heading; the eighteen countries; the open questions at the end of the research file (Austria's number, Poland, Italy, Cyprus's open data).
+
+## 2026-11-28: "What the app sends": a page built from the list of requests (its wording provisional)
+- Where: `app/[locale]/privacy/`, `components/PrivacyPage.tsx`, `components/TextPage.tsx`, `components/SiteFooter.tsx`; `lib/requests.ts`, `lib/kept.ts`; `lib/i18n/privacy.ts` and `footer.aboutPrivacy`; `/dev/states/privacy`; PLAN.md sections 5 and 7.6
+- Change: `/fi/privacy` and `/en/privacy` list every request the app makes, the links the user opens, and what the browser keeps on the device, and say how it is checked. The results footer leads there: "Sijaintiasi ei tallenneta palvelimelle. Mitä sovellus lähettää".
+- Why: PLAN.md section 5 and 7.6, and Janne's order for the night of 28 Nov 2026. The claim is checked by a policy and a test; the page is where a person can read it, and hold it against their own browser.
+- Decided on the way:
+  - **The link follows the sentence; the sentence is not the link.** A link that reads "Sijaintiasi ei tallenneta palvelimelle." names a claim, not a place to go. "Mitä sovellus lähettää" says where it leads, in the form "Tietoa aineistosta" already has one line down. On the desktop panel and on the phone it sits on the sentence's second line, which was half empty: the footer is no taller.
+  - **The first window got nothing.** It has no privacy sentence to link from, and PLAN.md keeps it to one footer line. It is also the window where the position is asked for: a quiet link there is worth Janne's thought, and is his to add.
+  - **Rows, not a table.** PLAN.md 7.6 has a table of four columns; four columns of sentences do not fit a phone, or 720 px. Each request is a row with three questions under its name (when, what it carries, who receives it), in a column of their own on a wide screen, so that the answers read down the page.
+  - **The address under each name**, as a browser's own tools show it (`POST /api/walking`, `GET tiles.openfreemap.org`), and each storage key likewise (`last-search`). Small and grey: the page is in plain words, and whoever wants to check it has what to look for.
+  - **One request is marked**: the row whose entry in the list carries the exact position opens its second answer with "Ainoa pyyntö, jossa sijaintisi on." in a heavier weight. No badge, no colour.
+  - **The host and the database are named** (provisional): "Sovelluksen palvelin" is defined once as this site's own server, rented from Vercel, and the report's row names Supabase, as PLAN.md 7.6 does. A privacy page that does not say whose machines these are says less than it knows.
+  - **The place search's row says "the text you typed and the language of the page"**: the request has both (`q` and `lang`), and PLAN.md's table names only the first.
+  - **Nothing about offline.** PLAN.md has the page say what the device keeps for offline use; offline is not built, so the page lists what is kept today, from `lib/kept.ts`.
+  - **The page's texts are a file of their own** (`lib/i18n/privacy.ts`), still under `lib/i18n/`. The two dictionaries travel with the first window, both languages at once, and these are some fifteen thousand characters that one page reads: in the dictionaries they would have taken the first window over its 185 KB.
+  - **A text for the wake-up of the walking function is in that file, and on no page yet.** Its request joins the list with its own pull request; the row then appears by itself, with its text.
+  - **The data page and this one share a frame** (`TextPage`): the wordmark, the other language, the title, the way back and the footer. The data page's markup and rules are the same as before, in another file.
+- Status: built. The wording is provisional and Janne's to read: every sentence on the page is one of PLAN.md 7.6's claims in plain words, and none is meant to say more.

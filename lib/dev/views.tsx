@@ -7,6 +7,7 @@ import { StockExample } from '@/components/dev/StockExample';
 import { PharmacySheet as PharmacySheetBefore } from '@/components/dev/before/PharmacySheet';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
+import { PrivacyPage } from '@/components/PrivacyPage';
 import { ProblemView } from '@/components/ProblemView';
 import { ProgressView } from '@/components/ProgressView';
 import { SearchingView } from '@/components/SearchingView';
@@ -138,6 +139,7 @@ export const renderers: Record<string, () => ReactNode> = {
   'not-covered-unknown': () => <ProblemView kind="notCovered" scene={sceneAt(HERE, '20:41')} />,
   data: () => <DataView loaded={{ status: 'ready', index: indexOf([]) }} zone="Europe/Helsinki" />,
   'data-failed': () => <DataView loaded={{ status: 'failed' }} />,
+  privacy: () => <PrivacyPage />,
 
   none: () => <ProblemView kind="none" scene={helsinki} />,
   offline: () => <ProblemView kind="offline" scene={helsinki} />,
