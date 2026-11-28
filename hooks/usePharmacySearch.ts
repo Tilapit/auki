@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { canLocate, locateOnce, locatedBefore, locatesOnArrival, locationPermission, rememberLocated, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import { loadGuidance } from '@/lib/guidance';
+import { placeFor } from '@/lib/handoff';
+import { deviceHandoff } from './useHandoff';
 import { deviceHome } from '@/lib/home';
 import type { Locale } from '@/lib/i18n';
 import { RERANK_GAP_SECONDS, movedEnough } from '@/lib/live';
@@ -85,8 +87,17 @@ const nowSeconds = (): number => Math.floor(Date.now() / 1000);
 
 const NOTHING: readonly TilePharmacy[] = [];
 
+interface FoundPlace {
+  lat: number;
+  lon: number;
+  label: string;
+  country?: string;
+}
+
+/** `places`: what the name can mean, best first. `place`: the first of them, which is all an older answer has. */
 interface PlaceAnswer {
-  place: { lat: number; lon: number; label: string } | null;
+  place: FoundPlace | null;
+  places?: FoundPlace[];
 }
 
 export interface PharmacySearch {
@@ -161,7 +172,12 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
       fetch(`/api/geocode?q=${encodeURIComponent(query)}&lang=${locale}`, { signal: controller.signal })
         .then(async (response) => {
           if (!response.ok) throw new Error(String(response.status));
-          const { place } = (await response.json()) as PlaceAnswer;
+          const answer = (await response.json()) as PlaceAnswer;
+          // A hand-off link may have named a country (lib/handoff.ts): the answer there comes first.
+          // The choice is made here, from an answer that is the same for everyone: the request
+          // above carries the typed name and the language, as it does without a link.
+          const places = Array.isArray(answer.places) && answer.places.length > 0 ? answer.places : answer.place ? [answer.place] : [];
+          const place = placeFor(places, deviceHandoff().country);
           dispatch(
             place
               ? { type: 'placeFound', query, lat: place.lat, lon: place.lon, label: place.label, at: wallClock(new Date()) }
@@ -351,7 +367,19 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
   }, [state, stage]);
 
   useEffect(() => {
+    let fragment = window.location.hash;
     const onPop = (event: PopStateEvent) => {
+      // A fragment that changes is a step in the browser's history too, and no step between our
+      // views: a hand-off link opened in the tab that is already here (PLAN.md 7.8). The view
+      // stays. An entry made that way is marked as the view it was made on, so that going back
+      // from a later view lands on it as on any other.
+      const view: unknown = event.state?.view;
+      const moved = window.location.hash !== fragment;
+      fragment = window.location.hash;
+      if (moved && (view === undefined || view === previous.current)) {
+        if (view === undefined && (previous.current === 'searching' || previous.current === 'search')) window.history.replaceState({ view: previous.current }, '');
+        return;
+      }
       popped.current = true;
       lookup.current?.abort();
       attempt.current++;

@@ -13,6 +13,7 @@ interface Props {
   card: CardPhrases;
   open: boolean;
   onClose: () => void;
+  /** The format the card opens on, where the pair has lines for it: a fixture's, or the one a hand-off link named (lib/handoff.ts). */
   initialVariant?: CardVariant;
   /** /dev/states only, which may not ask the browser for anything: whether the card says that the screen stays on. */
   fixedAwake?: boolean;
@@ -35,8 +36,10 @@ export function CounterCard({ card, open, onClose, initialVariant, fixedAwake }:
   const id = useId();
   const ref = useRef<HTMLDialogElement>(null);
   const offered = ORDER.filter((key) => card.variants[key]);
-  const [chosen, setChosen] = useState<CardVariant | undefined>(initialVariant);
-  const variant = chosen && card.variants[chosen] ? chosen : offered[0];
+  // What the user pressed wins over what the card was opened with, and both give way to what the pair offers.
+  const [chosen, setChosen] = useState<CardVariant>();
+  const wanted = chosen ?? initialVariant;
+  const variant = wanted && card.variants[wanted] ? wanted : offered[0];
   const phrases = card.variants[variant];
   const english = card.lang === 'en' || card.lang.startsWith('en-');
   // The lock itself, when the browser gave one: only then does the card say that the screen stays on.

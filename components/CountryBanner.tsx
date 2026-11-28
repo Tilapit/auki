@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { OTHER, REQUIRED, SOURCES, guideFor, homeOf, homesFor, type Guide, type Note, type Source, type SourceId } from '@/data/countries';
+import type { Rx } from '@/lib/handoff';
 import { useHome } from '@/lib/home';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
@@ -19,6 +20,8 @@ interface Props {
   open?: boolean;
   /** The banner was asked for from the footer: the keyboard goes to its control, which also brings it into view. */
   takeFocus?: boolean | number;
+  /** The format a hand-off link named (lib/handoff.ts): its answer is the first of the two. Without one, the electronic prescription's. */
+  rx?: Rx;
 }
 
 /**
@@ -34,7 +37,7 @@ interface Props {
  * - Behind one button: the conditions, what a paper prescription has to show, and every
  *   source with the date of its page and the day it was read.
  */
-export function CountryBanner({ home, onHome, guide, open = false, takeFocus = false }: Props) {
+export function CountryBanner({ home, onHome, guide, open = false, takeFocus = false, rx }: Props) {
   const { t, f, locale } = useI18n();
   const id = useId();
   const [more, setMore] = useState(open);
@@ -46,6 +49,14 @@ export function CountryBanner({ home, onHome, guide, open = false, takeFocus = f
   const notes: Note[] = guide ? [...guide.ePrescription.notes, ...guide.paper.notes] : [];
   const sources: SourceId[] = guide ? [...new Set([...guide.ePrescription.sources, ...guide.paper.sources, ...notes.map((note) => note.source)])] : [];
   const read = sources.map((source) => SOURCES[source].checked).sort().at(-1);
+  // Both answers, always: where one format does not work, the other is the way forward.
+  const answers = guide
+    ? [
+        { format: 'e', term: t.banner.electronic, text: guide.ePrescription.text[locale] },
+        { format: 'p', term: t.banner.paper, text: guide.paper.text[locale] },
+      ]
+    : [];
+  if (rx === 'p') answers.reverse();
 
   return (
     <section className={styles.banner} aria-labelledby={`${id}-h`}>
@@ -79,14 +90,12 @@ export function CountryBanner({ home, onHome, guide, open = false, takeFocus = f
         {guide && (
           <>
             <dl className={styles.answers}>
-              <div>
-                <dt>{t.banner.electronic}</dt>
-                <dd>{guide.ePrescription.text[locale]}</dd>
-              </div>
-              <div>
-                <dt>{t.banner.paper}</dt>
-                <dd>{guide.paper.text[locale]}</dd>
-              </div>
+              {answers.map((answer) => (
+                <div key={answer.format}>
+                  <dt>{answer.term}</dt>
+                  <dd>{answer.text}</dd>
+                </div>
+              ))}
             </dl>
 
             {guide.field && (
@@ -140,8 +149,8 @@ export function CountryBanner({ home, onHome, guide, open = false, takeFocus = f
 }
 
 /** /dev/states only: the banner for one pair, outside a results view. The country can be changed while the view is open; nothing is kept. */
-export function BannerFor({ home: first, here, open }: { home: string | null; here: string; open?: boolean }) {
+export function BannerFor({ home: first, here, open, rx }: { home: string | null; here: string; open?: boolean; rx?: Rx }) {
   const { locale } = useI18n();
   const [home, setHome] = useHome(locale, first);
-  return <CountryBanner home={home} onHome={setHome} guide={guideFor(home, here)} open={open} />;
+  return <CountryBanner home={home} onHome={setHome} guide={guideFor(home, here)} open={open} rx={rx} />;
 }

@@ -240,6 +240,7 @@ Two countries decide what is shown: **here**, the country of the pharmacy in the
   - the trip's field result for the country one is in, under "Suomalaisella reseptillä.": sample size, month and city, never a pharmacy's name ("Kokeiltu Riiassa 11/2026: e-resepti löytyi 1/1 apteekista."). It is shown to everyone, because it is about that country's counters, and it says whose prescriptions it was made with;
   - "Jos ensimmäinen vastaus on ei, pyydä farmaseuttia.";
   - "Lisätiedot ja lähteet", closed until pressed: what each country's page asks (consent to give first, the document to show, that only some pharmacies take part), what a paper prescription has to show, and every source by its publisher and page, with the date of the page and the day it was read. Closed, one line says when the sources were read.
+- **With a hand-off link** (section 7.8) that names the prescription's format, that format's answer is the first of the two in the banner, and the counter card opens on it. Provisional (`DESIGN-LOG.md`, 28 Nov 2026).
 - **Counter card:** full-screen dialog; the local language large, English below; a switch between the formats that make sense for the pair (the e-prescription lines only where a page says the pair works; "Lääkäri lähettää" where the trip saw a doctor's email or fax accepted); "Could a pharmacist help me?"; "Käännös tarkistamatta" where it applies; screen kept awake. The prescription's country stands by itself after a colon, in the pharmacy's language ("Valsts: Vācija."). Always light, also in dark mode: a stranger reads it at arm's length in a lit pharmacy, like a paper document. Offered from the card and from every pharmacy sheet. In Finland the card is in Finnish.
 - At home, where the banner is not shown, the results footer has one quiet line, "Resepti toisesta maasta?". It brings the banner up with the keyboard on its control, for someone whose phone suggests the wrong country (a German who reads their phone in Finnish, in Finland). Until a country is picked there the banner claims nothing.
 
@@ -615,7 +616,7 @@ Map: MapLibre GL JS with a custom style (section 6) on OpenFreeMap vector tiles:
 
 ### 7.5 Place search
 
-`GET /api/geocode?q=`: Nominatim via the server. Its usage policy (https://operations.osmfoundation.org/policies/nominatim/) allows at most 1 request per second, requires an identifying User-Agent and attribution, and forbids autocomplete. So the box searches when the user submits it, with no suggestions while typing. Results are cached, and the server waits at least 1 s between upstream calls. Names are asked for in the UI language. The answer's coordinates go back to the device, which picks the tiles as it does for a located user.
+`GET /api/geocode?q=`: Nominatim via the server. Its usage policy (https://operations.osmfoundation.org/policies/nominatim/) allows at most 1 request per second, requires an identifying User-Agent and attribution, and forbids autocomplete. So the box searches when the user submits it, with no suggestions while typing. Results are cached, and the server waits at least 1 s between upstream calls. Names are asked for in the UI language. The answer's coordinates go back to the device, which picks the tiles as it does for a located user. Since 28 Nov 2026 the answer is up to five places, best first, each with its country: the device takes the first, or with a hand-off link that names a country, the first one there (section 7.8). The request is as it was: the name and the page's language.
 
 ### 7.6 Privacy
 
@@ -657,7 +658,7 @@ Rules:
 - `watchPosition` updates stay on the device.
 - For offline use the device keeps the app's own files, `index.json` and the tiles of the area searched last, until the data expires. That shows which squares of 20 to 30 km were searched last, to someone holding the device. It never holds the position, and nothing of it is sent anywhere.
 - Route hand-off links to Google Maps / Apple Maps carry only the pharmacy's coordinates; the map app uses its own location.
-- The parameters of the hand-off link (section 7.8) ride in the URL fragment and never reach a server.
+- The parameters of the hand-off link (section 7.8) ride in the URL fragment and never reach a server. Nothing of ours copies them into a request or a storage either: a browser test reads every request, the cookies and both storages for them (`tests/e2e/handoff.spec.ts`).
 - A medicine's name is health information. The app handles it in one place, the medicine dialog's field, and by these rules:
   - It lives in the memory of the open dialog and nowhere else: not in our address, not in the history, not in any storage, and it is gone when the dialog closes.
   - The field has no form and no `name`, so nothing can submit it to our own address, with JavaScript or without.
@@ -710,15 +711,28 @@ The tiles cover 31 countries: every country of the EU and the EEA, and Switzerla
 
 ### 7.8 Hand-off link
 
+(Built 28 Nov 2026. What the two parameters do is provisional until Janne has read it: `DESIGN-LOG.md`.)
+
 Another app can open Auki with what it already knows. Treat's app could do it after a doctor has written a prescription:
 
 `https://<host>/fi#country=LV&rx=e`
 
-- `rx`: the prescription's format, `e` (e-prescription) or `p` (paper). The banner shows that format's status and the counter card opens on it.
-- `country`: ISO code of the country the sender believes the user is in. Place search is limited to it. Once pharmacies are found, their country wins.
-- The parameters ride in the fragment (`#`), not the query string (`?`), so they never reach a server or a log. A prescription format next to an IP address is health-adjacent data we would rather not receive. The page reads them on the device.
-- Unknown names and values are ignored. Nothing identifies the user, the prescription or the medicine, and there is no position parameter.
-- Built in M6, documented in the README with an example.
+- `rx`: the prescription's format, `e` (e-prescription) or `p` (paper).
+  - The banner shows both answers, as always, and that format's is the first of the two. Without a link the electronic one is first, so `rx=e` changes nothing there.
+  - The counter card opens on that format, where the pair of countries has lines for it; otherwise on the first it has. What the user presses on the card holds over the link.
+- `country`: ISO code of the country the sender believes the user is in. A place search takes the answer in that country first. Once pharmacies are found, their country wins.
+  - Our server passes on up to five places that a typed name can mean, best first and each with its country, the same answer for everyone (section 7.5). The device takes the first one in the link's country. Where none of the five is there, it takes the first, as without a link: the sender may be wrong, and the user is the one who typed the name.
+  - This is a preference, not the limit this section named until 28 Nov 2026. A limit is asked of Nominatim (`countrycodes`), so the country would have to be in the request to our server, and the next rule says that the link's parameters reach no server. Sending it would change what `GET /api/geocode` carries (section 7.6): Janne's decision, not taken.
+- The parameters ride in the fragment (`#`), not the query string (`?`), so they never reach a server or a log. A prescription format next to an IP address is health-adjacent data we would rather not receive. The page reads them on the device (`lib/handoff.ts`, `hooks/useHandoff.ts`).
+  - They go into no request and no storage. The address is the one place they are, so a tab that is loaded again reads them from it as the first time.
+  - The link to the other language carries them on, as they were understood. A link to another page of ours and back (the data page) does not: after it the card is as without a link.
+- Unknown names and values are ignored. Nothing identifies the user, the prescription or the medicine, and there is no position parameter. The values read the same in upper and lower case; the names are lower case. Of a name given twice, the first counts.
+- The home country is not a parameter: it is the device's (section 5).
+- Nothing is shown because of the link alone: no question on the first visit, no notice, and at home no banner.
+- A link opened in a tab that is already here changes only the fragment and loads nothing: the view stays where it is and reads the new one.
+- Checked by `tests/unit/handoff.test.ts` and, in both browsers, `tests/e2e/handoff.spec.ts` (section 12).
+- Not in the iOS app, which opens no links yet.
+- Documented in the README with an example.
 
 ### 7.9 Medicine availability (decision D9)
 
@@ -999,6 +1013,7 @@ hooks/
   useRouteLine.ts             the walking route to the selected pharmacy, once per pharmacy and position (M5)
   useNow.ts                   minute tick + visibilitychange
   useMapApp.ts                whose map app the route button opens on this device: Apple's or Google's
+  useHandoff.ts               the hand-off link as the address's fragment has it, read on the device
   useWakeLock.ts
   useLivePosition.ts          watchPosition while the page is visible; the search hook ranks again after ~300 m (M4)
 lib/
@@ -1020,7 +1035,7 @@ lib/
   week.ts                     intervals → the coming seven days with equal days grouped, for the pharmacy sheet (pure, M5)
   walking.ts                  the walking request and its answer, the order they give the list, minutes, the route line (pure, M5)
   brand.ts                    the product's name, in one place (decision D4)
-  handoff.ts                  reads country and rx from the hand-off link's fragment (pure)
+  handoff.ts                  reads country and rx from the hand-off link's fragment, and picks the place a search means (pure)
   requests.ts                 every request the app may make: builds the CSP, the privacy test and the privacy page
   kept.ts                     everything the app keeps on the device, by the keys the code writes under: builds the privacy page
   stock/provider.ts           medicine availability: the provider interface (hand-off today, live stock as the seam), the name as it goes into a link (pure)
@@ -1176,6 +1191,7 @@ Written for a reader at Treat with five minutes:
 - Walking (`tests/e2e/walking.spec.ts`), with `/api/walking` answered by the test: the list in walking order from one request; a service that takes too long gives the straight-line list after 1.5 s and a late answer changes nothing; ehditkö at 61 and 60 minutes before closing, with a minute to spare and at closing time; the next open pharmacy when it is too late, the far one included; the sheet's hand-off, website, email and note link, none of which carries the position; the route line asked for once per pharmacy and never unasked to a closed door; a walk asks again from the new position, not sooner than two minutes; the wake-up goes out when the position is asked for and when a place search is submitted, with nothing in it and before there is a position, and not twice within a minute; our own route answers it with nothing, and refuses one with anything in its address. Every other spec gets the answer of a server without a key, so its lists are by straight line.
 - The duty pharmacy (`tests/e2e/duty.spec.ts`, `tests/unit/duty.test.ts`): nothing open nearby in Germany shows the lookup first, as the official page's own address with nothing added and no request made to it, and Finland shows none; a farther open pharmacy follows the lookup; one open past closed ones keeps the first place with the lookup as one row; on the phone the sheet starts at the card. The unit test holds the data to its rules (only covered countries, a way out only where pharmacies take turns, every address quoted in the research file) and the first load's list of countries equal to the data's.
 - Medicine availability (`tests/e2e/medicine.spec.ts`): the second privacy test of section 7.6; the same dialog from a pharmacy sheet, where Escape closes it and leaves the sheet open with focus back on the line; no field for a service whose address takes no name; nothing offered in a country without a provider.
+- The hand-off link (`tests/e2e/handoff.spec.ts`, section 7.8): `rx=p` puts the paper answer first and opens the counter card on paper, and what the user then presses holds; `rx=e` is as without a link; a format the pair has no lines for gives the card's first; unknown names and values change nothing; at home nothing is shown; a new fragment in the same tab is read and the results stay; a place search takes the answer in the link's country and asks our server for the name and the language alone; the link to the other language carries the parameters on; and no request, cookie or storage has anything of the fragment.
 - Every pharmacy on the map (`tests/e2e/area.spec.ts`): the ten as markers and the rest as signs, a press on a sign opens its pharmacy and marks it, and a map moved by hand asks for the new area's squares and for nothing that carries the position.
 - Offline: load results, go offline, reload, and get the same pharmacies with the date of the data. With the clock moved 8 days ahead nothing reads open.
 - Visual comparison: the `/dev/states` screenshots against committed baselines (`tests/e2e/__screenshots__/`), at 1× in the CI's Linux image, where the baselines are also made. Chromium at both sizes; WebKit, which stands in for Safari on an iPhone, at phone size. A commit marked `[baselines]`, or a manual run, makes new ones as an artifact; they are looked at and committed by hand, so the pull request shows old and new side by side. `npm run shots` keeps producing the 2× images for review by eye.
