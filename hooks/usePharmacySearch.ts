@@ -4,6 +4,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { canLocate, locateOnce, locatedBefore, locatesOnArrival, locationPermission, rememberLocated, WAITING_AFTER_MS, wallClock } from '@/lib/geolocation';
 import { loadGuidance } from '@/lib/guidance';
 import { placeFor } from '@/lib/handoff';
+import { deviceHandoff } from './useHandoff';
 import { deviceHome } from '@/lib/home';
 import type { Locale } from '@/lib/i18n';
 import { RERANK_GAP_SECONDS, movedEnough } from '@/lib/live';
@@ -13,7 +14,6 @@ import { forgetLastSearch, readLastSearch, saveLastSearch, type LastSearch } fro
 import { APPROXIMATE_OVER_METERS, initialState, isMapView, reducer, type DevicePosition, type Position, type State } from '@/lib/state';
 import type { TilePharmacy } from '@/lib/tiles';
 import { WALKING_PATH, WALKING_WAIT_MS, readWalks, walkingBody } from '@/lib/walking';
-import { deviceHandoff } from './useHandoff';
 
 /** A tile that takes longer than this counts as not loaded. */
 const TILE_TIMEOUT_MS = 10_000;
