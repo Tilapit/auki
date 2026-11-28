@@ -49,6 +49,7 @@ In CI the same things are measured on every push, against a build and with fixtu
 - **Medicine availability, as a hand-off.** Where a country has a stock search of its own that may be linked to (Finland, Germany, Austria, Norway, and Iceland in Norway's form: a link to the page that says how to check), the card and every pharmacy's details open it from one of their main buttons, with the medicine's name in the link where the service's address takes one. The app says where to check, never that a pharmacy has a medicine, and the name never reaches the app's server. The research is in [`docs/research/medicine-availability.md`](docs/research/medicine-availability.md).
 - **Visitors' reports.** A row in a pharmacy's details offers to tell how a visit went: one screen of chips, no text, always skippable, never asked. Anonymous, and shown for a pharmacy only once it has three, as facts with their count and days ("English was spoken, 4 of 5 visits"). Two filters over the list, off until pressed, keep the pharmacies where visitors said English was spoken or the way in was step-free. Reports never change the order, and none is invented: with too few, the app says so (`PLAN.md` section 7.10).
 - **A data page** with the pipeline's numbers per country, and when each was last fetched.
+- **A page of what the app sends**, linked from the results footer: every request the app makes, with its address as the browser's own tools show it, what it carries and who receives it; the links the user opens; and what the browser keeps on the device, by the keys the code writes under. Its rows are the entries of the list the Content-Security-Policy and the privacy test are built from (`lib/requests.ts`).
 - **Finnish and English**, light and dark, phone and desktop, in the device's own typeface: no font is fetched.
 - **An iOS app** (`ios/`): SwiftUI and Apple's map on the same data, with the first window, the map, and a sheet with the nearest open pharmacy and the list. A pharmacy has a sheet of its own with the week's opening hours, the call and the route handed off to Apple Maps. Its time logic passes the same test cases as the web's (`tests/vectors/`). No walking times and no route line on its own map yet. Built and run in the Simulator; its tests run locally, not in CI. See [`ios/README.md`](ios/README.md).
 
@@ -135,7 +136,6 @@ Built between 22 and 27 Nov 2026 by Janne Lappi with Claude Code. Janne wrote th
 - The duty-pharmacy lookup for countries where night duty rotates.
 - The hand-off link another app could open with the country and the prescription's format preset (`PLAN.md` section 7.8). Nothing reads such a link today.
 - Offline use for the area searched last.
-- The page that lists every request the app makes. The list itself is `PLAN.md` section 7.6 and `lib/requests.ts`.
 
 **Left out on purpose** (`PLAN.md` section 4):
 

@@ -247,7 +247,11 @@ The results footer always says when the data was fetched ("Tiedot: OpenStreetMap
 Section 7.7.
 
 ### What the app sends
-A short text page, linked from the footer sentence "Sijaintiasi ei tallenneta palvelimelle.": every request the app makes, what it carries and who receives it, and what the device keeps for offline use (section 7.6).
+A short text page, linked from the footer sentence "Sijaintiasi ei tallenneta palvelimelle.": every request the app makes, what it carries and who receives it, and what the device keeps (section 7.6). Built 28 Nov 2026 (`/dev/states/privacy`; the wording provisional, `DESIGN-LOG.md` 28 Nov 2026):
+- The link is "Mitä sovellus lähettää" / "What the app sends", after the sentence in the results footer, as "Tietoa aineistosta" follows the date of the data. The first window has no such sentence, and nothing was added to it.
+- Each request is a row: a name in plain words, under it the method and the address as a browser's own tools show them, then three answers: when, what it carries, who receives it. The walking request's row opens its second answer with "Ainoa pyyntö, jossa sijaintisi on."
+- Then the links the user opens, which are not requests of the app's; what the device keeps, each under the key the code writes it with; and how all of it is checked, with the policy's own line.
+- Offline is not built, so the page says nothing of it: what the device keeps is what section 7.6 lists today.
 
 ### The data
 A short page, linked from the data date in the results footer: per country the number of pharmacies, the share with opening hours, the parse rate and the date and time of the country's last successful fetch, read from `index.json` (section 7.2). Above the table: when the last run was; a country that run could not refresh says so in its row. The page also says what a low share with hours means for the results (section 5, "Lähin auki nyt" card). The pipeline's quality is the core of the app, so it is shown, not claimed.
@@ -662,7 +666,11 @@ Checked, not promised:
   - `Referrer-Policy: no-referrer`.
   - `Permissions-Policy`: `geolocation=(self)`, `screen-wake-lock=(self)`, everything else off (camera, microphone, payment, USB, sensors).
   - `X-Content-Type-Options: nosniff`.
-- **A page.** `/fi/privacy` and `/en/privacy`: the table above in plain words, and what the device keeps for offline use, linked from the footer sentence.
+- **A page.** `/fi/privacy` and `/en/privacy`: the table above in plain words, and what the device keeps, linked from the footer sentence (built 28 Nov 2026; section 5, "What the app sends").
+  - Its rows are the entries of `REQUESTS`, in that order, each with its texts from `lib/i18n/` by the request's id. The type refuses a dictionary that lacks a text for a request, and the page can't show a request the list does not have. The method and the address under each name, the map tile host in the text and the `connect-src` line come from `lib/requests.ts` as well.
+  - The links the user opens are a second list there (`OPENED_BY_USER`). What the device keeps is `lib/kept.ts`, with the keys the code itself writes under: a unit test reads the source and fails when a file touches the browser's storage, or names a key, that the list does not have, and when anything mentions a cookie, a database in the browser, a cache or a service worker.
+  - A browser test reads the page against the list, holds the policy's line on the page equal to the header the browser was given, and finds that the page asks for nothing but its own files and leaves nothing on the device.
+  - Every sentence on the page is one of this section's claims in plain words. Changing one is changing the privacy claims, which is Janne's to do.
 
 Offline (a hand-written service worker, no plugin):
 
@@ -939,7 +947,7 @@ vercel.json                   where the functions run: Frankfurt (section 7.1, s
 app/
   [locale]/layout.tsx         lang, metadata, inline sky script (the footer is rendered by each view)
   [locale]/page.tsx           static shell, mounts <PharmacyFinder /> (M0: <FirstVisit />)
-  [locale]/privacy/page.tsx   "what the app sends": every request, from lib/requests.ts (M6)
+  [locale]/privacy/page.tsx   "what the app sends": every request, from lib/requests.ts, and what the device keeps, from lib/kept.ts (M6)
   [locale]/data/page.tsx      the pipeline's numbers per country, from index.json (M3)
   [locale]/dev/states/        every view and state from fixtures, in iframes; 404 in production
   [locale]/dev/map/           the results view on real map tiles, at three moments in both themes; 404 in production (M4)
@@ -952,6 +960,7 @@ components/
   PharmacyFinder.tsx          client; owns the reducer, picks the view (M1)
   MapStage.tsx                every view once the position is known, in one chunk loaded after the first paint; keeps time (M3)
   DataPage.tsx  ResultsNotice.tsx   the data page; a notice above the results (M3)
+  PrivacyPage.tsx  TextPage.tsx     "what the app sends"; the frame the two pages of text share (M6)
   FirstVisit.tsx  PlaceSearch.tsx  DuskScene.tsx  Skyline.tsx  SkyScript.tsx
   ProgressView.tsx  ResultsView.tsx  ProblemView.tsx  ResultsShell.tsx
   MapView.tsx                 the map: MapLibre under our own markers, dot, edge chips, legend and controls; works without MapLibre too (M4)
@@ -995,6 +1004,7 @@ lib/
   brand.ts                    the product's name, in one place (decision D4)
   handoff.ts                  reads country and rx from the hand-off link's fragment (pure)
   requests.ts                 every request the app may make: builds the CSP, the privacy test and the privacy page
+  kept.ts                     everything the app keeps on the device, by the keys the code writes under: builds the privacy page
   stock/provider.ts           medicine availability: the provider interface (hand-off today, live stock as the seam), the name as it goes into a link (pure)
   stock/providers.ts          one provider per country: the address of its own stock search (section 7.9)
   map/style.ts                MapLibre style built from the design tokens: light, and dusk or night in the dark theme
@@ -1115,6 +1125,7 @@ Written for a reader at Treat with five minutes:
 - Medicine availability (`tests/unit/stock.test.ts`): every provider's link is on its own host over https; a name with spaces, letters outside ASCII and the characters that mean something in an address is read back exactly, and is never put into the link of a service that takes none; one provider per country, each with its texts in both languages; a provider that waits for its operator's agreement is not offered; no provider has `stock`; nothing in the live app imports the example data.
 - The name: with the constant in `lib/brand.ts` swapped for another word, the dictionaries, the metadata and the manifest all carry the new one.
 - **Data test:** every country has sources and a checked date, every card variant has P-lines, and every unreviewed phrase is flagged.
+- The page of requests (`tests/unit/privacy.test.ts`): a text for every request on the list in both languages, and none for a request that is not on it; each request's method and address, no two the same; one request marked as the one with the position, and it is `POST /api/walking`; a host named in a text only where the list has a third party; the buttons quoted by the names they have in the app; and the device's keys against the source (section 7.6, "A page").
 
 **Corpus test: is the parsing right**
 
@@ -1139,7 +1150,7 @@ Written for a reader at Treat with five minutes:
 - axe (`tests/e2e/axe.spec.ts`): every view of `/dev/states`, in both themes and at both sizes: WCAG 2.0, 2.1 and 2.2 at A and AA, and axe's best practices. No rule is off and no view is left out.
 - The keyboard alone (`tests/e2e/keyboard.spec.ts`): the first window, the position, the results, the phone sheet's three places, a pharmacy's details and back, another place by its name, and the counter card abroad, with Tab, Enter, Escape and typing only. Wherever it stops: Tab reaches every control that shows, and whatever has the focus can be seen. The same two things on every view of `/dev/states`, in Chromium. WebKit's Tab is Option-Tab, as Safari's is.
 - Reflow (`tests/e2e/reflow.spec.ts`): every view at 320 px wide and at 200 % zoom (the desktop size halved): nothing scrolls sideways, and no text or control is cut off, pushed past the screen's edge or ended with an ellipsis that isn't there at 390 px. The map and the data page's table are left out, as the criterion leaves them. WebKit, which stands in for Safari on an iPhone, is asked for the 320 px; the zoomed desktop window is Chromium's.
-- The privacy test (section 7.6).
+- The privacy test (section 7.6). And the page that lists the requests (`tests/e2e/privacy.spec.ts`): what section 7.6 says under "A page", in both browsers.
 - The map (`tests/e2e/map.spec.ts`): every pharmacy in the list has a marker named and lit the same way, the ones the map shows are buttons and the ones beyond its edge are not, a marker under the phone's bar or sheet is off the map and an open one is on its chip instead, a sign in a pile is drawn and takes no focus, a tick changes both, a marker and its row select each other, a map that can't start or has no tiles leaves the list and the markers working, a walk moves the dot and ranks again after 300 m with nothing sent, an edge chip brings its pharmacy into view. The map tile host is answered by the tests: no test reaches it.
 - The phone's sheet (`tests/e2e/sheet.spec.ts`): its three places by dragging and by the handle, a short drag settles back, the row's content and button in each case, "Kaikki N apteekkia" opens the list, focus never lands off screen.
 - Touch (`tests/e2e/touch.spec.ts`): with real touch input, which only Chromium's DevTools can give: a drag that begins on a marker moves the map and a tap on it still opens the pharmacy; a pinch with one finger on a marker zooms the map and the page's scale stays 1; two taps and a two-finger tap; the work while panning, on a CPU four times slower, as a reported number. In both browsers: the touch-action of the map and of everything on it, in each of its three states.
