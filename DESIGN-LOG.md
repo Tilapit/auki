@@ -1273,3 +1273,19 @@ Entry format:
   - **No home-country parameter.** PLAN.md has none, and the device suggests it. A sender who knows the prescription's country cannot say so: left as planned.
 - In `/dev/states`: `handoff` shows the banner with `rx=p`. Without a link it is as in `riga` and in the components sheet, which has the same pair of countries; the two are not on one page, because a page may not have two landmarks by one name. The pull request's figure has them side by side. The card on paper is the view `counter-paper`.
 - Not in the iOS app.
+
+## 2026-11-28: The medicine dialog in Finland: the steps from the link to the pharmacy's stock, and its number to call
+- Where: `MedicineDialog` (`pharmacy`), `showMedicine` in `components/ResultsView.tsx`, `medicine.confirmCall` and `medicine.services.apteekkiFi.steps` and `.words` in `lib/i18n/`; PLAN.md 7.9; `docs/research/medicine-availability.md`; `tests/e2e/medicine.spec.ts`; every `medicine-*` view of `/dev/states`
+- Change: Janne's request of 28 Nov 2026, after trying it on his phone. Lääkehaku's link lands on the list of packs, and the stock per pharmacy is three steps further, which nothing said. Under the button the dialog now says: "Tämän apteekin varaston näet sivustolla näin:" 1. Valitse pakkaus. 2. Paina ”Etsi lähin apteekki”. 3. Etsi listasta <the pharmacy>. Sen kohdalla lukee ”Varastossa: Kyllä” tai ”Varastossa: Ei”. The last line, to check with the pharmacy before going, ends with the pharmacy's number as a call link.
+- This answers the question left open on 25 Nov ("whether the dialog should name the pharmacy it was opened from"): yes, the one it was opened from. From the card that is the card's pharmacy; from a pharmacy's details, that pharmacy.
+- Decided on the way, each provisional:
+  - **Under the button, above the two lines that were there.** The steps are what happens after the press, so they follow it; the lines about the name and about checking with the pharmacy stay last, as they were, word for word apart from the number.
+  - **A short lead and a numbered list.** The order is the point. The lead says whose stock it is ("tämän apteekin"), so the list doesn't need to.
+  - **The pharmacy's name in the weight of a label.** It is what the user looks for in a list of some 800; the rest of the step stays quiet. A pharmacy without a name in OpenStreetMap is named with its street, as elsewhere where a name alone wouldn't do.
+  - **The site's words in Finnish in both languages**, marked `lang="fi"` and never broken or hyphenated: the user has to find them on the page as they stand. In English each is followed by what it means, in brackets, and the lead says first that the site is in Finnish.
+  - **The steps also without a typed name.** The user then types the name into the site's own search, and the same three steps follow.
+  - **The number in every country, not only Finland.** The line it joins is the same in every dialog, and the advice to check with the pharmacy is better with the way to do it. Where the pharmacy has no number, the line is as before.
+  - **The steps are Lääkehaku's only.** Another service's way from its link to an answer has not been followed, so nothing is said of it.
+- Not changed: the link (`https://www.apteekki.fi/laakehaku.html?ehto=<name>`), what is sent and to whom, and that nothing is fetched from apteekki.fi. The steps are text.
+- Not checked: whether the names in OpenStreetMap are the names Lääkehaku's list shows (research file, "What I could not check").
+- Status: the steps and the number by Janne's request; the wording and the calls above provisional.

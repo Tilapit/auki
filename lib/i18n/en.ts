@@ -296,6 +296,7 @@ const en: Dictionary = {
     sent: "The name goes from your device straight to {site} when you open the link. It is not sent to this app's server and is not saved.",
     nothingSent: "The link carries no medicine's name. Type it into the service's own search: this app neither asks for it nor sees it.",
     confirm: "The stock information is the service's own, and this app does not see it. Check with the pharmacy before you go.",
+    confirmCall: "The stock information is the service's own, and this app does not see it. Check with the pharmacy before you go: {phone}.",
     coverage: {
       most: 'Most pharmacies take part, not all.',
       some: 'Only some pharmacies take part.',
@@ -307,6 +308,13 @@ const en: Dictionary = {
         intro: 'In Finland, Lääkehaku shows pharmacy by pharmacy whether a medicine is in stock. It is run by the Association of Finnish Pharmacies.',
         hint: 'Lääkehaku searches by product name or Vnr number. Type the name alone, without the strength.',
         open: 'Open apteekki.fi',
+        steps: {
+          lead: "The site is in Finnish. To see this pharmacy's stock there:",
+          pick: 'Pick the pack.',
+          press: 'Press “{button}” (find the nearest pharmacy).',
+          find: 'Find {pharmacy} in the list. It says “{yes}” (in stock) or “{no}” (not in stock).',
+        },
+        words: { button: 'Etsi lähin apteekki', yes: 'Varastossa: Kyllä', no: 'Varastossa: Ei' },
       },
       ihreApotheken: {
         site: 'ihreapotheken.de',

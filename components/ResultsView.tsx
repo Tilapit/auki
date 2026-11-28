@@ -187,8 +187,12 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // Closed, the medicine dialog gives the keyboard back to the button that opened it, as the counter
   // card does: by itself the browser does so only when the button had the focus, and Safari gives a pressed button none.
   const medicineOpener = useRef<Element | null>(null);
-  const showMedicine = (country: string | undefined) => {
+  // And the pharmacy it was opened from, which the dialog names in its steps and offers to call.
+  // A fixture that opens the dialog by itself names none: the card's pharmacy is meant.
+  const [medicineAt, setMedicineAt] = useState<Pharmacy | undefined>(undefined);
+  const showMedicine = (country: string | undefined, pharmacy: Pharmacy | undefined) => {
     medicineOpener.current = pressed.current ?? document.activeElement;
+    setMedicineAt(pharmacy);
     setMedicineFor(country);
   };
   useEffect(() => {
@@ -263,8 +267,9 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   // Where to check a medicine's stock: the service of the country the card's pharmacy is in
   // (PLAN.md 7.1, step 9). Only where that country has one; elsewhere nothing is offered.
   const offered = options.medicine !== false;
-  const cardProvider = offered ? providerFor((unlisted?.lead ?? nearestOpen ?? firstToOpen ?? scene.pharmacies[0])?.country) : undefined;
-  const openMedicine = cardProvider && (() => showMedicine(cardProvider.country));
+  const cardPharmacy = unlisted?.lead ?? nearestOpen ?? firstToOpen ?? scene.pharmacies[0];
+  const cardProvider = offered ? providerFor(cardPharmacy?.country) : undefined;
+  const openMedicine = cardProvider && (() => showMedicine(cardProvider.country, cardPharmacy));
   // The service's own address, as the medicine search is named with it: "apteekki.fi".
   const siteOf = (country: string | undefined) => {
     const provider = offered ? providerFor(country) : undefined;
@@ -677,7 +682,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
             {dutyAlone}
 
-            {lineAlone && cardProvider && cardSite && <MedicineRow onOpen={() => showMedicine(cardProvider.country)} site={cardSite} />}
+            {lineAlone && cardProvider && cardSite && <MedicineRow onOpen={() => showMedicine(cardProvider.country, cardPharmacy)} site={cardSite} />}
           </div>
         ) : undefined
       }
@@ -737,7 +742,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
               nextOpenWithStreet={detailNext && needsStreet.has(detailNext.id)}
               country={country}
               onShowCard={showCard}
-              onMedicine={offered && providerFor(detail.country) ? () => showMedicine(detail.country) : undefined}
+              onMedicine={offered && providerFor(detail.country) ? () => showMedicine(detail.country, detail) : undefined}
               medicineSite={siteOf(detail.country)}
               report={
                 options.reports && {
@@ -789,7 +794,10 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
             />
           )}
           {offered && (
-            <MedicineDialog provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)} open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
+            <MedicineDialog
+              provider={(options.medicineReview ? providerForReview : providerFor)(medicineFor)}
+              pharmacy={medicineAt ?? cardPharmacy}
+              open={medicineFor !== undefined} onClose={() => setMedicineFor(undefined)} initialValue={options.medicineValue}>
               {options.medicineExample}
             </MedicineDialog>
           )}

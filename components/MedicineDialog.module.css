@@ -147,6 +147,47 @@
   line-height: 1.45;
 }
 
+/* The way from where the link lands to the stock: under the button it leads to, a step quieter than the intro. */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--ink-2);
+  font-size: var(--t-m);
+  line-height: 1.45;
+}
+
+.steps ol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding-left: 1.5em;
+  /* The global reset takes the numbers off every list; these steps are read in their order. */
+  list-style: decimal;
+}
+
+.steps li {
+  padding-left: 0.15em;
+}
+
+.steps li::marker {
+  color: var(--meta);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The site's own words are looked for as they stand there: never broken, not even by Finnish hyphenation. */
+.words {
+  hyphens: none;
+  white-space: nowrap;
+}
+
+/* The pharmacy is what the user looks for in a long list: its name stands out from the step. */
+.name {
+  color: var(--ink);
+  font-weight: 650;
+}
+
 .notes {
   display: flex;
   flex-direction: column;
@@ -154,6 +195,11 @@
   color: var(--meta);
   font-size: var(--t-s);
   line-height: 1.45;
+}
+
+/* A number to call is never broken over two lines. */
+.phone {
+  white-space: nowrap;
 }
 
 /* A host name is read letter by letter: it never breaks, and Finnish hyphenation stays out of it. */

@@ -377,6 +377,8 @@ const fi = {
     /** The same place, for a service whose address takes no name: there is no field then. */
     nothingSent: 'Linkissä ei ole lääkkeen nimeä. Kirjoita se palvelun omaan hakuun: tämä sovellus ei kysy eikä näe sitä.',
     confirm: 'Varastotieto on palvelun oma, eikä tämä sovellus näe sitä. Varmista apteekista ennen kuin lähdet.',
+    /** The same, when the pharmacy the dialog was opened from has a number: "{phone}" is a call link, the number as OpenStreetMap writes it. */
+    confirmCall: 'Varastotieto on palvelun oma, eikä tämä sovellus näe sitä. Varmista apteekista ennen kuin lähdet: {phone}.',
     /** After a service's own sentence, when not every pharmacy of the country reports to it. */
     coverage: {
       most: 'Mukana ovat useimmat apteekit, eivät kaikki.',
@@ -394,6 +396,19 @@ const fi = {
         intro: 'Suomessa lääkkeen saatavuuden apteekeittain näyttää Lääkehaku, jota ylläpitää Suomen Apteekkariliitto.',
         hint: 'Lääkehaku hakee valmisteen nimellä tai Vnr-numerolla. Kirjoita pelkkä nimi, ilman vahvuutta.',
         open: 'Avaa apteekki.fi',
+        /**
+         * Under the link: the link lands on the list of packs, and the stock pharmacy by pharmacy is
+         * three steps further (Janne on his phone, 28 Nov 2026). "{pharmacy}" is the name of the
+         * pharmacy the dialog was opened from. "{button}", "{yes}" and "{no}" are the site's own
+         * words in `words`, which are Finnish in both languages because the site is.
+         */
+        steps: {
+          lead: 'Tämän apteekin varaston näet sivustolla näin:',
+          pick: 'Valitse pakkaus.',
+          press: 'Paina ”{button}”.',
+          find: 'Etsi listasta {pharmacy}. Sen kohdalla lukee ”{yes}” tai ”{no}”.',
+        },
+        words: { button: 'Etsi lähin apteekki', yes: 'Varastossa: Kyllä', no: 'Varastossa: Ei' },
       },
       ihreApotheken: {
         site: 'ihreapotheken.de',
