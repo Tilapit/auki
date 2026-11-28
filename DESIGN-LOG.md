@@ -1217,7 +1217,6 @@ Entry format:
 - Not measured: what it gains on the live site. That needs the deployed function to have stood idle and one run of `scripts/first-result-live.ts`; a pull request's preview is behind Vercel's login.
 - Status: the request by Janne's decision; the calls above provisional.
 
-
 ## 2026-11-28: The duty pharmacy: where pharmacies take turns, the country's own lookup (provisional)
 - Where: `data/countries/duty.ts`, `docs/research/duty-pharmacies.md`; `components/DutyParts.tsx`, `lib/duty.ts`; `dutyPlace` in `lib/results.ts`; `components/NearestOpenCard.tsx`, `components/ResultsView.tsx`; `lib/i18n/` (`duty`); `lib/fixtures/leipzig.ts`, `lib/fixtures/athens.ts`; `/dev/states`: the proposal "duty" and the group "The duty pharmacy"; PLAN.md sections 5, 8 and 11
 - Change: Where an official page says that pharmacies take turns out of hours, the card points to the country's own lookup. When nothing nearby is open it leads the card, above the farther open pharmacy and "Avautuu ensimmäisenä": the heading "Päivystävä apteekki", one line on why our list may miss the one on duty, the lookup and the phone number as rows, and the source with the day it was read. When our own answer stays first, the lookup is one row under the main actions.
