@@ -35,7 +35,9 @@ export function SiteFooter({ variant, distance, credit, emergency, dataFrom, onP
       {emergency && <p>{rich(t.footer.emergency, { number: <a href="tel:112">112</a> })}</p>}
       {distance && (
         <p>
-          {distance === 'walking' ? t.footer.walking : t.footer.straight} {t.footer.privacy}
+          {distance === 'walking' ? t.footer.walking : t.footer.straight} {t.footer.privacy}{' '}
+          {/* A plain link, like the one to the data page below: the tab keeps its search and shows it again on the way back. */}
+          <a href={`/${locale}/privacy`}>{t.footer.aboutPrivacy}</a>
         </p>
       )}
       {dataFrom !== undefined && (

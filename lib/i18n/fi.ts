@@ -1,4 +1,5 @@
 import { BRAND } from '../brand';
+import type { AppRequest } from '../requests';
 
 /**
  * Finnish UI strings. Finnish is written first; en.ts follows this shape.
@@ -46,6 +47,8 @@ const fi = {
     // A Finnish date ends in a full stop of its own ("22.11."): no second one after it.
     fetched: 'Tiedot: OpenStreetMap, haettu {date} {about}',
     aboutData: 'Tietoa aineistosta',
+    /** After the privacy sentence in the results footer: the way to the page that lists every request. */
+    aboutPrivacy: 'Mitä sovellus lähettää',
     /** At home the prescription banner is not shown: this brings it up, for a prescription from another country. */
     prescription: 'Resepti toisesta maasta?',
   },
@@ -460,6 +463,123 @@ const fi = {
     back: 'Takaisin apteekkihakuun',
     /** The name of the wordmark as a link: the name it shows, then where it leads. */
     home: `${BRAND}: takaisin apteekkihakuun`,
+  },
+  /**
+   * The "what the app sends" page (PLAN.md 7.6). A text per request of lib/requests.ts, by its id:
+   * the page shows the requests the list has, so a text here is on the page only once its request is.
+   * Each sentence is a claim that PLAN.md 7.6 makes and a test holds: say nothing here that is not there.
+   */
+  privacy: {
+    title: 'Mitä sovellus lähettää',
+    intro: [
+      'Sijaintisi lähtee laitteeltasi yhdessä pyynnössä: siinä, jolla sovellus kysyy kävelyajat ja reitin. Sijaintia ei tallenneta palvelimelle.',
+      'Selaimesi on yhteydessä kahteen osoitteeseen: tähän sivustoon ja karttapohjan palvelimeen. Sovelluksessa ei ole tiliä, evästeitä eikä kävijäseurantaa.',
+    ],
+    requestsTitle: 'Jokainen pyyntö',
+    requestsIntro:
+      'Sovellus tekee nämä pyynnöt eikä muita. Nimen alla on osoite, jolla pyyntö näkyy selaimen kehittäjätyökaluissa. Sovelluksen palvelin tarkoittaa tämän sivuston omaa palvelinta, joka on vuokrattu Vercel-yhtiöltä.',
+    labels: { when: 'Milloin', carries: 'Mitä siinä kulkee', receiver: 'Kuka sen saa' },
+    /** Under the one request whose `carries` in the list is the exact position. */
+    onlyPosition: 'Ainoa pyyntö, jossa sijaintisi on.',
+    requests: {
+      page: {
+        name: 'Sivu itse',
+        when: 'Kun avaat sovelluksen.',
+        carries: 'IP-osoitteesi ja selaimen tavalliset otsaketiedot, kuten jokaisessa verkkopyynnössä. Ei evästeitä. Kirjasimia ei haeta mistään: teksti piirretään laitteesi omalla kirjasimella.',
+        receiver: 'Sovelluksen palvelin.',
+      },
+      tiles: {
+        name: 'Apteekkitiedot',
+        when: 'Jokaisella haulla, ja kun siirrät kartan alueelle, jonka tietoja laitteellasi ei vielä ole.',
+        carries: 'Mitkä kartan ruudut tarvitaan: haun ympäriltä tai siltä alueelta, jolle siirsit kartan. Ruutu on 20–30 km leveä. Pyynnössä on ruutujen numerot, ei koordinaatteja.',
+        receiver: 'Sovelluksen palvelin.',
+      },
+      geocode: {
+        name: 'Paikan haku nimellä',
+        when: 'Kun lähetät paikkahaun.',
+        carries: 'Kirjoittamasi teksti ja sivun kieli.',
+        receiver: 'Sovelluksen palvelin, joka kysyy paikan Nominatim-palvelulta. Nominatim näkee palvelimemme, ei sinua. Sama nimi antaa saman paikan, joten vastaus pidetään välimuistissa.',
+      },
+      // The wake-up of the walking function (PLAN.md 7.1, step 4): on the page once lib/requests.ts lists the request, and not before.
+      wake: {
+        name: 'Kävelyaikapalvelun herätys',
+        when: 'Kun sovellus alkaa hakea sijaintia: kun painat ”Näytä apteekit lähelläni”, kun sijainti kysytään heti sivun avautuessa ja kun lähetät paikkahaun. Enintään kerran minuutissa.',
+        carries: 'Ei mitään: ei sijaintia, ei mitään osoitteessa eikä rungossa. IP-osoite ja selaimen otsaketiedot kuten muissakin pyynnöissä. Pyyntö kertoo palvelimelle, että haku on alkanut, silloinkin kun sijaintia ei koskaan tule.',
+        receiver: 'Sovelluksen palvelin, joka vastaa tyhjällä eikä kysy keneltäkään. Palvelu käynnistyy valmiiksi, jotta ensimmäiset kävelyajat eivät viivästy.',
+      },
+      walking: {
+        name: 'Kävelyajat ja reitti',
+        when: 'Kun lähimmät apteekit on löydetty. Uudelleen, kun olet kävellyt noin 300 m, enintään kerran kahdessa minuutissa, ja kun valitun apteekin reitti piirretään kartalle.',
+        carries: 'Sijainti noin metrin tarkkuudella (laitteesi sijainti tai hakemasi paikka) ja enintään 20 apteekin sijainnit. Ne ovat pyynnön rungossa, eivät sen osoitteessa.',
+        receiver: 'Sovelluksen palvelin, joka välittää sijainnit openrouteservice-palvelulle ja saa siltä kävelyajat. Se näkee palvelimemme, ei sinua: IP-osoitettasi ei välitetä. Palvelimemme ei tallenna sijaintia eikä kirjaa sitä lokiin.',
+      },
+      mapTiles: {
+        name: 'Karttapohja',
+        when: 'Kun kartta on näkyvissä.',
+        carries: 'Mitkä kartan ruudut ovat näytöllä (lähimmillään 1–2 km leveitä) ja IP-osoitteesi.',
+        receiver: 'Karttapohjan palvelin {host}. Se on ainoa ulkopuolinen palvelu, johon selaimesi on yhteydessä.',
+      },
+      reports: {
+        name: 'Muiden kävijöiden ilmoitukset',
+        when: 'Kun avaat ensimmäisen kerran jonkin maan apteekin tiedot tai otat listan suodattimen käyttöön. Kerran maata kohti niin kauan kuin sivu on auki.',
+        carries: 'Apteekin maa kahden kirjaimen tunnuksena. Ei apteekkia, ei sijaintia.',
+        receiver: 'Sovelluksen palvelin, joka lukee ilmoitukset tietokannastamme. Vastaus on kaikille sama.',
+      },
+      report: {
+        name: 'Oma ilmoituksesi',
+        when: 'Vain kun painat ilmoituksessa ”Lähetä”.',
+        carries: 'Apteekin OpenStreetMap-tunnus, sen maa ja valintasi: enintään viisi vastausta, kukin kyllä tai ei. Reseptiä koskevan vastauksen mukana kulkee se, oliko resepti toisesta maasta, ei koskaan mistä maasta. Ei sijaintia, ei tekstiä, ei lääkettä.',
+        receiver: 'Sovelluksen palvelin, joka tallentaa ilmoituksen tietokantaamme (Supabase) päivän tarkkuudella. IP-osoitetta tai muuta jälkeä laitteestasi ei tallenneta.',
+      },
+    } satisfies Record<AppRequest['id'] | 'wake', { name: string; when: string; carries: string; receiver: string }>,
+    linksTitle: 'Linkit, jotka avaat itse',
+    linksIntro: 'Nämä eivät ole sovelluksen pyyntöjä: mitään ei lähde ennen kuin napautat linkkiä. Sivut avautuvat omaan välilehteensä, eikä vastaanottaja saa tietää, miltä sivulta tulit.',
+    opened: {
+      links: {
+        name: 'Reitti, puhelu ja muut sivustot',
+        when: 'Kun napautat linkkiä: reitti Apple Kartoissa tai Google Mapsissa, puhelinnumero, apteekin sähköposti tai verkkosivu, OpenStreetMapin korjauslomake, viralliset sivut, joihin sovellus viittaa, ja kartan tekijätiedot.',
+        carries: 'Apteekin sijainti tai ei mitään. Ei koskaan sinun sijaintiasi: karttasovellus käyttää omaa paikannustaan.',
+        receiver: 'Se, jonka linkki nimeää.',
+      },
+      medicine: {
+        name: 'Lääkkeen saatavuushaku',
+        when: 'Kun avaat linkin ikkunasta ”Tarkista lääkkeen saatavuus”.',
+        carries: 'Lääkkeen nimi sellaisena kuin kirjoitit sen, linkin osoitteessa, jos palvelu ottaa nimen vastaan. Muuten ei mitään. Ei sijaintia, ei apteekkia.',
+        receiver: 'Maan oma palvelu, jonka linkki nimeää. Nimi ei kulje sovelluksen palvelimen kautta, eikä sovellus tallenna sitä.',
+      },
+    },
+    keptTitle: 'Mitä laitteesi säilyttää',
+    keptIntro: 'Evästeitä ei ole. Selaimesi säilyttää sovellusta varten alla olevat tiedot. Niitä ei lähetetä minnekään, eivätkä muut sivustot voi lukea niitä. Ne poistuvat, kun tyhjennät sivuston tiedot selaimesta.',
+    stores: { session: 'Tässä välilehdessä, kunnes suljet sen', local: 'Tässä selaimessa, kunnes tyhjennät sivuston tiedot' },
+    kept: {
+      lastSearch: {
+        name: 'Viimeisin haku',
+        text: 'Sijainti, jolle haku tehtiin (laitteesi sijainti tai hakemasi paikka nimineen), hakuaika ja saadut kävelyajat. Niiden avulla tulokset palaavat, kun välilehti ladataan uudelleen, esimerkiksi kun palaat karttasovelluksesta. Tieto poistuu, kun palaat tuloksista alkuun tai teet uuden haun, eikä sitä käytetä puolen tunnin jälkeen.',
+      },
+      lastDetail: {
+        // Not "auki ollut": in this app "auki" is what a pharmacy is.
+        name: 'Katsottu apteekki',
+        text: 'Sen apteekin OpenStreetMap-tunnus, jonka tiedot olivat esillä.',
+      },
+      locatedBefore: {
+        name: 'Merkki aiemmasta käynnistä',
+        text: '”Näytä apteekit lähelläni” on toiminut tässä selaimessa, joten seuraava käynti alkaa suoraan hausta. Yksi merkki: ei sijaintia, ei aikaa.',
+      },
+      reportsDone: {
+        name: 'Tämän päivän ilmoitukset',
+        text: 'Päivämäärä ja niiden apteekkien tunnukset, joiden kohdalla vastasit ilmoitukseen tai ohitit sen, jotta samasta käynnistä ei kysytä kahdesti. Vastauksia ei säilytetä. Lista tyhjenee, kun päivä vaihtuu.',
+      },
+      homeCountry: {
+        name: 'Reseptisi maa',
+        text: 'Kahden kirjaimen maatunnus, jos valitsit maan itse. Selaimen oma ehdotus lasketaan joka käynnillä uudelleen, eikä sitä säilytetä.',
+      },
+    },
+    keptNote: 'Se, jolla on lukitsematon laitteesi käsissään, voi lukea nämä tiedot, kuten hän voi lukea kartankin näytöltä.',
+    checkTitle: 'Miten tämä tarkistetaan',
+    /** Followed by the policy's own line, from lib/requests.ts. */
+    checkPolicy: 'Selain valvoo listaa. Sivun Content-Security-Policy sallii yhteydet vain tähän sivustoon ja karttapohjan palvelimeen, mitä tahansa sovelluksen koodi yrittääkin:',
+    checkTest: 'Automaattinen testi käy koko haun läpi keksityllä sijainnilla ja lukee jokaisen pyynnön. Se epäonnistuu, jos sijainti on missään muualla kuin kävelyaikapyynnön rungossa tai jos jokin pyyntö menee muualle kuin näihin kahteen osoitteeseen. Testi ajetaan jokaisen muutoksen jälkeen.',
+    checkList: 'Tämä sivu, selaimen sääntö ja testi rakennetaan samasta listasta, joten ne eivät voi erota toisistaan.',
   },
   map: {
     label: 'Kartta: sijaintisi ja lähimmät apteekit',
