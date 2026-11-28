@@ -1289,3 +1289,11 @@ Entry format:
 - Not changed: the link (`https://www.apteekki.fi/laakehaku.html?ehto=<name>`), what is sent and to whom, and that nothing is fetched from apteekki.fi. The steps are text.
 - Not checked: whether the names in OpenStreetMap are the names Lääkehaku's list shows (research file, "What I could not check").
 - Status: the steps and the number by Janne's request; the wording and the calls above provisional.
+
+## 2026-11-28: The medicine dialog's steps in apteekki.fi's own words
+- Where: `medicine.services.apteekkiFi.steps` and `.words` in `lib/i18n/`, `MedicineDialog`; `docs/research/medicine-availability.md`; `tests/e2e/medicine.spec.ts`; the `medicine-fi`, `medicine-fi-typed` and `medicine-stock` views
+- Change: Janne's wording of 28 Nov 2026, checked from a screen recording of the site on a phone. The three steps are now: 1. Paina oikean pakkauksen kohdalla ”Saatavuus ja hinta”. 2. Paina ”Etsi lähin apteekki” ja salli sijainti. 3. Etsi listasta <the pharmacy>. Sen kohdalla Varastossa-sarakkeessa lukee Kyllä tai Ei.
+- Why: The first wording ("Valitse pakkaus", and "Varastossa: Kyllä" as one label) was written before anyone had watched the site on a phone. A pack is chosen by pressing its "Saatavuus ja hinta"; the list asks for the location; and "Varastossa" is a column heading, with "Kyllä" or "Ei" under it.
+- In English as before: the site's words stay in Finnish, each followed by its meaning in brackets, and none of them breaks.
+- Nothing else changed: the lead, the last line with the number, the link, what is sent.
+- Status: the wording Janne's; the English provisional.

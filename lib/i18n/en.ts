@@ -310,11 +310,11 @@ const en: Dictionary = {
         open: 'Open apteekki.fi',
         steps: {
           lead: "The site is in Finnish. To see this pharmacy's stock there:",
-          pick: 'Pick the pack.',
-          press: 'Press “{button}” (find the nearest pharmacy).',
-          find: 'Find {pharmacy} in the list. It says “{yes}” (in stock) or “{no}” (not in stock).',
+          pick: 'Next to the right pack, press “{price}” (availability and price).',
+          press: 'Press “{button}” (find the nearest pharmacy) and allow location.',
+          find: 'Find {pharmacy} in the list. Its “{column}” (in stock) column says “{yes}” (yes) or “{no}” (no).',
         },
-        words: { button: 'Etsi lähin apteekki', yes: 'Varastossa: Kyllä', no: 'Varastossa: Ei' },
+        words: { price: 'Saatavuus ja hinta', button: 'Etsi lähin apteekki', column: 'Varastossa', yes: 'Kyllä', no: 'Ei' },
       },
       ihreApotheken: {
         site: 'ihreapotheken.de',

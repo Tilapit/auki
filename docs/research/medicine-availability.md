@@ -47,7 +47,7 @@ No country has a documented public API or open data for stock per pharmacy. Ever
 - It matches a product's name or Vnr, not the active substance: a brand name found 30 products, the substance's Finnish name none.
 - A name followed by a strength found nothing. The dialog's hint says to type the name alone.
 
-**From the link to one pharmacy's stock** (Janne on his phone, 28 Nov 2026): the link lands on the list of packs. Pick the pack, press "Etsi lähin apteekki", and the list of pharmacies says "Varastossa: Kyllä" or "Varastossa: Ei" for each. The dialog gives these three steps under the link, with the name of the pharmacy it was opened from and the site's words in Finnish in both languages. The labels were not read again for this: the site builds those pages in the browser, and the check of 25 Nov saw the same "Varastossa" answer.
+**From the link to one pharmacy's stock** (from Janne's screen recording on a phone, 28 Nov 2026): the link lands on the list of packs. Next to the right pack, press "Saatavuus ja hinta"; then "Etsi lähin apteekki", and allow the location; the list of pharmacies then has a column "Varastossa" that says "Kyllä" or "Ei" for each. The dialog gives these three steps under the link, with the name of the pharmacy it was opened from and the site's words in Finnish in both languages. The labels were not read from the site by this run: it builds those pages in the browser. The check of 25 Nov saw the same "Varastossa" answer.
 
 **Link with a place: no.** The place is typed inside the widget. An inner page of the widget takes coordinates, but it is a bare frame on another host and not a public way in, so the app does not use it. It would be the first thing to ask Apteekkariliitto about.
 

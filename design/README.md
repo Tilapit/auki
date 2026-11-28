@@ -119,3 +119,4 @@ For the pull request "The hand-off link", from `/dev/states` in Chromium on a Ma
 ## The medicine dialog's steps, 28 Nov 2026 (`medicine-steps/`)
 
 For the pull request that gives Lääkehaku's steps in the medicine dialog, from `/dev/states` (`medicine-fi`) in Chromium on a Mac: on a phone, main's dialog, then the new one in Finnish, in English in the dark and in Finnish in the dark (`phone.jpg`); on a desktop, main's and the new one in English (`desktop.jpg`).
+The steps' wording from apteekki.fi as it shows on a phone, 28 Nov 2026 (`wording.jpg`): `medicine-fi` on a phone in Finnish, in English, and in Finnish in the dark.

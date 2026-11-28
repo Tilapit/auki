@@ -19,7 +19,11 @@ const SERVICE = 'https://www.apteekki.fi';
 const SEARCH = `${SERVICE}/laakehaku.html`;
 
 // The steps from where apteekki.fi's link lands to one pharmacy's stock, in the site's own Finnish words.
-const steps = (pharmacy: string) => ['Valitse pakkaus.', 'Paina ”Etsi lähin apteekki”.', `Etsi listasta ${pharmacy}. Sen kohdalla lukee ”Varastossa: Kyllä” tai ”Varastossa: Ei”.`];
+const steps = (pharmacy: string) => [
+  'Paina oikean pakkauksen kohdalla ”Saatavuus ja hinta”.',
+  'Paina ”Etsi lähin apteekki” ja salli sijainti.',
+  `Etsi listasta ${pharmacy}. Sen kohdalla Varastossa-sarakkeessa lukee Kyllä tai Ei.`,
+];
 
 const card = (page: Page) => page.locator('section', { has: page.getByRole('heading', { name: 'Lähin auki nyt' }) }).last();
 const medicine = (page: Page) => page.getByRole('dialog', { name: 'Tarkista lääkkeen saatavuus' });
@@ -57,7 +61,7 @@ test('a medicine\'s name goes to the country\'s own service in the link the user
   await expect(list.getByRole('listitem')).toHaveText(steps('Kampin apteekki'));
   expect(await dialog.evaluate((d) => !!(d.querySelector('[data-handoff]')!.compareDocumentPosition(d.querySelector('ol')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
   // The site's own words are marked as Finnish, so that a screen reader in any language reads them as such.
-  await expect(list.locator('[lang="fi"]')).toHaveText(['Etsi lähin apteekki', 'Varastossa: Kyllä', 'Varastossa: Ei']);
+  await expect(list.locator('[lang="fi"]')).toHaveText(['Saatavuus ja hinta', 'Etsi lähin apteekki', 'Varastossa', 'Kyllä', 'Ei']);
   await expect(link).toHaveAttribute('href', SEARCH);
   await expect(link).toHaveAttribute('target', '_blank');
   await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
