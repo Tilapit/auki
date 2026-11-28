@@ -4,12 +4,13 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'rea
 import { useReport, useReportFilter, type FilterTopic } from '@/hooks/useReport';
 import type { RouteFor } from '@/hooks/useRouteLine';
 import { COUNTRY_CODES } from '@/lib/countries';
+import { dutyRotates, useDuty } from '@/lib/duty';
 import { useGuidance } from '@/lib/guidance';
 import { useHome } from '@/lib/home';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
 import type { Answers, Reports } from '@/lib/reports';
-import { arrange, cityIfElsewhere, placeLabel } from '@/lib/results';
+import { arrange, cityIfElsewhere, dutyPlace, placeLabel } from '@/lib/results';
 import { displayName, fullName, glyphFor, isOpenNow, opensWhen, statusText } from '@/lib/status';
 import { providerFor, providerForReview } from '@/lib/stock/providers';
 import { travel, withinWalk } from '@/lib/travel';
@@ -108,6 +109,8 @@ export interface ResultsOptions {
   bannerOpen?: boolean;
   /** /dev/states only: a pharmacy's details as another component draws them, for a before and after of the sheet. */
   detailAs?: typeof PharmacySheet;
+  /** /dev/states only: false shows a card as it is where duty doesn't rotate, for a before and after. */
+  duty?: boolean;
   /** /dev/map only: another limit for the map's device pixels per CSS pixel. */
   mapPixels?: number;
   /** /dev/map only: the map under a finger as MapLibre has it, to compare with ours on a phone. */
@@ -129,12 +132,22 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
   // Nothing open at all: the card, with 112 prominent, is what the user meets first (PLAN.md 7.6).
   const nothingOpen = !unlisted && !nearestOpen && !!firstToOpen;
-  const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (options.detailId || (nothingOpen && !classic) ? 'half' : 'peek'));
+  // Where pharmacies take turns out of hours (PLAN.md section 5), in the country of the nearest
+  // pharmacy, which is where the user stands. Out-of-date data says nothing of what is closed.
+  const dutyCountry = scene.pharmacies[0]?.country ?? scene.here;
+  const rotates = options.duty !== false && scene.stale !== true && dutyRotates(dutyCountry);
+  // The lookup's place in the card: in the lead, or one row under our own answer (lib/results.ts).
+  const dutyAt = rotates ? dutyPlace(arranged, scene) : undefined;
+  // In the lead, nothing nearby is open as far as hours can say: on the phone the sheet starts
+  // at the card, as it does when nothing is open at all.
+  const dutyLeads = dutyAt === 'lead';
+  const startsAtCard = (nothingOpen || dutyLeads) && !classic;
+  const [sheet, setSheet] = useState<SheetState>(options.sheet ?? (options.detailId || startsAtCard ? 'half' : 'peek'));
   const [detailId, setDetailId] = useState(options.detailId);
   const { onDetail } = options;
   useEffect(() => onDetail?.(detailId), [onDetail, detailId]);
   /** Where the phone's sheet was before a pharmacy's details took it over: closed, it goes back there. */
-  const sheetBefore = useRef<SheetState>(options.sheet ?? (nothingOpen && !classic ? 'half' : 'peek'));
+  const sheetBefore = useRef<SheetState>(options.sheet ?? (startsAtCard ? 'half' : 'peek'));
   /** How much of the details the phone's sheet shows at its middle height: down to the row of main actions, or to the facts under it when they fit too. */
   const [detailFold, setDetailFold] = useState<number>();
   /** What opened the details: the row's button, a marker, a row of the list. Focus goes back there. */
@@ -312,7 +325,12 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       ? t.results.foundUnlisted(arranged.total, unlisted.count)
       : nearestOpen && way
         ? t.results.found(arranged.total, displayName(i18n, nearestOpen), way.distance?.long ?? way.primary.spoken, statusText(i18n, nearestOpen.status))
-        : t.results.foundNoneOpen(arranged.total);
+        : dutyLeads
+          ? t.duty.found(arranged.total)
+          : t.results.foundNoneOpen(arranged.total);
+  // Where pharmacies take turns, closed doors all around don't mean that nothing is open: the one
+  // on duty may be one of them. Neither the heading nor the phone's bar says more than the hours do.
+  const dutyNone = dutyLeads && openCount === 0;
   const missing = (scene.missing ?? []).map((code) => f.countryName(code));
   const firstWay = firstToOpen && travel(i18n, firstToOpen, scene.distance);
   // The sheet as it was, for the comparison in /dev/states: the answer in three lines, with
@@ -394,6 +412,17 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
 
   // Hours coverage (provisional): the nearest pharmacy leads although we can't say that it is open.
   const lead = unlisted?.lead;
+  // The lookups themselves arrive only when a card has a place for them (lib/duty.ts).
+  const dutyParts = useDuty(dutyAt !== undefined);
+  const duty = dutyAt && dutyParts?.dutyFor(dutyCountry);
+  const dutySlots =
+    duty && dutyParts
+      ? dutyAt === 'lead'
+        ? { lead: <dutyParts.DutyLead duty={duty} /> }
+        : dutyParts.dutyHasWay(duty)
+          ? { row: <dutyParts.DutyRow duty={duty} /> }
+          : { note: <dutyParts.DutyNote duty={duty} /> }
+      : undefined;
   const leadWay = lead && travel(i18n, lead, scene.distance);
   const unlistedPeek = lead && leadWay && (
     <section aria-labelledby={`${id}-peek`} className={styles.peek}>
@@ -510,6 +539,8 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
   const hasCard = !!lead || !!nearestOpen || !!firstToOpen;
   // Without a card (out-of-date data has a notice in its place) the line stands by itself, under the notices.
   const lineAlone = !!cardProvider && !!cardSite && !hasCard;
+  // Closed pharmacies none of which says when it opens leave no card: the lookup then stands by itself.
+  const dutyAlone = !hasCard && dutySlots?.lead;
   const hasLists = others.length > 0 || closedGroup.length > 0;
 
   const nextFor = (pharmacy: Pharmacy) => everyone.find((p) => p.id !== pharmacy.id && isOpenNow(p.status) && !p.tooLate);
@@ -555,13 +586,15 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       updated={scene.updated}
       // Out-of-date data says nothing about what is open: neither does the heading.
       // Nor do unknown hours: where they lead, the heading counts nothing as open or closed.
-      title={stale ? t.results.title : unlisted ? t.results.unlistedTitle : t.results.openNow(openCount, night)}
+      title={stale ? t.results.title : unlisted ? t.results.unlistedTitle : dutyNone ? t.duty.noneTitle : t.results.openNow(openCount, night)}
       barLine={
         stale
           ? t.results.staleShort
           : unlisted
             ? t.results.unlistedShort
-            : rich(t.results.openAt(openCount), {
+            : dutyNone
+              ? t.duty.noneShort
+              : rich(t.results.openAt(openCount), {
                 time: <time dateTime={scene.updated}>{f.clock(scene.updated)}</time>,
               })
       }
@@ -574,7 +607,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
       // The card is the sheet's middle place. Under it, the way to the list, when there is more to see.
       listLabel={!stale && hasCard && hasLists ? t.results.allPharmacies(arranged.total) : undefined}
       lead={
-        hasNotices || hasCard || lineAlone ? (
+        hasNotices || hasCard || lineAlone || dutyAlone ? (
           <div className={styles.content} data-reveal={options.reveal || undefined}>
             {scene.user.approximate && <ApproximateNotice onSearch={options.onSearch} />}
 
@@ -597,6 +630,7 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 onShowCard={showCard}
                 onMedicine={openMedicine}
                 medicineSite={cardSite}
+                duty={dutySlots}
               >
                 {banner}
               </HoursUnknownCard>
@@ -620,16 +654,19 @@ export function ResultsView({ scene, ...options }: { scene: Scene } & ResultsOpt
                 onShowCard={showCard}
                 onMedicine={openMedicine}
                 medicineSite={cardSite}
+                duty={dutySlots}
               >
                 {banner}
               </NearestOpenCard>
             )}
 
             {!lead && !nearestOpen && firstToOpen && (
-              <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select} onMedicine={openMedicine} medicineSite={cardSite}>
+              <NothingOpenCard pharmacy={firstToOpen} distance={scene.distance} onSelect={select} onMedicine={openMedicine} medicineSite={cardSite} duty={dutySlots}>
                 {banner}
               </NothingOpenCard>
             )}
+
+            {dutyAlone}
 
             {lineAlone && cardProvider && cardSite && <MedicineRow onOpen={() => showMedicine(cardProvider.country)} site={cardSite} />}
           </div>
