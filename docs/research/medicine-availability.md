@@ -47,6 +47,8 @@ No country has a documented public API or open data for stock per pharmacy. Ever
 - It matches a product's name or Vnr, not the active substance: a brand name found 30 products, the substance's Finnish name none.
 - A name followed by a strength found nothing. The dialog's hint says to type the name alone.
 
+**From the link to one pharmacy's stock** (Janne on his phone, 28 Nov 2026): the link lands on the list of packs. Pick the pack, press "Etsi lähin apteekki", and the list of pharmacies says "Varastossa: Kyllä" or "Varastossa: Ei" for each. The dialog gives these three steps under the link, with the name of the pharmacy it was opened from and the site's words in Finnish in both languages. The labels were not read again for this: the site builds those pages in the browser, and the check of 25 Nov saw the same "Varastossa" answer.
+
 **Link with a place: no.** The place is typed inside the widget. An inner page of the widget takes coordinates, but it is a bare frame on another host and not a public way in, so the app does not use it. It would be the first thing to ask Apteekkariliitto about.
 
 **How fresh.** The service's terms (2.2) say the data is updated regularly, that updates can lag, and that a phone call to the pharmacy is the way to be sure. The answer per pharmacy is yes or no, without counts. An update interval is not stated anywhere I could read.
@@ -241,6 +243,7 @@ What an agreed interface has to allow, for the rules of PLAN.md 7.6 to hold:
 - Germany: the result page of IhreApotheken.de, for the reason above. One click settles it.
 - Sweden: whether Lif reads clause 4.5 as covering an app of this size. The answer to Janne's message settles it.
 - Finland: the update interval of Lääkehaku, and whether every Yliopiston Apteekki branch is really absent (one product was checked).
+- Finland: whether a pharmacy's name in OpenStreetMap, which the dialog's steps use, is the name Lääkehaku's list shows. Not compared; a pharmacy may be listed there under a longer or older name.
 - Austria: today's number of pharmacies in ApoApp, and whether the app can be installed from Google Play in Finland.
 - Norway: Apotek 1's and Boots's search pages as a user sees them.
 - Everything was requested from one Nordic address. Blocking from other countries is untested.

@@ -114,3 +114,8 @@ For the pull request that adds the page of every request, from Chromium on a Mac
 ## The hand-off link, 28 Nov 2026 (`handoff/`)
 
 For the pull request "The hand-off link", from `/dev/states` in Chromium on a Mac (`link.jpg`): the banner for a prescription from Finland in Latvia without a link and with `rx=p`, where the paper answer leads; the counter card open on paper; and the banner again in the dark. The two banners on one page were the view while it was being built. The committed view (`handoff`) has the second alone: a page may not have two landmarks by one name.
+
+
+## The medicine dialog's steps, 28 Nov 2026 (`medicine-steps/`)
+
+For the pull request that gives Lääkehaku's steps in the medicine dialog, from `/dev/states` (`medicine-fi`) in Chromium on a Mac: on a phone, main's dialog, then the new one in Finnish, in English in the dark and in Finnish in the dark (`phone.jpg`); on a desktop, main's and the new one in English (`desktop.jpg`).

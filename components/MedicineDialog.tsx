@@ -3,7 +3,9 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { rich } from '@/lib/i18n/rich';
+import { fullName } from '@/lib/status';
 import { MEDICINE_MAX_LENGTH, type StockProvider } from '@/lib/stock/provider';
+import type { Pharmacy } from '@/lib/types';
 import { Button, IconButton } from './Button';
 import { cx } from './cx';
 import { Icon } from './Icon';
@@ -32,6 +34,8 @@ export function MedicineRow({ onOpen, site, className }: { onOpen: () => void; s
 interface Props {
   /** The country's own stock search. Without one the dialog has nothing to say and stays shut. */
   provider: StockProvider | undefined;
+  /** The pharmacy it was opened from: the card's, or the one whose details are open. Named in the steps, and called from the last line. */
+  pharmacy?: Pharmacy;
   open: boolean;
   onClose: () => void;
   /** /dev/states only: the field as it looks with a name in it. */
@@ -53,8 +57,9 @@ interface Props {
  * - `spellcheck={false}`: a browser's cloud spelling service would otherwise be sent the text;
  * - the link has no referrer and opens the service the button names, in a tab of its own.
  */
-export function MedicineDialog({ provider, open, onClose, initialValue = '', children }: Props) {
-  const { t, f } = useI18n();
+export function MedicineDialog({ provider, pharmacy, open, onClose, initialValue = '', children }: Props) {
+  const i18n = useI18n();
+  const { t, f } = i18n;
   const id = useId();
   const ref = useRef<HTMLDialogElement>(null);
   const [value, setValue] = useState(initialValue);
@@ -138,9 +143,38 @@ export function MedicineDialog({ provider, open, onClose, initialValue = '', chi
           <NewTabNote />
         </Button>
 
+        {/* Where the link lands is not yet the answer: the steps from there to this pharmacy's stock, in the site's own words. */}
+        {'steps' in copy && pharmacy && (
+          <div className={styles.steps}>
+            <p>{copy.steps.lead}</p>
+            <ol>
+              <li>{copy.steps.pick}</li>
+              <li>{rich(copy.steps.press, { button: <span lang="fi" className={styles.words}>{copy.words.button}</span> })}</li>
+              <li>
+                {rich(copy.steps.find, {
+                  // A pharmacy without a name is found by its street.
+                  pharmacy: <span className={styles.name}>{fullName(i18n, pharmacy, pharmacy.name === null)}</span>,
+                  yes: <span lang="fi" className={styles.words}>{copy.words.yes}</span>,
+                  no: <span lang="fi" className={styles.words}>{copy.words.no}</span>,
+                })}
+              </li>
+            </ol>
+          </div>
+        )}
+
         <div className={styles.notes}>
           <p id={`${id}-sent`}>{provider.takesMedicine ? rich(t.medicine.sent, { site: <span className={styles.site}>{copy.site}</span> }) : t.medicine.nothingSent}</p>
-          <p>{t.medicine.confirm}</p>
+          <p>
+            {pharmacy?.phone
+              ? rich(t.medicine.confirmCall, {
+                  phone: (
+                    <a className={styles.phone} href={`tel:${pharmacy.phone.replace(/\s/g, '')}`}>
+                      {pharmacy.phone}
+                    </a>
+                  ),
+                })
+              : t.medicine.confirm}
+          </p>
         </div>
 
         {children}

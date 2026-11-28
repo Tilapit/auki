@@ -18,6 +18,9 @@ const MARK = 'zzyx';
 const SERVICE = 'https://www.apteekki.fi';
 const SEARCH = `${SERVICE}/laakehaku.html`;
 
+// The steps from where apteekki.fi's link lands to one pharmacy's stock, in the site's own Finnish words.
+const steps = (pharmacy: string) => ['Valitse pakkaus.', 'Paina ”Etsi lähin apteekki”.', `Etsi listasta ${pharmacy}. Sen kohdalla lukee ”Varastossa: Kyllä” tai ”Varastossa: Ei”.`];
+
 const card = (page: Page) => page.locator('section', { has: page.getByRole('heading', { name: 'Lähin auki nyt' }) }).last();
 const medicine = (page: Page) => page.getByRole('dialog', { name: 'Tarkista lääkkeen saatavuus' });
 
@@ -42,10 +45,19 @@ test('a medicine\'s name goes to the country\'s own service in the link the user
   await expect(dialog.getByRole('heading', { level: 2 })).toBeFocused();
   // It names the service and who runs it, and makes no claim of its own.
   await expect(dialog).toContainText('Lääkehaku, jota ylläpitää Suomen Apteekkariliitto');
-  await expect(dialog).toContainText('Varastotieto on palvelun oma, eikä tämä sovellus näe sitä. Varmista apteekista ennen kuin lähdet.');
+  // The pharmacy to check with is the card's, and its number is a call link.
+  await expect(dialog).toContainText('Varastotieto on palvelun oma, eikä tämä sovellus näe sitä. Varmista apteekista ennen kuin lähdet: +358 9 1234 501.');
+  await expect(dialog.getByRole('link', { name: '+358 9 1234 501' })).toHaveAttribute('href', 'tel:+35891234501');
 
   // Without a name the link opens the service's own search.
   const link = dialog.getByRole('link', { name: 'Avaa apteekki.fi' });
+
+  // Under it, the way from where it lands to this pharmacy's stock: three steps, the card's pharmacy named in the last.
+  const list = dialog.getByRole('list');
+  await expect(list.getByRole('listitem')).toHaveText(steps('Kampin apteekki'));
+  expect(await dialog.evaluate((d) => !!(d.querySelector('[data-handoff]')!.compareDocumentPosition(d.querySelector('ol')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  // The site's own words are marked as Finnish, so that a screen reader in any language reads them as such.
+  await expect(list.locator('[lang="fi"]')).toHaveText(['Etsi lähin apteekki', 'Varastossa: Kyllä', 'Varastossa: Ei']);
   await expect(link).toHaveAttribute('href', SEARCH);
   await expect(link).toHaveAttribute('target', '_blank');
   await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -105,6 +117,9 @@ test('a pharmacy\'s details offer the same check, and Escape closes it without c
   await page.keyboard.press('Enter');
   await expect(medicine(page)).toBeVisible();
   await expect(medicine(page).getByRole('link', { name: 'Avaa apteekki.fi' })).toHaveAttribute('href', SEARCH);
+  // The steps and the number are this pharmacy's, not the card's.
+  await expect(medicine(page).getByRole('listitem')).toHaveText(steps('Yliopiston apteekki'));
+  await expect(medicine(page).getByRole('link', { name: '+358 9 1234 502' })).toHaveAttribute('href', 'tel:+35891234502');
   await page.keyboard.press('Escape');
   await expect(medicine(page)).toBeHidden();
   // Back where the user was: the pharmacy's details, on the button that opened the dialog.
@@ -134,6 +149,9 @@ test('a service whose address takes no name is never asked for one', async ({ pa
   await expect(dialog.getByRole('textbox')).toHaveCount(0);
   await expect(dialog.getByRole('link', { name: 'Avaa apothekerkammer.at' })).toHaveAttribute('href', 'https://www.apothekerkammer.at/apoapp');
   await expect(dialog).toContainText('Linkissä ei ole lääkkeen nimeä. Kirjoita se palvelun omaan hakuun: tämä sovellus ei kysy eikä näe sitä.');
+  // The steps are apteekki.fi's and are not given for another service; the number to call is.
+  await expect(dialog.getByRole('list')).toHaveCount(0);
+  await expect(dialog.getByRole('link', { name: '+358 9 1234 501' })).toHaveAttribute('href', 'tel:+35891234501');
 });
 
 test('in a country without a stock search of its own, nothing is offered', async ({ page }) => {
