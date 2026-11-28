@@ -131,7 +131,7 @@ Status is never told by colour alone: the cross has four shapes. The list is the
 
 ## How it was made
 
-Built between 22 and 27 Nov 2026 by Janne Lappi with Claude Code. Janne wrote the brief, tried each version on his phone and made the decisions; Claude Code wrote the code, the tests and the reports, from the spec in [`PLAN.md`](PLAN.md) and the working rules in [`CLAUDE.md`](CLAUDE.md). Every change came as a pull request that Janne reviewed and merged, or had said beforehand could be merged once its checks were green. [`DESIGN-LOG.md`](DESIGN-LOG.md) says of each design decision whose it was.
+Built between 22 and 28 Nov 2026 by Janne Lappi with Claude Code. Janne wrote the brief, tried each version on his phone and made the decisions; Claude Code wrote the code, the tests and the reports, from the spec in [`PLAN.md`](PLAN.md) and the working rules in [`CLAUDE.md`](CLAUDE.md). Every change came as a pull request that Janne reviewed and merged, or had said beforehand could be merged once its checks were green. [`DESIGN-LOG.md`](DESIGN-LOG.md) says of each design decision whose it was.
 
 ## Left out, and why
 
