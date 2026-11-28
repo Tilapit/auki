@@ -7,10 +7,13 @@ import { StockExample } from '@/components/dev/StockExample';
 import { PharmacySheet as PharmacySheetBefore } from '@/components/dev/before/PharmacySheet';
 import { FirstVisit } from '@/components/FirstVisit';
 import { PlaceSearch } from '@/components/PlaceSearch';
+import { PrivacyPage } from '@/components/PrivacyPage';
 import { ProblemView } from '@/components/ProblemView';
 import { ProgressView } from '@/components/ProgressView';
 import { SearchingView } from '@/components/SearchingView';
 import { helsinki, helsinkiSearched, helsinkiStraight } from '@/lib/fixtures/helsinki';
+import { athens, athensNight } from '@/lib/fixtures/athens';
+import { leipzigFarOpen, leipzigNothingOpen, leipzigOneOpen } from '@/lib/fixtures/leipzig';
 import { malaga, malagaLate, malagaNear, malagaNoPhone } from '@/lib/fixtures/malaga';
 import { riga, rigaFarOpen, rigaNothingOpen } from '@/lib/fixtures/riga';
 import { EXAMPLE_MEDICINE } from '@/lib/fixtures/stock';
@@ -137,6 +140,7 @@ export const renderers: Record<string, () => ReactNode> = {
   'not-covered-unknown': () => <ProblemView kind="notCovered" scene={sceneAt(HERE, '20:41')} />,
   data: () => <DataView loaded={{ status: 'ready', index: indexOf([]) }} zone="Europe/Helsinki" />,
   'data-failed': () => <DataView loaded={{ status: 'failed' }} />,
+  privacy: () => <PrivacyPage />,
 
   none: () => <ProblemView kind="none" scene={helsinki} />,
   offline: () => <ProblemView kind="offline" scene={helsinki} />,
@@ -189,5 +193,15 @@ export const renderers: Record<string, () => ReactNode> = {
   'hours-none': () => <ResultsView scene={malagaLate} sheet="expanded" />,
   'hours-no-phone': () => <ResultsView scene={malagaNoPhone} sheet="expanded" />,
   'hours-near': () => <ResultsView scene={malagaNear} sheet="expanded" />,
+
+  // The duty pharmacy (provisional): where pharmacies take turns, the country's own lookup.
+  'duty-current': () => <ResultsView scene={leipzigFarOpen} sheet="expanded" duty={false} />,
+  'duty-proposed': () => <ResultsView scene={leipzigFarOpen} sheet="expanded" />,
+  'duty-half': () => <ResultsView scene={leipzigFarOpen} />,
+  'duty-nothing-open': () => <ResultsView scene={leipzigNothingOpen} sheet="expanded" />,
+  'duty-nothing-open-half': () => <ResultsView scene={leipzigNothingOpen} />,
+  'duty-row': () => <ResultsView scene={leipzigOneOpen} sheet="expanded" />,
+  'duty-note': () => <ResultsView scene={athens} sheet="expanded" />,
+  'duty-door': () => <ResultsView scene={athensNight} sheet="expanded" />,
 
 };

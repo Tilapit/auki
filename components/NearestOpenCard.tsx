@@ -42,8 +42,21 @@ interface Props {
   /** Opens the medicine dialog for this pharmacy's country, and that service's address. Left out where the country has no stock search of its own. */
   onMedicine?: () => void;
   medicineSite?: string;
+  /** Where pharmacies take turns out of hours (PLAN.md section 5). The country's lookup, drawn by components/DutyParts.tsx. */
+  duty?: DutySlots;
   /** More sections of the same surface: the prescription banner abroad. */
   children?: ReactNode;
+}
+
+/**
+ * The duty lookup's places in a card. `lead`: nothing nearby is open, and the lookup comes
+ * before everything else. `row`: our answer stays first, and the lookup is one row of the
+ * card's list. `note`: one line, where the country has no lookup to open and no number to call.
+ */
+export interface DutySlots {
+  lead?: ReactNode;
+  row?: ReactNode;
+  note?: ReactNode;
 }
 
 /**
@@ -68,6 +81,7 @@ export function NearestOpenCard({
   onShowCard,
   onMedicine,
   medicineSite,
+  duty,
   children,
 }: Props) {
   const i18n = useI18n();
@@ -90,6 +104,7 @@ export function NearestOpenCard({
 
   return (
     <section className={styles.card} aria-labelledby={`${id}-h`}>
+      {duty?.lead}
       <h2 id={`${id}-h`} className={styles.label}>
         {t.results.nearestOpen}
       </h2>
@@ -134,6 +149,8 @@ export function NearestOpenCard({
       )}
 
       {closerUnknown > 0 && <p className={styles.context}>{t.results.closerUnknown(closerUnknown)}</p>}
+
+      {duty?.note}
 
       {tooLate ? (
         <>
@@ -202,6 +219,8 @@ export function NearestOpenCard({
               </RowGroup>
             )
           )}
+          {/* Too late for the one that is open: the pharmacy on duty is another way forward. */}
+          {duty?.row && <RowGroup>{duty.row}</RowGroup>}
         </>
       ) : (
         <>
@@ -216,8 +235,10 @@ export function NearestOpenCard({
             )}
             <MedicineAction onOpen={onMedicine} site={medicineSite} />
           </ActionBar>
-          {((nextOpen && nextDetails) || country) && (
+          {((nextOpen && nextDetails) || country || duty?.row) && (
             <RowGroup>
+              {/* The nearer ones are closed: the pharmacy on duty may be nearer than ours. Our answer stays first, the lookup is the first row under it. */}
+              {duty?.row}
               {nextOpen && nextDetails && (
                 <Row
                   icon={<CrossGlyph state={glyphFor(nextOpen.status)} size={20} />}
@@ -378,6 +399,8 @@ interface HoursUnknownProps {
   onShowCard?: () => void;
   onMedicine?: () => void;
   medicineSite?: string;
+  /** Where pharmacies take turns: the lookup as a row under the one known to be open, or as one line. Never in the lead here: nothing says the nearest is closed. */
+  duty?: DutySlots;
   children?: ReactNode;
 }
 
@@ -387,7 +410,7 @@ interface HoursUnknownProps {
  * nearest leads, with what we don't know said plainly and the call button first. The nearest
  * one known to be open stays as a line under it. Nothing here guesses at hours.
  */
-export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, knownOpenWithStreet, hoursListed, country, onRoute, onSelect, onShowCard, onMedicine, medicineSite, children }: HoursUnknownProps) {
+export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, knownOpenWithStreet, hoursListed, country, onRoute, onSelect, onShowCard, onMedicine, medicineSite, duty, children }: HoursUnknownProps) {
   const i18n = useI18n();
   const { t, f, locale } = i18n;
   const id = useId();
@@ -426,7 +449,7 @@ export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, k
         <MedicineAction onOpen={onMedicine} site={medicineSite} />
       </ActionBar>
 
-      {((knownOpen && knownDetails) || country) && (
+      {((knownOpen && knownDetails) || country || duty?.row) && (
         <RowGroup>
           {knownOpen && knownDetails && (
             <Row
@@ -436,11 +459,13 @@ export function HoursUnknownCard({ pharmacy, city, distance, count, knownOpen, k
               onClick={() => onSelect?.(knownOpen)}
             />
           )}
+          {/* Where pharmacies take turns: the country's lookup, under the one known to be open (PLAN.md section 5). */}
+          {duty?.row}
           {country && <CounterRow country={country} onOpen={onShowCard} />}
         </RowGroup>
       )}
 
-      {/* M6: where night duty rotates, the country's official duty-pharmacy lookup goes here (PLAN.md section 5). */}
+      {duty?.note}
 
       {hoursListed && (
         <p className={styles.coverage}>
@@ -462,6 +487,8 @@ interface NothingOpenProps {
   onSelect?: (pharmacy: Pharmacy) => void;
   onMedicine?: () => void;
   medicineSite?: string;
+  /** Where pharmacies take turns: the lookup leads, above the first one to open. */
+  duty?: DutySlots;
   children?: ReactNode;
 }
 
@@ -470,12 +497,13 @@ interface NothingOpenProps {
  * that opens first, and the emergency number kept prominent. No route button: it would lead
  * to a closed door.
  */
-export function NothingOpenCard({ pharmacy, distance, onSelect, onMedicine, medicineSite, children }: NothingOpenProps) {
+export function NothingOpenCard({ pharmacy, distance, onSelect, onMedicine, medicineSite, duty, children }: NothingOpenProps) {
   const i18n = useI18n();
   const { t } = i18n;
   const id = useId();
   return (
     <section className={styles.card} aria-labelledby={`${id}-h`}>
+      {duty?.lead}
       <h2 id={`${id}-h`} className={styles.label}>
         {t.results.opensFirst}
       </h2>

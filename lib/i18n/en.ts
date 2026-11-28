@@ -32,6 +32,7 @@ const en: Dictionary = {
     osm: '© OpenStreetMap contributors',
     fetched: 'Data: OpenStreetMap, fetched {date}. {about}',
     aboutData: 'About the data',
+    aboutPrivacy: 'What the app sends',
     prescription: 'A prescription from another country?',
   },
   first: {
@@ -273,6 +274,20 @@ const en: Dictionary = {
     filterNone: 'No reports yet to choose among these pharmacies by.',
     filterFailed: 'The visitors’ reports could not be fetched.',
     filterOff: 'Show all pharmacies',
+  },
+  duty: {
+    title: 'Duty pharmacy',
+    noneTitle: 'The pharmacies nearby are closed, the one on duty may be open',
+    noneShort: 'Duty pharmacy may be open',
+    found: (count) => `${count === 1 ? 'Found one pharmacy' : `Found ${count} pharmacies`}. By their opening hours none is open. The pharmacy on duty may be open.`,
+    why: (country) => `${country}: pharmacies take turns to stay open when the others are closed. Whose turn it is does not show in these opening hours.`,
+    find: 'Find the duty pharmacy',
+    regions: 'Duty pharmacies by region',
+    call: (number) => `Call ${number}`,
+    callSub: 'Tells which pharmacy is on duty',
+    turns: 'pharmacies take turns',
+    door: 'A closed pharmacy posts the one on duty at its door.',
+    source: 'Source: {by}, read on {checked}.',
   },
   medicine: {
     title: "Check a medicine's availability",

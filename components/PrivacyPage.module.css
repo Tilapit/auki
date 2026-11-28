@@ -1,0 +1,119 @@
+.heading {
+  margin-top: 36px;
+  font-size: var(--t-l);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* One surface per list, a hairline between its rows: the data page's table, for text. */
+.list {
+  margin-top: 18px;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-card);
+  background: var(--surface);
+}
+
+.item {
+  padding: 16px 18px 18px;
+}
+
+.item + .item {
+  border-top: 1px solid var(--hair-2);
+}
+
+.name {
+  font-size: var(--t-body);
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+/* The address as the browser's own tools show it, and a storage key as they show it: to be held against them. */
+.code,
+.policy code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: var(--t-xs);
+  overflow-wrap: anywhere;
+  /* An address is not a word of either language. */
+  hyphens: none;
+}
+
+.code {
+  display: block;
+  margin-top: 3px;
+  color: var(--meta);
+}
+
+.facts {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: var(--t-m);
+  line-height: 1.5;
+}
+
+/* The three questions in a column of their own, so that the answers read down the page. */
+.facts div {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  column-gap: 16px;
+}
+
+.facts dt {
+  color: var(--ink-2);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.lead {
+  font-weight: 650;
+}
+
+.host {
+  overflow-wrap: anywhere;
+}
+
+.fact {
+  margin-top: 10px;
+  font-size: var(--t-m);
+  line-height: 1.5;
+}
+
+.where {
+  margin-top: 4px;
+  color: var(--ink-2);
+  font-size: var(--t-s);
+  line-height: 1.5;
+}
+
+.policy {
+  max-width: 62ch;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--surface);
+  line-height: 1.5;
+}
+
+/* A phone has no room for the column: each question sits over its answer. */
+@media (max-width: 599px) {
+  .item {
+    padding-inline: 16px;
+  }
+
+  .facts {
+    gap: 10px;
+  }
+
+  .facts div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .facts dt {
+    font-size: var(--t-s);
+  }
+}

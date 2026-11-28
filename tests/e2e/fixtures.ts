@@ -1,7 +1,7 @@
 import { test as base } from '@playwright/test';
 import { fakeMapTiles } from './helpers';
 import { REPORT_PATH } from '@/lib/reports';
-import { WALKING_PATH } from '@/lib/walking';
+import { WAKE_METHOD, WALKING_PATH } from '@/lib/walking';
 
 /**
  * The test every spec uses: the same as Playwright's, except that the services behind the
@@ -14,27 +14,56 @@ import { WALKING_PATH } from '@/lib/walking';
  *   the results are by straight line. A test about walking times answers it itself
  *   (`fakeWalking` in helpers.ts): a route on the page comes before this one. `walkingAsked`
  *   holds the bodies that reached this default.
+ * - GET /api/walking, the wake-up: answered here as our server answers it, with nothing.
+ *   `fakeWalking` passes it on to this default, and so does a test that answers the walking
+ *   request itself (`route.fallback()`). `walkingWoken` holds every wake-up, as it was sent.
  * - /api/report: by default it answers as our server does without a database, at once, so no
  *   report is offered and none is shown. A test about reports answers it itself
  *   (`fakeReports` in helpers.ts). `reportAsked` holds what reached this default.
  */
-export const test = base.extend<{ mapTiles: string[]; walkingAsked: string[]; reportAsked: string[] }>({
+export interface Woken {
+  url: string;
+  headers: Record<string, string>;
+  /** null: the request had no body at all. */
+  body: string | null;
+}
+
+export const test = base.extend<{ mapTiles: string[]; walkingDefault: { asked: string[]; woken: Woken[] }; walkingAsked: string[]; walkingWoken: Woken[]; reportAsked: string[] }>({
   mapTiles: [
     async ({ context }, use) => {
       await use(await fakeMapTiles(context));
     },
     { auto: true },
   ],
-  walkingAsked: [
+  walkingDefault: [
     async ({ context }, use) => {
       const asked: string[] = [];
+      const woken: Woken[] = [];
       await context.route(`**${WALKING_PATH}`, async (route) => {
-        asked.push(route.request().postData() ?? '');
+        const request = route.request();
+        if (request.method() === WAKE_METHOD) {
+          woken.push({ url: request.url(), headers: request.headers(), body: request.postData() });
+          await route.fulfill({ status: 204, body: '', headers: { 'cache-control': 'no-store' } });
+          return;
+        }
+        asked.push(request.postData() ?? '');
         await route.fulfill({ status: 503, json: { error: 'not-configured' }, headers: { 'cache-control': 'no-store' } });
       });
-      await use(asked);
+      await use({ asked, woken });
     },
     { auto: true },
+  ],
+  walkingAsked: [
+    async ({ walkingDefault }, use) => {
+      await use(walkingDefault.asked);
+    },
+    { auto: false },
+  ],
+  walkingWoken: [
+    async ({ walkingDefault }, use) => {
+      await use(walkingDefault.woken);
+    },
+    { auto: false },
   ],
   reportAsked: [
     async ({ context }, use) => {

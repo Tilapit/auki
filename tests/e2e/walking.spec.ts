@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { KAMPPI, MONDAY_EVENING, beyond, farOpen, kamppi } from '@/lib/fixtures/tiles';
-import { carriesPosition } from '@/lib/requests';
+import { WAKE_REQUEST, carriesPosition } from '@/lib/requests';
 import type { TilePharmacy } from '@/lib/tiles';
 import { expect, test } from './fixtures';
 import { HERE, fakeLocation, fakePlaces, fakeTiles, fakeWalking, gridWalk, hasWebGL, locateButton, open, searchingStatus, settle, start, walkTo, world, type WalkingAsked } from './helpers';
@@ -59,6 +59,7 @@ test('walking times for the twenty nearest, the list shows the first ten of that
 test('walking times that take too long: after a second and a half the list is by straight line, and a late answer changes nothing', async ({ page }) => {
   let release: (() => Promise<void>) | undefined;
   await page.route('**/api/walking', async (route) => {
+    if (route.request().method() === WAKE_REQUEST.method) return route.fallback();
     const body = route.request().postDataJSON() as { to: unknown[] };
     // Held, and answered only when the test says so: long after the list is on screen.
     release = () => route.fulfill({ json: { walks: body.to.map((_, index) => ({ meters: 5000 - index * 100, seconds: 3600 - index * 60 })) } }).catch(() => undefined);
@@ -339,6 +340,7 @@ test('following a walk asks for walking times again from the new position, and n
 test('a walk during which the walking service goes down: the list is ranked again by straight line, and says so', async ({ page }) => {
   let down = false;
   await page.route('**/api/walking', async (route) => {
+    if (route.request().method() === WAKE_REQUEST.method) return route.fallback();
     const asked = route.request().postDataJSON() as WalkingAsked;
     if (down) await route.fulfill({ status: 503, json: { error: 'paused' } });
     else await route.fulfill({ json: { walks: asked.to.map((to) => gridWalk(asked.from, to)) } });
@@ -409,6 +411,90 @@ test('our own walking route refuses what it should not pass on, and a page of an
   const elsewhere = await request.post('/api/walking', { data: { from: HERE, to: [HERE] }, headers: { 'sec-fetch-site': 'cross-site' } });
   expect(elsewhere.status()).toBe(403);
   expect(elsewhere.headers()['cache-control']).toBe('no-store');
-  // Only POST: the position is never in an address.
-  expect((await request.get('/api/walking')).status()).toBe(405);
+  // The wake-up (GET): answered with nothing, as an answer of the moment that no cache keeps. No key is
+  // needed for it, since it asks nobody.
+  for (let time = 0; time < 2; time++) {
+    const wake = await request.get('/api/walking');
+    expect(wake.status()).toBe(204);
+    expect(await wake.text()).toBe('');
+    expect(wake.headers()['cache-control']).toBe('no-store');
+  }
+  // The position is never in an address: a wake-up with anything in its address is refused, as is one from another site.
+  expect((await request.get(`/api/walking?lat=${HERE.lat}&lon=${HERE.lon}`)).status()).toBe(400);
+  expect((await request.get('/api/walking?wake')).status()).toBe(400);
+  expect((await request.get('/api/walking', { headers: { 'sec-fetch-site': 'cross-site' } })).status()).toBe(403);
+  // And the route has no other way in.
+  expect((await request.put('/api/walking', { data: { from: HERE, to: [HERE] } })).status()).toBe(405);
+});
+
+/**
+ * The wake-up of the walking function (PLAN.md 7.1, step 4): sent when the app starts looking
+ * for a position, with nothing in it. Answered by the default of fixtures.ts, which keeps
+ * every one as it was sent.
+ */
+test('the walking function is woken when the position is asked for: one request with nothing in it, before there is a position', async ({ page, walkingWoken, walkingAsked }) => {
+  await page.clock.install({ time: new Date((MONDAY_EVENING - 60) * 1000) });
+  // The browser's question is never answered: the device gives no position at all.
+  await fakeLocation(page, 'ignore');
+  await fakeTiles(page, world(kamppi));
+  await open(page, '/fi');
+  await page.clock.pauseAt(new Date(MONDAY_EVENING * 1000));
+  // The first window asks nothing.
+  expect(walkingWoken).toHaveLength(0);
+
+  await locateButton(page).click();
+  await expect(page.getByRole('status')).toContainText('Haetaan sijaintiasi…');
+  await expect.poll(() => walkingWoken.length).toBe(1);
+  const [wake] = walkingWoken;
+  const url = new URL(wake.url);
+  expect(url.pathname).toBe(WAKE_REQUEST.path);
+  expect(url.search).toBe('');
+  expect(url.hash).toBe('');
+  // No body, and no header that describes one.
+  expect(wake.body).toBeNull();
+  expect(Object.keys(wake.headers)).not.toContain('content-type');
+  expect(carriesPosition([wake.url, JSON.stringify(wake.headers)].join('\n'), HERE)).toBe(false);
+  // Nothing follows it while there is no position: no walking times are asked for, and it is not sent again.
+  await page.clock.runFor(10_000);
+  expect(walkingWoken).toHaveLength(1);
+  expect(walkingAsked).toHaveLength(0);
+});
+
+test('a place search wakes the walking function too, and not twice within a minute', async ({ page, walkingWoken, walkingAsked }) => {
+  await page.clock.install({ time: new Date((MONDAY_EVENING - 60) * 1000) });
+  await fakeLocation(page, 'ignore');
+  await fakeTiles(page, world(kamppi));
+  await fakePlaces(page, { place: { lat: 60.1689, lon: 24.9325, label: 'Kamppi, Helsinki' } });
+  await open(page, '/fi');
+  await page.clock.pauseAt(new Date(MONDAY_EVENING * 1000));
+  const searchFor = async (name: string) => {
+    await page.getByRole('searchbox', { name: 'Paikka' }).fill(name);
+    await page.getByRole('button', { name: 'Hae', exact: true }).click();
+    await settle(page);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('2 apteekkia auki juuri nyt');
+  };
+
+  // Opening the search box asks nothing: the wake-up goes when a name is sent.
+  await page.getByRole('button', { name: 'Hae paikan nimellä' }).click();
+  await expect(page.getByRole('searchbox', { name: 'Paikka' })).toBeFocused();
+  expect(walkingWoken).toHaveLength(0);
+  await searchFor('Kamppi');
+  expect(walkingWoken).toHaveLength(1);
+  expect(new URL(walkingWoken[0].url).search).toBe('');
+  expect(walkingWoken[0].body).toBeNull();
+  expect(walkingAsked).toHaveLength(1);
+
+  // Half a minute later, another search: a function that was just woken is awake. Walking times are asked for as ever.
+  await page.clock.runFor(30_000);
+  await page.getByRole('button', { name: /Hae toinen paikka/ }).first().click();
+  await searchFor('Kamppi');
+  expect(walkingWoken).toHaveLength(1);
+  expect(walkingAsked).toHaveLength(2);
+
+  // More than a minute after the wake-up, the next search sends one again.
+  await page.clock.runFor(31_000);
+  await page.getByRole('button', { name: /Hae toinen paikka/ }).first().click();
+  await searchFor('Kamppi');
+  expect(walkingWoken).toHaveLength(2);
+  expect(walkingAsked).toHaveLength(3);
 });

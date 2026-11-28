@@ -13,7 +13,7 @@ import { Tiles, findFarOpen, findPharmacies, shownIds, type AskWalks } from '@/l
 import { forgetLastSearch, readLastSearch, saveLastSearch, type LastSearch } from '@/lib/session';
 import { APPROXIMATE_OVER_METERS, initialState, isMapView, reducer, type DevicePosition, type Position, type State } from '@/lib/state';
 import type { TilePharmacy } from '@/lib/tiles';
-import { WALKING_PATH, WALKING_WAIT_MS, readWalks, walkingBody } from '@/lib/walking';
+import { WAKE_METHOD, WALKING_PATH, WALKING_WAIT_MS, readWalks, wakesNow, walkingBody } from '@/lib/walking';
 
 /** A tile that takes longer than this counts as not loaded. */
 const TILE_TIMEOUT_MS = 10_000;
@@ -66,6 +66,21 @@ function walksFrom(position: { lat: number; lon: number }, signal: AbortSignal):
       signal.removeEventListener('abort', abort);
     }
   };
+}
+
+/**
+ * Wakes the function that will be asked for walking times (PLAN.md 7.1, step 4), when the app
+ * starts looking for a position. The request carries nothing: no position (there is none yet),
+ * no query, no body. Its answer is empty and nobody waits for it; if it fails, the walking
+ * request finds out for itself. Not sent again within a minute (lib/walking.ts).
+ */
+let wokenAt: number | undefined;
+function wakeWalking(): void {
+  if (navigator.onLine === false) return;
+  const now = Date.now();
+  if (!wakesNow(wokenAt, now)) return;
+  wokenAt = now;
+  void fetch(WALKING_PATH, { method: WAKE_METHOD, cache: 'no-store' }).catch(() => undefined);
 }
 
 const nowSeconds = (): number => Math.floor(Date.now() / 1000);
@@ -128,6 +143,8 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
     }
     const id = ++attempt.current;
     dispatch({ type: 'locate', attempt: id });
+    // The position is on its way: the walking function starts now, and is awake when it is needed.
+    wakeWalking();
     // An ignored permission prompt never calls back: say that we are waiting.
     const timer = window.setTimeout(() => dispatch({ type: 'waiting', attempt: id }), WAITING_AFTER_MS);
     void locateOnce().then((outcome) => {
@@ -150,6 +167,8 @@ export function usePharmacySearch(locale: Locale): PharmacySearch {
       const controller = new AbortController();
       lookup.current = controller;
       dispatch({ type: 'lookup', query });
+      // A place's name is the other way to a position: the walking function has the lookup's time to start in.
+      wakeWalking();
       fetch(`/api/geocode?q=${encodeURIComponent(query)}&lang=${locale}`, { signal: controller.signal })
         .then(async (response) => {
           if (!response.ok) throw new Error(String(response.status));

@@ -143,6 +143,19 @@ export const groups: ViewGroup[] = [
     ],
   },
   {
+    id: 'duty',
+    title: 'The duty pharmacy (provisional): where pharmacies take turns out of hours',
+    note: 'Leipzig on Mon 23 Nov 2026 at 22.40, from tile data, with invented pharmacies: every one nearby has closed, and the one on duty is in none of these opening hours. The lookup, the number and the source are the real ones, as read on the day data/countries/duty.ts names. The main case is under "Proposals", current and proposed side by side. In Málaga (the views of "Hours coverage") the lookup is a row under the pharmacy known to be open. Athens, also with invented pharmacies, is a country without a lookup. Riga and Helsinki show nothing of this: no official page was found that says their pharmacies take turns.',
+    views: [
+      { id: 'duty-half', title: 'Nothing open nearby, a farther one is: the sheet starts at the card, where the lookup leads', sizes: PHONE },
+      { id: 'duty-nothing-open', title: 'Nothing open within 30 km: the lookup leads, the first to open follows, 112 kept prominent' },
+      { id: 'duty-nothing-open-half', title: 'Nothing open within 30 km: sheet at the card', sizes: PHONE },
+      { id: 'duty-row', title: 'One open until midnight past six closed ones: our answer stays first, the lookup is one row under it' },
+      { id: 'duty-note', title: 'Athens, hours unknown nearby: Greece has no lookup to hand over to, so one line says what a closed door shows' },
+      { id: 'duty-door', title: 'Athens at night, all closed: the same in the lead, with the source and the day it was read', sizes: PHONE },
+    ],
+  },
+  {
     id: 'medicine',
     title: 'Medicine availability (provisional): where to check, never whether',
     note: 'The app hands the question to the country\'s own stock search. The line that opens the dialog is in the card and in every pharmacy sheet of a country that has such a service (see "Proposals" and the sheet views below); Riga has none, so its views are as they were. The dialogs of the other countries are shown over the Helsinki results: only the dialog differs. The last view is the seam for live stock, on invented figures: nothing of it is in the live app.',
@@ -208,6 +221,7 @@ export const groups: ViewGroup[] = [
     views: [
       { id: 'data', title: 'The data page: the numbers of the last run, one country kept from an earlier run', fullPage: true },
       { id: 'data-failed', title: 'The data page: the numbers did not load', sizes: ['phone'], themes: ['light'] },
+      { id: 'privacy', title: 'What the app sends: every request of lib/requests.ts, the links the user opens, what the device keeps, and how it is checked', fullPage: true },
     ],
   },
   {
@@ -241,6 +255,16 @@ export interface Proposal {
   current: ViewInfo;
   proposed: ViewInfo;
 }
+
+/** The duty-pharmacy lookup of M6 (PLAN.md section 5): it changes the card's layout, so it is shown here first. Provisional: waiting for Janne. */
+const dutyLookup: Proposal = {
+  id: 'duty',
+  title: 'Where pharmacies take turns at night, the country\'s own duty lookup leads the card',
+  reason:
+    'In Germany and many other countries pharmacies take turns out of hours, and OpenStreetMap\'s opening hours do not show whose turn it is. Today the card says that nothing is open, or sends people to a 24-hour pharmacy kilometres away, while the one on duty may be round the corner. Proposed: when nothing nearby is open, the official lookup leads the card (a link, and the phone number where the official page gives one), with one line on why our list may miss it and the source with the day it was read. The farther open pharmacy and "Avautuu ensimmäisenä" stay under it. On the phone the sheet then starts at the card. Countries where the same pharmacies simply have long hours show nothing of this. Provisional: waiting for Janne.',
+  current: { id: 'duty-current', title: 'Current: the farther 24-hour pharmacy leads, and nothing says that pharmacies take turns' },
+  proposed: { id: 'duty-proposed', title: 'Proposed: "Päivystävä apteekki" leads, the farther open one and the first to open follow' },
+};
 
 /** Hours coverage, Janne's decision 1 of 23 Nov 2026 on the M3 report: built provisionally, waiting for a look. */
 const hoursCoverage: Proposal = {
@@ -293,6 +317,6 @@ const cardHierarchy: Proposal = {
 };
 
 /** Proposals and decided changes still worth a look, each shown as before and after side by side. Decided ones move to DESIGN-LOG.md. */
-export const proposals: Proposal[] = [detailsHierarchy, cardHierarchy, medicineLine, compactSheet, hoursCoverage];
+export const proposals: Proposal[] = [dutyLookup, detailsHierarchy, cardHierarchy, medicineLine, compactSheet, hoursCoverage];
 
 export const allViews: ViewInfo[] = [...groups.flatMap((group) => group.views), ...proposals.flatMap((p) => [p.current, p.proposed])];

@@ -7,11 +7,31 @@
  *   request   { from: { lat, lon }, to: [{ lat, lon }, …], route?: true }
  *   answer    { walks: [{ meters, seconds } | null, …], line?: GeoJSON LineString }
  * One entry of `walks` per destination, in order; null where there is no walking route.
+ *
+ * And the wake-up, on the same path: a GET with no query and no body, answered 204 with no
+ * body. It asks for nothing and tells nothing: see `wakesNow` below.
  */
 
 import type { Found, LatLon } from './tiles.ts';
 
 export const WALKING_PATH = '/api/walking';
+
+/**
+ * The wake-up (PLAN.md 7.1, step 4). The server's function sleeps when nobody has asked for a
+ * while, and its start then takes most of the second and a half the list waits: measured on
+ * 27 Nov 2026 in Frankfurt, a cold answer was on screen about 1.2 s after the request arrived.
+ * So the function is woken when the app starts looking for a position, by the device or by a
+ * place's name: it starts while the position and the tiles are still on their way, and the
+ * request that carries the position meets a function that is awake.
+ *
+ * A function woken less than this ago is awake, and is not woken again: a second press of the
+ * button, or a search right after a search, sends nothing.
+ */
+export const WAKE_METHOD = 'GET';
+export const WAKE_GAP_MS = 60_000;
+
+/** Whether to wake the function now, given when this page last did. A clock that was set back wakes it. */
+export const wakesNow = (wokenAt: number | undefined, now: number): boolean => wokenAt === undefined || Math.abs(now - wokenAt) >= WAKE_GAP_MS;
 
 /** The list waits this long for walking times, then goes on with straight lines and never reorders (PLAN.md 7.1, step 5). */
 export const WALKING_WAIT_MS = 1500;
