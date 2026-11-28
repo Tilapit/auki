@@ -1215,5 +1215,5 @@ Entry format:
   - **Kept nowhere but in the address.** Session storage would have carried the link over a visit to the data page, and it would have been a new thing the device keeps: a change to the privacy claims. So the link to the other language carries the fragment on, as it was understood, and a link to another page of ours and back drops it: the card is then as without a link.
   - **A changed fragment is no step back.** The browser reports it as a step in its history, which the app took for the back button and showed the first window. Now the view stays and reads the new link; back goes to the link before it, on the same view.
   - **No home-country parameter.** PLAN.md has none, and the device suggests it. A sender who knows the prescription's country cannot say so: left as planned.
-- In `/dev/states`: `handoff` shows the banner as it is without a link and with `rx=p`, one under the other. The card on paper is the view `counter-paper`.
+- In `/dev/states`: `handoff` shows the banner with `rx=p`. Without a link it is as in `riga` and in the components sheet, which has the same pair of countries; the two are not on one page, because a page may not have two landmarks by one name. The pull request's figure has them side by side. The card on paper is the view `counter-paper`.
 - Not in the iOS app.

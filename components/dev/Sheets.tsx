@@ -326,17 +326,16 @@ export function AbroadSheet({ part = 1 }: { part?: 1 | 2 }) {
 }
 
 /**
- * The hand-off link (PLAN.md 7.8), provisional (DESIGN-LOG.md, 28 Nov 2026): what `rx` changes
- * in the banner. Both answers stay; the one for the link's format is the first. The counter
- * card that opens on that format is the view `counter-paper`.
+ * The hand-off link (PLAN.md 7.8), provisional (DESIGN-LOG.md, 28 Nov 2026): what `rx=p` changes
+ * in the banner. Both answers stay; the paper one is the first. Without a link, and with `rx=e`,
+ * the banner is as the other views have it: the same pair is in the components sheet, and a page
+ * may not have two landmarks by one name, so the two are not on one page. The counter card that
+ * opens on paper is the view `counter-paper`.
  */
 export function HandoffSheet() {
   return (
     <Sheet title="The hand-off link: the banner leads with the answer for the prescription's format">
-      <Block title="Without a link, and with #rx=e: the electronic prescription first, as it was">
-        <BannerFor home="FI" here="LV" rx="e" />
-      </Block>
-      <Block title="With #rx=p: the paper prescription first">
+      <Block title="With #rx=p: the paper prescription first. Without a link, and with #rx=e, the electronic one is first, as in every other view">
         <BannerFor home="FI" here="LV" rx="p" />
       </Block>
     </Sheet>

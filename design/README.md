@@ -100,3 +100,7 @@ For the pull request "Reduced motion means no transition": a corner of `sheet-fa
 
 For the pull request "Reitti opens the device's own map app", from `/dev/states` in Chromium on a Mac, each context naming itself as the device in the caption: a pharmacy's details on a phone, fully open, as an iPhone and as an Android phone get them (`phone.jpg`), and on a desktop screen as a Mac and as a Windows computer get them (`desktop.jpg`).
 
+
+## The hand-off link, 28 Nov 2026 (`handoff/`)
+
+For the pull request "The hand-off link", from `/dev/states` in Chromium on a Mac (`link.jpg`): the banner for a prescription from Finland in Latvia without a link and with `rx=p`, where the paper answer leads; the counter card open on paper; and the banner again in the dark. The two banners on one page were the view while it was being built. The committed view (`handoff`) has the second alone: a page may not have two landmarks by one name.
