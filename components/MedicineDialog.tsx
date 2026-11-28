@@ -148,12 +148,13 @@ export function MedicineDialog({ provider, pharmacy, open, onClose, initialValue
           <div className={styles.steps}>
             <p>{copy.steps.lead}</p>
             <ol>
-              <li>{copy.steps.pick}</li>
+              <li>{rich(copy.steps.pick, { price: <span lang="fi" className={styles.words}>{copy.words.price}</span> })}</li>
               <li>{rich(copy.steps.press, { button: <span lang="fi" className={styles.words}>{copy.words.button}</span> })}</li>
               <li>
                 {rich(copy.steps.find, {
                   // A pharmacy without a name is found by its street.
                   pharmacy: <span className={styles.name}>{fullName(i18n, pharmacy, pharmacy.name === null)}</span>,
+                  column: <span lang="fi" className={styles.words}>{copy.words.column}</span>,
                   yes: <span lang="fi" className={styles.words}>{copy.words.yes}</span>,
                   no: <span lang="fi" className={styles.words}>{copy.words.no}</span>,
                 })}

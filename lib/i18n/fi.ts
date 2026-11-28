@@ -398,17 +398,18 @@ const fi = {
         open: 'Avaa apteekki.fi',
         /**
          * Under the link: the link lands on the list of packs, and the stock pharmacy by pharmacy is
-         * three steps further (Janne on his phone, 28 Nov 2026). "{pharmacy}" is the name of the
-         * pharmacy the dialog was opened from. "{button}", "{yes}" and "{no}" are the site's own
-         * words in `words`, which are Finnish in both languages because the site is.
+         * three steps further, as the site shows it on a phone (Janne's screen recording, 28 Nov
+         * 2026). "{pharmacy}" is the name of the pharmacy the dialog was opened from. The other
+         * slots are the site's own words in `words`, which are Finnish in both languages because
+         * the site is.
          */
         steps: {
           lead: 'Tämän apteekin varaston näet sivustolla näin:',
-          pick: 'Valitse pakkaus.',
-          press: 'Paina ”{button}”.',
-          find: 'Etsi listasta {pharmacy}. Sen kohdalla lukee ”{yes}” tai ”{no}”.',
+          pick: 'Paina oikean pakkauksen kohdalla ”{price}”.',
+          press: 'Paina ”{button}” ja salli sijainti.',
+          find: 'Etsi listasta {pharmacy}. Sen kohdalla {column}-sarakkeessa lukee {yes} tai {no}.',
         },
-        words: { button: 'Etsi lähin apteekki', yes: 'Varastossa: Kyllä', no: 'Varastossa: Ei' },
+        words: { price: 'Saatavuus ja hinta', button: 'Etsi lähin apteekki', column: 'Varastossa', yes: 'Kyllä', no: 'Ei' },
       },
       ihreApotheken: {
         site: 'ihreapotheken.de',
