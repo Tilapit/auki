@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { PrivacyPage } from '@/components/PrivacyPage';
 import { BRAND } from '@/lib/brand';
 import { lowerFirst } from '@/lib/format';
-import { getDictionary, isLocale } from '@/lib/i18n';
+import { isLocale } from '@/lib/i18n';
+import { privacyTexts } from '@/lib/i18n/privacy';
 import { siteMetadata } from '@/lib/metadata';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/privacy'>): Promise<Metadata> {
@@ -10,7 +11,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/privacy'
   if (!isLocale(locale)) return {};
   return {
     ...siteMetadata(locale),
-    title: `${BRAND}: ${lowerFirst(getDictionary(locale).privacy.title)}`,
+    title: `${BRAND}: ${lowerFirst(privacyTexts[locale].title)}`,
     alternates: { languages: { fi: '/fi/privacy', en: '/en/privacy' } },
   };
 }

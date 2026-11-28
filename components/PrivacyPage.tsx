@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { useI18n } from '@/lib/i18n/context';
+import { privacyTexts } from '@/lib/i18n/privacy';
 import { rich } from '@/lib/i18n/rich';
 import { KEPT } from '@/lib/kept';
 import { OPENED_BY_USER, REQUESTS, addressOf, connectSources, methodOf } from '@/lib/requests';
@@ -18,15 +19,15 @@ interface Entry {
 
 /**
  * "What the app sends" (PLAN.md 7.6). The rows are the entries of lib/requests.ts, in its
- * order, each with its texts from the dictionary: a request that joins the list is on the page,
+ * order, each with its texts from lib/i18n/privacy.ts: a request that joins the list is on the page,
  * and one that is not on the list can't be. What the device keeps comes from lib/kept.ts, and
  * the policy's line from the same function that writes the header.
  *
  * It reads no clock and calls no service: it is also a view of /dev/states as it is.
  */
 export function PrivacyPage() {
-  const { t } = useI18n();
-  const p = t.privacy;
+  const { locale } = useI18n();
+  const p = privacyTexts[locale];
   return (
     <TextPage title={p.title}>
       {p.intro.map((line) => (
@@ -84,8 +85,8 @@ export function PrivacyPage() {
 
 /** One request, or one kind of link: its name, its address where it has one, and the three answers. */
 function Row({ entry, code, host, lead }: { entry: Entry; code?: string; host?: string; lead?: string }) {
-  const { t } = useI18n();
-  const { labels } = t.privacy;
+  const { locale } = useI18n();
+  const { labels } = privacyTexts[locale];
   const fact = (label: string, value: ReactNode) => (
     <div>
       <dt>{label}</dt>

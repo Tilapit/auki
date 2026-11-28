@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { makeI18n, locales } from '@/lib/i18n';
+import { privacyTexts } from '@/lib/i18n/privacy';
 import { KEPT } from '@/lib/kept';
 import { MAP_TILE_HOST, OPENED_BY_USER, POSITION_REQUEST, REQUESTS, addressOf, connectSources, contentSecurityPolicy, methodOf } from '@/lib/requests';
 
@@ -20,7 +21,7 @@ describe('the page of every request the app makes', () => {
   it('has a text for every request on the list, in both languages, and none for a request that is not on it', () => {
     const listed = new Set<string>(REQUESTS.map((request) => request.id));
     for (const locale of locales) {
-      const texts: Record<string, Entry | undefined> = makeI18n(locale).t.privacy.requests;
+      const texts: Record<string, Entry | undefined> = privacyTexts[locale].requests;
       for (const request of REQUESTS) {
         expect(Object.keys(texts[request.id] ?? {}).sort(), `${locale}: ${request.id}`).toEqual(['carries', 'name', 'receiver', 'when']);
         expect(filled(texts[request.id]), `${locale}: ${request.id}`).toBe(true);
@@ -51,14 +52,14 @@ describe('the page of every request the app makes', () => {
 
   it('names a host in the text of a request only where the list has a third party, and then it does', () => {
     for (const locale of locales) {
-      const texts: Record<string, Entry | undefined> = makeI18n(locale).t.privacy.requests;
+      const texts: Record<string, Entry | undefined> = privacyTexts[locale].requests;
       for (const request of REQUESTS) expect(texts[request.id]?.receiver.includes('{host}'), `${locale}: ${request.id}`).toBe(request.origin !== 'self');
     }
   });
 
   it('has a text for each kind of link the user opens, in both languages', () => {
     for (const locale of locales) {
-      const texts: Record<string, Entry | undefined> = makeI18n(locale).t.privacy.opened;
+      const texts: Record<string, Entry | undefined> = privacyTexts[locale].opened;
       expect(Object.keys(texts).sort(), locale).toEqual(OPENED_BY_USER.map((link) => link.id).sort());
       for (const link of OPENED_BY_USER) expect(filled(texts[link.id]), `${locale}: ${link.id}`).toBe(true);
     }
@@ -67,11 +68,25 @@ describe('the page of every request the app makes', () => {
   it('quotes the buttons by the names they have in the app', () => {
     for (const locale of locales) {
       const { t } = makeI18n(locale);
-      expect(t.privacy.requests.report.when, locale).toContain(t.report.send);
-      expect(t.privacy.requests.wake.when, locale).toContain(t.first.locate);
-      expect(t.privacy.kept.locatedBefore.text, locale).toContain(t.first.locate);
-      expect(t.privacy.opened.medicine.when, locale).toContain(t.medicine.title);
+      const page = privacyTexts[locale];
+      expect(page.requests.report.when, locale).toContain(t.report.send);
+      expect(page.requests.wake.when, locale).toContain(t.first.locate);
+      expect(page.kept.locatedBefore.text, locale).toContain(t.first.locate);
+      expect(page.opened.medicine.when, locale).toContain(t.medicine.title);
     }
+  });
+
+  it('keeps its texts out of the two dictionaries, which every page loads, and follows their copy rules', () => {
+    for (const locale of locales) expect(Object.keys(makeI18n(locale).t), locale).not.toContain('privacy');
+    const strings = (value: unknown): string[] => (typeof value === 'string' ? [value] : value && typeof value === 'object' ? Object.values(value).flatMap(strings) : []);
+    expect(strings(privacyTexts.fi).length).toBe(strings(privacyTexts.en).length);
+    for (const text of strings(privacyTexts)) {
+      expect(text).not.toMatch(/[!—]/);
+      // A hard space between a number and its unit.
+      expect(text).not.toMatch(/\d (km|m|min)\b/);
+    }
+    // Finnish has its own quotation marks.
+    for (const text of strings(privacyTexts.fi)) expect(text).not.toMatch(/["“]/);
   });
 
   it("prints the policy's own line: this site and the map tile host", () => {
@@ -108,7 +123,7 @@ describe('what the device keeps', () => {
 
   it('has a text for each, and for each store, in both languages', () => {
     for (const locale of locales) {
-      const { kept, stores } = makeI18n(locale).t.privacy;
+      const { kept, stores } = privacyTexts[locale];
       const texts: Record<string, { name: string; text: string } | undefined> = kept;
       expect(Object.keys(texts).sort(), locale).toEqual(KEPT.map((item) => item.id).sort());
       for (const item of KEPT) {

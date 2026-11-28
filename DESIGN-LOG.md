@@ -1203,7 +1203,7 @@ Entry format:
 
 
 ## 2026-11-28: "What the app sends": a page built from the list of requests (its wording provisional)
-- Where: `app/[locale]/privacy/`, `components/PrivacyPage.tsx`, `components/TextPage.tsx`, `components/SiteFooter.tsx`; `lib/requests.ts`, `lib/kept.ts`; `lib/i18n/` (`privacy`, `footer.aboutPrivacy`); `/dev/states/privacy`; PLAN.md sections 5 and 7.6
+- Where: `app/[locale]/privacy/`, `components/PrivacyPage.tsx`, `components/TextPage.tsx`, `components/SiteFooter.tsx`; `lib/requests.ts`, `lib/kept.ts`; `lib/i18n/privacy.ts` and `footer.aboutPrivacy`; `/dev/states/privacy`; PLAN.md sections 5 and 7.6
 - Change: `/fi/privacy` and `/en/privacy` list every request the app makes, the links the user opens, and what the browser keeps on the device, and say how it is checked. The results footer leads there: "Sijaintiasi ei tallenneta palvelimelle. Mitä sovellus lähettää".
 - Why: PLAN.md section 5 and 7.6, and Janne's order for the night of 28 Nov 2026. The claim is checked by a policy and a test; the page is where a person can read it, and hold it against their own browser.
 - Decided on the way:
@@ -1215,6 +1215,7 @@ Entry format:
   - **The host and the database are named** (provisional): "Sovelluksen palvelin" is defined once as this site's own server, rented from Vercel, and the report's row names Supabase, as PLAN.md 7.6 does. A privacy page that does not say whose machines these are says less than it knows.
   - **The place search's row says "the text you typed and the language of the page"**: the request has both (`q` and `lang`), and PLAN.md's table names only the first.
   - **Nothing about offline.** PLAN.md has the page say what the device keeps for offline use; offline is not built, so the page lists what is kept today, from `lib/kept.ts`.
-  - **A text for the wake-up of the walking function is in the dictionaries, and on no page yet.** Its request joins the list with its own pull request; the row then appears by itself, with its text.
+  - **The page's texts are a file of their own** (`lib/i18n/privacy.ts`), still under `lib/i18n/`. The two dictionaries travel with the first window, both languages at once, and these are some fifteen thousand characters that one page reads: in the dictionaries they would have taken the first window over its 185 KB.
+  - **A text for the wake-up of the walking function is in that file, and on no page yet.** Its request joins the list with its own pull request; the row then appears by itself, with its text.
   - **The data page and this one share a frame** (`TextPage`): the wordmark, the other language, the title, the way back and the footer. The data page's markup and rules are the same as before, in another file.
 - Status: built. The wording is provisional and Janne's to read: every sentence on the page is one of PLAN.md 7.6's claims in plain words, and none is meant to say more.

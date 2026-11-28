@@ -667,7 +667,8 @@ Checked, not promised:
   - `Permissions-Policy`: `geolocation=(self)`, `screen-wake-lock=(self)`, everything else off (camera, microphone, payment, USB, sensors).
   - `X-Content-Type-Options: nosniff`.
 - **A page.** `/fi/privacy` and `/en/privacy`: the table above in plain words, and what the device keeps, linked from the footer sentence (built 28 Nov 2026; section 5, "What the app sends").
-  - Its rows are the entries of `REQUESTS`, in that order, each with its texts from `lib/i18n/` by the request's id. The type refuses a dictionary that lacks a text for a request, and the page can't show a request the list does not have. The method and the address under each name, the map tile host in the text and the `connect-src` line come from `lib/requests.ts` as well.
+  - Its rows are the entries of `REQUESTS`, in that order, each with its texts from `lib/i18n/privacy.ts` by the request's id. The type refuses a language that lacks a text for a request, and the page can't show a request the list does not have. The method and the address under each name, the map tile host in the text and the `connect-src` line come from `lib/requests.ts` as well.
+  - The page's texts are a file of their own, loaded by this page alone: the two dictionaries are part of the first window's JavaScript (section 12), and a unit test keeps these out of them.
   - The links the user opens are a second list there (`OPENED_BY_USER`). What the device keeps is `lib/kept.ts`, with the keys the code itself writes under: a unit test reads the source and fails when a file touches the browser's storage, or names a key, that the list does not have, and when anything mentions a cookie, a database in the browser, a cache or a service worker.
   - A browser test reads the page against the list, holds the policy's line on the page equal to the header the browser was given, and finds that the page asks for nothing but its own files and leaves nothing on the device.
   - Every sentence on the page is one of this section's claims in plain words. Changing one is changing the privacy claims, which is Janne's to do.
@@ -988,6 +989,7 @@ lib/
   state.ts                    state/action types + reducer (pure)
   geolocation.ts  geo.ts  format.ts  types.ts  maps.ts  scene.ts  metadata.ts
   i18n/{fi,en}.ts             UI strings; Intl for times, distances and dates (format.ts)
+  i18n/privacy.ts             the texts of the "what the app sends" page, both languages, loaded by that page alone
   sky.ts                      sun altitude and azimuth → first-visit sky and the map's light (pure; also serialised into the inline script)
   status.ts  results.ts  travel.ts   status text and glyph, list arrangement, distance wording (pure)
   exonyms.ts                  city names in the UI language ("Rīga" → "Riika" / "Riga"), OSM spelling otherwise
@@ -1125,7 +1127,7 @@ Written for a reader at Treat with five minutes:
 - Medicine availability (`tests/unit/stock.test.ts`): every provider's link is on its own host over https; a name with spaces, letters outside ASCII and the characters that mean something in an address is read back exactly, and is never put into the link of a service that takes none; one provider per country, each with its texts in both languages; a provider that waits for its operator's agreement is not offered; no provider has `stock`; nothing in the live app imports the example data.
 - The name: with the constant in `lib/brand.ts` swapped for another word, the dictionaries, the metadata and the manifest all carry the new one.
 - **Data test:** every country has sources and a checked date, every card variant has P-lines, and every unreviewed phrase is flagged.
-- The page of requests (`tests/unit/privacy.test.ts`): a text for every request on the list in both languages, and none for a request that is not on it; each request's method and address, no two the same; one request marked as the one with the position, and it is `POST /api/walking`; a host named in a text only where the list has a third party; the buttons quoted by the names they have in the app; and the device's keys against the source (section 7.6, "A page").
+- The page of requests (`tests/unit/privacy.test.ts`): a text for every request on the list in both languages, and none for a request that is not on it; the texts outside the two dictionaries and inside the copy rules; each request's method and address, no two the same; one request marked as the one with the position, and it is `POST /api/walking`; a host named in a text only where the list has a third party; the buttons quoted by the names they have in the app; and the device's keys against the source (section 7.6, "A page").
 
 **Corpus test: is the parsing right**
 
